@@ -38,6 +38,7 @@
       <div class="acct-menu" id="acct-menu" hidden>
         <p class="acct-who"><strong id="acct-nick"></strong><span id="acct-id"></span></p>
         <a href="#/my">❤️ My Games &amp; records</a>
+        <a href="#/admin" id="admin-link" hidden>🔑 Admin page</a>
         <button id="signout-btn">↩ Sign out</button>
       </div>
     </div>
@@ -132,6 +133,27 @@
     </div>
   </section>
 
+  <!-- ADMIN -->
+  <section id="v-admin" class="view" hidden>
+    <div class="page-head"><a class="back" href="#/">← Back</a><h1>Admin</h1><button class="btn ghost" id="adm-refresh">↻ Refresh</button></div>
+    <div class="empty" id="adm-denied" hidden><img src="../img/mascot-0.webp" alt=""><div><h2>Admins only</h2><p>Sign in with an admin account to see this page.</p></div></div>
+    <div id="adm-body" hidden>
+      <div class="stats" id="adm-stats"></div>
+      <div class="adm-cols">
+        <section class="panel"><h2>Most played games</h2><ul class="bars" id="adm-games"></ul></section>
+        <section class="panel"><h2>Ages</h2><ul class="bars" id="adm-ages"></ul></section>
+      </div>
+      <section class="panel adm-users">
+        <div class="adm-users-head"><h2>Players <span class="count" id="adm-count"></span></h2>
+          <input id="adm-q" type="search" placeholder="Search ID or nickname" aria-label="Search players"></div>
+        <div class="table-wrap"><table class="adm-table">
+          <thead><tr><th>ID</th><th>Nickname</th><th>Age</th><th>Joined</th><th>Last played</th><th>Plays</th><th>Play time</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="adm-rows"></tbody>
+        </table></div>
+      </section>
+    </div>
+  </section>
+
   <!-- GAME -->
   <section id="v-game" class="view" hidden>
     <div class="page-head game-head">
@@ -199,21 +221,57 @@
 </footer>
 
 <dialog class="signin" id="signin" aria-labelledby="si-title">
-  <form id="si-form" method="dialog">
+  <div class="si-wrap">
     <img src="../img/mascot-0.webp" alt="" width="84" height="84">
-    <h2 id="si-title">Sign in to PlayCraft</h2>
-    <p class="si-lead">Your plays, play time and saved games follow you to any computer.</p>
-    <label for="si-id">ID</label>
-    <input id="si-id" name="id" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="Your PlayCraft ID">
-    <label for="si-pw">Password</label>
-    <input id="si-pw" name="pw" type="password" autocomplete="current-password" required>
-    <p class="si-err" id="si-err" role="alert" hidden></p>
-    <div class="si-actions">
-      <button type="button" class="btn ghost" id="si-cancel">Cancel</button>
-      <button type="submit" class="btn primary" id="si-go">Sign in</button>
+    <div class="si-tabs" role="tablist">
+      <button type="button" role="tab" id="tab-in" aria-selected="true">Sign in</button>
+      <button type="button" role="tab" id="tab-up" aria-selected="false">Create account</button>
     </div>
-    <p class="si-note">No account yet? Ask your PlayCraft admin for one. Never use your real name as your ID.</p>
-  </form>
+
+    <form id="si-form" class="si-form">
+      <h2 id="si-title">Welcome back!</h2>
+      <p class="si-lead">Your plays, play time and saved games follow you to any computer.</p>
+      <label for="si-id">ID</label>
+      <input id="si-id" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="Your PlayCraft ID">
+      <label for="si-pw">Password</label>
+      <input id="si-pw" type="password" autocomplete="current-password" required>
+      <p class="si-err" id="si-err" role="alert" hidden></p>
+      <div class="si-actions">
+        <button type="button" class="btn ghost si-cancel">Cancel</button>
+        <button type="submit" class="btn primary" id="si-go">Sign in</button>
+      </div>
+      <p class="si-note">New here? <a href="#" id="go-up">Create an account</a> — it’s free.</p>
+    </form>
+
+    <form id="su-form" class="si-form" hidden novalidate>
+      <h2>Join PlayCraft</h2>
+      <p class="si-lead">Pick an ID and a nickname. <strong>Don’t use your real name</strong> for either one.</p>
+      <label for="su-id">ID <small>(3–20 letters or numbers, used to sign in)</small></label>
+      <input id="su-id" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" placeholder="e.g. rocket_fox">
+      <p class="hint" id="su-id-hint"></p>
+      <label for="su-nick">Nickname <small>(what other players see)</small></label>
+      <input id="su-nick" maxlength="16" placeholder="e.g. Rocket Fox">
+      <label for="su-age">Age</label>
+      <select id="su-age"><option value="">Choose your age</option></select>
+      <label class="guardian" id="su-guardian-row" hidden><input type="checkbox" id="su-guardian"> A parent or guardian knows I’m making this account and says it’s OK.</label>
+      <label for="su-pw">Password</label>
+      <input id="su-pw" type="password" autocomplete="new-password" maxlength="72">
+      <ul class="pw-rules" id="pw-rules">
+        <li data-r="len">At least 8 characters</li>
+        <li data-r="letter">A letter (a–z)</li>
+        <li data-r="num">A number (0–9)</li>
+        <li data-r="sym">A special character (! @ # $ % …)</li>
+      </ul>
+      <label for="su-pw2">Type the password again</label>
+      <input id="su-pw2" type="password" autocomplete="new-password" maxlength="72">
+      <p class="si-err" id="su-err" role="alert" hidden></p>
+      <div class="si-actions">
+        <button type="button" class="btn ghost si-cancel">Cancel</button>
+        <button type="submit" class="btn primary" id="su-go">Create account</button>
+      </div>
+      <p class="si-note">By joining you agree to the <a href="../terms.html" target="_blank" rel="noopener">Terms of Use</a>. We never ask for your email, school or phone number.</p>
+    </form>
+  </div>
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>

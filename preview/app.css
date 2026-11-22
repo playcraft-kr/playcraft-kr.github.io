@@ -285,7 +285,8 @@ h2.sub{font-size:24px;margin:26px 0 14px}
 .acct-who span{color:var(--ink-2);font-size:13px}
 .signin{border:0;border-radius:26px;padding:0;width:min(420px,calc(100% - 32px));box-shadow:var(--shadow-lg);color:var(--ink)}
 .signin::backdrop{background:rgba(20,15,51,.55)}
-.signin form{display:grid;gap:8px;padding:28px}
+.si-wrap{display:grid;gap:10px;padding:26px 28px 24px;max-height:calc(100dvh - 40px);overflow:auto}
+.si-form{display:grid;gap:8px}
 .signin img{width:84px;height:84px;border-radius:20px;background:#d9cffb;object-fit:cover;justify-self:center}
 .signin h2{text-align:center;font-size:26px}
 .si-lead{margin:0 0 8px;text-align:center;color:var(--ink-2);font-size:15px}
@@ -301,3 +302,42 @@ h2.sub{font-size:24px;margin:26px 0 14px}
 .stat span{color:var(--ink-2);font-size:14px;font-weight:800}
 .card .rec{color:var(--violet);font-size:13px;font-weight:900;padding:0 4px;margin-top:-6px}
 @media (max-width:860px){.acct{margin-left:auto}.acct-btn{min-height:42px;padding:0 12px;font-size:15px}}
+
+.signin{width:min(460px,calc(100% - 24px))}
+.si-tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:999px;padding:4px;gap:4px}
+.si-tabs button{min-height:42px;border:0;border-radius:999px;background:transparent;font-weight:900;font-size:16px;cursor:pointer;color:var(--ink-2)}
+.si-tabs button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 2px 6px rgba(23,21,58,.12)}
+.signin label small{font-weight:700;color:var(--ink-2)}
+.signin select{height:50px;border:2px solid var(--line);border-radius:14px;padding:0 12px;font-weight:700;font-size:17px;background:#fff}
+.hint{margin:0;font-size:14px;font-weight:800;min-height:0}
+.hint.good{color:#0f8a63}.hint.bad{color:#b3123d}
+.guardian{display:flex!important;gap:10px;align-items:flex-start;background:#fff6dc;border-radius:12px;padding:10px 12px;font-weight:700!important;font-size:14px!important}
+.guardian input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--violet)}
+.pw-rules{list-style:none;margin:2px 0 4px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:14px;font-weight:800;color:var(--ink-2)}
+.pw-rules li::before{content:"○ ";}
+.pw-rules li.ok{color:#0f8a63}.pw-rules li.ok::before{content:"✓ ";}
+.confirm{border:0;border-radius:22px;padding:22px;max-width:420px;box-shadow:var(--shadow-lg)}
+.confirm::backdrop{background:rgba(20,15,51,.5)}
+.confirm p{margin:0 0 10px;font-size:17px}
+/* admin */
+.adm-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:6px 0 20px}
+.bars{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.bars li{display:grid;grid-template-columns:minmax(90px,170px) 1fr 40px;gap:10px;align-items:center;font-size:15px;font-weight:800}
+.bars .bt{height:14px;background:var(--bg);border-radius:999px;overflow:hidden}
+.bars .bf{display:block;height:100%;background:linear-gradient(90deg,var(--violet),var(--violet-2));border-radius:999px}
+.bars .bn{text-align:right;font-variant-numeric:tabular-nums}
+.bars .bl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm-users-head{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+.adm-users-head input{height:44px;border:2px solid var(--line);border-radius:999px;padding:0 16px;font-weight:700;min-width:240px}
+.table-wrap{overflow-x:auto}
+.adm-table{width:100%;border-collapse:collapse;font-size:15px;min-width:860px}
+.adm-table th{text-align:left;font-size:13px;color:var(--ink-2);font-weight:900;padding:8px 10px;border-bottom:2px solid var(--line)}
+.adm-table td{padding:10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;vertical-align:middle}
+.adm-table .mono{font-family:ui-monospace,Menlo,monospace;font-size:14px}
+.adm-table .g{font-size:12px;color:var(--ink-2)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:900}
+.pill.ok{background:#ddf7ee;color:#0f8a63}.pill.bad{background:#ffe6ee;color:#b3123d}.pill.adm{background:#ece6ff;color:var(--violet-d)}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.btn.tiny{min-height:34px;padding:0 12px;font-size:13.5px}
+.note{color:var(--ink-2);font-size:14px}
+@media (max-width:860px){.adm-cols{grid-template-columns:1fr}}

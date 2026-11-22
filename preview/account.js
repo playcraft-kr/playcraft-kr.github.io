@@ -26,6 +26,31 @@ const Account = {
     if (error) throw error;
   },
   async signOut() { if (sb) await sb.auth.signOut(); },
+  async idAvailable(id) {
+    if (!sb) return true;
+    const { data, error } = await sb.rpc('id_available', { wanted: id });
+    return error ? true : !!data;
+  },
+  async signUp({ id, password, nickname, age, guardianOk }) {
+    if (!sb) throw new Error('offline');
+    const clean = String(id || '').trim().toLowerCase();
+    const { data, error } = await sb.auth.signUp({ email: `${clean}@${ID_DOMAIN}`, password,
+      options: { data: { nickname, age, guardian_ok: !!guardianOk } } });
+    if (error) throw error;
+    if (!data.session) await Account.signIn(clean, password); // in case the project asks for confirmation later
+  },
+
+  // ---- admin (allowed only for admin accounts; the database checks this too) ----
+  async adminData() {
+    const [p, pl] = await Promise.all([
+      sb.from('profiles').select('id, username, nickname, age, guardian_ok, is_admin, blocked, created_at').order('created_at', { ascending: false }),
+      sb.from('plays').select('user_id, game_slug, started_at, seconds').order('started_at', { ascending: false }).limit(5000),
+    ]);
+    if (p.error) throw p.error;
+    return { profiles: p.data || [], plays: pl.data || [] };
+  },
+  async adminSetBlocked(id, value) { const { error } = await sb.rpc('admin_set_blocked', { target: id, value }); if (error) throw error; },
+  async adminSetAdmin(id, value) { const { error } = await sb.rpc('admin_set_admin', { target: id, value }); if (error) throw error; },
 
   // ---- saved games ----
   async savedList() {
@@ -64,14 +89,14 @@ window.Account = Account;
 
 async function loadProfile() {
   if (!user) { profile = null; return; }
-  const { data } = await sb.from('profiles').select('username, nickname, is_admin').eq('id', user.id).maybeSingle();
+  const { data } = await sb.from('profiles').select('username, nickname, is_admin, blocked, age').eq('id', user.id).maybeSingle();
   profile = data || { username: (user.email || '').split('@')[0], nickname: (user.email || '').split('@')[0], is_admin: false };
 }
 if (sb) {
-  sb.auth.onAuthStateChange(async (_evt, session) => {
+  // Don't call the database inside this callback (Supabase docs): defer so the session is fully set first.
+  sb.auth.onAuthStateChange((_evt, session) => {
     user = session ? session.user : null;
-    await loadProfile();
-    Account.ready = true; emit();
+    setTimeout(async () => { await loadProfile(); Account.ready = true; emit(); }, 0);
   });
 } else { Account.ready = true; }
 })();

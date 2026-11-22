@@ -156,7 +156,7 @@ document.addEventListener('click', e => { if (!e.target.closest('.search')) clos
 sug.addEventListener('click', () => { closeSuggest(); q.blur(); });
 
 /* ---------- views ---------- */
-const VIEWS = ['home', 'categories', 'list', 'my', 'about', 'game'];
+const VIEWS = ['home', 'categories', 'list', 'my', 'about', 'game', 'admin'];
 function show(v, nav) {
   VIEWS.forEach(x => ($('#v-' + x).hidden = x !== v));
   document.querySelectorAll('.nav a').forEach(a => { if (a.dataset.nav === nav) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
@@ -175,6 +175,7 @@ function route() {
   if (p0 === 'search') { q.value = arg; return openList(`Results for “${arg}”`, search(arg), null, arg); }
   if (p0 === 'my') return openMy();
   if (p0 === 'about') { show('about', 'about'); return; }
+  if (p0 === 'admin') return openAdmin();
   renderHome(); show('home', 'home');
 }
 addEventListener('hashchange', route);
@@ -309,10 +310,22 @@ function endSession() {
 document.addEventListener('visibilitychange', () => { if (sess) { if (document.hidden) { tick(sess); } else sess.last = Date.now(); } });
 addEventListener('pagehide', () => { if (sess && sess.id) { tick(sess); ACC.updatePlay(sess.id, sess.secs); } });
 
-/* ---------- sign in / out ---------- */
+/* ---------- sign in / create account ---------- */
 const dlg = $('#signin');
-function openSignIn() { $('#si-err').hidden = true; $('#si-pw').value = ''; if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); setTimeout(() => $('#si-id').focus(), 50); }
-$('#si-cancel').addEventListener('click', () => dlg.close());
+function setTab(up) {
+  $('#tab-in').setAttribute('aria-selected', String(!up)); $('#tab-up').setAttribute('aria-selected', String(up));
+  $('#si-form').hidden = up; $('#su-form').hidden = !up;
+  setTimeout(() => (up ? $('#su-id') : $('#si-id')).focus(), 30);
+}
+function openSignIn(up) {
+  $('#si-err').hidden = true; $('#su-err').hidden = true; $('#si-pw').value = '';
+  if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+  setTab(!!up);
+}
+$('#tab-in').addEventListener('click', () => setTab(false));
+$('#tab-up').addEventListener('click', () => setTab(true));
+$('#go-up').addEventListener('click', e => { e.preventDefault(); setTab(true); });
+document.querySelectorAll('.si-cancel').forEach(b => b.addEventListener('click', () => dlg.close()));
 $('#si-form').addEventListener('submit', async e => {
   e.preventDefault();
   const err = $('#si-err'), go = $('#si-go'); err.hidden = true; go.disabled = true; go.textContent = 'Signing in…';
@@ -322,25 +335,73 @@ $('#si-form').addEventListener('submit', async e => {
   } catch (x) {
     err.textContent = x && x.message === 'bad-id' ? 'IDs use only letters, numbers, dots, dashes or underscores.'
       : x && x.message === 'offline' ? 'We can’t reach the sign-in service. Check your internet and try again.'
-      : 'That ID and password don’t match. Check them and try again, or ask your admin.';
+      : 'That ID and password don’t match. Check them and try again.';
     err.hidden = false;
   }
   go.disabled = false; go.textContent = 'Sign in';
 });
+
+// sign-up form
+const ageSel = $('#su-age');
+for (let a = 6; a <= 17; a++) ageSel.append(h('option', { value: a, text: `${a}` }));
+ageSel.append(h('option', { value: 18, text: '18 or older' }));
+const RULES = { len: p => p.length >= 8, letter: p => /[A-Za-z]/.test(p), num: p => /[0-9]/.test(p), sym: p => /[^A-Za-z0-9\s]/.test(p) };
+const pwOk = p => Object.values(RULES).every(f => f(p));
+$('#su-pw').addEventListener('input', () => { const p = $('#su-pw').value; document.querySelectorAll('#pw-rules li').forEach(li => li.classList.toggle('ok', RULES[li.dataset.r](p))); });
+ageSel.addEventListener('change', () => { const a = +ageSel.value; $('#su-guardian-row').hidden = !(a && a < 14); });
+const ID_RE = /^[a-z0-9][a-z0-9._-]{2,19}$/;
+let idTimer;
+$('#su-id').addEventListener('input', () => {
+  const v = $('#su-id').value.trim().toLowerCase(), hint = $('#su-id-hint');
+  clearTimeout(idTimer); hint.className = 'hint'; hint.textContent = '';
+  if (!v) return;
+  if (!ID_RE.test(v)) { hint.textContent = 'Use 3–20 letters or numbers (you can also use . _ -). Start with a letter or number.'; hint.classList.add('bad'); return; }
+  idTimer = setTimeout(async () => { const ok = await ACC.idAvailable(v); if ($('#su-id').value.trim().toLowerCase() !== v) return; hint.textContent = ok ? '✓ This ID is free.' : '✗ Someone already has this ID. Try another one.'; hint.classList.add(ok ? 'good' : 'bad'); }, 350);
+});
+$('#su-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = $('#su-err'), go = $('#su-go'), say = m => { err.textContent = m; err.hidden = false; };
+  err.hidden = true;
+  const id = $('#su-id').value.trim().toLowerCase(), nick = $('#su-nick').value.trim(), age = +ageSel.value, pw = $('#su-pw').value;
+  if (!ID_RE.test(id)) return say('Please choose an ID with 3–20 letters or numbers.');
+  if (nick.length < 2) return say('Please choose a nickname with at least 2 characters.');
+  if (!age) return say('Please choose your age.');
+  if (age < 14 && !$('#su-guardian').checked) return say('Because you’re under 14, a parent or guardian needs to say it’s OK. Ask them, then tick the box.');
+  if (!pwOk(pw)) return say('Your password needs at least 8 characters with a letter, a number and a special character.');
+  if (pw !== $('#su-pw2').value) return say('The two passwords don’t match. Type them again.');
+  if (pw.toLowerCase().includes(id)) return say('Your password can’t contain your ID.');
+  go.disabled = true; go.textContent = 'Creating…';
+  try {
+    if (!(await ACC.idAvailable(id))) { say('Someone already has this ID. Try another one.'); }
+    else {
+      await ACC.signUp({ id, password: pw, nickname: nick, age, guardianOk: $('#su-guardian').checked });
+      dlg.close(); $('#su-form').reset(); document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok'));
+      toast(`Welcome to PlayCraft, ${nick}! 🎉`);
+    }
+  } catch (x) {
+    const m = (x && x.message || '').toLowerCase();
+    say(m.includes('already') ? 'Someone already has this ID. Try another one.'
+      : m.includes('password') ? 'That password is too easy to guess. Try a longer one.'
+      : m.includes('rate') ? 'Too many tries right now. Wait a minute and try again.'
+      : 'We couldn’t create your account. Check your internet and try again.');
+  }
+  go.disabled = false; go.textContent = 'Create account';
+});
 const menu = $('#acct-menu');
 $('#acct-btn').addEventListener('click', e => {
   e.stopPropagation();
-  if (!signedIn()) return ACC ? openSignIn() : toast('Sign-in isn’t available right now.');
+  if (!signedIn()) return ACC ? openSignIn(false) : toast('Sign-in isn’t available right now.');
   menu.hidden = !menu.hidden;
 });
 document.addEventListener('click', e => { if (!e.target.closest('.acct')) menu.hidden = true; });
 menu.addEventListener('click', () => (menu.hidden = true));
 $('#signout-btn').addEventListener('click', async () => { endSession(); await ACC.signOut(); toast('Signed out.'); });
-$('#my-signin').addEventListener('click', e => { e.preventDefault(); openSignIn(); });
+$('#my-signin').addEventListener('click', e => { e.preventDefault(); openSignIn(false); });
 function renderAccount() {
   const b = $('#acct-btn'), on = signedIn();
   b.classList.toggle('on', on);
   $('#acct-label').textContent = on ? (ACC.profile ? ACC.profile.nickname : 'Me') : 'Sign in';
+  $('#admin-link').hidden = !(on && ACC.profile && ACC.profile.is_admin);
   if (on) { $('#acct-nick').textContent = ACC.profile ? ACC.profile.nickname : ''; $('#acct-id').textContent = 'ID: ' + (ACC.profile ? ACC.profile.username : ''); }
 }
 let mergedOnce = false;
@@ -352,9 +413,77 @@ if (ACC) ACC.onChange(async () => {
     for (const s of local) if (!cloudSaved.includes(s)) { await ACC.setSaved(s, true).catch(() => {}); cloudSaved.push(s); }
   } else await refreshAccountData();
   if (!signedIn()) mergedOnce = false;
-  if (GAMES.length) { if (current) syncSave(); if (!$('#v-home').hidden) renderHome(); if (!$('#v-my').hidden) openMy(); }
+  if (GAMES.length) { if (current) syncSave(); if (!$('#v-home').hidden) renderHome(); if (!$('#v-my').hidden) openMy(); if (!$('#v-admin').hidden) openAdmin(); }
 });
 renderAccount();
+
+/* ---------- admin page ---------- */
+let admData = null;
+async function openAdmin() {
+  show('admin', null);
+  const isAdm = signedIn() && ACC.profile && ACC.profile.is_admin;
+  $('#adm-denied').hidden = !!isAdm; $('#adm-body').hidden = !isAdm;
+  if (!isAdm) return;
+  try { admData = await ACC.adminData(); } catch { toast('Couldn’t load admin data. Try Refresh.'); return; }
+  renderAdmin();
+}
+function renderAdmin() {
+  if (!admData) return;
+  const { profiles, plays } = admData, now = Date.now(), WEEKMS = 7 * 864e5;
+  const per = {}; for (const p of plays) { const u = per[p.user_id] || (per[p.user_id] = { plays: 0, secs: 0, last: null }); u.plays++; u.secs += p.seconds || 0; if (!u.last || p.started_at > u.last) u.last = p.started_at; }
+  const totalSecs = plays.reduce((s, p) => s + (p.seconds || 0), 0);
+  const activeWeek = new Set(plays.filter(p => now - Date.parse(p.started_at) < WEEKMS).map(p => p.user_id)).size;
+  $('#adm-stats').replaceChildren(
+    h('div', { class: 'stat' }, h('b', { text: String(profiles.length) }), h('span', { text: 'Players signed up' })),
+    h('div', { class: 'stat' }, h('b', { text: String(profiles.filter(p => now - Date.parse(p.created_at) < WEEKMS).length) }), h('span', { text: 'New this week' })),
+    h('div', { class: 'stat' }, h('b', { text: String(activeWeek) }), h('span', { text: 'Played this week' })),
+    h('div', { class: 'stat' }, h('b', { text: String(plays.length) }), h('span', { text: 'Games played' })),
+    h('div', { class: 'stat' }, h('b', { text: fmtTime(totalSecs) }), h('span', { text: 'Total play time' })));
+  const byGame = {}; for (const p of plays) byGame[p.game_slug] = (byGame[p.game_slug] || 0) + 1;
+  const gRows = Object.entries(byGame).sort((a, b) => b[1] - a[1]); const gMax = Math.max(1, ...gRows.map(r => r[1]));
+  $('#adm-games').replaceChildren(...(gRows.length ? gRows.map(([s, n]) => statBar(bySlug(s) ? bySlug(s).title : s, n, gMax, plural(n, 'play'))) : [h('li', { class: 'note', text: 'No plays yet.' })]));
+  const bands = [['6–9', a => a <= 9], ['10–12', a => a >= 10 && a <= 12], ['13–15', a => a >= 13 && a <= 15], ['16–17', a => a >= 16 && a <= 17], ['18+', a => a >= 18]];
+  const aRows = bands.map(([l, f]) => [l, profiles.filter(p => p.age && f(p.age)).length]); const aMax = Math.max(1, ...aRows.map(r => r[1]));
+  $('#adm-ages').replaceChildren(...aRows.map(([l, n]) => statBar(l, n, aMax, plural(n, 'player'))));
+  const q = ($('#adm-q').value || '').trim().toLowerCase();
+  const list = profiles.filter(p => !q || p.username.includes(q) || (p.nickname || '').toLowerCase().includes(q));
+  $('#adm-count').textContent = `${list.length} of ${profiles.length}`;
+  const me = ACC.user && ACC.user.id, d = t => t ? new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+  $('#adm-rows').replaceChildren(...list.map(p => {
+    const u = per[p.id] || { plays: 0, secs: 0, last: null };
+    const status = p.blocked ? h('span', { class: 'pill bad', text: 'Paused' }) : p.is_admin ? h('span', { class: 'pill adm', text: 'Admin' }) : h('span', { class: 'pill ok', text: 'Active' });
+    const acts = h('div', { class: 'acts' });
+    if (p.id !== me) {
+      acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'block') }, p.blocked ? 'Unpause' : 'Pause'));
+      acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'admin') }, p.is_admin ? 'Remove admin' : 'Make admin'));
+    } else acts.append(h('span', { class: 'note', text: 'You' }));
+    return h('tr', {}, h('td', { class: 'mono', text: p.username }), h('td', { text: p.nickname }),
+      h('td', {}, p.age ? String(p.age >= 18 ? '18+' : p.age) : '—', p.age && p.age < 14 ? h('span', { class: 'g', title: 'Guardian OK ticked at sign-up', text: p.guardian_ok ? ' ✓G' : ' !G' }) : null),
+      h('td', { text: d(p.created_at) }), h('td', { text: d(u.last) }), h('td', { text: String(u.plays) }), h('td', { text: fmtTime(u.secs) }), h('td', {}, status), h('td', {}, acts));
+  }));
+}
+function statBar(label, n, max, title) {
+  return h('li', {}, h('span', { class: 'bl', text: label }), h('span', { class: 'bt' }, h('span', { class: 'bf', style: `width:${Math.round(n / max * 100)}%` })), h('span', { class: 'bn', text: String(n), title }));
+}
+// Small confirm step built into the page (the browser’s confirm() is not used)
+async function adminAct(p, kind) {
+  const label = kind === 'block' ? (p.blocked ? `Unpause ${p.username}?` : `Pause ${p.username}? They can still sign in but their plays won’t be recorded.`) : (p.is_admin ? `Remove admin from ${p.username}?` : `Make ${p.username} an admin? Admins can see every player’s records.`);
+  if (!(await ask(label))) return;
+  try {
+    if (kind === 'block') await ACC.adminSetBlocked(p.id, !p.blocked); else await ACC.adminSetAdmin(p.id, !p.is_admin);
+    toast('Done.'); admData = await ACC.adminData(); renderAdmin();
+  } catch (x) { toast('That didn’t work: ' + ((x && x.message) || 'try again')); }
+}
+function ask(text) {
+  return new Promise(res => {
+    const d = h('dialog', { class: 'confirm' }, h('p', { text }), h('div', { class: 'si-actions' },
+      h('button', { class: 'btn ghost', onclick: () => { d.close(); res(false); } }, 'Cancel'),
+      h('button', { class: 'btn primary', onclick: () => { d.close(); res(true); } }, 'Yes, do it')));
+    d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
+  });
+}
+$('#adm-q').addEventListener('input', renderAdmin);
+$('#adm-refresh').addEventListener('click', openAdmin);
 
 /* ---------- boot ---------- */
 fetch(ROOT + 'games.json', { cache: 'no-cache' }).then(r => r.json()).then(list => {
