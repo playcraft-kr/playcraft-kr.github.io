@@ -224,13 +224,29 @@ function playGame() {
   setTimeout(() => f.focus(), 400);
 }
 function stopGame() { const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove()); $('#start').hidden = false; playing = false; setFull(false); }
+// Real browser full screen: no button covers the game, and the browser itself exits on Esc.
+// Only browsers without the Fullscreen API (older iPhones) get a fill-the-window mode with a small corner button.
 let exitBtn = null;
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
 function setFull(on) {
   const st = $('#stage'); if (!st) return;
+  if (on) {
+    const req = st.requestFullscreen || st.webkitRequestFullscreen;
+    if (req) { Promise.resolve(req.call(st)).catch(() => fallbackFull(true)); return; }
+    return fallbackFull(true);
+  }
+  if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+  fallbackFull(false);
+}
+function fallbackFull(on) {
+  const st = $('#stage');
   st.classList.toggle('full', on); document.body.style.overflow = on ? 'hidden' : '';
-  if (on && !exitBtn) { exitBtn = h('button', { class: 'btn primary full-exit', onclick: () => setFull(false) }, '✕ Exit full screen'); document.body.append(exitBtn); }
+  if (on && !exitBtn) { exitBtn = h('button', { class: 'full-exit', 'aria-label': 'Exit full screen', title: 'Exit full screen', onclick: () => setFull(false) }, '✕'); document.body.append(exitBtn); }
   if (!on && exitBtn) { exitBtn.remove(); exitBtn = null; }
 }
+const syncFsBtn = () => { $('#full-btn').textContent = fsEl() ? '⛶ Exit full screen' : '⛶ Full screen'; if (fsEl()) setTimeout(() => { const f = $('#stage iframe'); if (f) f.focus(); }, 100); };
+document.addEventListener('fullscreenchange', syncFsBtn);
+document.addEventListener('webkitfullscreenchange', syncFsBtn);
 $('#play-btn').addEventListener('click', playGame);
 $('#restart-btn').addEventListener('click', () => { if (playing) playGame(); else playGame(); });
 $('#full-btn').addEventListener('click', () => { if (!playing) playGame(); setFull(true); });
