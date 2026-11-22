@@ -54,6 +54,64 @@ const Account = {
   async adminResetPassword(id, pw) { const { error } = await sb.rpc('admin_reset_password', { target: id, new_password: pw }); if (error) throw error; },
   async adminSetAdmin(id, value) { const { error } = await sb.rpc('admin_set_admin', { target: id, value }); if (error) throw error; },
 
+  // ---- player-made games ----
+  publicUrl(path) { return path ? sb.storage.from('community').getPublicUrl(path).data.publicUrl : null; },
+  async approvedGames() {
+    if (!sb) return [];
+    const { data } = await sb.from('community_games').select('slug, title, description, category, multiplayer, creator_username, file_path, cover_path, created_at, reviewed_at').eq('status', 'approved').order('reviewed_at', { ascending: false });
+    return data || [];
+  },
+  async myGames() {
+    if (!user) return [];
+    const { data } = await sb.from('community_games').select('slug, title, status, review_note, created_at, file_path, cover_path').eq('creator_id', user.id).order('created_at', { ascending: false });
+    return data || [];
+  },
+  async submitGame({ title, description, category, multiplayer, file, cover }) {
+    if (!user) throw new Error('Please sign in first.');
+    const base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 30) || 'game';
+    const slug = (/^[a-z0-9]/.test(base) ? base : 'g-' + base) + '-' + Math.random().toString(36).slice(2, 6);
+    const dir = `${user.id}/${slug}`;
+    const up = await sb.storage.from('submissions').upload(`${dir}/game.html`, file, { contentType: 'text/html', upsert: false });
+    if (up.error) throw up.error;
+    let coverPath = null;
+    if (cover) {
+      const ext = (cover.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+      const c = await sb.storage.from('submissions').upload(`${dir}/cover.${ext}`, cover, { contentType: cover.type, upsert: false });
+      if (c.error) throw c.error; coverPath = `${dir}/cover.${ext}`;
+    }
+    const { error } = await sb.from('community_games').insert({ slug, title, description, category, multiplayer, file_path: `${dir}/game.html`, cover_path: coverPath });
+    if (error) { await sb.storage.from('submissions').remove([`${dir}/game.html`].concat(coverPath ? [coverPath] : [])); throw error; }
+    return slug;
+  },
+  async withdrawGame(g) {
+    const { error } = await sb.from('community_games').delete().eq('slug', g.slug); if (error) throw error;
+    await sb.storage.from('submissions').remove([g.file_path].concat(g.cover_path ? [g.cover_path] : []));
+  },
+  async adminPendingGames() {
+    const { data, error } = await sb.from('community_games').select('*').eq('status', 'pending').order('created_at');
+    if (error) throw error; return data || [];
+  },
+  async submissionText(path) {
+    const { data, error } = await sb.storage.from('submissions').download(path); if (error) throw error; return await data.text();
+  },
+  async adminApprove(g) {
+    const html = await sb.storage.from('submissions').download(g.file_path); if (html.error) throw html.error;
+    const pubFile = `${g.slug}/game.html`;
+    const htmlBlob = new Blob([await html.data.arrayBuffer()], { type: 'text/html' }); // storage hands HTML back labeled as plain text
+    const u1 = await sb.storage.from('community').upload(pubFile, htmlBlob, { contentType: 'text/html', upsert: true }); if (u1.error) throw u1.error;
+    let pubCover = null;
+    if (g.cover_path) {
+      const cv = await sb.storage.from('submissions').download(g.cover_path);
+      if (!cv.error) { const ext = g.cover_path.split('.').pop(), type = ext === 'jpg' ? 'image/jpeg' : 'image/' + ext; pubCover = `${g.slug}/cover.${ext}`; const u2 = await sb.storage.from('community').upload(pubCover, new Blob([await cv.data.arrayBuffer()], { type }), { contentType: type, upsert: true }); if (u2.error) pubCover = null; }
+    }
+    const { error } = await sb.rpc('admin_review_game', { game: g.slug, approve: true, note: '', public_file: pubFile, public_cover: pubCover });
+    if (error) throw error;
+  },
+  async adminReject(g, note) {
+    const { error } = await sb.rpc('admin_review_game', { game: g.slug, approve: false, note: note || '', public_file: null, public_cover: null });
+    if (error) throw error;
+  },
+
   // ---- saved games ----
   async savedList() {
     if (!user) return null;

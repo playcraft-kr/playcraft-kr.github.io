@@ -52,16 +52,30 @@ const fmtTime = sec => { sec = Math.round(sec || 0); if (sec < 60) return `${sec
 let toastT;
 const toast = m => { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (t.hidden = true), 2600); };
 
+/* ---------- art & credit helpers ---------- */
+const coverOf = g => g.community ? g.coverUrl : ROOT + g.cover;
+const wideOf = g => g.community ? g.coverUrl : ROOT + g.wide;
+const madeBy = g => g.author ? `Made by ${g.author}` : 'PlayCraft Original';
+const EMO = { Action: '💥', Fighting: '🥊', '3D': '🧊', Space: '🪐', Adventure: '🗺️', Sports: '⚽', Puzzle: '🧩', Racing: '🏎️' };
+function artNode(g, cls) {
+  const u = coverOf(g);
+  if (u) return h('img', { src: u, alt: '', loading: 'lazy', class: cls || null });
+  return h('div', { class: 'gen-art', style: genBg(g.slug) }, h('span', { 'aria-hidden': 'true', text: EMO[g.cats[0]] || '🎮' }), g.title);
+}
+function genBg(s) { let n = 0; for (const c of s) n = (n * 31 + c.charCodeAt(0)) >>> 0; const hue = n % 360; return `background:linear-gradient(140deg,hsl(${hue} 70% 55%),hsl(${(hue + 50) % 360} 70% 38%))`; }
+
 /* ---------- cards ---------- */
 function card(g) {
   const oldest = Math.min(...GAMES.map(x => Date.parse(x.added)));
   const fresh = Date.now() - Date.parse(g.added) < WEEK && Date.parse(g.added) > oldest;
   return h('a', { class: 'card', href: '#/game/' + g.slug, 'aria-label': `${g.title}. ${g.desc}` },
     h('div', { class: 'art' },
-      h('img', { src: ROOT + g.cover, alt: '', loading: 'lazy', width: 640, height: 640 }),
+      artNode(g),
+      g.multiplayer ? h('span', { class: 'mp-badge' }, '👥 Online') : null,
       fresh ? h('span', { class: 'badge' }, '✨ NEW') : null,
       g.lang !== 'English' ? h('span', { class: 'badge lang', title: `In-game text is in ${g.lang}` }, g.lang === 'Korean' ? 'KR' : g.lang) : null),
     h('span', { class: 't', text: g.title }),
+    h('span', { class: 'by', text: madeBy(g) }),
     h('span', { class: 's', text: g.cats.slice(0, 2).join(' · ') }));
 }
 const fill = (el, games) => el.replaceChildren(...games.map(card));
@@ -77,17 +91,17 @@ function catTile(name, img, emoji) {
 let heroI = 0, heroT = null, heroPaused = false;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function buildHero() {
-  const feat = MAIN();
+  const feat = MAIN().filter(g => wideOf(g)).slice(0, 6);
   const slides = $('#hero-slides'), picks = $('#hero-picks');
   slides.replaceChildren(...feat.map((g, i) => h('div', { class: 'slide', id: 'slide-' + i, role: 'tabpanel', 'aria-roledescription': 'slide', 'aria-label': `${i + 1} of ${feat.length}: ${g.title}` },
-    h('img', { src: ROOT + g.wide, alt: '', loading: i ? 'lazy' : 'eager' }),
+    h('img', { src: wideOf(g), alt: '', loading: i ? 'lazy' : 'eager' }),
     h('div', { class: 'slide-copy' },
       h('span', { class: 'eyebrow', text: i === 0 ? '★ Featured' : '★ Top pick' }),
       h('h2', { text: g.title }), h('p', { text: g.desc }),
       h('div', { class: 'chips' }, ...g.cats.map(c => h('a', { class: 'chip hero-chip', href: '#/cat/' + encodeURIComponent(c), text: c }))),
       h('div', {}, h('a', { class: 'btn primary', href: '#/game/' + g.slug }, '▶ Play now'))))));
   picks.replaceChildren(...feat.map((g, i) => h('button', { class: 'pick', role: 'tab', 'aria-controls': 'slide-' + i, 'aria-label': g.title, onclick: () => showSlide(i, true) },
-    h('img', { src: ROOT + g.cover, alt: '' }))));
+    h('img', { src: coverOf(g), alt: '' }))));
   showSlide(0);
   const hero = $('#hero');
   const pause = on => { heroPaused = on; hero.classList.toggle('paused', on); };
@@ -133,7 +147,7 @@ function renderSuggest() {
   const v = q.value.trim(); const res = v ? search(v).slice(0, 5) : [];
   sugI = -1;
   if (!v) { sug.hidden = true; q.setAttribute('aria-expanded', 'false'); return; }
-  sug.replaceChildren(...res.map(g => h('a', { href: '#/game/' + g.slug, role: 'option' }, h('img', { src: ROOT + g.cover, alt: '' }), h('span', {}, g.title, h('small', { text: g.cats.join(' · ') })))),
+  sug.replaceChildren(...res.map(g => h('a', { href: '#/game/' + g.slug, role: 'option' }, artNode(g), h('span', {}, g.title, h('small', { text: g.cats.join(' · ') })))),
     h('a', { class: 'all', href: '#/search/' + encodeURIComponent(v), role: 'option' }, res.length ? `See all results for “${v}”` : `No quick match. Search for “${v}”`));
   sug.hidden = false; q.setAttribute('aria-expanded', 'true');
 }
@@ -156,7 +170,7 @@ document.addEventListener('click', e => { if (!e.target.closest('.search')) clos
 sug.addEventListener('click', () => { closeSuggest(); q.blur(); });
 
 /* ---------- views ---------- */
-const VIEWS = ['home', 'categories', 'list', 'my', 'about', 'game', 'admin'];
+const VIEWS = ['home', 'categories', 'list', 'my', 'about', 'game', 'admin', 'submit'];
 function show(v, nav) {
   VIEWS.forEach(x => ($('#v-' + x).hidden = x !== v));
   document.querySelectorAll('.nav a').forEach(a => { if (a.dataset.nav === nav) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
@@ -178,6 +192,7 @@ function route() {
   if (p0 === 'search') { q.value = arg; return openList(`Results for “${arg}”`, search(arg), null, arg); }
   if (p0 === 'my') return openMy();
   if (p0 === 'about') { show('about', 'about'); return; }
+  if (p0 === 'submit') return openSubmit();
   if (p0 === 'admin') return openAdmin();
   renderHome(); show('home', 'home');
 }
@@ -204,6 +219,7 @@ function openMy(fromRefresh) {
   if (!fromRefresh && signedIn() && !myRefreshing) { myRefreshing = true; refreshAccountData().then(() => { myRefreshing = false; if (!$('#v-my').hidden) openMy(true); }); }
   const saved = savedList().map(bySlug).filter(Boolean), played = playedList().map(bySlug).filter(Boolean);
   fill($('#grid-saved'), saved); fill($('#grid-played'), played);
+  renderMySubs();
   const acc = $('#my-account'); acc.hidden = !signedIn();
   if (signedIn() && ACC.profile) { $('#ma-id').textContent = ACC.profile.username; $('#ma-nick').textContent = ACC.profile.nickname; $('#ma-age').textContent = ACC.profile.age ? (ACC.profile.age >= 18 ? '18+' : String(ACC.profile.age)) : '—'; }
   $('#my-paused').hidden = !(signedIn() && ACC.profile && ACC.profile.blocked);
@@ -231,18 +247,19 @@ function openGame(g) {
   if (current !== g) stopGame();
   current = g; document.title = `${g.title} · PlayCraft`;
   $('#crumbs').replaceChildren(h('a', { href: '#/', text: 'Home' }), h('span', { 'aria-hidden': 'true', text: '›' }), h('a', { href: '#/cat/' + encodeURIComponent(g.cats[0]), text: g.cats[0] }), h('span', { 'aria-hidden': 'true', text: '›' }), h('span', { 'aria-current': 'page', text: g.title }));
-  $('#start-bg').src = ROOT + g.wide;
+  const wb = wideOf(g); $('#start-bg').hidden = !wb; if (wb) $('#start-bg').src = wb;
+  $('#start').style.cssText = wb ? '' : genBg(g.slug);
   $('#g-title').textContent = g.title; $('#g-desc').textContent = g.desc;
   const touch = matchMedia('(pointer: coarse)').matches;
   $('#start-note').textContent = touch ? (g.mobile ? 'Tip: tap ⛶ Big screen for the best view.' : 'This game needs a keyboard and mouse. It works best on a computer.')
     : 'Tip: click inside the game first so it can hear your keys.';
   $('#start-note').classList.toggle('mobile-note', touch && !g.mobile);
-  $('#keys').replaceChildren(...g.controls.map(([k, a]) => h('li', {}, h('kbd', { text: k }), h('span', { text: a }))));
-  $('#tip').textContent = g.tip;
+  $('#keys').replaceChildren(...(g.controls && g.controls.length ? g.controls.map(([k, a]) => h('li', {}, h('kbd', { text: k }), h('span', { text: a }))) : [h('li', { class: 'note', text: 'This game explains its controls when it starts.' })]));
+  $('#tip').textContent = g.tip || ''; $('#tip').hidden = !g.tip;
   $('#device').textContent = g.mobile ? '📱 Works on a computer or a touch screen.' : '⌨️ Best on a computer with a keyboard and mouse.';
-  $('#g-cover').src = ROOT + g.cover;
+  const cu = coverOf(g); $('#g-cover').hidden = !cu; if (cu) $('#g-cover').src = cu;
   $('#g-name').textContent = g.title;
-  $('#g-meta').textContent = `PlayCraft Original · v${g.version} · ${g.cats.join(', ')}`;
+  $('#g-meta').textContent = `${madeBy(g)} · v${g.version} · ${g.cats.join(', ')}${g.multiplayer ? ' · 👥 Online' : ''}`;
   const alt = GAMES.find(x => x.variantOf === g.slug) || bySlug(g.variantOf);
   const meta = $('#g-meta'); meta.querySelectorAll('.alt-lang').forEach(n => n.remove());
   if (alt) meta.append(' · ', h('a', { class: 'alt-lang', href: '#/game/' + alt.slug, text: alt.lang === 'Korean' ? '🇰🇷 Play in Korean' : '🇺🇸 Play in English' }));
@@ -257,7 +274,11 @@ function syncSave() { const on = current && isSaved(current.slug); const b = $('
 function playGame() {
   if (!current) return;
   const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove());
-  const f = h('iframe', { src: `${ROOT}games/${current.slug}/`, allow: 'autoplay; fullscreen; gamepad', title: current.title });
+  let f;
+  if (current.community) {
+    f = h('iframe', { sandbox: 'allow-scripts allow-pointer-lock', allow: 'autoplay; gamepad', title: current.title });
+    fetch(current.fileUrl, { cache: 'no-cache' }).then(r => r.text()).then(html => { f.srcdoc = SANDBOX_SHIM + html; }).catch(() => toast('We couldn’t load this game. Try again.'));
+  } else f = h('iframe', { src: `${ROOT}games/${current.slug}/`, allow: 'autoplay; fullscreen; gamepad', title: current.title });
   $('#start').hidden = true; st.append(f); fitFrame(); playing = true; markPlayed(current.slug); beginSession(current.slug);
   setTimeout(() => f.focus(), 400);
 }
@@ -275,6 +296,8 @@ function fitFrame() {
   f.style.top = top + 'px'; f.style.left = '0';
 }
 new ResizeObserver(fitFrame).observe(document.querySelector('#stage'));
+// Player-made games can't use the site's storage inside the sandbox, so give them a temporary one.
+const SANDBOX_SHIM = '<script>(function(){var m={};var s={getItem:function(k){return Object.prototype.hasOwnProperty.call(m,k)?m[k]:null},setItem:function(k,v){m[k]=String(v)},removeItem:function(k){delete m[k]},clear:function(){m={}},key:function(i){return Object.keys(m)[i]||null},get length(){return Object.keys(m).length}};try{window.localStorage.getItem("x")}catch(e){try{Object.defineProperty(window,"localStorage",{value:s});Object.defineProperty(window,"sessionStorage",{value:s})}catch(_){}}})();<\/script>';
 function stopGame() { endSession(); const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove()); $('#start').hidden = false; playing = false; setFull(false); }
 // "Big screen": the game fills the browser window, with a slim bar ABOVE the game (never on top of it).
 // We don't use the browser's own full screen, because there Esc both frees the mouse and exits full screen.
@@ -458,6 +481,7 @@ async function openAdmin() {
   const isAdm = signedIn() && ACC.profile && ACC.profile.is_admin;
   $('#adm-denied').hidden = !!isAdm; $('#adm-body').hidden = !isAdm;
   if (!isAdm) return;
+  renderReview();
   try { admData = await ACC.adminData(); } catch { toast('Couldn’t load admin data. Try Refresh.'); return; }
   renderAdmin();
 }
@@ -551,9 +575,74 @@ document.addEventListener('click', e => {
 });
 addEventListener('hashchange', () => { try { sessionStorage.setItem('pc.nav', '1'); } catch {} });
 
+/* ---------- submit a game ---------- */
+const gCat = $('#g-cat-in'); CATS.forEach(([n]) => gCat.append(h('option', { value: n, text: n })));
+function openSubmit() {
+  show('submit', null);
+  const on = signedIn();
+  $('#sub-signin').hidden = on; $('#game-form').hidden = !on;
+  if (on && ACC.profile) $('#sub-me').textContent = ACC.profile.username;
+}
+$('#sub-signin-btn').addEventListener('click', () => openSignIn(true));
+$('#game-form').addEventListener('input', () => ($('#g-err').hidden = true));
+$('#game-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = $('#g-err'), say = m => { err.textContent = m; err.hidden = false; }, go = $('#g-go');
+  const title = $('#g-title-in').value.trim(), desc = $('#g-desc-in').value.trim(), file = $('#g-file-in').files[0], cover = $('#g-cover-in').files[0];
+  if (title.length < 2) return say('Give your game a name (at least 2 letters).');
+  if (!file) return say('Choose your game’s .html file.');
+  if (!/\.html?$/i.test(file.name)) return say('The game file must end in .html');
+  if (file.size > 2 * 1024 * 1024) return say('The game file is bigger than 2 MB. Try making it smaller.');
+  if (cover && (!/^image\/(png|jpeg|webp)$/.test(cover.type) || cover.size > 2 * 1024 * 1024)) return say('The cover must be a PNG, JPG or WebP picture under 2 MB.');
+  if (!$('#g-own-in').checked) return say('Please tick the box to confirm you made this game yourself.');
+  if (ACC.profile && ACC.profile.blocked) return say('Your account is paused, so you can’t send games right now.');
+  go.disabled = true; go.textContent = 'Sending…';
+  try {
+    await ACC.submitGame({ title, description: desc, category: gCat.value, multiplayer: $('#g-mp-in').checked, file, cover });
+    $('#game-form').reset(); toast('Sent! An admin will check your game soon. 🎉'); location.hash = '#/my';
+  } catch (x) { say((x && x.message && !/fetch|network/i.test(x.message)) ? x.message : 'We couldn’t send your game. Check your internet and try again.'); }
+  go.disabled = false; go.textContent = '📤 Send for review';
+});
+async function renderMySubs() {
+  const box = $('#my-subs'); if (!signedIn()) { box.hidden = true; return; }
+  const list = await ACC.myGames().catch(() => []);
+  box.hidden = false;
+  const label = { pending: ['wait', '⏳ Waiting for review'], approved: ['ok', '✓ Live on PlayCraft'], rejected: ['bad', '✗ Not approved'] };
+  $('#sub-list').replaceChildren(...(list.length ? list.map(g => h('li', {},
+    h('span', { class: 't' }, g.title, h('small', { text: g.review_note ? `Admin note: ${g.review_note}` : new Date(g.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) })),
+    h('span', { class: 'pill ' + label[g.status][0], text: label[g.status][1] }),
+    g.status === 'approved' ? h('a', { class: 'btn ghost tiny', href: '#/game/' + g.slug }, 'Play') : null,
+    g.status === 'pending' ? h('button', { class: 'btn ghost tiny', onclick: async () => { if (await ask(`Take back “${g.title}”? It will be removed from the review list.`)) { await ACC.withdrawGame(g).catch(() => toast('Couldn’t remove it.')); renderMySubs(); } } }, 'Take back') : null))
+    : [h('li', {}, h('span', { class: 't', text: 'You haven’t sent a game yet.' }), h('a', { class: 'btn primary tiny', href: '#/submit' }, 'Submit one'))]));
+}
+async function renderReview() {
+  const list = await ACC.adminPendingGames().catch(() => []);
+  $('#adm-review-count').textContent = list.length ? `${list.length} waiting` : '';
+  $('#adm-review').replaceChildren(...(list.length ? list.map(g => h('li', {},
+    h('span', { class: 't' }, g.title, h('small', { text: `Made by ${g.creator_username} · ${g.category}${g.multiplayer ? ' · online' : ''} · ${g.description || ''}` })),
+    h('button', { class: 'btn ghost tiny', onclick: () => previewGame(g) }, '▶ Try it'),
+    h('button', { class: 'btn primary tiny', onclick: async () => { if (!(await ask(`Publish “${g.title}” by ${g.creator_username}? Everyone will be able to play it.`))) return; try { await ACC.adminApprove(g); toast('Published!'); renderReview(); } catch (x) { toast('Couldn’t publish: ' + (x.message || 'try again')); } } }, 'Approve'),
+    h('button', { class: 'btn ghost tiny', onclick: async () => { const note = await askText(`Why isn’t “${g.title}” ready? ${g.creator_username} will see this note.`, 'Please fix: '); if (note === null) return; try { await ACC.adminReject(g, note); toast('Sent back with your note.'); renderReview(); } catch (x) { toast('Couldn’t update: ' + (x.message || 'try again')); } } }, 'Send back')))
+    : [h('li', { class: 'note', text: 'No games waiting. 🎉' })]));
+}
+async function previewGame(g) {
+  try {
+    const html = await ACC.submissionText(g.file_path);
+    const fr = h('iframe', { sandbox: 'allow-scripts allow-pointer-lock', title: 'Preview: ' + g.title, class: 'pv-frame' }); fr.srcdoc = SANDBOX_SHIM + html;
+    const d = h('dialog', { class: 'pv' }, h('div', { class: 'pv-bar' }, h('strong', { text: `Preview: ${g.title} — by ${g.creator_username}` }), h('button', { class: 'btn primary small', onclick: () => d.close() }, '✕ Close')), fr);
+    d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
+  } catch { toast('Couldn’t open the preview.'); }
+}
+
 /* ---------- boot ---------- */
 fetch(ROOT + 'games.json', { cache: 'no-cache' }).then(r => r.json()).then(list => {
   GAMES = list;
+  return (ACC ? ACC.approvedGames().catch(() => []) : Promise.resolve([])).then(extra => {
+    for (const c of extra) GAMES.push({ slug: c.slug, title: c.title, desc: c.description || '', cats: [c.category], community: true, author: c.creator_username,
+      coverUrl: ACC.publicUrl(c.cover_path), fileUrl: ACC.publicUrl(c.file_path), multiplayer: c.multiplayer, controls: [], tip: '', lang: 'English',
+      version: 1, added: (c.reviewed_at || c.created_at).slice(0, 10), notes: 'First release', mobile: false });
+  });
+}).then(() => {
   buildHero();
   const cats = CATS.map(([n, i, e]) => catTile(n, i, e));
   $('#cats-a').replaceChildren(...cats.map(c => c.cloneNode(true)));

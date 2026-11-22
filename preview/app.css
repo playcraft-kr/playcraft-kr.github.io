@@ -376,3 +376,27 @@ a.chip.hero-chip:hover{background:rgba(255,255,255,.26)}
 @media (max-width:600px){.big-bar .hint{display:none}}
 @media (max-width:520px){.pick:nth-child(n+5){display:none}.pick{width:52px;height:52px}}
 .ask-input{width:100%;height:48px;border:2px solid var(--line);border-radius:12px;padding:0 12px;font:700 18px ui-monospace,Menlo,monospace;margin-bottom:12px}
+
+/* player-made games */
+.card .by{color:var(--violet-d);font-size:14px;font-weight:800;padding:0 4px;margin-top:-6px}
+.gen-art{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:14px;color:#fff;font-family:var(--f-display);font-weight:700;font-size:22px;line-height:1.15;text-shadow:0 2px 8px rgba(0,0,0,.35)}
+.gen-art span{display:block;font-size:52px;margin-bottom:6px}
+.sub-form{display:grid;gap:8px;max-width:680px}
+.sub-form label{font-weight:900;font-size:15px;margin-top:6px}
+.sub-form label small{font-weight:700;color:var(--ink-2)}
+.sub-form input[type=text],.sub-form input:not([type]),.sub-form textarea,.sub-form select{border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-weight:700;font-size:16px;background:#fff;font-family:inherit}
+.sub-form input[type=file]{font-weight:700}
+.sub-form .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end}
+.check{display:flex!important;gap:10px;align-items:flex-start;font-weight:700!important;font-size:15px!important;line-height:1.45}
+.check input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--violet)}
+.sub-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.sub-list li{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--bg);border-radius:14px;padding:10px 14px}
+.sub-list li .t{font-weight:900;flex:1;min-width:160px}
+.sub-list li .t small{display:block;font-weight:700;color:var(--ink-2);font-size:14px}
+.pill.wait{background:#fff1d6;color:#8a5a00}
+.mp-badge{position:absolute;bottom:10px;left:10px;z-index:1;background:rgba(20,15,51,.78);color:#fff;font-weight:900;font-size:13px;padding:4px 9px;border-radius:999px}
+@media (max-width:600px){.sub-form .two{grid-template-columns:1fr}}
+.pv{border:0;padding:0;width:min(1200px,96vw);height:min(760px,92vh);border-radius:20px;overflow:hidden;display:flex;flex-direction:column}
+.pv[open]{display:flex}.pv::backdrop{background:rgba(20,15,51,.6)}
+.pv-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:var(--night);color:#fff}
+.pv-frame{flex:1;border:0;width:100%;background:#000}

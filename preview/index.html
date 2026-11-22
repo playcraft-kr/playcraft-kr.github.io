@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261122070042">
+<link rel="stylesheet" href="app.css?v=20261122071924">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -39,6 +39,7 @@
       <div class="acct-menu" id="acct-menu" hidden>
         <p class="acct-who"><strong id="acct-nick"></strong><span id="acct-id"></span></p>
         <a href="#/my">❤️ My Games &amp; records</a>
+        <a href="#/submit">📤 Submit a game</a>
         <a href="#/admin" id="admin-link" hidden>🔑 Admin page</a>
         <button id="signout-btn">↩ Sign out</button>
       </div>
@@ -72,9 +73,9 @@
     <section class="maker" id="maker">
       <img class="maker-mascot" src="../img/mascot-0.webp" alt="Bolt, the PlayCraft robot, holding a wrench">
       <div class="maker-copy">
-        <span class="chip soon">Coming soon</span>
         <h2>Make a game. Share it. Make it better.</h2>
-        <p>Soon you’ll be able to send in your own game. Players leave upgrade ideas, and the best ones go into the next version with your name in the credits.</p>
+        <p>Made your own HTML game? Send it in. After an admin checks it, it appears here with <strong>“Made by” and your ID</strong> for everyone to play.</p>
+        <a class="btn primary" href="#/submit">📤 Submit your game</a>
         <ol class="steps">
           <li><b>1</b><span><strong>Build</strong>Any game that runs as one HTML file</span></li>
           <li><b>2</b><span><strong>Review</strong>An admin plays it, then publishes it</span></li>
@@ -111,6 +112,10 @@
     <div class="grid" id="grid-saved"></div>
     <h2 class="sub">Played lately</h2>
     <div class="grid" id="grid-played"></div>
+    <section class="panel" id="my-subs" hidden>
+      <div class="shelf-head"><h2>Games you sent in</h2><a class="more" href="#/submit">+ Submit a game</a></div>
+      <ul class="sub-list" id="sub-list"></ul>
+    </section>
     <section class="panel acct-panel" id="my-account" hidden>
       <h2>Your account</h2>
       <dl class="acct-facts"><div><dt>ID</dt><dd id="ma-id"></dd></div><div><dt>Nickname</dt><dd id="ma-nick"></dd></div><div><dt>Age</dt><dd id="ma-age"></dd></div></dl>
@@ -142,6 +147,30 @@
     </div>
   </section>
 
+  <!-- SUBMIT -->
+  <section id="v-submit" class="view" hidden>
+    <div class="page-head"><a class="back" href="#/">← Back</a><h1>Submit a game</h1></div>
+    <div class="empty" id="sub-signin" hidden><img src="../img/mascot-0.webp" alt=""><div><h2>Sign in first</h2><p>You need a free account so we can show “Made by” with your ID.</p><button class="btn primary" id="sub-signin-btn">Sign in or create an account</button></div></div>
+    <form class="panel sub-form" id="game-form" hidden novalidate>
+      <p class="lead">Your game shows up after an admin plays it and says OK. It will say <strong>Made by <span id="sub-me"></span></strong>.</p>
+      <label for="g-title-in">Game name</label>
+      <input id="g-title-in" maxlength="40" placeholder="e.g. Space Dodge">
+      <label for="g-desc-in">What’s it about? <small>(one or two sentences)</small></label>
+      <textarea id="g-desc-in" maxlength="200" rows="2" placeholder="e.g. Steer your ship between asteroids and collect stars."></textarea>
+      <div class="two">
+        <div><label for="g-cat-in">Category</label><select id="g-cat-in"></select></div>
+        <label class="check"><input type="checkbox" id="g-mp-in"> People can play it together online</label>
+      </div>
+      <label for="g-file-in">Game file <small>(one .html file, up to 2 MB)</small></label>
+      <input id="g-file-in" type="file" accept=".html,.htm,text/html">
+      <label for="g-cover-in">Cover picture <small>(optional, square PNG/JPG/WebP, up to 2 MB)</small></label>
+      <input id="g-cover-in" type="file" accept="image/png,image/jpeg,image/webp">
+      <label class="check"><input type="checkbox" id="g-own-in"> I made this game myself (AI help is OK). It doesn’t copy another game’s name, characters, music or pictures, and it doesn’t show anyone’s real name or photo.</label>
+      <p class="si-err" id="g-err" role="alert" hidden></p>
+      <button class="btn primary" type="submit" id="g-go">📤 Send for review</button>
+    </form>
+  </section>
+
   <!-- ADMIN -->
   <section id="v-admin" class="view" hidden>
     <div class="page-head"><a class="back" href="#/">← Back</a><h1>Admin</h1><button class="btn ghost" id="adm-refresh">↻ Refresh</button></div>
@@ -152,6 +181,10 @@
         <section class="panel"><h2>Most played games</h2><ul class="bars" id="adm-games"></ul></section>
         <section class="panel"><h2>Ages</h2><ul class="bars" id="adm-ages"></ul></section>
       </div>
+      <section class="panel" id="adm-review-wrap">
+        <h2>Games waiting for review <span class="count" id="adm-review-count"></span></h2>
+        <ul class="sub-list" id="adm-review"></ul>
+      </section>
       <section class="panel adm-users">
         <div class="adm-users-head"><h2>Players <span class="count" id="adm-count"></span></h2>
           <input id="adm-q" type="search" placeholder="Search ID or nickname" aria-label="Search players"></div>
@@ -287,7 +320,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261122070042"></script>
-<script src="app.js?v=20261122070042"></script>
+<script src="account.js?v=20261122071924"></script>
+<script src="app.js?v=20261122071924"></script>
 </body>
 </html>
