@@ -137,7 +137,7 @@
  {
   "slug": "black-hole",
   "title": "Black Hole Survival",
-  "desc": "A 12-player survival run. Don’t get pulled into the black hole at the end of the road.",
+  "desc": "A 12-player survival run. Play online with friends or against bots — don’t get pulled into the black hole!",
   "emoji": "🕳️",
   "cats": [
    "Space",
@@ -145,9 +145,9 @@
    "Action"
   ],
   "lang": "English",
-  "version": 1,
+  "version": 2,
   "added": "2026-11-21",
-  "notes": "First release",
+  "notes": "Online matches: play with up to 12 people at once",
   "cover": "img/cover-black-hole.webp",
   "wide": "img/wide-black-hole.webp",
   "controls": [
@@ -176,8 +176,9 @@
     "Free the mouse"
    ]
   ],
-  "tip": "The black hole jumps to the other end every 40 seconds. Don’t run too far!",
-  "mobile": true
+  "tip": "Press “Play online” to race real players. Empty spots are filled with bots.",
+  "mobile": true,
+  "multiplayer": true
  },
  {
   "slug": "event-horizon",
