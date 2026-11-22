@@ -124,6 +124,20 @@ const Account = {
     else await sb.from('saved_games').delete().eq('user_id', user.id).eq('game_slug', slug);
   },
 
+  // ---- game progress (one row per player per game; table game_saves, RLS: own rows only) ----
+  async loadSave(slug) {
+    if (!user) return null;
+    const { data, error } = await sb.from('game_saves').select('data, updated_at').eq('user_id', user.id).eq('game_slug', slug).maybeSingle();
+    if (error) throw error;
+    return data ? { data: data.data, updatedAt: data.updated_at } : null;
+  },
+  async writeSave(slug, payload) {
+    if (!user) return false;
+    const { error } = await sb.from('game_saves').upsert({ user_id: user.id, game_slug: slug, data: payload, updated_at: new Date().toISOString() }, { onConflict: 'user_id,game_slug' });
+    if (error) throw error;
+    return true;
+  },
+
   // ---- play sessions ----
   async startPlay(slug) {
     if (!user) return null;
