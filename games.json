@@ -10,9 +10,9 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 2,
+  "version": 3,
   "added": "2026-11-22",
-  "notes": "Menu fix, records follow your PlayCraft account",
+  "notes": "Watch any past match again (Records tab)",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
