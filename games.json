@@ -10,9 +10,9 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 9,
+  "version": 10,
   "added": "2026-11-22",
-  "notes": "Design your own kit (colors, pattern, collar, name & number)",
+  "notes": "Your kit pattern (stripes, hoops, halves, sash) now shows on the celebration photos",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
