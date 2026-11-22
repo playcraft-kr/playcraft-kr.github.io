@@ -29,13 +29,25 @@ const store = {
   get(k) { try { return JSON.parse(localStorage.getItem('pc.' + k)) || []; } catch { return []; } },
   set(k, v) { try { localStorage.setItem('pc.' + k, JSON.stringify(v)); } catch {} },
 };
-const isSaved = s => store.get('saved').includes(s);
+const ACC = window.Account || null;
+const signedIn = () => !!(ACC && ACC.signedIn);
+let cloudSaved = [], cloudStats = null;   // filled from the account when signed in
+const savedList = () => signedIn() ? cloudSaved : store.get('saved');
+const playedList = () => signedIn() && cloudStats ? [...cloudStats.games].sort((a, b) => b.last.localeCompare(a.last)).map(x => x.slug) : store.get('played');
+const isSaved = s => savedList().includes(s);
 function toggleSave(s) {
-  const list = store.get('saved'); const i = list.indexOf(s);
+  const list = [...savedList()]; const i = list.indexOf(s);
   if (i >= 0) list.splice(i, 1); else list.unshift(s);
-  store.set('saved', list); return i < 0;
+  if (signedIn()) { cloudSaved = list; ACC.setSaved(s, i < 0).catch(() => toast('Couldn’t save to your account. Check your internet.')); }
+  else store.set('saved', list);
+  return i < 0;
 }
 function markPlayed(s) { const l = store.get('played').filter(x => x !== s); l.unshift(s); store.set('played', l.slice(0, 12)); }
+async function refreshAccountData() {
+  if (!signedIn()) { cloudSaved = []; cloudStats = null; return; }
+  try { [cloudSaved, cloudStats] = await Promise.all([ACC.savedList(), ACC.stats()]); cloudSaved = cloudSaved || []; } catch {}
+}
+const fmtTime = sec => { sec = Math.round(sec || 0); if (sec < 60) return `${sec}s`; const m = Math.floor(sec / 60); if (m < 60) return `${m} min`; return `${Math.floor(m / 60)} h ${m % 60} min`; };
 
 let toastT;
 const toast = m => { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (t.hidden = true), 2600); };
@@ -168,7 +180,7 @@ function route() {
 addEventListener('hashchange', route);
 
 function renderHome() {
-  const played = store.get('played').map(bySlug).filter(Boolean);
+  const played = playedList().map(bySlug).filter(Boolean);
   $('#shelf-recent').hidden = !played.length; fill($('#row-recent'), played);
   fill($('#grid-all'), MAIN()); $('#all-count').textContent = plural(MAIN().length, 'game');
 }
@@ -183,8 +195,21 @@ function openList(title, games, nav, term) {
   show('list', nav);
 }
 function openMy() {
-  const saved = store.get('saved').map(bySlug).filter(Boolean), played = store.get('played').map(bySlug).filter(Boolean);
+  const saved = savedList().map(bySlug).filter(Boolean), played = playedList().map(bySlug).filter(Boolean);
   fill($('#grid-saved'), saved); fill($('#grid-played'), played);
+  const st = $('#my-stats'), on = signedIn() && cloudStats;
+  $('#my-lead').hidden = signedIn();
+  st.hidden = !on;
+  if (on) {
+    const fav = [...cloudStats.games].sort((a, b) => b.seconds - a.seconds)[0];
+    st.replaceChildren(
+      h('div', { class: 'stat' }, h('b', { text: fmtTime(cloudStats.totalSeconds) }), h('span', { text: 'Total play time' })),
+      h('div', { class: 'stat' }, h('b', { text: String(cloudStats.totalPlays) }), h('span', { text: cloudStats.totalPlays === 1 ? 'Game played' : 'Games played' })),
+      h('div', { class: 'stat' }, h('b', { text: String(cloudStats.games.length) }), h('span', { text: 'Different games tried' })),
+      fav && bySlug(fav.slug) ? h('div', { class: 'stat' }, h('b', { text: bySlug(fav.slug).title }), h('span', { text: 'Your most played' })) : null);
+    // add per-game records under each played card
+    [...$('#grid-played').children].forEach((el, k) => { const r = cloudStats.games.find(x => x.slug === played[k].slug); if (r) el.append(h('span', { class: 'rec', text: `${r.plays}× · ${fmtTime(r.seconds)} · last ${new Date(r.last).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` })); });
+  }
   document.querySelectorAll('#v-my h2.sub').forEach((el, i) => (el.hidden = !(i ? played.length : saved.length)));
   $('#my-empty').hidden = saved.length + played.length > 0;
   show('my', 'my');
@@ -220,7 +245,7 @@ function playGame() {
   if (!current) return;
   const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove());
   const f = h('iframe', { src: `${ROOT}games/${current.slug}/`, allow: 'autoplay; fullscreen; gamepad', title: current.title });
-  $('#start').hidden = true; st.append(f); fitFrame(); playing = true; markPlayed(current.slug);
+  $('#start').hidden = true; st.append(f); fitFrame(); playing = true; markPlayed(current.slug); beginSession(current.slug);
   setTimeout(() => f.focus(), 400);
 }
 // Games are designed for a full desktop window. When the player box is smaller than 1280×720,
@@ -236,7 +261,7 @@ function fitFrame() {
   f.style.top = top + 'px'; f.style.left = '0';
 }
 new ResizeObserver(fitFrame).observe(document.querySelector('#stage'));
-function stopGame() { const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove()); $('#start').hidden = false; playing = false; setFull(false); }
+function stopGame() { endSession(); const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove()); $('#start').hidden = false; playing = false; setFull(false); }
 // "Big screen": the game fills the browser window, with a slim bar ABOVE the game (never on top of it).
 // We don't use the browser's own full screen, because there Esc both frees the mouse and exits full screen.
 // Here Esc belongs to the game only.
@@ -265,6 +290,71 @@ $('#share-btn').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(url); toast('Link copied! Paste it to share this game.'); }
   catch { toast('Copy this link from the address bar to share.'); }
 });
+
+/* ---------- play sessions (signed-in players) ---------- */
+// Counts time while the game is open and the tab is visible; saves every 20 s and when the game closes.
+let sess = null;
+async function beginSession(slug) {
+  endSession();
+  if (!signedIn()) return;
+  const s = { slug, id: null, secs: 0, last: Date.now() }; sess = s;
+  s.id = await ACC.startPlay(slug).catch(() => null);
+  s.timer = setInterval(() => { tick(s); if (s.id) ACC.updatePlay(s.id, s.secs).catch(() => {}); }, 20000);
+}
+function tick(s) { const now = Date.now(); if (!document.hidden) s.secs += (now - s.last) / 1000; s.last = now; }
+function endSession() {
+  const s = sess; if (!s) return; sess = null; clearInterval(s.timer); tick(s);
+  if (s.id) ACC.updatePlay(s.id, s.secs).then(() => refreshAccountData()).catch(() => {});
+}
+document.addEventListener('visibilitychange', () => { if (sess) { if (document.hidden) { tick(sess); } else sess.last = Date.now(); } });
+addEventListener('pagehide', () => { if (sess && sess.id) { tick(sess); ACC.updatePlay(sess.id, sess.secs); } });
+
+/* ---------- sign in / out ---------- */
+const dlg = $('#signin');
+function openSignIn() { $('#si-err').hidden = true; $('#si-pw').value = ''; if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); setTimeout(() => $('#si-id').focus(), 50); }
+$('#si-cancel').addEventListener('click', () => dlg.close());
+$('#si-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = $('#si-err'), go = $('#si-go'); err.hidden = true; go.disabled = true; go.textContent = 'Signing in…';
+  try {
+    await ACC.signIn($('#si-id').value, $('#si-pw').value);
+    dlg.close(); toast('Welcome back! Your records are saved to your account now.');
+  } catch (x) {
+    err.textContent = x && x.message === 'bad-id' ? 'IDs use only letters, numbers, dots, dashes or underscores.'
+      : x && x.message === 'offline' ? 'We can’t reach the sign-in service. Check your internet and try again.'
+      : 'That ID and password don’t match. Check them and try again, or ask your admin.';
+    err.hidden = false;
+  }
+  go.disabled = false; go.textContent = 'Sign in';
+});
+const menu = $('#acct-menu');
+$('#acct-btn').addEventListener('click', e => {
+  e.stopPropagation();
+  if (!signedIn()) return ACC ? openSignIn() : toast('Sign-in isn’t available right now.');
+  menu.hidden = !menu.hidden;
+});
+document.addEventListener('click', e => { if (!e.target.closest('.acct')) menu.hidden = true; });
+menu.addEventListener('click', () => (menu.hidden = true));
+$('#signout-btn').addEventListener('click', async () => { endSession(); await ACC.signOut(); toast('Signed out.'); });
+$('#my-signin').addEventListener('click', e => { e.preventDefault(); openSignIn(); });
+function renderAccount() {
+  const b = $('#acct-btn'), on = signedIn();
+  b.classList.toggle('on', on);
+  $('#acct-label').textContent = on ? (ACC.profile ? ACC.profile.nickname : 'Me') : 'Sign in';
+  if (on) { $('#acct-nick').textContent = ACC.profile ? ACC.profile.nickname : ''; $('#acct-id').textContent = 'ID: ' + (ACC.profile ? ACC.profile.username : ''); }
+}
+let mergedOnce = false;
+if (ACC) ACC.onChange(async () => {
+  renderAccount();
+  if (signedIn() && !mergedOnce) { // bring games saved on this device into the account, once
+    mergedOnce = true; const local = store.get('saved');
+    await refreshAccountData();
+    for (const s of local) if (!cloudSaved.includes(s)) { await ACC.setSaved(s, true).catch(() => {}); cloudSaved.push(s); }
+  } else await refreshAccountData();
+  if (!signedIn()) mergedOnce = false;
+  if (GAMES.length) { if (current) syncSave(); if (!$('#v-home').hidden) renderHome(); if (!$('#v-my').hidden) openMy(); }
+});
+renderAccount();
 
 /* ---------- boot ---------- */
 fetch(ROOT + 'games.json', { cache: 'no-cache' }).then(r => r.json()).then(list => {

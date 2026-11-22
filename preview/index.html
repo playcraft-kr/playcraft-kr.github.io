@@ -33,6 +33,14 @@
       <a href="#/my" data-nav="my"><span aria-hidden="true">❤️</span>My Games</a>
       <a href="#/about" data-nav="about"><span aria-hidden="true">💡</span>About</a>
     </nav>
+    <div class="acct">
+      <button class="acct-btn" id="acct-btn" aria-haspopup="dialog"><span aria-hidden="true">👤</span><span id="acct-label">Sign in</span></button>
+      <div class="acct-menu" id="acct-menu" hidden>
+        <p class="acct-who"><strong id="acct-nick"></strong><span id="acct-id"></span></p>
+        <a href="#/my">❤️ My Games &amp; records</a>
+        <button id="signout-btn">↩ Sign out</button>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -94,7 +102,8 @@
   <!-- MY GAMES -->
   <section id="v-my" class="view" hidden>
     <div class="page-head"><a class="back" href="#/">← Back</a><h1>My Games</h1></div>
-    <p class="lead">Games you saved with ♥ and games you played lately. They’re kept on this device only.</p>
+    <p class="lead" id="my-lead">Games you saved with ♥ and games you played lately. They’re kept on this device only. <a href="#" id="my-signin">Sign in</a> to keep them everywhere.</p>
+    <div class="stats" id="my-stats" hidden></div>
     <h2 class="sub">Saved</h2>
     <div class="grid" id="grid-saved"></div>
     <h2 class="sub">Played lately</h2>
@@ -189,7 +198,26 @@
   </div>
 </footer>
 
+<dialog class="signin" id="signin" aria-labelledby="si-title">
+  <form id="si-form" method="dialog">
+    <img src="../img/mascot-0.webp" alt="" width="84" height="84">
+    <h2 id="si-title">Sign in to PlayCraft</h2>
+    <p class="si-lead">Your plays, play time and saved games follow you to any computer.</p>
+    <label for="si-id">ID</label>
+    <input id="si-id" name="id" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="Your PlayCraft ID">
+    <label for="si-pw">Password</label>
+    <input id="si-pw" name="pw" type="password" autocomplete="current-password" required>
+    <p class="si-err" id="si-err" role="alert" hidden></p>
+    <div class="si-actions">
+      <button type="button" class="btn ghost" id="si-cancel">Cancel</button>
+      <button type="submit" class="btn primary" id="si-go">Sign in</button>
+    </div>
+    <p class="si-note">No account yet? Ask your PlayCraft admin for one. Never use your real name as your ID.</p>
+  </form>
+</dialog>
 <div class="toast" id="toast" role="status" hidden></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script src="account.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
