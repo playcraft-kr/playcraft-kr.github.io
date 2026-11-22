@@ -593,8 +593,10 @@ $('#adm-log-close').addEventListener('click', () => { $('#adm-log').hidden = tru
 
 document.addEventListener('click', e => {
   const a = e.target.closest('a.back'); if (!a) return;
-  let moved = false; try { moved = !!sessionStorage.getItem('pc.nav'); } catch {}
-  if (moved) { e.preventDefault(); history.back(); }
+  // 게임 안에서 생긴 기록(iframe 해시 이동)까지 되돌리지 않도록, 항상 목록 화면으로 바로 이동
+  e.preventDefault(); const to = a.getAttribute('href') || '#/';
+  if (location.hash === to || (to === '#/' && (location.hash === '' || location.hash === '#'))) route(); else location.hash = to;
+  try { scrollTo({ top: 0 }); } catch {}
 });
 addEventListener('hashchange', () => { try { sessionStorage.setItem('pc.nav', '1'); } catch {} });
 
