@@ -400,3 +400,5 @@ a.chip.hero-chip:hover{background:rgba(255,255,255,.26)}
 .pv[open]{display:flex}.pv::backdrop{background:rgba(20,15,51,.6)}
 .pv-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:var(--night);color:#fff}
 .pv-frame{flex:1;border:0;width:100%;background:#000}
+
+.log-day{margin-top:14px}.log-day h3{font-size:16px;margin:0 0 6px}.log-day h3 .note{font-weight:700}.log-table{min-width:520px}

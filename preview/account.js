@@ -52,6 +52,8 @@ const Account = {
   },
   async adminSetBlocked(id, value) { const { error } = await sb.rpc('admin_set_blocked', { target: id, value }); if (error) throw error; },
   async adminResetPassword(id, pw) { const { error } = await sb.rpc('admin_reset_password', { target: id, new_password: pw }); if (error) throw error; },
+  // one player's play sessions, newest first (admin only; checked in the database)
+  async adminUserPlays(id) { const { data, error } = await sb.rpc('admin_user_plays', { target: id, max_rows: 500 }); if (error) throw error; return data || []; },
   async adminSetAdmin(id, value) { const { error } = await sb.rpc('admin_set_admin', { target: id, value }); if (error) throw error; },
 
   // ---- player-made games ----

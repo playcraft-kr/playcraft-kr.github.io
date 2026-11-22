@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261122102154">
+<link rel="stylesheet" href="app.css?v=20261122163303">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -193,6 +193,11 @@
           <tbody id="adm-rows"></tbody>
         </table></div>
       </section>
+      <section class="panel" id="adm-log" hidden>
+        <div class="adm-users-head"><h2>Play log · <span class="mono" id="adm-log-who"></span> <span class="count" id="adm-log-sum"></span></h2>
+          <button class="btn ghost tiny" id="adm-log-close">Close</button></div>
+        <div id="adm-log-body"></div>
+      </section>
     </div>
   </section>
 
@@ -320,7 +325,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261122153404"></script>
-<script src="app.js?v=20261122102154"></script>
+<script src="account.js?v=20261122163303"></script>
+<script src="app.js?v=20261122163303"></script>
 </body>
 </html>

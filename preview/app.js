@@ -509,6 +509,7 @@ function renderAdmin() {
     const u = per[p.id] || { plays: 0, secs: 0, last: null };
     const status = p.blocked ? h('span', { class: 'pill bad', text: 'Paused' }) : p.is_admin ? h('span', { class: 'pill adm', text: 'Admin' }) : h('span', { class: 'pill ok', text: 'Active' });
     const acts = h('div', { class: 'acts' });
+    acts.append(h('button', { class: 'btn primary tiny', onclick: () => openPlayLog(p) }, 'Play log'));
     if (p.id !== me) {
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'block') }, p.blocked ? 'Unpause' : 'Pause'));
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'admin') }, p.is_admin ? 'Remove admin' : 'Make admin'));
@@ -518,6 +519,27 @@ function renderAdmin() {
       h('td', {}, p.age ? String(p.age >= 18 ? '18+' : p.age) : '—', p.age && p.age < 14 ? h('span', { class: 'g', title: 'Guardian OK ticked at sign-up', text: p.guardian_ok ? ' ✓G' : ' !G' }) : null),
       h('td', { text: d(p.created_at) }), h('td', { text: d(u.last) }), h('td', { text: String(u.plays) }), h('td', { text: fmtTime(u.secs) }), h('td', {}, status), h('td', {}, acts));
   }));
+}
+// Admin: when and how long one player played each game, grouped by day (shown in the viewer's local time)
+async function openPlayLog(p) {
+  const box = $('#adm-log'); box.hidden = false; $('#adm-log-who').textContent = p.username; $('#adm-log-sum').textContent = '';
+  $('#adm-log-body').replaceChildren(h('p', { class: 'note', text: 'Loading…' })); box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  let rows; try { rows = await ACC.adminUserPlays(p.id); } catch (x) { $('#adm-log-body').replaceChildren(h('p', { class: 'note', text: 'Couldn’t load the play log: ' + ((x && x.message) || 'try again') })); return; }
+  if (!rows.length) { $('#adm-log-body').replaceChildren(h('p', { class: 'note', text: `${p.username} hasn’t played anything yet.` })); return; }
+  const dayKey = t => { const d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  const dayLabel = t => new Date(t).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  const clock = t => new Date(t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const dur = s => (s > 0 ? fmtTime(s) : '<1 min / still open');
+  const days = []; const byDay = {};
+  for (const r of rows) { const k = dayKey(r.started_at); if (!byDay[k]) { byDay[k] = { label: dayLabel(r.started_at), rows: [], secs: 0, games: {} }; days.push(byDay[k]); } const D = byDay[k]; D.rows.push(r); D.secs += Number(r.seconds) || 0; D.games[r.game_slug] = (D.games[r.game_slug] || 0) + (Number(r.seconds) || 0); }
+  const total = rows.reduce((a, r) => a + (Number(r.seconds) || 0), 0);
+  $('#adm-log-sum').textContent = `${plural(rows.length, 'play')} · ${fmtTime(total)}${rows.length >= 500 ? ' (latest 500)' : ''}`;
+  const title = s => (bySlug(s) ? bySlug(s).title : s);
+  $('#adm-log-body').replaceChildren(...days.map(D => h('div', { class: 'log-day' },
+    h('h3', {}, D.label, h('span', { class: 'note', text: ` · ${fmtTime(D.secs)} · ` + Object.entries(D.games).sort((a, b) => b[1] - a[1]).map(([g, s]) => `${title(g)} ${fmtTime(s)}`).join(', ') })),
+    h('div', { class: 'table-wrap' }, h('table', { class: 'adm-table log-table' },
+      h('thead', {}, h('tr', {}, h('th', { text: 'Started' }), h('th', { text: 'Ended' }), h('th', { text: 'Game' }), h('th', { text: 'Time played' }))),
+      h('tbody', {}, ...D.rows.map(r => { const s = Number(r.seconds) || 0; return h('tr', {}, h('td', { text: clock(r.started_at) }), h('td', { text: s > 0 ? clock(Date.parse(r.started_at) + s * 1000) : '—' }), h('td', { text: title(r.game_slug) }), h('td', { text: dur(s) })); })))))));
 }
 function statBar(label, n, max, title) {
   return h('li', {}, h('span', { class: 'bl', text: label }), h('span', { class: 'bt' }, h('span', { class: 'bf', style: `width:${Math.round(n / max * 100)}%` })), h('span', { class: 'bn', text: String(n), title }));
@@ -567,6 +589,7 @@ $('#ma-delete').addEventListener('click', async () => {
   catch { toast('We couldn’t delete your account. Check your internet and try again.'); }
 });
 $('#adm-refresh').addEventListener('click', openAdmin);
+$('#adm-log-close').addEventListener('click', () => { $('#adm-log').hidden = true; });
 
 document.addEventListener('click', e => {
   const a = e.target.closest('a.back'); if (!a) return;
