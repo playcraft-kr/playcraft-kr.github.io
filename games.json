@@ -44,9 +44,9 @@
    "Adventure"
   ],
   "lang": "English",
-  "version": 1,
+  "version": 2,
   "added": "2026-11-21",
-  "notes": "First release",
+  "notes": "Champion Arena unlocked for players who beat World 3",
   "cover": "img/cover-legend-arena.webp",
   "wide": "img/wide-legend-arena.webp",
   "controls": [
