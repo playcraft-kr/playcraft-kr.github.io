@@ -84,7 +84,7 @@ function buildHero() {
     h('div', { class: 'slide-copy' },
       h('span', { class: 'eyebrow', text: i === 0 ? '★ Featured' : '★ Top pick' }),
       h('h2', { text: g.title }), h('p', { text: g.desc }),
-      h('div', { class: 'chips' }, ...g.cats.map(c => h('span', { class: 'chip', text: c }))),
+      h('div', { class: 'chips' }, ...g.cats.map(c => h('a', { class: 'chip hero-chip', href: '#/cat/' + encodeURIComponent(c), text: c }))),
       h('div', {}, h('a', { class: 'btn primary', href: '#/game/' + g.slug }, '▶ Play now'))))));
   picks.replaceChildren(...feat.map((g, i) => h('button', { class: 'pick', role: 'tab', 'aria-controls': 'slide-' + i, 'aria-label': g.title, onclick: () => showSlide(i, true) },
     h('img', { src: ROOT + g.cover, alt: '' }))));
@@ -165,13 +165,16 @@ function show(v, nav) {
 function route() {
   if (!GAMES.length) return;
   closeSuggest();
-  const [p0, ...rest] = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('/');
+  const raw = location.hash.replace(/^#\/?/, '');
+  let dec; try { dec = decodeURIComponent(raw); } catch { dec = raw; }
+  const [p0, ...rest] = dec.split('/');
   const arg = rest.join('/');
   if (p0 !== 'game') stopGame();
   document.title = 'PlayCraft — Free Original Browser Games';
   if (p0 === 'game' && bySlug(arg)) return openGame(bySlug(arg));
   if (p0 === 'categories') { show('categories', 'categories'); return; }
   if (p0 === 'cat') return openList(`${arg} games`, MAIN().filter(g => g.cats.includes(arg)), 'categories');
+  if (p0 === 'search' && !arg.trim()) { location.hash = '#/'; return; }
   if (p0 === 'search') { q.value = arg; return openList(`Results for “${arg}”`, search(arg), null, arg); }
   if (p0 === 'my') return openMy();
   if (p0 === 'about') { show('about', 'about'); return; }
@@ -179,6 +182,7 @@ function route() {
   renderHome(); show('home', 'home');
 }
 addEventListener('hashchange', route);
+addEventListener('hashchange', () => { const d = document.querySelector('#signin'); if (d && d.open) d.close(); });
 
 function renderHome() {
   const played = playedList().map(bySlug).filter(Boolean);
@@ -195,9 +199,14 @@ function openList(title, games, nav, term) {
   }
   show('list', nav);
 }
-function openMy() {
+let myRefreshing = false;
+function openMy(fromRefresh) {
+  if (!fromRefresh && signedIn() && !myRefreshing) { myRefreshing = true; refreshAccountData().then(() => { myRefreshing = false; if (!$('#v-my').hidden) openMy(true); }); }
   const saved = savedList().map(bySlug).filter(Boolean), played = playedList().map(bySlug).filter(Boolean);
   fill($('#grid-saved'), saved); fill($('#grid-played'), played);
+  const acc = $('#my-account'); acc.hidden = !signedIn();
+  if (signedIn() && ACC.profile) { $('#ma-id').textContent = ACC.profile.username; $('#ma-nick').textContent = ACC.profile.nickname; $('#ma-age').textContent = ACC.profile.age ? (ACC.profile.age >= 18 ? '18+' : String(ACC.profile.age)) : '—'; }
+  $('#my-paused').hidden = !(signedIn() && ACC.profile && ACC.profile.blocked);
   const st = $('#my-stats'), on = signedIn() && cloudStats;
   $('#my-lead').hidden = signedIn();
   st.hidden = !on;
@@ -224,7 +233,10 @@ function openGame(g) {
   $('#crumbs').replaceChildren(h('a', { href: '#/', text: 'Home' }), h('span', { 'aria-hidden': 'true', text: '›' }), h('a', { href: '#/cat/' + encodeURIComponent(g.cats[0]), text: g.cats[0] }), h('span', { 'aria-hidden': 'true', text: '›' }), h('span', { 'aria-current': 'page', text: g.title }));
   $('#start-bg').src = ROOT + g.wide;
   $('#g-title').textContent = g.title; $('#g-desc').textContent = g.desc;
-  $('#start-note').textContent = g.lang === 'English' ? 'Tip: click inside the game first so it can hear your keys.' : `In-game text is in ${g.lang}. The controls are on the right.`;
+  const touch = matchMedia('(pointer: coarse)').matches;
+  $('#start-note').textContent = touch ? (g.mobile ? 'Tip: tap ⛶ Big screen for the best view.' : 'This game needs a keyboard and mouse. It works best on a computer.')
+    : 'Tip: click inside the game first so it can hear your keys.';
+  $('#start-note').classList.toggle('mobile-note', touch && !g.mobile);
   $('#keys').replaceChildren(...g.controls.map(([k, a]) => h('li', {}, h('kbd', { text: k }), h('span', { text: a }))));
   $('#tip').textContent = g.tip;
   $('#device').textContent = g.mobile ? '📱 Works on a computer or a touch screen.' : '⌨️ Best on a computer with a keyboard and mouse.';
@@ -252,11 +264,12 @@ function playGame() {
 // Games are designed for a full desktop window. When the player box is smaller than 1280×720,
 // render the game at that size and scale it down so nothing gets cut off.
 const MIN_W = 1280, MIN_H = 720;
+const SMALL = () => window.innerWidth < 860;
 function fitFrame() {
   const st = $('#stage'), f = st && st.querySelector('iframe'); if (!f) return;
   const top = st.classList.contains('full') ? (st.querySelector('.big-bar')?.offsetHeight || 0) : 0;
   const w = st.clientWidth, hgt = st.clientHeight - top;
-  const s = Math.min(1, w / MIN_W, hgt / MIN_H);
+  const s = SMALL() ? 1 : Math.min(1, w / MIN_W, hgt / MIN_H);
   f.style.width = (w / s) + 'px'; f.style.height = (hgt / s) + 'px';
   f.style.transform = s < 1 ? `scale(${s})` : ''; f.style.transformOrigin = '0 0';
   f.style.top = top + 'px'; f.style.left = '0';
@@ -299,16 +312,17 @@ async function beginSession(slug) {
   endSession();
   if (!signedIn()) return;
   const s = { slug, id: null, secs: 0, last: Date.now() }; sess = s;
-  s.id = await ACC.startPlay(slug).catch(() => null);
   s.timer = setInterval(() => { tick(s); if (s.id) ACC.updatePlay(s.id, s.secs).catch(() => {}); }, 20000);
+  s.id = await ACC.startPlay(slug).catch(() => null);
+  if (sess !== s && s.id) ACC.updatePlay(s.id, s.secs).catch(() => {}); // the game was closed while we were starting
 }
 function tick(s) { const now = Date.now(); if (!document.hidden) s.secs += (now - s.last) / 1000; s.last = now; }
 function endSession() {
   const s = sess; if (!s) return; sess = null; clearInterval(s.timer); tick(s);
-  if (s.id) ACC.updatePlay(s.id, s.secs).then(() => refreshAccountData()).catch(() => {});
+  if (s.id) ACC.updatePlay(s.id, s.secs).then(() => refreshAccountData()).then(() => { if (!$('#v-my').hidden) openMy(true); if (!$('#v-home').hidden) renderHome(); }).catch(() => {});
 }
-document.addEventListener('visibilitychange', () => { if (sess) { if (document.hidden) { tick(sess); } else sess.last = Date.now(); } });
-addEventListener('pagehide', () => { if (sess && sess.id) { tick(sess); ACC.updatePlay(sess.id, sess.secs); } });
+document.addEventListener('visibilitychange', () => { if (!sess) return; if (document.hidden) { tick(sess); if (sess.id) ACC.updatePlay(sess.id, sess.secs).catch(() => {}); } else sess.last = Date.now(); });
+addEventListener('pagehide', () => { if (sess && sess.id) { tick(sess); ACC.updatePlayOnExit(sess.id, sess.secs); } });
 
 /* ---------- sign in / create account ---------- */
 const dlg = $('#signin');
@@ -430,6 +444,7 @@ if (ACC) ACC.onChange(async () => {
     mergedOnce = true; const local = store.get('saved');
     await refreshAccountData();
     for (const s of local) if (!cloudSaved.includes(s)) { await ACC.setSaved(s, true).catch(() => {}); cloudSaved.push(s); }
+    store.set('saved', []); store.set('played', []);
   } else await refreshAccountData();
   if (!signedIn()) mergedOnce = false;
   if (GAMES.length) { if (current) syncSave(); if (!$('#v-home').hidden) renderHome(); if (!$('#v-my').hidden) openMy(); if (!$('#v-admin').hidden) openAdmin(); }
@@ -448,19 +463,17 @@ async function openAdmin() {
 }
 function renderAdmin() {
   if (!admData) return;
-  const { profiles, plays } = admData, now = Date.now(), WEEKMS = 7 * 864e5;
-  const per = {}; for (const p of plays) { const u = per[p.user_id] || (per[p.user_id] = { plays: 0, secs: 0, last: null }); u.plays++; u.secs += p.seconds || 0; if (!u.last || p.started_at > u.last) u.last = p.started_at; }
-  const totalSecs = plays.reduce((s, p) => s + (p.seconds || 0), 0);
-  const activeWeek = new Set(plays.filter(p => now - Date.parse(p.started_at) < WEEKMS).map(p => p.user_id)).size;
+  const { profiles, userStats, gameStats, totals } = admData, now = Date.now(), WEEKMS = 7 * 864e5;
+  const per = {}; for (const u of userStats) per[u.user_id] = { plays: Number(u.plays), secs: Number(u.seconds), last: u.last_played };
+  const totalSecs = Number(totals.seconds || 0), activeWeek = Number(totals.active_week || 0), totalPlays = Number(totals.plays || 0);
   $('#adm-stats').replaceChildren(
     h('div', { class: 'stat' }, h('b', { text: String(profiles.length) }), h('span', { text: 'Players signed up' })),
     h('div', { class: 'stat' }, h('b', { text: String(profiles.filter(p => now - Date.parse(p.created_at) < WEEKMS).length) }), h('span', { text: 'New this week' })),
     h('div', { class: 'stat' }, h('b', { text: String(activeWeek) }), h('span', { text: 'Played this week' })),
-    h('div', { class: 'stat' }, h('b', { text: String(plays.length) }), h('span', { text: 'Games played' })),
+    h('div', { class: 'stat' }, h('b', { text: String(totalPlays) }), h('span', { text: 'Games played' })),
     h('div', { class: 'stat' }, h('b', { text: fmtTime(totalSecs) }), h('span', { text: 'Total play time' })));
-  const byGame = {}; for (const p of plays) byGame[p.game_slug] = (byGame[p.game_slug] || 0) + 1;
-  const gRows = Object.entries(byGame).sort((a, b) => b[1] - a[1]); const gMax = Math.max(1, ...gRows.map(r => r[1]));
-  $('#adm-games').replaceChildren(...(gRows.length ? gRows.map(([s, n]) => statBar(bySlug(s) ? bySlug(s).title : s, n, gMax, plural(n, 'play'))) : [h('li', { class: 'note', text: 'No plays yet.' })]));
+  const gRows = gameStats.map(g => [g.game_slug, Number(g.plays), Number(g.players), Number(g.seconds)]).sort((a, b) => b[1] - a[1]); const gMax = Math.max(1, ...gRows.map(r => r[1]));
+  $('#adm-games').replaceChildren(...(gRows.length ? gRows.map(([s, n, pl, sec]) => statBar(bySlug(s) ? bySlug(s).title : s, n, gMax, `${plural(n, 'play')} · ${plural(pl, 'player')} · ${fmtTime(sec)}`)) : [h('li', { class: 'note', text: 'No plays yet.' })]));
   const bands = [['6–9', a => a <= 9], ['10–12', a => a >= 10 && a <= 12], ['13–15', a => a >= 13 && a <= 15], ['16–17', a => a >= 16 && a <= 17], ['18+', a => a >= 18]];
   const aRows = bands.map(([l, f]) => [l, profiles.filter(p => p.age && f(p.age)).length]); const aMax = Math.max(1, ...aRows.map(r => r[1]));
   $('#adm-ages').replaceChildren(...aRows.map(([l, n]) => statBar(l, n, aMax, plural(n, 'player'))));
@@ -475,6 +488,7 @@ function renderAdmin() {
     if (p.id !== me) {
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'block') }, p.blocked ? 'Unpause' : 'Pause'));
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'admin') }, p.is_admin ? 'Remove admin' : 'Make admin'));
+      acts.append(h('button', { class: 'btn ghost tiny', onclick: () => resetPw(p) }, 'Reset password'));
     } else acts.append(h('span', { class: 'note', text: 'You' }));
     return h('tr', {}, h('td', { class: 'mono', text: p.username }), h('td', { text: p.nickname }),
       h('td', {}, p.age ? String(p.age >= 18 ? '18+' : p.age) : '—', p.age && p.age < 14 ? h('span', { class: 'g', title: 'Guardian OK ticked at sign-up', text: p.guardian_ok ? ' ✓G' : ' !G' }) : null),
@@ -493,6 +507,27 @@ async function adminAct(p, kind) {
     toast('Done.'); admData = await ACC.adminData(); renderAdmin();
   } catch (x) { toast('That didn’t work: ' + ((x && x.message) || 'try again')); }
 }
+// Give a player who forgot their password a temporary one (shown once, for the admin to pass on)
+async function resetPw(p) {
+  const pw = await askText(`New temporary password for ${p.username}. Tell them in person, and ask them to remember it.`, makeTempPw());
+  if (!pw) return;
+  try { await ACC.adminResetPassword(p.id, pw); toast(`Password for ${p.username} changed.`); }
+  catch (x) { toast('That didn’t work: ' + ((x && x.message) || 'try again')); }
+}
+function makeTempPw() {
+  const words = ['Rocket', 'Comet', 'Tiger', 'Pixel', 'Planet', 'Dragon', 'Falcon', 'Nova'], sym = '!@#$%';
+  const r = n => Math.floor((crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32) * n);
+  return words[r(words.length)] + (100 + r(900)) + sym[r(sym.length)];
+}
+function askText(text, value) {
+  return new Promise(res => {
+    const inp = h('input', { type: 'text', value, 'aria-label': 'New password', class: 'ask-input' });
+    const d = h('dialog', { class: 'confirm' }, h('p', { text }), inp, h('div', { class: 'si-actions' },
+      h('button', { class: 'btn ghost', onclick: () => { d.close(); res(null); } }, 'Cancel'),
+      h('button', { class: 'btn primary', onclick: () => { const v = inp.value.trim(); d.close(); res(v || null); } }, 'Set password')));
+    d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal(); inp.select();
+  });
+}
 function ask(text) {
   return new Promise(res => {
     const d = h('dialog', { class: 'confirm' }, h('p', { text }), h('div', { class: 'si-actions' },
@@ -502,7 +537,19 @@ function ask(text) {
   });
 }
 $('#adm-q').addEventListener('input', renderAdmin);
+$('#ma-delete').addEventListener('click', async () => {
+  if (!(await ask('Delete your PlayCraft account? Your ID, nickname, saved games and play records will be gone for good. This can’t be undone.'))) return;
+  try { endSession(); await ACC.deleteMyAccount(); toast('Your account was deleted.'); location.hash = '#/'; }
+  catch { toast('We couldn’t delete your account. Check your internet and try again.'); }
+});
 $('#adm-refresh').addEventListener('click', openAdmin);
+
+document.addEventListener('click', e => {
+  const a = e.target.closest('a.back'); if (!a) return;
+  let moved = false; try { moved = !!sessionStorage.getItem('pc.nav'); } catch {}
+  if (moved) { e.preventDefault(); history.back(); }
+});
+addEventListener('hashchange', () => { try { sessionStorage.setItem('pc.nav', '1'); } catch {} });
 
 /* ---------- boot ---------- */
 fetch(ROOT + 'games.json', { cache: 'no-cache' }).then(r => r.json()).then(list => {

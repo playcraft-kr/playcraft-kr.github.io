@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>PlayCraft — Free Original Browser Games</title>
-<meta name="description" content="Play original browser games made by young creators. No download, no sign-up.">
+<meta name="description" content="Play original browser games made by young creators. No download needed, and an account is optional.">
 <meta name="robots" content="noindex">
 <link rel="icon" href="../img/mascot-0.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261122064649">
+<link rel="stylesheet" href="app.css?v=20261122070042">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -24,7 +25,7 @@
     <div class="search" role="search">
       <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
       <label class="sr" for="q">Search games</label>
-      <input id="q" type="search" placeholder="Search games, like “space” or “boxing”" autocomplete="off" aria-controls="suggest" aria-expanded="false">
+      <input id="q" type="search" placeholder="Search games" autocomplete="off" aria-controls="suggest" aria-expanded="false">
       <div class="suggest" id="suggest" role="listbox" hidden></div>
     </div>
     <nav class="nav" aria-label="Main">
@@ -104,11 +105,18 @@
   <section id="v-my" class="view" hidden>
     <div class="page-head"><a class="back" href="#/">← Back</a><h1>My Games</h1></div>
     <p class="lead" id="my-lead">Games you saved with ♥ and games you played lately. They’re kept on this device only. <a href="#" id="my-signin">Sign in</a> to keep them everywhere.</p>
+    <div class="warn-box" id="my-paused" hidden>⏸ Your account is paused by an admin, so new plays aren’t being saved right now.</div>
     <div class="stats" id="my-stats" hidden></div>
     <h2 class="sub">Saved</h2>
     <div class="grid" id="grid-saved"></div>
     <h2 class="sub">Played lately</h2>
     <div class="grid" id="grid-played"></div>
+    <section class="panel acct-panel" id="my-account" hidden>
+      <h2>Your account</h2>
+      <dl class="acct-facts"><div><dt>ID</dt><dd id="ma-id"></dd></div><div><dt>Nickname</dt><dd id="ma-nick"></dd></div><div><dt>Age</dt><dd id="ma-age"></dd></div></dl>
+      <p class="note">Want to leave PlayCraft? Deleting your account removes your ID, nickname, age, saved games and play records for good.</p>
+      <button class="btn danger" id="ma-delete">Delete my account</button>
+    </section>
     <div class="empty" id="my-empty" hidden>
       <img src="../img/mascot-0.webp" alt="">
       <div><h2>Nothing here yet</h2><p>Tap ♥ Save on any game page and it will wait for you here.</p><a class="btn primary" href="#/">Find a game</a></div>
@@ -121,7 +129,8 @@
     <div class="about">
       <img src="../img/mascot-0.webp" alt="Bolt, the PlayCraft robot">
       <div>
-        <p>PlayCraft is a home for original browser games made by young creators. Tap a game and it starts right away. There’s nothing to download and no account to make.</p>
+        <p>PlayCraft is a home for original browser games made by young creators. Tap a game and it starts right away. There’s nothing to download, and you can play without an account.</p>
+        <p>If you make a free account, we keep only your ID, nickname, age, saved games and play time, so they follow you to any computer. Read the <a href="../privacy.html">Privacy Policy</a>.</p>
         <p>Every game here was reviewed by an admin first. There’s no chat and no ads.</p>
         <h2 class="sub">Stay safe</h2>
         <ul class="safe">
@@ -208,20 +217,21 @@
         <ul class="versions" id="versions"></ul>
       </section>
     </div>
-    <p class="rights">© 2026 PlayCraft. This game is an original work. Play it here, and please don’t copy, download, re-upload, or embed it somewhere else. <a href="../terms.html">Terms of Use</a></p>
+    <p class="rights">© 2026 PlayCraft · Please play here and don’t copy or re-upload the game. <a href="../terms.html">Terms of Use</a></p>
   </section>
 </main>
 
 <footer class="foot">
   <div class="foot-in">
     <div class="foot-brand"><img src="../img/mascot-0.webp" alt="" width="40" height="40"><div><strong>PlayCraft</strong><span>Make it. Play it. Make it better.</span></div></div>
-    <nav aria-label="Footer"><a href="#/">Games</a><a href="#/categories">Categories</a><a href="#/about">About</a><a href="../terms.html">Terms of Use</a></nav>
-    <p class="legal">© 2026 PlayCraft. All rights reserved. All games on this site are original works owned by their creators and PlayCraft. You may play them on playcraft-kr.github.io for personal, non-commercial fun. Copying, downloading, re-hosting, embedding on other websites, modifying, or selling any game or site content without written permission is prohibited.</p>
+    <nav aria-label="Footer"><a href="#/">Games</a><a href="#/categories">Categories</a><a href="#/about">About</a><a href="../terms.html">Terms of Use</a><a href="../privacy.html">Privacy</a></nav>
+    <p class="legal">© 2026 PlayCraft. All rights reserved. Games are original works — play them here, but please don’t copy, re-upload or sell them. See the <a href="../terms.html">Terms of Use</a> and <a href="../privacy.html">Privacy Policy</a>.</p>
   </div>
 </footer>
 
 <dialog class="signin" id="signin" aria-labelledby="si-title">
   <div class="si-wrap">
+    <button type="button" class="si-x si-cancel" aria-label="Close">✕</button>
     <img src="../img/mascot-0.webp" alt="" width="84" height="84">
     <div class="si-tabs" role="tablist">
       <button type="button" role="tab" id="tab-in" aria-selected="true">Sign in</button>
@@ -240,6 +250,7 @@
         <button type="button" class="btn ghost si-cancel">Cancel</button>
         <button type="submit" class="btn primary" id="si-go">Sign in</button>
       </div>
+      <p class="si-note">Forgot your password? Ask a grown-up to contact the PlayCraft admin. They can give you a new one.</p>
       <p class="si-note">New here? <a href="#" id="go-up">Create an account</a> — it’s free.</p>
     </form>
 
@@ -253,7 +264,7 @@
       <input id="su-nick" maxlength="16" placeholder="e.g. Rocket Fox">
       <label for="su-age">Age</label>
       <select id="su-age"><option value="">Choose your age</option></select>
-      <label class="guardian" id="su-guardian-row" hidden><input type="checkbox" id="su-guardian"> A parent or guardian knows I’m making this account and says it’s OK.</label>
+      <label class="guardian" id="su-guardian-row" hidden><input type="checkbox" id="su-guardian"> A parent or guardian knows I’m making this account and says it’s OK. (We keep only the ID, nickname, age and play records. <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>)</label>
       <label for="su-pw">Password</label>
       <div class="pw-field"><input id="su-pw" type="password" autocomplete="new-password" maxlength="72"><button type="button" class="eye" data-for="su-pw" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="open" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="open" cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></div>
       <ul class="pw-rules" id="pw-rules">
@@ -270,13 +281,13 @@
         <button type="button" class="btn ghost si-cancel">Cancel</button>
         <button type="submit" class="btn primary" id="su-go">Create account</button>
       </div>
-      <p class="si-note">By joining you agree to the <a href="../terms.html" target="_blank" rel="noopener">Terms of Use</a>. We never ask for your email, school or phone number.</p>
+      <p class="si-note">By joining you agree to the <a href="../terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>. We never ask for your email, school or phone number.</p>
     </form>
   </div>
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-<script src="account.js?v=20261122064649"></script>
-<script src="app.js?v=20261122064649"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
+<script src="account.js?v=20261122070042"></script>
+<script src="app.js?v=20261122070042"></script>
 </body>
 </html>
