@@ -10,9 +10,9 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 1,
+  "version": 2,
   "added": "2026-11-22",
-  "notes": "First release",
+  "notes": "Menu fix, records follow your PlayCraft account",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [

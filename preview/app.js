@@ -278,7 +278,7 @@ function playGame() {
   if (current.community) {
     f = h('iframe', { sandbox: 'allow-scripts allow-pointer-lock', allow: 'autoplay; gamepad', title: current.title });
     fetch(current.fileUrl, { cache: 'no-cache' }).then(r => r.text()).then(html => { f.srcdoc = SANDBOX_SHIM + html; }).catch(() => toast('We couldn’t load this game. Try again.'));
-  } else f = h('iframe', { src: `${ROOT}games/${current.slug}/`, allow: 'autoplay; fullscreen; gamepad', title: current.title });
+  } else f = h('iframe', { src: `${ROOT}games/${current.slug}/?v=${encodeURIComponent(current.version || 1)}`, allow: 'autoplay; fullscreen; gamepad', title: current.title });
   $('#start').hidden = true; st.append(f); fitFrame(); playing = true; markPlayed(current.slug); beginSession(current.slug);
   setTimeout(() => f.focus(), 400);
 }
