@@ -10,9 +10,9 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 6,
+  "version": 7,
   "added": "2026-11-22",
-  "notes": "Celebration photos appear as each goal happens",
+  "notes": "Replays use the real scorers; tip for seeing celebration photos",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
