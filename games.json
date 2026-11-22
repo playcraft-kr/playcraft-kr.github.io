@@ -50,7 +50,7 @@
    "3D",
    "Sports"
   ],
-  "lang": "Korean",
+  "lang": "English",
   "version": 1,
   "added": "2026-11-21",
   "notes": "First release",
@@ -87,7 +87,7 @@
    ]
   ],
   "tip": "Dodge right before a hit for a PERFECT, then punch back for double damage.",
-  "mobile": false
+  "mobile": true
  },
  {
   "slug": "ashen-fortress",
@@ -99,7 +99,7 @@
    "3D",
    "Adventure"
   ],
-  "lang": "Korean",
+  "lang": "English",
   "version": 1,
   "added": "2026-11-21",
   "notes": "First release",
@@ -144,7 +144,7 @@
    "3D",
    "Action"
   ],
-  "lang": "Korean",
+  "lang": "English",
   "version": 1,
   "added": "2026-11-21",
   "notes": "First release",
@@ -188,7 +188,7 @@
    "Space",
    "Action"
   ],
-  "lang": "Korean",
+  "lang": "English",
   "version": 1,
   "added": "2026-11-21",
   "notes": "First release",
@@ -200,61 +200,23 @@
     "Fly"
    ],
    [
-    "Mouse + click / J",
-    "Aim and grab"
+    "Mouse + Click / J",
+    "Aim and fire"
    ],
    [
     "Space / Shift / Right click",
-    "Dash"
+    "Dash (shield)"
    ],
    [
-    "S",
-    "Skip intro"
+    "P",
+    "Pause"
+   ],
+   [
+    "M",
+    "Sound on/off"
    ]
   ],
-  "tip": "Gold pods are big arks. Grab them for bonus repairs.",
-  "mobile": false
- },
- {
-  "slug": "legend-arena",
-  "title": "Legend Arena (Korean)",
-  "desc": "The Korean edition of Legend Arena.",
-  "emoji": "🌐",
-  "cats": [
-   "Fighting",
-   "3D",
-   "Adventure"
-  ],
-  "lang": "Korean",
-  "version": 1,
-  "added": "2026-11-21",
-  "notes": "First release",
-  "cover": "img/cover-legend-arena.webp",
-  "wide": "img/wide-legend-arena.webp",
-  "controls": [
-   [
-    "W A S D / Arrows",
-    "Move"
-   ],
-   [
-    "Mouse",
-    "Look around (click to lock)"
-   ],
-   [
-    "Click / 1",
-    "Attack"
-   ],
-   [
-    "J",
-    "Quests"
-   ],
-   [
-    "Esc",
-    "Free the mouse"
-   ]
-  ],
-  "tip": "Each fighting type levels up on its own. Try them all!",
-  "mobile": false,
-  "variantOf": "legend-arena-en"
+  "tip": "Drop off 3 or more pods at once to refill your dash and fix your hull. Gold pods are big Arks!",
+  "mobile": true
  }
 ]

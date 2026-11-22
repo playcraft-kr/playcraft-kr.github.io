@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head><script src="../guard.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>블랙홀 생존전</title>
+<title>Black Hole Survival</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
@@ -99,45 +99,45 @@ h1{font:400 clamp(40px,7vw,68px)/1.02 "Black Han Sans",sans-serif;margin:0;color
 <body>
 <div id="vig"></div><div id="flash"></div>
 <div id="hud">
- <div id="top"><span class="pill" id="lv">블랙홀 Lv.1<span id="lvbar"><i></i></span></span><span class="pill" id="alive">생존 12/12</span><span class="pill" id="tm">0:00</span></div>
+ <div id="top"><span class="pill" id="lv">Hole Lv.1<span id="lvbar"><i></i></span></span><span class="pill" id="alive">Alive 12/12</span><span class="pill" id="tm">0:00</span></div>
  <div id="mapw"><div id="map"><div id="mapzone"></div><div id="mapdots"></div><div id="mapbh"></div></div><div id="swt"></div></div>
- <div id="dist">블랙홀까지 0m</div>
+ <div id="dist">Hole: 0m</div>
  <div id="feed"></div>
  <div id="cross"></div>
  <div id="banner"></div>
  <div id="count"></div>
  <div id="me"></div>
  <div id="bar">
-  <div class="slot wide" id="sW"><span class="k">무기</span><span class="n" id="wN">주먹</span></div>
+  <div class="slot wide" id="sW"><span class="k">Weapon</span><span class="n" id="wN">Fist</span></div>
   <div class="slot" id="sQ"><span class="k">Q</span><span class="n" id="qN"></span><span class="cd" id="qC"></span></div>
   <div class="slot" id="sE"><span class="k">E</span><span class="n" id="eN"></span><span class="cd" id="eC"></span></div>
  </div>
 </div>
 <div id="touch"><div id="lookzone"></div><div id="joyzone"><div id="joybase"><div id="joyknob"></div></div></div>
- <div class="tb" id="tAtk">공격</div><div class="tb" id="tQ">Q</div><div class="tb" id="tE">E</div><div class="tb" id="tJ">점프</div></div>
-<div class="ov" id="pause"><div class="card" id="pauseCard"><h1 style="font-size:44px">일시정지</h1><div class="sub" style="margin:10px 0 0">화면을 클릭하면 마우스가 고정되고 게임이 이어집니다<br><span style="color:#cfd6ea;font-weight:400">ESC를 누르면 마우스 고정이 풀려요</span></div></div></div>
+ <div class="tb" id="tAtk">Hit</div><div class="tb" id="tQ">Q</div><div class="tb" id="tE">E</div><div class="tb" id="tJ">Jump</div></div>
+<div class="ov" id="pause"><div class="card" id="pauseCard"><h1 style="font-size:44px">Paused</h1><div class="sub" style="margin:10px 0 0">Click the screen to lock the mouse and keep playing<br><span style="color:#cfd6ea;font-weight:400">Press ESC to unlock the mouse</span></div></div></div>
 <div class="ov" id="menu"><div class="card">
- <h1>블랙홀 생존전</h1>
- <div class="sub">도로 끝 블랙홀에 빨려 들어가지 마라! · 12인 서바이벌 · 속성 15종</div>
- <div class="coins">🪙 <span id="coinN">0</span> 코인</div>
+ <h1>Black Hole Survival</h1>
+ <div class="sub">Don’t get sucked into the black hole! · 12 players · 15 elements</div>
+ <div class="coins">🪙 <span id="coinN">0</span> coins</div>
  <div class="grid" id="grid"></div><div id="eldet"></div>
  <div class="how">
-  <div><b>시점</b> 클릭하면 마우스 고정 · 마우스로 둘러보기</div>
-  <div><b>이동</b> WASD · 방향키 &nbsp; <b>점프</b> Space</div>
-  <div><b>공격</b> 왼쪽 클릭 (조준점 방향)</div>
-  <div><b>스킬</b> Q · E &nbsp; <b>무기 교체</b> F &nbsp; <b>고정 해제</b> ESC</div>
-  <div style="grid-column:1/-1;color:#ffd6a8">400m 우주 도로 한쪽 끝에 블랙홀이 있어요. <b style="color:#6fe3ff">40초마다 반대편 끝으로 순간이동</b>하니, 너무 멀리 도망가면 다음엔 바로 앞에 블랙홀이 나타납니다. 블랙홀은 14초마다 커지고, <b style="color:#ff8a6a">Lv.5부터는 아무리 달려도 끌려가요.</b> 공중에서는 훨씬 빨리 빨려가니 점프 조심! 도로 양옆은 유리벽이라 떨어지지 않아요.</div>
-  <div style="grid-column:1/-1"><b>모바일</b> 왼쪽 드래그 이동, 오른쪽 드래그 시점 회전, 버튼으로 공격·스킬·점프</div>
+  <div><b>Look</b> Click to lock the mouse · move the mouse to look around</div>
+  <div><b>Move</b> WASD · arrow keys &nbsp; <b>Jump</b> Space</div>
+  <div><b>Attack</b> Left click (where you aim)</div>
+  <div><b>Skills</b> Q · E &nbsp; <b>Swap weapon</b> F &nbsp; <b>Unlock mouse</b> ESC</div>
+  <div style="grid-column:1/-1;color:#ffd6a8">A black hole sits at one end of a 400m space road. <b style="color:#6fe3ff">Every 40 seconds it teleports to the other end</b>, so if you run too far away, it will pop up right in front of you! It grows every 14 seconds, and <b style="color:#ff8a6a">from Lv.5 it pulls you in no matter how fast you run.</b> You get pulled much faster in the air, so be careful when you jump! Glass walls line the road, so you can’t fall off the sides.</div>
+  <div style="grid-column:1/-1"><b>Mobile</b> Drag left side to move, drag right side to look, tap buttons to attack, use skills and jump</div>
  </div>
- <button class="btn" id="startBtn">게임 시작</button>
+ <button class="btn" id="startBtn">Start Game</button>
 </div></div>
 <div class="ov" id="result" style="display:none"><div class="card" style="width:min(520px,94vw);text-align:center">
- <h1 id="rTitle">탈락!</h1>
+ <h1 id="rTitle">You’re Out!</h1>
  <div class="sub" id="rSub"></div>
  <div style="font:400 64px 'Black Han Sans',sans-serif;color:#9dff7a" id="rRank">#5</div>
  <div id="rStats" style="color:#cfd6ea;margin:6px 0"></div>
  <div style="font-weight:900;color:#ffd166;font-size:22px" id="rCoins"></div>
- <div class="row"><button class="btn" id="againBtn">다시 하기</button><button class="btn ghost" id="menuBtn">속성 바꾸기</button></div>
+ <div class="row"><button class="btn" id="againBtn">Play Again</button><button class="btn ghost" id="menuBtn">Change Element</button></div>
 </div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -154,36 +154,36 @@ const RW=30,HW=RW/2,RL=400,MAXL=15,GRAV=28,SPEED=8.5,SWITCH=40,LEVELT=14,AIRPULL
 const rand=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>v<a?a:v>b?b:v,hyp=Math.hypot,lerp=(a,b,t)=>a+(b-a)*t;
 
 const ELEMENTS=[
- {id:'fire',name:'불',col:'#ff6a3d',cost:0,q:['파이어 볼',6.5,'전방으로 불덩이 발사 — 벽·플레이어에 닿거나 최대 사거리에서 폭발해 넉백'],e:['파이어 스피드',6.5,'2초간 이동속도 대폭 증가'],ai:{q:'atk',e:'esc'}},
- {id:'ice',name:'얼음',col:'#8fe3ff',cost:0,q:['아이스 블록',7.5,'3초간 얼음에 갇혀 중력·넉백 무효, 끝나면 2초간 이속 증가'],e:['아이스 벽',10,'3초간 바라보는 방향에 얼음벽 소환'],ai:{q:'safe',e:'wall'}},
- {id:'water',name:'물',col:'#3fa8ff',cost:0,q:['웨이브',8,'2초간 파도를 타고 전진하며 앞의 적을 밀어냄, 넉백 일부 무효'],e:['워터 제일',12,'3초간 물 장벽 — 중력 무시, 넉백 일부 무시'],ai:{q:'atk',e:'safe'}},
- {id:'metal',name:'메탈',col:'#c3cedd',cost:200,q:['메탈 폼',7.5,'3.5초간 중력 무시, 넉백에도 날아가지 않음'],e:['메탈 바',7,'5초간 전방에 벽 생성 — 투사체 차단, 이동 제한'],ai:{q:'safe',e:'wall'}},
- {id:'music',name:'음악',col:'#ff7ad9',cost:200,q:['댄스의 음악',16,'12.5초간 이속 대폭 증가, 주변 적 4.5초 최면'],e:['치유의 음악',13,'기절·최면 해제 + 5초간 받는 넉백 절반 (원작의 체력 회복 대신)'],ai:{q:'atkNear',e:'cleanse'}},
- {id:'explosion',name:'폭발',col:'#ffb13d',cost:200,q:['즉시 폭발',4.5,'주변 폭발로 넉백 + 0.5초 기절, 바라보는 반대 방향으로 대시'],e:['지뢰',8,'밟으면 터지는 지뢰 설치 (최대 2개)'],ai:{q:'escBack',e:'mine'}},
- {id:'nature',name:'자연',col:'#5fd068',cost:500,q:['덩굴 소환',6,'4.5초간 덩굴길 — 내 이속↑, 적 이속↓, 가시에 닿은 적 1초 기절'],e:['나무 성장',10,'5.5초간 나무로 길 막기 + 회복 사과·독 사과(기절 1초)'],ai:{q:'escLine',e:'wall'}},
- {id:'sound',name:'사운드',col:'#b9a6ff',cost:500,q:['소리 질러 돌진',7.5,'전방 넉백 후 바라보는 반대 방향으로 대시'],e:['소리 질러',7,'제자리에서 전방 강한 넉백'],ai:{q:'escBack',e:'atkCone'}},
- {id:'size',name:'크기',col:'#ffd166',cost:500,q:['확대',14.5,'3.5초간 거대화 — 중력 무시, 일반공격이 넉백 발구르기로'],e:['축소',13.5,'4초간 작아지고 이속 증가'],ai:{q:'safe',e:'esc'}},
- {id:'glitch',name:'글리치',col:'#3dffb8',cost:1200,q:['글리치 대시',7.5,'전방 대시 후 4초간 이속 증가'],e:['글리치 폭발',9,'주변 적 넉백'],ai:{q:'escDash',e:'atkNear'}},
- {id:'sand',name:'모래',col:'#e2b56b',cost:1200,q:['샌드 대시',6.5,'1초간 전방 돌진, 닿은 적 넉백 (중력 영향, 취소 불가)'],e:['샌드 토네이도',12,'5초간 관통하는 모래폭풍, 대상당 1회 넉백'],ai:{q:'escDash',e:'atk'}},
- {id:'dark',name:'다크',col:'#9a6bff',cost:1200,q:['다크 존',6,'1.25초간 중력 무시·이속 증가, 닿은 적 1초 기절 (지속 중 다른 스킬 불가)'],e:['섀도우 폼',9,'6초간 어둠 구역 — 적 이속 감소, 내 이속 증가'],ai:{q:'escSteer',e:'atkNear'}},
- {id:'lightning',name:'라이트닝',col:'#ffe14d',cost:1200,q:['라이트닝 대시',4.5,'전방 대시, 닿은 적 넉백 + 1초 기절'],e:['썬더 소환',12,'1.5초 뒤 번개구름이 2.5초간 아래를 내리쳐 넉백'],ai:{q:'escDash',e:'atk'}},
- {id:'snow',name:'눈',col:'#eaf6ff',cost:1200,q:['눈 롤',7,'1.5초간 눈덩이로 변신 — 블랙홀 인력 무시·무적, 닿으면 넉백'],e:['눈사람 소환',11.5,'7초간 1.3초마다 눈덩이를 쏘는 눈사람 터렛'],ai:{q:'escSteer',e:'atk'}},
- {id:'space',name:'스페이스',col:'#8f9cff',cost:3000,q:['미니 포탈',6,'포탈을 던지고 떨어진 자리로 순간이동'],e:['반전된 우주',10,'4초간 모든 플레이어를 블랙홀 반대쪽(앞)으로 밀어냄'],ai:{q:'escPortal',e:'safeGlobal'}}];
+ {id:'fire',name:'Fire',ic:'🔥',col:'#ff6a3d',cost:0,q:['Fireball',6.5,'Shoot a fireball forward — it explodes on walls, players or at max range and knocks them back'],e:['Fire Speed',6.5,'Run super fast for 2s'],ai:{q:'atk',e:'esc'}},
+ {id:'ice',name:'Ice',ic:'🧊',col:'#8fe3ff',cost:0,q:['Ice Block',7.5,'Freeze in ice for 3s — no pull, no knockback. Then run faster for 2s'],e:['Ice Wall',10,'Make an ice wall where you look for 3s'],ai:{q:'safe',e:'wall'}},
+ {id:'water',name:'Water',ic:'💧',col:'#3fa8ff',cost:0,q:['Wave',8,'Surf forward on a wave for 2s and push enemies away. Less knockback'],e:['Water Jail',12,'Water shield for 3s — no pull, less knockback'],ai:{q:'atk',e:'safe'}},
+ {id:'metal',name:'Metal',ic:'🔩',col:'#c3cedd',cost:200,q:['Metal Form',7.5,'For 3.5s: no pull, and knockback can’t move you'],e:['Metal Bar',7,'Build a wall in front for 5s — blocks shots and players'],ai:{q:'safe',e:'wall'}},
+ {id:'music',name:'Music',ic:'🎵',col:'#ff7ad9',cost:200,q:['Dance Music',16,'Run super fast for 12.5s and hypnotize nearby enemies for 4.5s'],e:['Healing Music',13,'Cure stun and hypnosis + take half knockback for 5s'],ai:{q:'atkNear',e:'cleanse'}},
+ {id:'explosion',name:'Boom',ic:'💥',col:'#ffb13d',cost:200,q:['Instant Boom',4.5,'Blast nearby enemies back + stun 0.5s, then dash backward'],e:['Mine',8,'Place a mine that blows up when stepped on (max 2)'],ai:{q:'escBack',e:'mine'}},
+ {id:'nature',name:'Nature',ic:'🌿',col:'#5fd068',cost:500,q:['Vine Path',6,'Vine path for 4.5s — you go faster, enemies go slower, thorns stun for 1s'],e:['Tree Grow',10,'Trees block the road for 5.5s + healing apples and poison apples (1s stun)'],ai:{q:'escLine',e:'wall'}},
+ {id:'sound',name:'Sound',ic:'🔊',col:'#b9a6ff',cost:500,q:['Shout Dash',7.5,'Knock back enemies in front, then dash backward'],e:['Big Shout',7,'Huge knockback in front of you'],ai:{q:'escBack',e:'atkCone'}},
+ {id:'size',name:'Size',ic:'🍄',col:'#ffd166',cost:500,q:['Grow',14.5,'Turn giant for 3.5s — no pull, and your hits become big stomps'],e:['Shrink',13.5,'Get tiny and faster for 4s'],ai:{q:'safe',e:'esc'}},
+ {id:'glitch',name:'Glitch',ic:'👾',col:'#3dffb8',cost:1200,q:['Glitch Dash',7.5,'Dash forward, then run faster for 4s'],e:['Glitch Blast',9,'Knock back nearby enemies'],ai:{q:'escDash',e:'atkNear'}},
+ {id:'sand',name:'Sand',ic:'⏳',col:'#e2b56b',cost:1200,q:['Sand Dash',6.5,'Charge forward for 1s and knock back anyone you hit (still pulled, can’t stop)'],e:['Sand Tornado',12,'A sandstorm that goes through everyone for 5s, knocks each enemy back once'],ai:{q:'escDash',e:'atk'}},
+ {id:'dark',name:'Dark',ic:'🌑',col:'#9a6bff',cost:1200,q:['Dark Zone',6,'For 1.25s: no pull, run faster, stun anyone you touch for 1s (no other skills meanwhile)'],e:['Shadow Form',9,'Dark area for 6s — enemies slow down, you speed up'],ai:{q:'escSteer',e:'atkNear'}},
+ {id:'lightning',name:'Lightning',ic:'⚡',col:'#ffe14d',cost:1200,q:['Lightning Dash',4.5,'Dash forward, knock back anyone you hit + stun 1s'],e:['Thunder Cloud',12,'After 1.5s a storm cloud zaps the ground for 2.5s and knocks players back'],ai:{q:'escDash',e:'atk'}},
+ {id:'snow',name:'Snow',ic:'❄️',col:'#eaf6ff',cost:1200,q:['Snow Roll',7,'Become a snowball for 1.5s — no black hole pull, can’t be hit, knock back what you touch'],e:['Snowman',11.5,'A snowman turret that throws a snowball every 1.3s for 7s'],ai:{q:'escSteer',e:'atk'}},
+ {id:'space',name:'Space',ic:'🌌',col:'#8f9cff',cost:3000,q:['Mini Portal',6,'Throw a portal and teleport to where it lands'],e:['Reverse Space',10,'For 4s, push all players away from the black hole (forward)'],ai:{q:'escPortal',e:'safeGlobal'}}];
 ELEMENTS.forEach(e=>e.hex=parseInt(e.col.slice(1),16));
-const TIERS={0:'기본',200:'일반',500:'고급',1200:'희귀',3000:'전설'};
+const TIERS={0:'Basic',200:'Common',500:'Rare',1200:'Epic',3000:'Legendary'};
 const ELM=Object.fromEntries(ELEMENTS.map(e=>[e.id,e]));
 const WEAPONS={
- dagger:{name:'단검',type:'melee',range:2.8,arc:1.6,kb:20,cd:0.3,pb:0.8},
- katana:{name:'카타나',type:'melee',range:3.5,arc:1.8,kb:33,cd:0.55,pb:1.2},
- axe:{name:'도끼',type:'melee',range:3.3,arc:2.0,kb:38,cd:0.8,pb:1.4},
- greatsword:{name:'대검',type:'melee',range:4.3,arc:2.5,kb:46,cd:1.15,pb:1.8},
- scythe:{name:'낫',type:'melee',range:4.1,arc:3.4,kb:30,cd:0.85,pb:1.2},
- spear:{name:'스피어',type:'melee',range:5.8,arc:0.7,kb:36,cd:0.75,pb:1.3},
- hook:{name:'후크',type:'hook',range:20,kb:30,cd:1.5,pb:1},
- bomb:{name:'폭탄',type:'bomb',range:16,kb:38,cd:2.0,pb:1.6}};
-const FIST={name:'주먹',type:'melee',range:2.6,arc:1.7,kb:15,cd:0.42,pb:0.6};
+ dagger:{name:'Dagger',type:'melee',range:2.8,arc:1.6,kb:20,cd:0.3,pb:0.8},
+ katana:{name:'Katana',type:'melee',range:3.5,arc:1.8,kb:33,cd:0.55,pb:1.2},
+ axe:{name:'Axe',type:'melee',range:3.3,arc:2.0,kb:38,cd:0.8,pb:1.4},
+ greatsword:{name:'Big Sword',type:'melee',range:4.3,arc:2.5,kb:46,cd:1.15,pb:1.8},
+ scythe:{name:'Scythe',type:'melee',range:4.1,arc:3.4,kb:30,cd:0.85,pb:1.2},
+ spear:{name:'Spear',type:'melee',range:5.8,arc:0.7,kb:36,cd:0.75,pb:1.3},
+ hook:{name:'Hook',type:'hook',range:20,kb:30,cd:1.5,pb:1},
+ bomb:{name:'Bomb',type:'bomb',range:16,kb:38,cd:2.0,pb:1.6}};
+const FIST={name:'Fist',type:'melee',range:2.6,arc:1.7,kb:15,cd:0.42,pb:0.6};
 const COLORS=[0xffcc33,0x4da3ff,0x5fd068,0xff5d5d,0xb07cff,0xff8ad1,0x40e0d0,0xff9a3c,0x9aa5b1,0x8bd450,0xe85dff,0x5d7dff];
-const NAMES=['별사탕','감자대장','우주고양이','번개토끼','초코칩','냥냥펀치','도넛킹','슈퍼민트','펭귄라이더','달토끼','쿠키몬'];
+const NAMES=['StarCandy','PotatoBoss','SpaceCat','ZapBunny','ChocoChip','KittyPunch','DonutKing','SuperMint','PenguinRider','MoonBunny','CookieChomp'];
 const hexs=c=>'#'+c.toString(16).padStart(6,'0');
 
 let save={coins:0,owned:['fire','ice','water'],sel:'fire'};
@@ -328,7 +328,7 @@ function awayZ(){return G&&G.side?-1:1;}
 function clearGame(){if(!G)return;for(const e of G.ents){scene.remove(e.mesh,e.shadow,e.aura);}for(const it of G.items)scene.remove(it.mesh,it.ring);for(const p of G.projs){scene.remove(p.mesh);if(p.line)scene.remove(p.line);}for(const z of G.zones)if(z.mesh)scene.remove(z.mesh);G=null;}
 function newGame(){clearGame();initAudio();
  G={ents:[],items:[],projs:[],zones:[],revT:0,L:1,levelT:0,t:0,side:0,switchT:SWITCH,swWarned:false,itemT:0,count:3.2,over:false,deadT:0,spec:null};
- for(let i=0;i<12;i++){const isP=i===0;const el=isP?save.sel:ELEMENTS[Math.floor(Math.random()*ELEMENTS.length)].id;const name=isP?'나':NAMES[i-1];
+ for(let i=0;i<12;i++){const isP=i===0;const el=isP?save.sel:ELEMENTS[Math.floor(Math.random()*ELEMENTS.length)].id;const name=isP?'You':NAMES[i-1];
   const c=buildChar(COLORS[i],name,isP,el);let x=0,z=200;
   if(!isP){for(let k=0;k<30;k++){x=rand(-HW+3,HW-3);z=rand(175,235);if(hyp(x,z-200)>4)break;}}
   G.ents.push(Object.assign(c,{i,isPlayer:isP,name,el,x,z,y:0,vy:0,kbx:0,kbz:0,onGround:true,face:Math.PI,weapon:null,wcd:0,qcd:isP?0:rand(1,4),ecd:isP?0:rand(2,5),
@@ -337,7 +337,7 @@ function newGame(){clearGame();initAudio();
    ai:{think:0,off:rand(0,30),skill:rand(0.55,1),mx:0,mz:0,strafe:Math.random()<0.5?1:-1,atk:false,aimX:0,aimZ:0}}));}
  G.player=G.ents[0];yaw=Math.PI;pitch=-0.12;
  for(let i=0;i<10;i++)spawnItem();
- const el=ELM[save.sel];$('#qN').textContent=el.q[0];$('#eN').textContent=el.e[0];$('#qN').style.color=el.col;$('#eN').style.color=el.col;$('#wN').textContent='주먹';
+ const el=ELM[save.sel];$('#qN').textContent=el.q[0];$('#eN').textContent=el.e[0];$('#qN').style.color=el.col;$('#eN').style.color=el.col;$('#wN').textContent='Fist';
  $('#mapdots').innerHTML=G.ents.map(e=>`<i class="${e.isPlayer?'me':''}" style="background:${hexs(COLORS[e.i])}"></i>`).join('');
  $('#feed').innerHTML='';$('#menu').style.display='none';$('#result').style.display='none';$('#hud').style.display='block';$('#touch').style.display=isTouch?'block':'none';$('#cross').style.display='block';
  paused=false;$('#pause').style.display='none';state='count';reqLock();}
@@ -476,14 +476,14 @@ function skill(e,k,ax,az,mx,mz){if(!e.alive||e.ride)return;const id=e.el,EL=ELM[
   case 'snow_q':e.roll=1.5;e.gi=1.5;e.ki=1.5;e.rollX=mvx;e.rollZ=mvz;e.cHit=new Set();e.dash=null;sfx(300,0.3,'sine',0.1,0.6);break;
   case 'snow_e':face();addSnowman(e,fx,fz);break;
   case 'space_q':face();proj(e,'portal',fx,fz,34,22,0x9a8cff,0.5);sfx(700,0.3,'sine',0.1,1.6);break;
-  case 'space_e':G.revT=4;G.revBy=e;banner(`${e.isPlayer?'나':e.name}: 반전된 우주! 모두 앞으로 밀려난다`,'#8f9cff',2200);doFlash(0.25);sfx(200,1,'sawtooth',0.1,3);break;
+  case 'space_e':G.revT=4;G.revBy=e;banner(`${e.isPlayer?'You':e.name}: Reverse Space! All pushed forward`,'#8f9cff',2200);doFlash(0.25);sfx(200,1,'sawtooth',0.1,3);break;
  }
  if(k==='q')e.qcd=EL.q[1];else e.ecd=EL.e[1];
  if(e.isPlayer)sfx(k==='q'?520:340,0.12,'triangle',0.05,1.4);}
 function eliminate(e,cause){if(!e.alive)return;e.alive=false;e.dying=1.3;e.cause=cause;e.rank=aliveCount()+1;e.surv=G.t;e.aura.visible=false;
  const kl=e.lastHit&&G.t-e.lastHit.t<5&&e.lastHit.by!==e?e.lastHit.by:null;
- if(kl){kl.kos++;feed(`${nm(kl)} ▶ ${nm(e)} ${cause==='bh'?'블랙홀로!':'장외!'}`);if(kl.isPlayer){sfx(880,0.25,'triangle',0.15,1.5);banner(`${e.name} 처치! (+25 코인)`,'#9dff7a');}}
- else feed(`${nm(e)} ${cause==='bh'?'블랙홀에 삼켜짐':'도로 밖으로 추락'}`);
+ if(kl){kl.kos++;feed(`${nm(kl)} ▶ ${nm(e)} ${cause==='bh'?'into the black hole!':'off the road!'}`);if(kl.isPlayer){sfx(880,0.25,'triangle',0.15,1.5);banner(`You got ${e.name}! (+25 coins)`,'#9dff7a');}}
+ else feed(`${nm(e)} ${cause==='bh'?'got swallowed by the black hole':'fell off the road'}`);
  if(e.isPlayer){G.deadT=0.001;boom(0.8,0.4);shake=1;}
  spark(e.x,e.y+1.5,e.z,cause==='bh'?0xff9a3c:0xffffff,20,6);}
 
@@ -491,7 +491,7 @@ function switchSide(){const old=bhPos();implode(old.x,old.y,old.z,90,bhR()*4);G.
  shock(nb.x,nb.z,40,0xffa050,0,1.2);shock(nb.x,nb.z,22,0xffffff,0,1.8);spark(nb.x,nb.y,nb.z,0xffb060,40,18);
  doFlash(0.85);shake=Math.max(shake,1.4);boom(1.6,0.55,500);sfx(1400,0.7,'sawtooth',0.12,0.08);
  for(const e of G.ents)if(e.alive){const d=bhDist(e.x,e.z);if(d<90){const ux=(e.x-nb.x)/d,uz=(e.z-nb.z)/d;e.kbx+=ux*8;e.kbz+=uz*8;}}
- banner(`블랙홀이 ${G.side?'반대편':'처음'} 끝으로 순간이동했다!`,'#ff9a3c');}
+ banner(`The black hole teleported to the ${G.side?'other':'first'} end!`,'#ff9a3c');}
 
 /* ---------- 입력 & 마우스 고정 ---------- */
 const keys={},pend={q:false,e:false,jump:false,swap:false};let mouseDown=false;
@@ -614,13 +614,13 @@ function updEnt(e,dt){
 function lerpA(a,b,t){let d=((b-a+Math.PI*3)%(Math.PI*2))-Math.PI;return a+d*t;}
 
 function updateGame(dt){const g=G;
- if(state==='count'){g.count-=dt;$('#count').textContent=g.count>0.2?Math.ceil(g.count-0.2):'시작!';if(g.count<=-0.6){state='play';$('#count').textContent='';}else{if(g.count>0.2&&Math.ceil(g.count-0.2)!==g._lc){g._lc=Math.ceil(g.count-0.2);sfx(440,0.15,'square',0.08);}if(g.count<=0.2&&!g._go){g._go=1;sfx(880,0.3,'square',0.1);}}
+ if(state==='count'){g.count-=dt;$('#count').textContent=g.count>0.2?Math.ceil(g.count-0.2):'GO!';if(g.count<=-0.6){state='play';$('#count').textContent='';}else{if(g.count>0.2&&Math.ceil(g.count-0.2)!==g._lc){g._lc=Math.ceil(g.count-0.2);sfx(440,0.15,'square',0.08);}if(g.count<=0.2&&!g._go){g._go=1;sfx(880,0.3,'square',0.1);}}
   for(const e of g.ents)syncEnt(e,dt);return;}
  g.t+=dt;g.levelT+=dt;if(g.revT>0)g.revT-=dt;
  if(g.levelT>=LEVELT&&g.L<MAXL){g.levelT=0;g.L++;
-  if(g.L===5)banner('⚠ 블랙홀 Lv.5 — 이제 아무리 달려도 끌려간다!','#ff6b4a',3200);else banner(g.L>5?`⚠ 블랙홀 Lv.${g.L} — 더 강해졌다!`:`블랙홀이 Lv.${g.L}로 성장했다!`,g.L>=5?'#ff6b4a':'#ffb347');
+  if(g.L===5)banner('⚠ Black Hole Lv.5 — now it pulls you in no matter what!','#ff6b4a',3200);else banner(g.L>5?`⚠ Black Hole Lv.${g.L} — even stronger!`:`The black hole grew to Lv.${g.L}!`,g.L>=5?'#ff6b4a':'#ffb347');
   sfx(90,0.8,'sawtooth',0.2,0.5);shake=Math.max(shake,0.5);}
- g.switchT-=dt;if(g.switchT<=3&&!g.swWarned){g.swWarned=true;banner('⚠ 3초 뒤 블랙홀이 반대편 끝으로 순간이동!','#6fe3ff',2600);[0,1,2].forEach(i=>setTimeout(()=>sfx(700,0.18,'square',0.09),i*1000));}
+ g.switchT-=dt;if(g.switchT<=3&&!g.swWarned){g.swWarned=true;banner('⚠ In 3s the black hole teleports to the other end!','#6fe3ff',2600);[0,1,2].forEach(i=>setTimeout(()=>sfx(700,0.18,'square',0.09),i*1000));}
  if(g.switchT<=0)switchSide();
  g.itemT-=dt;if(g.itemT<=0){if(g.items.length<10)spawnItem();g.itemT=5;}
  updZones(dt);
@@ -661,18 +661,18 @@ function syncEnt(e,dt){const m=e.mesh;
  e.aura.position.set(e.x,0.05,e.z);e.aura.visible=on;e.aura.scale.setScalar(e.sc);}
 function showResult(win){const g=G,p=g.player;g.over=true;
  const rank=win?1:p.rank,surv=p.surv||g.t;const coins=Math.floor(surv*1.2)+p.kos*25+(12-rank)*5+(win?150:0);save.coins+=coins;persist();
- $('#rTitle').textContent=win?'최후의 생존자!':'탈락!';$('#rTitle').style.color=win?'#9dff7a':'#ff9a3c';
- $('#rSub').textContent=win?'모두를 블랙홀로 보내버렸다':(p.cause==='bh'?'블랙홀에 빨려 들어갔다…':'도로 밖으로 떨어졌다…');
- $('#rRank').textContent='#'+rank;$('#rStats').innerHTML=`생존 ${Math.floor(surv)}초 · 처치 ${p.kos}명 · 블랙홀 Lv.${g.L}`;$('#rCoins').textContent=`+${coins} 코인 (보유 ${save.coins})`;
+ $('#rTitle').textContent=win?'Last One Standing!':'You’re Out!';$('#rTitle').style.color=win?'#9dff7a':'#ff9a3c';
+ $('#rSub').textContent=win?'You sent everyone into the black hole!':(p.cause==='bh'?'You got sucked into the black hole…':'You fell off the road…');
+ $('#rRank').textContent='#'+rank;$('#rStats').innerHTML=`Survived ${Math.floor(surv)}s · ${p.kos} KO${p.kos===1?'':'s'} · Black Hole Lv.${g.L}`;$('#rCoins').textContent=`+${coins} coins (you have ${save.coins})`;
  setTimeout(()=>{try{document.exitPointerLock();}catch(e){}setPause(false);$('#result').style.display='flex';$('#touch').style.display='none';$('#cross').style.display='none';},win?600:0);
  if(win){sfx(523,0.2,'triangle',0.15);setTimeout(()=>sfx(659,0.2,'triangle',0.15),150);setTimeout(()=>sfx(784,0.4,'triangle',0.15),300);}}
 
 /* ---------- 메뉴 ---------- */
 let preview=null;
 function renderMenu(){$('#coinN').textContent=save.coins;
- $('#grid').innerHTML=ELEMENTS.map(e=>{const own=save.owned.includes(e.id);return `<div class="el ${save.sel===e.id?'sel':''} ${own?'':'locked'}" tabindex="0" data-id="${e.id}" style="--c:${e.col}"><span class="ic">${e.name[0]}</span><span class="nm">${e.name}</span><span class="tr">${own?TIERS[e.cost]:'🪙 '+e.cost}</span></div>`;}).join('');
+ $('#grid').innerHTML=ELEMENTS.map(e=>{const own=save.owned.includes(e.id);return `<div class="el ${save.sel===e.id?'sel':''} ${own?'':'locked'}" tabindex="0" data-id="${e.id}" style="--c:${e.col}"><span class="ic">${e.ic}</span><span class="nm">${e.name}</span><span class="tr">${own?TIERS[e.cost]:'🪙 '+e.cost}</span></div>`;}).join('');
  const s=ELM[preview||save.sel],own=save.owned.includes(s.id);
- $('#eldet').innerHTML=`<div class="dh" style="--c:${s.col}"><span class="ic">${s.name[0]}</span><div><b>${s.name}</b><em>${TIERS[s.cost]}${own?'':` · 🪙 ${s.cost} 필요`}</em></div></div><div class="sk"><b>Q · ${s.q[0]}</b> <i>${s.q[1]}초</i><br>${s.q[2]}</div><div class="sk"><b>E · ${s.e[0]}</b> <i>${s.e[1]}초</i><br>${s.e[2]}</div>`;}
+ $('#eldet').innerHTML=`<div class="dh" style="--c:${s.col}"><span class="ic">${s.ic}</span><div><b>${s.name}</b><em>${TIERS[s.cost]}${own?'':` · needs 🪙 ${s.cost}`}</em></div></div><div class="sk"><b>Q · ${s.q[0]}</b> <i>${s.q[1]}s</i><br>${s.q[2]}</div><div class="sk"><b>E · ${s.e[0]}</b> <i>${s.e[1]}s</i><br>${s.e[2]}</div>`;}
 $('#grid').addEventListener('click',ev=>{const c=ev.target.closest('.el');if(!c)return;const id=c.dataset.id,el=ELM[id];preview=null;
  if(save.owned.includes(id)){save.sel=id;}else if(save.coins>=el.cost){save.coins-=el.cost;save.owned.push(id);save.sel=id;sfx(880,0.2,'triangle',0.15,1.5);}else{preview=id;renderMenu();const n=$(`.el[data-id="${id}"]`);if(n){n.classList.add('shake');}return;}persist();renderMenu();});
 $('#grid').addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();ev.target.click();}});
@@ -719,18 +719,18 @@ function frame(now){const rdt=(now-last)/1000,dt=Math.min(0.033,rdt);last=now;ti
  if(Math.abs(camera.fov-fovT)>0.05){camera.fov=lerp(camera.fov,fovT,Math.min(1,dt*4));camera.updateProjectionMatrix();}
  if(drone&&AC){const dv=G&&state!=='menu'?0.03+0.22*clamp(1-bhDist(G.player.x,G.player.z)/220,0,1)+warnT*0.15:0.04;drone.gain.setTargetAtTime(dv,AC.currentTime,0.25);}
  // HUD
- if(G&&state!=='menu'){const p=G.player;$('#lv').firstChild.textContent=`블랙홀 Lv.${G.L}`;$('#lvbar i').style.width=(G.L>=MAXL?100:G.levelT/LEVELT*100)+'%';$('#alive').textContent=`생존 ${aliveCount()}/12`;const s=Math.floor(G.t);$('#tm').textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+ if(G&&state!=='menu'){const p=G.player;$('#lv').firstChild.textContent=`Hole Lv.${G.L}`;$('#lvbar i').style.width=(G.L>=MAXL?100:G.levelT/LEVELT*100)+'%';$('#alive').textContent=`Alive ${aliveCount()}/12`;const s=Math.floor(G.t);$('#tm').textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
   const el=ELM[p.el];const setCd=(id,cd,max)=>{const c=$(id);if(cd>0){c.textContent=Math.ceil(cd);c.style.background=`conic-gradient(rgba(0,0,0,.65) ${cd/max*360}deg,rgba(0,0,0,.25) 0)`;}else{c.textContent='';c.style.background='none';}};
   setCd('#qC',p.qcd,el.q[1]);setCd('#eC',p.ecd,el.e[1]);$('#sQ').style.borderColor=p.qcd<=0?el.col:'rgba(255,255,255,.15)';$('#sE').style.borderColor=p.ecd<=0?el.col:'rgba(255,255,255,.15)';
   // 미니맵
   const dz=dangerD(),zl=Math.min(dz,RL)/RL*100;const mz=$('#mapzone');mz.style.width=zl+'%';mz.style.left=G.side?(100-zl)+'%':'0';mz.style.background=G.side?'linear-gradient(270deg,rgba(255,70,40,.75),rgba(255,70,40,.25))':'linear-gradient(90deg,rgba(255,70,40,.75),rgba(255,70,40,.25))';
   $('#mapbh').style.left=(G.side?100:0)+'%';const dots=$('#mapdots').children;G.ents.forEach((e,i)=>{const d=dots[i];if(!d)return;d.style.display=e.alive?'block':'none';d.style.left=clamp(e.z/RL*100,0,100)+'%';});
-  const st=Math.ceil(G.switchT);$('#swt').innerHTML=`블랙홀 순간이동까지 <span style="color:${G.switchT<10?'#6fe3ff':'#fff'}">${st}초</span>`;
-  if(p.alive){const bd=Math.max(0,bhDist(p.x,p.z)-bhR());$('#dist').innerHTML=`블랙홀까지 <span style="color:${bd<Math.min(dz,RL)?'#ff6b4a':'#9dff7a'}">${Math.round(bd)}m</span>`;
+  const st=Math.ceil(G.switchT);$('#swt').innerHTML=`Black hole teleports in <span style="color:${G.switchT<10?'#6fe3ff':'#fff'}">${st}s</span>`;
+  if(p.alive){const bd=Math.max(0,bhDist(p.x,p.z)-bhR());$('#dist').innerHTML=`Hole: <span style="color:${bd<Math.min(dz,RL)?'#ff6b4a':'#9dff7a'}">${Math.round(bd)}m</span>`;
    const pull=pullAt(bhDist(p.x,p.z));$('#vig').style.opacity=clamp((pull-4)/14,0,0.9)*(p.onGround?1:1.2)+warnT*0.2;}
   else $('#vig').style.opacity=0;
-  if(state==='play'&&p.alive){let near=null;for(const it of G.items)if(hyp(it.x-p.x,it.z-p.z)<2.4)near=it;$('#me').innerHTML=near&&p.weapon?`F 키: ${WEAPONS[near.type].name}(으)로 교체`:(!p.onGround&&G.L>=3?'<span style="color:#ff8a6a">공중에서는 3배 빨리 빨려간다!</span>':`<span style="color:${el.col}">${el.name}</span> 속성 · Q ${el.q[0]} · E ${el.e[0]}`);}
-  else if(!p.alive)$('#me').textContent=G.spec?`관전 중 · ${G.spec.name}`:'관전 중…';}
+  if(state==='play'&&p.alive){let near=null;for(const it of G.items)if(hyp(it.x-p.x,it.z-p.z)<2.4)near=it;$('#me').innerHTML=near&&p.weapon?`Press F: swap to ${WEAPONS[near.type].name}`:(!p.onGround&&G.L>=3?'<span style="color:#ff8a6a">In the air you get pulled 3x faster!</span>':`<span style="color:${el.col}">${el.name}</span> element · Q ${el.q[0]} · E ${el.e[0]}`);}
+  else if(!p.alive)$('#me').textContent=G.spec?`Watching · ${G.spec.name}`:'Watching…';}
  if(composer)composer.render();else renderer.render(scene,camera);
  }catch(err){console.error(err);}
  requestAnimationFrame(frame);}

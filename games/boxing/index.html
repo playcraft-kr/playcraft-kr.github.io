@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head><script src="../guard.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>KNOCKOUT 3D 복싱</title>
+<title>KNOCKOUT 3D Boxing</title>
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 /* VOICE: 링사이드, 짧고 세게, 누구나 바로 이해
@@ -49,45 +49,45 @@ button.big:focus-visible{outline:3px solid #ffcc33;outline-offset:3px}
 <canvas id="hud"></canvas>
 
 <div id="keys">
- <div class="t">움직이기</div>
- <div class="r"><span>앞·뒤·좌·우</span><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span></div>
- <div class="t">때리기</div>
- <div class="r"><span>왼손 펀치 <span class="dim">빠름</span></span><span><kbd>J</kbd> <span class="dim">or 좌클릭</span></span></div>
- <div class="r"><span>오른손 펀치 <span class="dim">셈</span></span><span><kbd>K</kbd> <span class="dim">or 우클릭</span></span></div>
- <div class="r"><span>올려치기 <span class="dim">가드 뚫음</span></span><span><kbd>L</kbd></span></div>
- <div class="t">피하기·막기</div>
- <div class="r"><span>숙이기</span><span><kbd>Space</kbd></span></div>
- <div class="r"><span>옆으로 피하기</span><span><kbd>Q</kbd> <kbd>E</kbd></span></div>
- <div class="r"><span>막기 <span class="dim">누르고 있기</span></span><span><kbd>Shift</kbd></span></div>
+ <div class="t">Move</div>
+ <div class="r"><span>Forward · Back · Left · Right</span><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span></div>
+ <div class="t">Punch</div>
+ <div class="r"><span>Left punch <span class="dim">fast</span></span><span><kbd>J</kbd> <span class="dim">or left click</span></span></div>
+ <div class="r"><span>Right punch <span class="dim">strong</span></span><span><kbd>K</kbd> <span class="dim">or right click</span></span></div>
+ <div class="r"><span>Uppercut <span class="dim">breaks guard</span></span><span><kbd>L</kbd></span></div>
+ <div class="t">Dodge · Block</div>
+ <div class="r"><span>Duck</span><span><kbd>Space</kbd></span></div>
+ <div class="r"><span>Dodge sideways</span><span><kbd>Q</kbd> <kbd>E</kbd></span></div>
+ <div class="r"><span>Block <span class="dim">hold</span></span><span><kbd>Shift</kbd></span></div>
 </div>
 
 <div class="ov" id="title">
  <div class="card">
   <h1>KNOCKOUT</h1>
-  <div class="sub">3D 복싱 · 3명을 KO시켜라</div>
+  <div class="sub">3D Boxing · Knock out all 3!</div>
   <ol class="steps">
-   <li><b>W A S D</b>로 상대에게 다가가서 <b>J</b>(왼손) · <b>K</b>(오른손) 로 때리세요.</li>
-   <li>상대가 주먹을 뒤로 빼면 머리 위에 <b>어떻게 피할지</b> 뜹니다.<br>
-     <span class="c2">● 숙여! → Space</span> &nbsp; <span class="c3">● 옆으로! → Q / E</span> &nbsp; <span class="c1">● 피해! → 아무거나</span></li>
-   <li>맞기 직전에 피하면 <span class="c4"><b>PERFECT</b></span>, 피한 직후 때리면 <b>데미지 2배</b>.</li>
-   <li>상대가 팔로 얼굴을 가리면 <b>L</b>(올려치기)로 뚫으세요.</li>
+   <li>Use <b>W A S D</b> to get close, then punch with <b>J</b> (left) · <b>K</b> (right).</li>
+   <li>When your opponent pulls back a fist, a sign above their head shows <b>how to dodge</b>.<br>
+     <span class="c2">● DUCK!&nbsp;→&nbsp;Space</span> &nbsp; <span class="c3">● SIDE!&nbsp;→&nbsp;Q&nbsp;/&nbsp;E</span> &nbsp; <span class="c1">● DODGE!&nbsp;→&nbsp;any</span></li>
+   <li>Dodge right before the hit for a <span class="c4"><b>PERFECT</b></span>. Punch right after a dodge for <b>2x damage</b>.</li>
+   <li>If they cover their face with their arms, break through with <b>L</b> (uppercut).</li>
   </ol>
-  <p class="keyonly dim" style="margin:-6px 0 16px;font-size:14px">조작표는 게임 중에도 왼쪽 아래에 계속 보입니다.</p>
-  <button class="big" id="startBtn">시합 시작</button>
+  <p class="keyonly dim" style="margin:-6px 0 16px;font-size:14px">The controls stay in the bottom-left corner while you play.</p>
+  <button class="big" id="startBtn">START FIGHT</button>
  </div>
 </div>
 
 <div class="ov hide" id="res"><div class="card"><h2 id="resT"></h2><p id="resP"></p><button class="big" id="resBtn"></button></div></div>
 
 <div id="touch">
- <div id="joy"><span>움직이기</span><div id="knob"></div></div>
- <button class="tb" data-a="block" style="right:236px;bottom:96px">막기</button>
- <button class="tb" data-a="slipL" style="right:236px;bottom:24px">◀ 피하기</button>
- <button class="tb" data-a="duck" style="right:160px;bottom:24px">숙이기</button>
- <button class="tb" data-a="slipR" style="right:160px;bottom:96px">피하기 ▶</button>
- <button class="tb p" data-a="jab" style="right:84px;bottom:24px">왼손</button>
- <button class="tb p" data-a="cross" style="right:10px;bottom:24px">오른손</button>
- <button class="tb p" data-a="upper" style="right:46px;bottom:96px">올려치기</button>
+ <div id="joy"><span>Move</span><div id="knob"></div></div>
+ <button class="tb" data-a="block" style="right:236px;bottom:96px">Block</button>
+ <button class="tb" data-a="slipL" style="right:236px;bottom:24px">◀ Side</button>
+ <button class="tb" data-a="duck" style="right:160px;bottom:24px">Duck</button>
+ <button class="tb" data-a="slipR" style="right:160px;bottom:96px">Side ▶</button>
+ <button class="tb p" data-a="jab" style="right:84px;bottom:24px">Left</button>
+ <button class="tb p" data-a="cross" style="right:10px;bottom:24px">Right</button>
+ <button class="tb p" data-a="upper" style="right:46px;bottom:96px">Upper</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -191,12 +191,12 @@ function makeFighter(c){
 
 /* ===== DATA ===== */
 const CFG=[
- {nick:'철벽',name:'김강철',skin:0xd39b6e,hair:0x17110d,trunks:0x1f5fff,trim:0xffffff,glove:0xf0f0f0,hp:110,speed:1,aggr:.75,dodge:.1,guard:.3,dmg:1,getups:1},
- {nick:'번개',name:'레이 산토스',skin:0x8b573a,hair:0x0b0705,trunks:0xffc400,trim:0x111111,glove:0x1d8f4e,hp:125,speed:1.22,aggr:1,dodge:.2,guard:.25,dmg:1.15,getups:1},
- {nick:'타이탄',name:'볼코프',skin:0xecc6a6,hair:0xd8c391,trunks:0xa5111b,trim:0xffd34d,glove:0x262626,hp:155,speed:1.4,aggr:1.25,dodge:.26,guard:.35,dmg:1.35,getups:2}
+ {nick:'The Wall',name:'Max Stone',skin:0xd39b6e,hair:0x17110d,trunks:0x1f5fff,trim:0xffffff,glove:0xf0f0f0,hp:110,speed:1,aggr:.75,dodge:.1,guard:.3,dmg:1,getups:1},
+ {nick:'Lightning',name:'Ray Santos',skin:0x8b573a,hair:0x0b0705,trunks:0xffc400,trim:0x111111,glove:0x1d8f4e,hp:125,speed:1.22,aggr:1,dodge:.2,guard:.25,dmg:1.15,getups:1},
+ {nick:'Titan',name:'Volkov',skin:0xecc6a6,hair:0xd8c391,trunks:0xa5111b,trim:0xffd34d,glove:0x262626,hp:155,speed:1.4,aggr:1.25,dodge:.26,guard:.35,dmg:1.35,getups:2}
 ];
 const PCFG={skin:0xc98c62,hair:0x221510,trunks:0xd01a24,trim:0xffffff,glove:0xd8202a};
-const TINFO={cross:{c:'#ff5a5a',txt:'피해!',key:'Space · Q · E'},hook:{c:'#ffa733',txt:'숙여!',key:'Space'},upper:{c:'#c08bff',txt:'옆으로!',key:'Q · E'}};
+const TINFO={cross:{c:'#ff5a5a',txt:'DODGE!',key:'Space · Q · E'},hook:{c:'#ffa733',txt:'DUCK!',key:'Space'},upper:{c:'#c08bff',txt:'SIDE!',key:'Q · E'}};
 const PUNCH={jab:{w:.03,k:.07,r:.13,cost:5,dmg:4.5,hs:.05,p:.35,reach:1.5},cross:{w:.05,k:.08,r:.17,cost:9,dmg:8,hs:.075,p:.65,reach:1.55},upper:{w:.08,k:.1,r:.2,cost:14,dmg:12,hs:.11,p:1,reach:1.35}};
 
 function fighterState(mesh){return{mesh,pos:new V3(),yaw:0,kb:new V3(),vel:new V3(),act:null,def:null,cd:0,guardAmt:0,sp:{x:0,y:0,z:0,p:0,vx:0,vy:0,vz:0,vp:0},flash:0,walk:0,fall:0,stun:0,hurtT:0}}
@@ -263,17 +263,17 @@ function startPunch(type){
 function punchImpact(a){
  if(fight!=='fight'||['down','ko','getup'].includes(O.state))return;
  const D=PUNCH[a.type],hp=headPos(O);
- if(dist()>D.reach){SFX.miss();P.combo=0;P.missFar++;pop(hp,'너무 멀어요','#bbb',.8);if(P.missFar>=2)banner('W 로 더 다가가세요','#fff',1,6);return}
+ if(dist()>D.reach){SFX.miss();P.combo=0;P.missFar++;pop(hp,'Too far!','#bbb',.8);if(P.missFar>=2)banner('Press W to get closer','#fff',1,6);return}
  P.missFar=0;
  if(O.def&&defAmt(O)>.5){SFX.miss();pop(hp,'MISS','#aaa',.9);P.combo=0;return}
  let dmg=D.dmg*a.pow,tag=null,blocked=false;const counter=P.counter>0;
- if(O.state==='windup'){dmg*=1.3;tag=['끊어치기!','#ffcc33'];O.state='recover';O.act=null;O.rec=.45;O.st=0;O.chain=0}
+ if(O.state==='windup'){dmg*=1.3;tag=['Interrupted!','#ffcc33'];O.state='recover';O.act=null;O.rec=.45;O.st=0;O.chain=0}
  else if(O.guardT>0&&!counter&&O.state==='idle'&&O.stun<=0){
-  if(a.type==='upper'){O.guardT=0;tag=['가드 뚫었다!','#c08bff'];dmg*=1.1}else{dmg*=.15;blocked=true}
+  if(a.type==='upper'){O.guardT=0;tag=['Guard broken!','#c08bff'];dmg*=1.1}else{dmg*=.15;blocked=true}
  }
  if(counter){dmg*=2;tag=['COUNTER ×2','#ffcc33']}
  const dirv=new V3().subVectors(O.pos,P.pos).setY(0).normalize();
- if(blocked){SFX.block();hitstop=.035;shake=Math.max(shake,.025);pop(hp,'막힘 → L 올려치기!','#9ad',.8);O.sp.vp-=.6;O.kb.addScaledVector(dirv,.5);sparks(hp,5,0xccddff,.5);P.combo=0;return}
+ if(blocked){SFX.block();hitstop=.035;shake=Math.max(shake,.025);pop(hp,'Blocked → L uppercut!','#9ad',.8);O.sp.vp-=.6;O.kb.addScaledVector(dirv,.5);sparks(hp,5,0xccddff,.5);P.combo=0;return}
  P.combo++;P.comboT=.9;P.maxCombo=Math.max(P.maxCombo,P.combo);dmg*=1+Math.min(.5,(P.combo-1)*.08);
  const m=counter?1.45:1,s=a.side;
  if(a.type==='jab'){O.sp.vx-=2.6*m;O.sp.vp-=.9*m;O.sp.vy+=s*1.2*m}
@@ -288,10 +288,10 @@ function punchImpact(a){
  emit({pos:fx,tex:ringTex,size:.1,grow:6+pw*6,life:.22,add:true,color:counter?0xffcc33:0xffffff});
  pop(hp.clone().add(new V3(rnd(-.1,.1),.2,0)),String(Math.round(dmg)),counter?'#ffcc33':'#fff',counter?1.4:1);
  if(tag)banner(tag[0],tag[1],.7,tag[0].startsWith('COUNTER')?11:8);
- else if(P.combo>=3&&P.combo%2===1)banner(P.combo+' 연타!','#ff6a3d',.5,7);
+ else if(P.combo>=3&&P.combo%2===1)banner(P.combo+' COMBO!','#ff6a3d',.5,7);
  O.hp-=dmg;O.stunM+=dmg;
  if(O.hp<=0){O.hp=0;knockdown();return}
- if(O.stunM>34&&O.stun<=0){O.stun=1.7;O.stunM=0;O.state='idle';O.act=null;O.chain=0;O.guardT=0;banner('비틀비틀! 몰아쳐!','#ffcc33',.9,9);crowd(.15,.6)}
+ if(O.stunM>34&&O.stun<=0){O.stun=1.7;O.stunM=0;O.state='idle';O.act=null;O.chain=0;O.guardT=0;banner('Dizzy! Go, go, go!','#ffcc33',.9,9);crowd(.15,.6)}
  if(O.state==='idle'&&O.stun<=0&&!counter&&Math.random()<O.c.guard*.5)O.guardT=rnd(.5,1.1);
 }
 function sweat(pos,n,dir,pw){for(let i=0;i<n;i++){const v=new V3(dir.x+rnd(-.8,.8),rnd(.2,1.2),dir.z+rnd(-.8,.8)).normalize().multiplyScalar(rnd(1.5,4)*(.6+pw*.6));emit({pos,vel:v,grav:9,size:rnd(.02,.04),life:rnd(.35,.7),color:0xd6ecff})}}
@@ -299,7 +299,7 @@ function sparks(pos,n,c,pw){for(let i=0;i<n;i++){const v=new V3(rnd(-1,1),rnd(-1
 function knockdown(){
  O.kd++;O.act=null;O.stun=0;O.guardT=0;O.def=null;P.counter=0;P.act=null;
  if(O.kd>O.c.getups){O.state='ko';fight='ko';endT=0;slow(1.6,.18);fovK+=.25;whiteFlash=.7;SFX.ko();SFX.bell(3);banner('K.O.!','#ffcc33',2.6,20)}
- else{O.state='down';fight='down';O.count=0;O.countT=0;O.getupAt=4+Math.floor(Math.random()*4);slow(.6,.3);fovK+=.15;whiteFlash=.35;crowd(.3,1.2);banner('다운!','#ff4d4d',1,14)}
+ else{O.state='down';fight='down';O.count=0;O.countT=0;O.getupAt=4+Math.floor(Math.random()*4);slow(.6,.3);fovK+=.15;whiteFlash=.35;crowd(.3,1.2);banner('DOWN!','#ff4d4d',1,14)}
 }
 
 /* ===== OPPONENT ===== */
@@ -327,24 +327,24 @@ function oppImpact(){
  O.lastDodged=dodged;
  if(dodged){
   a.r=(perfect?1.05:.6)/Math.sqrt(O.c.speed);O.chain=0;P.counter=perfect?1.15:.6;SFX.miss();P.st=Math.min(100,P.st+(perfect?25:10));
-  if(perfect){slow(.5,.28);SFX.perfect();banner('PERFECT! 지금 때려!','#5ff',.9,10);perfectFlash=.55;fovK+=.08}
-  else pop(headPos(P),far?'빠져서 피함':'피했다! 지금 때려!','#9ef',1);
+  if(perfect){slow(.5,.28);SFX.perfect();banner('PERFECT! Hit now!','#5ff',.9,10);perfectFlash=.55;fovK+=.08}
+  else pop(headPos(P),far?'Backed out of it':'Dodged! Hit now!','#9ef',1);
   return;
  }
  a.r=.3;
  let dmg={cross:9,hook:13,upper:15}[a.type]*O.c.dmg;if(wrong)dmg*=1.5;
  const dirv=new V3().subVectors(P.pos,O.pos).setY(0).normalize(),hp=headPos(P);
  if(P.blocking){
-  if(P.st>=10){P.st-=14;dmg*=.18;P.hp-=dmg;SFX.block();hitstop=.045;shake=Math.max(shake,.03);P.kb.addScaledVector(dirv,1);P.sp.vp-=.5;pop(hp,'막았다','#9ad',.9);sparks(hp,6,0xccddff,.6);if(P.hp<=0)lose();return}
-  banner('막기 깨짐!','#ff4d4d',.7,9);
+  if(P.st>=10){P.st-=14;dmg*=.18;P.hp-=dmg;SFX.block();hitstop=.045;shake=Math.max(shake,.03);P.kb.addScaledVector(dirv,1);P.sp.vp-=.5;pop(hp,'Blocked!','#9ad',.9);sparks(hp,6,0xccddff,.6);if(P.hp<=0)lose();return}
+  banner('Block broken!','#ff4d4d',.7,9);
  }
  P.hp-=dmg;P.sinceHit=0;P.combo=0;P.act=null;P.counter=0;hurtFlash=1;P.flash=.08;
  hitstop=.08;shake=Math.max(shake,.05+dmg*.004);fovK-=.06;SFX.hurt();
  const s=a.side;
  if(a.type==='hook'){P.sp.vz+=s*6;P.sp.vy+=s*5}else if(a.type==='upper'){P.sp.vx-=9}else{P.sp.vx-=4;P.sp.vp-=1.3}
  P.kb.addScaledVector(dirv,1.6);sweat(hp,12,dirv,.8);
- if(wrong)banner('보라색은 옆으로! (Q/E)','#c08bff',1.1,7);
- else if(a.type==='hook'&&d&&amt>.5)banner('주황색은 숙이기! (Space)','#ffa733',1.1,7);
+ if(wrong)banner('Purple = go SIDE! (Q/E)','#c08bff',1.1,7);
+ else if(a.type==='hook'&&d&&amt>.5)banner('Orange = DUCK! (Space)','#ffa733',1.1,7);
  if(P.hp<=0)lose();
 }
 function lose(){P.hp=0;fight='lose';endT=0;slow(1,.3);SFX.hurt();crowd(.3,1.5);banner('DOWN...','#ff4d4d',2,14)}
@@ -512,19 +512,19 @@ function drawHUD(){
   const hp=headPos(O);hp.y+=.42;const s=toScreen(hp),I=TINFO[O.act.type],p=clamp(O.act.t/O.act.w,0,1);
   if(s.ok){const sz=Math.max(26,6*S),pulse=1+.08*Math.sin(gameTime*30);txt(I.txt,s.x,s.y,sz,I.c,pulse);txt(I.key,s.x,s.y+sz*.85,sz*.55,'#fff');
    hx.fillStyle='rgba(0,0,0,.6)';hx.fillRect(s.x-sz*1.2,s.y+sz*1.35,sz*2.4,6);hx.fillStyle=I.c;hx.fillRect(s.x-sz*1.2,s.y+sz*1.35,sz*2.4*(1-p),6)}
- }else if(O.guardT>0&&O.state==='idle'&&fight==='fight'){const hp=headPos(O);hp.y+=.38;const s=toScreen(hp);if(s.ok)txt('가드 중 → L 올려치기',s.x,s.y,Math.max(16,3.2*S),'#c08bff')}
- else if(O.stun>0&&fight==='fight'){const hp=headPos(O);hp.y+=.38;const s=toScreen(hp);if(s.ok)txt('★ 비틀 ★',s.x,s.y,Math.max(18,3.6*S),'#ffd84d')}
+ }else if(O.guardT>0&&O.state==='idle'&&fight==='fight'){const hp=headPos(O);hp.y+=.38;const s=toScreen(hp);if(s.ok)txt('Guarding → L uppercut',s.x,s.y,Math.max(16,3.2*S),'#c08bff')}
+ else if(O.stun>0&&fight==='fight'){const hp=headPos(O);hp.y+=.38;const s=toScreen(hp);if(s.ok)txt('★ DIZZY ★',s.x,s.y,Math.max(18,3.6*S),'#ffd84d')}
  for(const p of pops){const s=toScreen(p.pos);if(!s.ok)continue;const a=1-clamp((p.t-.6)/.3,0,1),sc=(p.t<.08?lerp(1.8,1,p.t/.08):1)*p.sc;txt(p.txt,s.x,s.y-p.t*40,Math.max(18,4*S),p.c,sc,a)}
  const pad=Math.max(12,2*S),bw=Math.min(W*.38,420),bh=Math.max(12,2.2*S),fz=Math.max(14,2.6*S);
- txt('나',pad,pad+fz*.6,fz,'#fff',1,1,'left');
+ txt('YOU',pad,pad+fz*.6,fz,'#fff',1,1,'left');
  bar(pad,pad+fz+6,bw,bh,P.hp/100,P.hpG/100,P.hp<30?'#ff3030':'#ff8a2a',false);
  bar(pad,pad+fz+10+bh,bw*.75,bh*.45,P.st/100,P.st/100,'#ffe14d',false);
- hx.font=`700 ${Math.max(11,1.6*S)}px "Noto Sans KR"`;hx.textAlign='left';hx.fillStyle='#ccc';hx.fillText('체력  ·  노란 줄 = 기력(펀치에 사용)',pad,pad+fz+bh*1.8+22);
- txt(`${O.c.nick} ${O.c.name}  ${oppIdx+1}/3`,W-pad,pad+fz*.6,fz,'#fff',1,1,'right');
+ hx.font=`700 ${Math.max(11,1.6*S)}px "Noto Sans KR"`;hx.textAlign='left';hx.fillStyle='#ccc';hx.fillText('Health  ·  Yellow bar = energy (for punches)',pad,pad+fz+bh*1.8+22);
+ txt(`"${O.c.nick}" ${O.c.name}  ${oppIdx+1}/3`,W-pad,pad+fz*.6,fz,'#fff',1,1,'right');
  bar(W-pad-bw,pad+fz+6,bw,bh,O.hp/O.max,O.hpG/O.max,'#ff3b4a',true);
  if(P.combo>=2)txt(`${P.combo} HIT`,W/2,H*.16,Math.max(26,5.5*S),'#ffcc33');
- if(P.counter>0){const a=Math.min(1,P.counter*2)*(.5+.5*Math.sin(gameTime*30));hx.strokeStyle=`rgba(255,204,51,${a})`;hx.lineWidth=Math.max(6,S);hx.strokeRect(3,3,W-6,H-6);txt('지금 때리면 2배!',W/2,H*.24,Math.max(20,3.8*S),'#ffcc33',1,Math.min(1,P.counter*3))}
- if(P.farT>2.5&&!banners.length)txt('W 로 다가가서 J · K 로 때리세요',W/2,H*.82,Math.max(16,3*S),'#fff',1,.9);
+ if(P.counter>0){const a=Math.min(1,P.counter*2)*(.5+.5*Math.sin(gameTime*30));hx.strokeStyle=`rgba(255,204,51,${a})`;hx.lineWidth=Math.max(6,S);hx.strokeRect(3,3,W-6,H-6);txt('Hit now for 2x!',W/2,H*.24,Math.max(20,3.8*S),'#ffcc33',1,Math.min(1,P.counter*3))}
+ if(P.farT>2.5&&!banners.length)txt('Press W to get close, then J · K to punch',W/2,H*.82,Math.max(16,3*S),'#fff',1,.9);
  for(const b of banners){const sc=b.t<.12?lerp(2.2,1,eOut(b.t/.12)):1+(b.t-.12)*.05,a=1-clamp((b.t-(b.dur-.25))/.25,0,1);txt(b.txt,W/2,H*.34,b.size*S,b.c,sc,a)}
  if(fight==='intro'){const t=introT;txt(`ROUND ${oppIdx+1}`,W/2,H*.3,7*S,'#ffcc33',t<.15?lerp(2,1,t/.15):1);if(t>.4)txt(`VS  "${O.c.nick}" ${O.c.name}`,W/2,H*.42,5*S,'#fff')}
  if(fight==='down'&&O.state==='down'&&O.count>0)txt(String(O.count),W/2,H*.45,(15+countPop*8)*S,'#fff');
@@ -537,9 +537,9 @@ function startFight(i){oppIdx=i;newOpp(i);P.hp=Math.max(P.hp,i===0?100:70);P.hpG
 function showResult(){
  const r=$('res');r.dataset.shown='1';r.classList.remove('hide');
  if(fight==='ko'){
-  if(oppIdx<CFG.length-1){$('resT').textContent='K.O. 승리';$('resT').style.color='#ffcc33';$('resP').textContent=`"${O.c.nick}" ${O.c.name}을(를) 눕혔다. 최대 연타 ${P.maxCombo}. 다음 상대는 더 빠르다.`;$('resBtn').textContent='다음 상대';$('resBtn').onclick=()=>{initAudio();startFight(oppIdx+1)}}
-  else{$('resT').textContent='챔피언!';$('resT').style.color='#ffcc33';$('resP').textContent=`3명을 모두 KO시켰다. 최대 연타 ${P.maxCombo}.`;$('resBtn').textContent='처음부터';$('resBtn').onclick=()=>{initAudio();newPlayer();startFight(0)}}
- }else{$('resT').textContent='패배';$('resT').style.color='#ff4d4d';$('resP').textContent='상대 머리 위 지시(숙여! / 옆으로!)를 보고 피한 다음 바로 때려보세요.';$('resBtn').textContent='재도전';$('resBtn').onclick=()=>{initAudio();newPlayer();startFight(oppIdx)}}
+  if(oppIdx<CFG.length-1){$('resT').textContent='K.O. WIN!';$('resT').style.color='#ffcc33';$('resP').textContent=`You knocked out "${O.c.nick}" ${O.c.name}! Best combo: ${P.maxCombo}. The next opponent is even faster.`;$('resBtn').textContent='NEXT FIGHT';$('resBtn').onclick=()=>{initAudio();startFight(oppIdx+1)}}
+  else{$('resT').textContent='CHAMPION!';$('resT').style.color='#ffcc33';$('resP').textContent=`You knocked out all 3 boxers! Best combo: ${P.maxCombo}.`;$('resBtn').textContent='PLAY AGAIN';$('resBtn').onclick=()=>{initAudio();newPlayer();startFight(0)}}
+ }else{$('resT').textContent='YOU LOST';$('resT').style.color='#ff4d4d';$('resP').textContent='Watch the sign above their head (DUCK! / SIDE!), dodge, then hit back right away.';$('resBtn').textContent='TRY AGAIN';$('resBtn').onclick=()=>{initAudio();newPlayer();startFight(oppIdx)}}
  setTimeout(()=>$('resBtn').focus(),50);
 }
 $('startBtn').onclick=()=>{initAudio();$('title').classList.add('hide');newPlayer();startFight(0)};
