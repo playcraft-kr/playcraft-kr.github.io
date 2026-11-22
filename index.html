@@ -161,7 +161,7 @@ function renderGame() {
   $('#start-lang').textContent = g.lang === 'English' ? '' : `In-game text is in ${g.lang}.`;
   if (!S.playing) $('#screen').style.cssText = grad(g.slug).replace('140deg', '160deg');
   $('#pb-emo').textContent = g.emoji; $('#pb-emo').style.cssText = grad(g.slug);
-  $('#pb-title').textContent = g.title; $('#pb-sub').textContent = `PlayCraft Original · v${g.version} · ${g.desc}`;
+  $('#pb-title').textContent = g.title; $('#pb-sub').textContent = `${g.author ? "Made by " + g.author : "PlayCraft Original"} · v${g.version} · ${g.desc}`;
   $('#versions').replaceChildren(h('li', {}, h('span', { class: 'v', text: 'v' + g.version }), h('span', { class: 'd', text: g.added }), h('span', { class: 'n', text: g.notes })));
   $('#g-cats').replaceChildren(...g.cats.map(c => h('a', { class: 'btn sm', href: '#/cat/' + encodeURIComponent(c), text: c })));
 }

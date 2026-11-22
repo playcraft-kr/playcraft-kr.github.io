@@ -38,7 +38,8 @@
    ]
   ],
   "tip": "Each fighting type levels up on its own. Try them all!",
-  "mobile": false
+  "mobile": false,
+  "author": "hugo"
  },
  {
   "slug": "boxing",
@@ -87,7 +88,8 @@
    ]
   ],
   "tip": "Dodge right before a hit for a PERFECT, then punch back for double damage.",
-  "mobile": true
+  "mobile": true,
+  "author": "hugo"
  },
  {
   "slug": "ashen-fortress",
@@ -132,7 +134,8 @@
    ]
   ],
   "tip": "Rolling makes you invincible for a moment. Use it to escape crowds.",
-  "mobile": false
+  "mobile": false,
+  "author": "hugo"
  },
  {
   "slug": "black-hole",
@@ -178,7 +181,8 @@
   ],
   "tip": "Press “Play online” to race real players. Empty spots are filled with bots.",
   "mobile": true,
-  "multiplayer": true
+  "multiplayer": true,
+  "author": "hugo"
  },
  {
   "slug": "event-horizon",
@@ -218,6 +222,7 @@
    ]
   ],
   "tip": "Drop off 3 or more pods at once to refill your dash and fix your hull. Gold pods are big Arks!",
-  "mobile": true
+  "mobile": true,
+  "author": "hugo"
  }
 ]
