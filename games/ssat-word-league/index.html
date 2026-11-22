@@ -52,17 +52,27 @@ let cloudT=null,cloudPending=null;
 const pushCloud=async()=>{clearTimeout(cloudT);cloudT=null;const p=cloudPending;cloudPending=null;if(!(p&&p.u===uid()&&A.writeSave))return;
   let d=p.d;try{const cl=A.loadSave?await A.loadSave(SLUG):null;const cd=cl&&cl.data;if(cd&&cd.docs)d={ts:Math.max(+p.d.ts||0,+cd.ts||0)+1,docs:WLM.docs(cd.docs,p.d.docs)}}catch(e){console.warn('cloud merge',e)}
   try{ls.set(LK(WL.key),JSON.stringify(d.docs));ls.set(TK(WL.key),String(d.ts))}catch(e){}
-  A.writeSave(SLUG,d).catch(e=>console.warn('cloud save',e))};
+  try{await A.writeSave(SLUG,d);await new Promise(r=>setTimeout(r,800+Math.random()*700));const v=await A.loadSave(SLUG),vd=v&&v.data;if(vd&&vd.docs&&WFP(WLM.docs(vd.docs,d.docs))!==WFP(vd.docs)){const m2=WLM.docs(vd.docs,d.docs);await A.writeSave(SLUG,{ts:Math.max(+vd.ts||0,+d.ts||0)+1,docs:m2})}}catch(e){console.warn('cloud save',e)}};
 window.WL={bank:BANK,gloss:GLOSS,img:IMGD,three:THREE_SRC,key:'guest',name:'',lang:null,theme:null,
   load(l,t){if(!V[l+'|'+t])return;WL.lang=l;WL.theme=t;document.documentElement.lang=l;document.getElementById('g').srcdoc=V[l+'|'+t]},
   reload(){WL.load(WL.lang||ls.get('wl_lang')||(KO?'ko':'en'),WL.theme||ls.get('wl_theme')||'soccer')},
   // 게임이 저장할 때마다 부름: 계정이면 3초 모아서 클라우드에 저장
   saved(docs,ts){if(!uid())return;cloudPending={u:uid(),d:{ts,docs}};if(!cloudT)cloudT=setTimeout(pushCloud,3000)}};
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')pushCloud();else pullCloud()});
-let pullBusy=false;async function pullCloud(){if(pullBusy||!uid()||!A.loadSave)return;pullBusy=true;try{const cl=await A.loadSave(SLUG),cd=cl&&cl.data;const lts=+ls.get(TK(WL.key))||0;if(!cd||!cd.docs||(+cd.ts||0)<=lts)return;
-  const ld=(()=>{try{return JSON.parse(ls.get(LK(WL.key))||'null')}catch(e){return null}})();const m=WLM.docs(cd.docs,ld);ls.set(LK(WL.key),JSON.stringify(m));ls.set(TK(WL.key),String(+cd.ts));
-  let busy=false;try{const g=document.getElementById('g').contentDocument;busy=!!(g&&(g.querySelector('#quiz:not([hidden]) .opts, .rpO, .gOv')))}catch(e){}
-  if(!busy)WL.reload()}catch(e){console.warn('cloud pull',e)}finally{pullBusy=false}}
+let pullBusy=false;
+const WFP=docs=>{if(!docs)return'';const ks=Object.keys(docs).filter(p=>/study\/state$/.test(p)),k=ks.find(p=>p.startsWith('data/'))||ks[0],s=(k&&docs[k])||{};const cn=Object.values(s.cards||{}).reduce((a,c)=>a+(c.n||0),0);
+  return[Object.keys(docs).length,s.xp,s.spent,(s.claims||[]).length,(s.matches||[]).length,JSON.stringify(s.mins||{}),Object.keys((s.gear||{}).own||{}).length,JSON.stringify((s.gear||{}).eq||{}),cn,s.kidDone,s.dadDone,s.kidPush,s.dadPush,s.season&&s.season.res&&s.season.res.length,JSON.stringify(s.cq||'').length,s.resetSeen,s.econStart,JSON.stringify(s.kit||{}),s.fm,JSON.stringify(s.me||{})].join('|')};
+async function pullCloud(){if(pullBusy||!uid()||!A.loadSave)return;pullBusy=true;try{const cl=await A.loadSave(SLUG),cd=cl&&cl.data;if(!cd||!cd.docs)return;
+  const ld=(()=>{try{return JSON.parse(ls.get(LK(WL.key))||'null')}catch(e){return null}})();const m=WLM.docs(cd.docs,ld);
+  if(WFP(m)!==WFP(cd.docs)&&!cloudPending)WL.saved(m,Math.max(+cd.ts||0,+ls.get(TK(WL.key))||0)+1);
+  if(ld&&WFP(m)===WFP(ld))return;
+  let busy=false,hash='';try{const fw=document.getElementById('g').contentWindow,g=fw.document;hash=fw.location.hash||'';const ae=g.activeElement;busy=!!(g.querySelector('#quiz:not([hidden]) .opts, .rpO, .gOv, .penWiz, .kBuy')||(ae&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName)))}catch(e){}
+  if(busy)return;
+  const lts=+ls.get(TK(WL.key))||0;ls.set(LK(WL.key),JSON.stringify(m));ls.set(TK(WL.key),String(Math.max(+cd.ts||0,lts)));
+  reloadKeep(hash);note(KO?'다른 기기에서 한 기록을 불러왔어요.':'Loaded progress from your other device.')}catch(e){console.warn('cloud pull',e)}finally{pullBusy=false}}
+function reloadKeep(hash){const f=document.getElementById('g');if(hash){const h=()=>{f.removeEventListener('load',h);setTimeout(()=>{try{f.contentWindow.location.hash=hash}catch(e){}},400)};f.addEventListener('load',h)}WL.reload()}
+// 같은 아이디로 다른 기기에서 하는 기록을 계속 반영: 화면이 보이는 동안 20초마다 확인 (문제 푸는 중에는 끝난 뒤 반영)
+setInterval(()=>{if(document.visibilityState==='visible')pullCloud()},20000);
 window.addEventListener('pagehide',pushCloud);
 const LK=k=>'wl_db_v1::'+k,TK=k=>'wl_ts::'+k;
 function begin(){const l=ls.get('wl_lang')||(KO?'ko':'en'),t=ls.get('wl_theme')||'soccer';WL.load(l,t)}
