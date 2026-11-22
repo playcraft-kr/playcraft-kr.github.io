@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PlayCraft — Free Original Browser Games</title>
+<meta name="description" content="Play original browser games made by young creators. No download, no sign-up.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../img/mascot-0.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to games</a>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#/" aria-label="PlayCraft home">
+      <img src="../img/mascot-0.webp" alt="" width="44" height="44">
+      <span>Play<b>Craft</b></span>
+    </a>
+    <div class="search" role="search">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+      <label class="sr" for="q">Search games</label>
+      <input id="q" type="search" placeholder="Search games, like “space” or “boxing”" autocomplete="off" aria-controls="suggest" aria-expanded="false">
+      <div class="suggest" id="suggest" role="listbox" hidden></div>
+    </div>
+    <nav class="nav" aria-label="Main">
+      <a href="#/" data-nav="home"><span aria-hidden="true">🏠</span>Home</a>
+      <a href="#/categories" data-nav="categories"><span aria-hidden="true">🧩</span>Categories</a>
+      <a href="#/my" data-nav="my"><span aria-hidden="true">❤️</span>My Games</a>
+      <a href="#/about" data-nav="about"><span aria-hidden="true">💡</span>About</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <!-- HOME -->
+  <section id="v-home" class="view">
+    <div class="hero" id="hero" aria-roledescription="carousel" aria-label="Featured games">
+      <div class="hero-slides" id="hero-slides"></div>
+      <div class="hero-picks" id="hero-picks" role="tablist" aria-label="Choose a featured game"></div>
+    </div>
+
+    <section class="shelf" id="shelf-recent" hidden>
+      <div class="shelf-head"><h2>Keep playing</h2><a class="more" href="#/my">My Games →</a></div>
+      <div class="row" id="row-recent"></div>
+    </section>
+
+    <section class="shelf">
+      <div class="shelf-head"><h2>All games</h2><span class="count" id="all-count"></span></div>
+      <div class="grid" id="grid-all"></div>
+    </section>
+
+    <section class="shelf" id="cats-home">
+      <div class="shelf-head"><h2>Pick a category</h2></div>
+      <div class="cats" id="cats-a"></div>
+    </section>
+
+    <section class="maker" id="maker">
+      <img class="maker-mascot" src="../img/mascot-0.webp" alt="Bolt, the PlayCraft robot, holding a wrench">
+      <div class="maker-copy">
+        <span class="chip soon">Coming soon</span>
+        <h2>Make a game. Share it. Make it better.</h2>
+        <p>Soon you’ll be able to send in your own game. Players leave upgrade ideas, and the best ones go into the next version with your name in the credits.</p>
+        <ol class="steps">
+          <li><b>1</b><span><strong>Build</strong>Any game that runs as one HTML file</span></li>
+          <li><b>2</b><span><strong>Review</strong>An admin plays it, then publishes it</span></li>
+          <li><b>3</b><span><strong>Ideas</strong>Players suggest ways to level it up</span></li>
+          <li><b>4</b><span><strong>Upgrade</strong>Picked ideas ship in the next version</span></li>
+        </ol>
+      </div>
+    </section>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section id="v-categories" class="view" hidden>
+    <div class="page-head"><a class="back" href="#/">← Back</a><h1>Categories</h1></div>
+    <div class="cats big" id="cats-b"></div>
+  </section>
+
+  <!-- ONE CATEGORY / SEARCH RESULTS -->
+  <section id="v-list" class="view" hidden>
+    <div class="page-head"><a class="back" href="#/">← Back</a><h1 id="list-title"></h1><span class="count" id="list-count"></span></div>
+    <div class="grid" id="grid-list"></div>
+    <div class="empty" id="list-empty" hidden>
+      <img src="../img/mascot-0.webp" alt="">
+      <div><h2 id="empty-title">No games match that yet.</h2><p>Check the spelling, or try one of these:</p><div class="chips" id="empty-chips"></div></div>
+    </div>
+  </section>
+
+  <!-- MY GAMES -->
+  <section id="v-my" class="view" hidden>
+    <div class="page-head"><a class="back" href="#/">← Back</a><h1>My Games</h1></div>
+    <p class="lead">Games you saved with ♥ and games you played lately. They’re kept on this device only.</p>
+    <h2 class="sub">Saved</h2>
+    <div class="grid" id="grid-saved"></div>
+    <h2 class="sub">Played lately</h2>
+    <div class="grid" id="grid-played"></div>
+    <div class="empty" id="my-empty" hidden>
+      <img src="../img/mascot-0.webp" alt="">
+      <div><h2>Nothing here yet</h2><p>Tap ♥ Save on any game page and it will wait for you here.</p><a class="btn primary" href="#/">Find a game</a></div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="v-about" class="view" hidden>
+    <div class="page-head"><a class="back" href="#/">← Back</a><h1>About PlayCraft</h1></div>
+    <div class="about">
+      <img src="../img/mascot-0.webp" alt="Bolt, the PlayCraft robot">
+      <div>
+        <p>PlayCraft is a home for original browser games made by young creators. Tap a game and it starts right away. There’s nothing to download and no account to make.</p>
+        <p>Every game here was reviewed by an admin first. There’s no chat and no ads.</p>
+        <h2 class="sub">Stay safe</h2>
+        <ul class="safe">
+          <li>Never type your real name, school, address, or phone number anywhere on the internet, including in games.</li>
+          <li>If something in a game feels wrong or scary, stop playing and tell a grown-up.</li>
+          <li>Games are for playing here. Please don’t copy or re-upload them. See the <a href="../terms.html">Terms of Use</a>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="v-game" class="view" hidden>
+    <div class="page-head game-head">
+      <a class="back" href="#/">← All games</a>
+      <nav class="crumbs" aria-label="Breadcrumb" id="crumbs"></nav>
+    </div>
+    <div class="stage-wrap">
+      <div class="stage" id="stage">
+        <div class="start" id="start">
+          <img class="start-bg" id="start-bg" alt="">
+          <div class="start-copy">
+            <h1 id="g-title"></h1>
+            <p id="g-desc"></p>
+            <button class="btn play" id="play-btn"><span aria-hidden="true">▶</span> Play</button>
+            <p class="start-note" id="start-note"></p>
+          </div>
+        </div>
+      </div>
+      <aside class="howto" aria-labelledby="howto-h">
+        <h2 id="howto-h">How to play</h2>
+        <ul class="keys" id="keys"></ul>
+        <p class="tip" id="tip"></p>
+        <p class="device" id="device"></p>
+      </aside>
+    </div>
+    <div class="game-bar">
+      <img id="g-cover" alt="" width="56" height="56">
+      <div class="gb-text"><strong id="g-name"></strong><span id="g-meta"></span></div>
+      <div class="gb-actions">
+        <button class="btn ghost" id="save-btn" aria-pressed="false">♡ Save</button>
+        <button class="btn ghost" id="share-btn">🔗 Copy link</button>
+        <button class="btn ghost" id="restart-btn">↻ Restart</button>
+        <button class="btn ghost" id="full-btn">⛶ Full screen</button>
+      </div>
+    </div>
+
+    <section class="shelf">
+      <div class="shelf-head"><h2>Play next</h2></div>
+      <div class="row" id="row-next"></div>
+    </section>
+
+    <div class="game-cols">
+      <section class="panel ideas">
+        <img src="../img/mascot-0.webp" alt="">
+        <div>
+          <h2>💡 Upgrade ideas</h2>
+          <p><span class="chip soon">Coming soon</span> Soon you’ll be able to sign in and suggest how to make this game more fun. If your idea gets picked, it goes into the next version and your nickname shows up in the credits.</p>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>📜 Version history</h2>
+        <ul class="versions" id="versions"></ul>
+      </section>
+    </div>
+    <p class="rights">© 2026 PlayCraft. This game is an original work. Play it here, and please don’t copy, download, re-upload, or embed it somewhere else. <a href="../terms.html">Terms of Use</a></p>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-in">
+    <div class="foot-brand"><img src="../img/mascot-0.webp" alt="" width="40" height="40"><div><strong>PlayCraft</strong><span>Make it. Play it. Make it better.</span></div></div>
+    <nav aria-label="Footer"><a href="#/">Games</a><a href="#/categories">Categories</a><a href="#/about">About</a><a href="../terms.html">Terms of Use</a></nav>
+    <p class="legal">© 2026 PlayCraft. All rights reserved. All games on this site are original works owned by their creators and PlayCraft. You may play them on playcraft-kr.github.io for personal, non-commercial fun. Copying, downloading, re-hosting, embedding on other websites, modifying, or selling any game or site content without written permission is prohibited.</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>

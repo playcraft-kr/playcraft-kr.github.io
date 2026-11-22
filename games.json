@@ -12,7 +12,33 @@
   "lang": "English",
   "version": 1,
   "added": "2026-11-21",
-  "notes": "First release"
+  "notes": "First release",
+  "cover": "img/cover-legend-arena.webp",
+  "wide": "img/wide-legend-arena.webp",
+  "controls": [
+   [
+    "W A S D / Arrows",
+    "Move"
+   ],
+   [
+    "Mouse",
+    "Look around (click to lock)"
+   ],
+   [
+    "Click / 1",
+    "Attack"
+   ],
+   [
+    "J",
+    "Quests"
+   ],
+   [
+    "Esc",
+    "Free the mouse"
+   ]
+  ],
+  "tip": "Each fighting type levels up on its own. Try them all!",
+  "mobile": false
  },
  {
   "slug": "boxing",
@@ -27,7 +53,41 @@
   "lang": "Korean",
   "version": 1,
   "added": "2026-11-21",
-  "notes": "First release"
+  "notes": "First release",
+  "cover": "img/cover-boxing.webp",
+  "wide": "img/wide-boxing.webp",
+  "controls": [
+   [
+    "W A S D",
+    "Move"
+   ],
+   [
+    "J / Left click",
+    "Left jab"
+   ],
+   [
+    "K / Right click",
+    "Right hook"
+   ],
+   [
+    "L",
+    "Uppercut (breaks guard)"
+   ],
+   [
+    "Space",
+    "Duck"
+   ],
+   [
+    "Q / E",
+    "Side-step"
+   ],
+   [
+    "Shift (hold)",
+    "Block"
+   ]
+  ],
+  "tip": "Dodge right before a hit for a PERFECT, then punch back for double damage.",
+  "mobile": false
  },
  {
   "slug": "ashen-fortress",
@@ -42,7 +102,37 @@
   "lang": "Korean",
   "version": 1,
   "added": "2026-11-21",
-  "notes": "First release"
+  "notes": "First release",
+  "cover": "img/cover-ashen-fortress.webp",
+  "wide": "img/wide-ashen-fortress.webp",
+  "controls": [
+   [
+    "W A S D",
+    "Move"
+   ],
+   [
+    "Left click",
+    "3-hit combo"
+   ],
+   [
+    "Right click / F",
+    "Spin slash"
+   ],
+   [
+    "Space",
+    "Dodge roll"
+   ],
+   [
+    "Q",
+    "Drink potion"
+   ],
+   [
+    "Mouse",
+    "Look around"
+   ]
+  ],
+  "tip": "Rolling makes you invincible for a moment. Use it to escape crowds.",
+  "mobile": false
  },
  {
   "slug": "black-hole",
@@ -57,7 +147,37 @@
   "lang": "Korean",
   "version": 1,
   "added": "2026-11-21",
-  "notes": "First release"
+  "notes": "First release",
+  "cover": "img/cover-black-hole.webp",
+  "wide": "img/wide-black-hole.webp",
+  "controls": [
+   [
+    "W A S D / Arrows",
+    "Move"
+   ],
+   [
+    "Space",
+    "Jump"
+   ],
+   [
+    "Left click",
+    "Attack"
+   ],
+   [
+    "Q / E",
+    "Skills"
+   ],
+   [
+    "F",
+    "Switch weapon"
+   ],
+   [
+    "Esc",
+    "Free the mouse"
+   ]
+  ],
+  "tip": "The black hole jumps to the other end every 40 seconds. Don’t run too far!",
+  "mobile": true
  },
  {
   "slug": "event-horizon",
@@ -71,7 +191,29 @@
   "lang": "Korean",
   "version": 1,
   "added": "2026-11-21",
-  "notes": "First release"
+  "notes": "First release",
+  "cover": "img/cover-event-horizon.webp",
+  "wide": "img/wide-event-horizon.webp",
+  "controls": [
+   [
+    "W A S D / Arrows",
+    "Fly"
+   ],
+   [
+    "Mouse + click / J",
+    "Aim and grab"
+   ],
+   [
+    "Space / Shift / Right click",
+    "Dash"
+   ],
+   [
+    "S",
+    "Skip intro"
+   ]
+  ],
+  "tip": "Gold pods are big arks. Grab them for bonus repairs.",
+  "mobile": false
  },
  {
   "slug": "legend-arena",
@@ -86,6 +228,33 @@
   "lang": "Korean",
   "version": 1,
   "added": "2026-11-21",
-  "notes": "First release"
+  "notes": "First release",
+  "cover": "img/cover-legend-arena.webp",
+  "wide": "img/wide-legend-arena.webp",
+  "controls": [
+   [
+    "W A S D / Arrows",
+    "Move"
+   ],
+   [
+    "Mouse",
+    "Look around (click to lock)"
+   ],
+   [
+    "Click / 1",
+    "Attack"
+   ],
+   [
+    "J",
+    "Quests"
+   ],
+   [
+    "Esc",
+    "Free the mouse"
+   ]
+  ],
+  "tip": "Each fighting type levels up on its own. Try them all!",
+  "mobile": false,
+  "variantOf": "legend-arena-en"
  }
 ]
