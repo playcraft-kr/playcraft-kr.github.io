@@ -10,9 +10,9 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 5,
+  "version": 6,
   "added": "2026-11-22",
-  "notes": "Goal celebration photos for every goal you score",
+  "notes": "Celebration photos appear as each goal happens",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
