@@ -41,7 +41,7 @@ function askName(done){const d=document.createElement('div');d.id='nm';
 // 예전 버전(이름별 기록)을 손님 기록으로 옮기기
 (()=>{if(ls.get(LK('guest')))return;const cur=ls.get('wl_cur')||ls.get('wl_name');if(!cur)return;const d=ls.get(LK(cur.toLowerCase()))||ls.get('wl_db_v1');if(d){ls.set(LK('guest'),d);ls.set(TK('guest'),'1')}if(!ls.get('wl_guest_name'))ls.set('wl_guest_name',cur)})();
 async function main(){
-  if(A){const t0=Date.now();while(!A.ready&&Date.now()-t0<6000)await new Promise(r=>setTimeout(r,100))}
+  if(A){const t0=Date.now();while(!A.ready&&Date.now()-t0<15000)await new Promise(r=>setTimeout(r,100))}
   const id=uid();
   if(id){const p=A.profile||{};WL.key='acct:'+id;WL.name=(p.nickname||p.username||'').replace(/[<>&"'`]/g,'').slice(0,12);
     let cloud=null;try{cloud=A.loadSave?await A.loadSave(SLUG):null}catch(e){console.warn('cloud load',e)}
@@ -52,10 +52,10 @@ async function main(){
     const loc=ls.get(LK(WL.key));if(loc&&(!cd||(+cd.ts||0)<(+ls.get(TK(WL.key))||0))){try{WL.saved(JSON.parse(loc),+ls.get(TK(WL.key))||Date.now())}catch(e){}}
     begin()}
   else{WL.key='guest';const n=ls.get('wl_guest_name');
-    const go=nm=>{WL.name=nm;ls.set('wl_guest_name',nm);begin();if(A)note(KO?'로그인하면 기록이 계정에 저장돼서 다른 기기에서도 이어져요.':'Sign in to save your progress to your account and continue on any device.')};
-    if(n)go(n);else askName(go)}
+    const go=nm=>{WL.name=nm;if(nm)ls.set('wl_guest_name',nm);begin();if(A)note(KO?'로그인하면 기록이 계정에 저장돼서 다른 기기에서도 이어져요.':'Sign in to save your progress to your account and continue on any device.')};
+    if(A)go(n||'');else if(n)go(n);else askName(go)}
   // 다른 계정으로 로그인/로그아웃하면 새 기록으로 다시 시작
-  if(A&&A.onChange){const was=id;A.onChange(()=>{if(A.ready&&uid()!==was){pushCloud();location.reload()}})}
+  if(A){const was=id,chk=()=>{if(A.ready&&uid()!==was){pushCloud();location.reload()}};if(A.onChange)A.onChange(chk);let k=0;const iv=setInterval(()=>{chk();if(++k>30)clearInterval(iv)},2000)}
 }
 main();
 </script></body></html>
