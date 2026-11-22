@@ -536,7 +536,7 @@ async function openPlayLog(p) {
   $('#adm-log-sum').textContent = `${plural(rows.length, 'play')} · ${fmtTime(total)}${rows.length >= 500 ? ' (latest 500)' : ''}`;
   const title = s => (bySlug(s) ? bySlug(s).title : s);
   $('#adm-log-body').replaceChildren(...days.map(D => h('div', { class: 'log-day' },
-    h('h3', {}, D.label, h('span', { class: 'note', text: ` · ${fmtTime(D.secs)} · ` + Object.entries(D.games).sort((a, b) => b[1] - a[1]).map(([g, s]) => `${title(g)} ${fmtTime(s)}`).join(', ') })),
+    h('h3', {}, D.label, h('span', { class: 'note', text: ` · ${fmtTime(D.secs)} · ` + Object.entries(D.games).filter(e => e[1] > 0).sort((a, b) => b[1] - a[1]).map(([g, s]) => `${title(g)} ${fmtTime(s)}`).join(', ') })),
     h('div', { class: 'table-wrap' }, h('table', { class: 'adm-table log-table' },
       h('thead', {}, h('tr', {}, h('th', { text: 'Started' }), h('th', { text: 'Ended' }), h('th', { text: 'Game' }), h('th', { text: 'Time played' }))),
       h('tbody', {}, ...D.rows.map(r => { const s = Number(r.seconds) || 0; return h('tr', {}, h('td', { text: clock(r.started_at) }), h('td', { text: s > 0 ? clock(Date.parse(r.started_at) + s * 1000) : '—' }), h('td', { text: title(r.game_slug) }), h('td', { text: dur(s) })); })))))));
