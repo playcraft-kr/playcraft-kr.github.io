@@ -128,7 +128,7 @@
  {
   "slug": "ashen-fortress",
   "title": "Ashen Keep",
-  "desc": "Cut down the undead pouring into a ruined arena at dusk. The longer you last, the stronger you get.",
+  "desc": "Cut down the undead in a ruined arena at dusk. Survive Wave 3 to open the gate to a village, quests and an endless road.",
   "emoji": "🏰",
   "cats": [
    "Action",
@@ -136,9 +136,9 @@
    "Adventure"
   ],
   "lang": "English",
-  "version": 1,
+  "version": 2,
   "added": "2026-11-21",
-  "notes": "First release",
+  "notes": "Big update: survive Wave 3 to open the gate — village shops, quests, endless road, cave raids and new bosses",
   "cover": "img/cover-ashen-fortress.webp",
   "wide": "img/wide-ashen-fortress.webp",
   "controls": [
@@ -156,11 +156,23 @@
    ],
    [
     "Space",
-    "Dodge roll"
+    "Jump · glide"
+   ],
+   [
+    "Shift",
+    "Roll (hold to run)"
    ],
    [
     "Q",
     "Drink potion"
+   ],
+   [
+    "E",
+    "Talk · shop"
+   ],
+   [
+    "R",
+    "Recall to village"
    ],
    [
     "Mouse",
