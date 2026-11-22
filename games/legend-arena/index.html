@@ -2128,6 +2128,27 @@ initPFX();
 animFns.push((t,dt)=>{if(!started||!player||SET.q==='low')return;const cave=W3G.cave&&W3G.cave.visible;const w=S.world;const col=cave?0xff8ae8:w===3?0xffd890:w===2?0x9fd8ff:0xfff2b0;if(Math.random()<(SET.q==='high'?.5:.25)){const a=Math.random()*TAU,r=rand(3,16);emit(pools.add,new V3(player.pos.x+Math.cos(a)*r,rand(.4,5),player.pos.z+Math.sin(a)*r),col,rand(.06,.13),new V3(rand(-.3,.3),rand(.05,.35),rand(-.3,.3)),rand(2.5,4.5),0);}});
 requestAnimationFrame(loop);
 window.__game={get audio(){return AC&&{state:AC.state,seq:!!seqT,song}},get player(){return player},get battle(){return battle},startMatch,openShop,openBoss,useSkill:i=>useSkill(player,i),enterBoss,gainXP,get fighters(){return fighters},get S(){return S}};
+
+/* PlayCraft 계정 연동: 사이트에 로그인돼 있으면 그 아이디로 바로 시작하고, 기록은 계정에 저장 */
+(()=>{let A=null;try{A=window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){}if(!A)return;
+const KO=document.documentElement.lang==='ko',SL='legend-arena';let on=false,qt=null,lastTs=0;
+async function init(){const t0=Date.now();while(!A.ready&&Date.now()-t0<15000)await new Promise(r=>setTimeout(r,100));if(!(A.signedIn&&A.user))return;
+ const p=A.profile||{},nm=String(p.nickname||p.username||'Player').replace(/[<>&"'`]/g,'').trim().slice(0,12)||'Player';
+ let cl=null;try{cl=await A.loadSave(SL)}catch(e){}
+ const cs=cl&&cl.data&&cl.data.S,loc=ACC[nm];
+ const base=cs&&(!loc||((cl.data.ts||0)>=(loc._ts||0)))?cs:(loc||cs||{name:nm});
+ S=migrate(JSON.parse(JSON.stringify(base)));S.name=nm;
+ const ni=$('#nameIn');ni.value=nm;ni.disabled=true;const lab=document.querySelector('label[for=nameIn]');if(lab)lab.textContent='PlayCraft';
+ const pw=$('#pwRow');if(pw)pw.classList.add('hide');
+ selType=S.type||selType;renderTypes();$('#goBtn').textContent=S.type?(KO?'이어하기':'Continue'):(KO?'모험 시작':'Start Adventure');
+ $('#goHint').textContent=KO?`${nm} 계정으로 로그인됨 · 기록은 PlayCraft 계정에 저장돼요`:`Signed in as ${nm} · progress saves to your PlayCraft account`;
+ const _s=save;save=function(){if(S)S._ts=Date.now();const r=_s.apply(this,arguments);queue();return r};on=true;
+ if(!cs&&loc)queue()}
+function queue(){if(!on)return;clearTimeout(qt);qt=setTimeout(push,3000)}
+async function push(){clearTimeout(qt);if(!on||!S||!S.name||!(A.signedIn&&A.user))return;try{await A.writeSave(SL,{ts:Date.now(),S:JSON.parse(JSON.stringify(S))})}catch(e){}}
+addEventListener('pagehide',push);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')push()});
+init()})();
+
 }
 </script>
 </body>
