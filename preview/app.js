@@ -224,29 +224,24 @@ function playGame() {
   setTimeout(() => f.focus(), 400);
 }
 function stopGame() { const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove()); $('#start').hidden = false; playing = false; setFull(false); }
-// Real browser full screen: no button covers the game, and the browser itself exits on Esc.
-// Only browsers without the Fullscreen API (older iPhones) get a fill-the-window mode with a small corner button.
-let exitBtn = null;
-const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+// "Big screen": the game fills the browser window, with a slim bar ABOVE the game (never on top of it).
+// We don't use the browser's own full screen, because there Esc both frees the mouse and exits full screen.
+// Here Esc belongs to the game only.
+let bar = null;
 function setFull(on) {
   const st = $('#stage'); if (!st) return;
-  if (on) {
-    const req = st.requestFullscreen || st.webkitRequestFullscreen;
-    if (req) { Promise.resolve(req.call(st)).catch(() => fallbackFull(true)); return; }
-    return fallbackFull(true);
-  }
-  if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
-  fallbackFull(false);
-}
-function fallbackFull(on) {
-  const st = $('#stage');
   st.classList.toggle('full', on); document.body.style.overflow = on ? 'hidden' : '';
-  if (on && !exitBtn) { exitBtn = h('button', { class: 'full-exit', 'aria-label': 'Exit full screen', title: 'Exit full screen', onclick: () => setFull(false) }, '✕'); document.body.append(exitBtn); }
-  if (!on && exitBtn) { exitBtn.remove(); exitBtn = null; }
+  $('#full-btn').textContent = '⛶ Big screen';
+  if (on && !bar) {
+    bar = h('div', { class: 'big-bar' },
+      h('strong', { text: current ? current.title : '' }),
+      h('span', { class: 'hint', text: 'Esc is for the game (it frees the mouse). Use the button to leave big screen.' }),
+      h('button', { class: 'btn primary small', onclick: () => setFull(false) }, '✕ Small screen'));
+    st.prepend(bar);
+    setTimeout(() => { const f = st.querySelector('iframe'); if (f) f.focus(); }, 100);
+  }
+  if (!on && bar) { bar.remove(); bar = null; }
 }
-const syncFsBtn = () => { $('#full-btn').textContent = fsEl() ? '⛶ Exit full screen' : '⛶ Full screen'; if (fsEl()) setTimeout(() => { const f = $('#stage iframe'); if (f) f.focus(); }, 100); };
-document.addEventListener('fullscreenchange', syncFsBtn);
-document.addEventListener('webkitfullscreenchange', syncFsBtn);
 $('#play-btn').addEventListener('click', playGame);
 $('#restart-btn').addEventListener('click', () => { if (playing) playGame(); else playGame(); });
 $('#full-btn').addEventListener('click', () => { if (!playing) playGame(); setFull(true); });
@@ -256,7 +251,6 @@ $('#share-btn').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(url); toast('Link copied! Paste it to share this game.'); }
   catch { toast('Copy this link from the address bar to share.'); }
 });
-addEventListener('keydown', e => { if (e.key === 'Escape') setFull(false); });
 
 /* ---------- boot ---------- */
 fetch(ROOT + 'games.json', { cache: 'no-cache' }).then(r => r.json()).then(list => {
