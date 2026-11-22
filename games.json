@@ -1,0 +1,91 @@
+[
+ {
+  "slug": "legend-arena-en",
+  "title": "Legend Arena",
+  "desc": "Pick a fighting type, level up, and battle bots and bosses in the arena.",
+  "emoji": "⚔️",
+  "cats": [
+   "Fighting",
+   "3D",
+   "Adventure"
+  ],
+  "lang": "English",
+  "version": 1,
+  "added": "2026-11-21",
+  "notes": "First release"
+ },
+ {
+  "slug": "boxing",
+  "title": "Knockout 3D Boxing",
+  "desc": "Knock out three opponents. Dodge at the last second, then counter for double damage.",
+  "emoji": "🥊",
+  "cats": [
+   "Fighting",
+   "3D",
+   "Sports"
+  ],
+  "lang": "Korean",
+  "version": 1,
+  "added": "2026-11-21",
+  "notes": "First release"
+ },
+ {
+  "slug": "ashen-fortress",
+  "title": "Ashen Keep",
+  "desc": "Cut down the undead pouring into a ruined arena at dusk. The longer you last, the stronger you get.",
+  "emoji": "🏰",
+  "cats": [
+   "Action",
+   "3D",
+   "Adventure"
+  ],
+  "lang": "Korean",
+  "version": 1,
+  "added": "2026-11-21",
+  "notes": "First release"
+ },
+ {
+  "slug": "black-hole",
+  "title": "Black Hole Survival",
+  "desc": "A 12-player survival run. Don’t get pulled into the black hole at the end of the road.",
+  "emoji": "🕳️",
+  "cats": [
+   "Space",
+   "3D",
+   "Action"
+  ],
+  "lang": "Korean",
+  "version": 1,
+  "added": "2026-11-21",
+  "notes": "First release"
+ },
+ {
+  "slug": "event-horizon",
+  "title": "Event Horizon: Earth Escape",
+  "desc": "180 seconds until impact. Fly the last rescue ship and save the escape pods.",
+  "emoji": "🌍",
+  "cats": [
+   "Space",
+   "Action"
+  ],
+  "lang": "Korean",
+  "version": 1,
+  "added": "2026-11-21",
+  "notes": "First release"
+ },
+ {
+  "slug": "legend-arena",
+  "title": "Legend Arena (Korean)",
+  "desc": "The Korean edition of Legend Arena.",
+  "emoji": "🌐",
+  "cats": [
+   "Fighting",
+   "3D",
+   "Adventure"
+  ],
+  "lang": "Korean",
+  "version": 1,
+  "added": "2026-11-21",
+  "notes": "First release"
+ }
+]

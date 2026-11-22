@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PlayCraft — Free Original Browser Games</title>
+<meta name="description" content="Play original browser games made by young creators. No download, no sign-up.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🛠%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="wall wall-wide" id="wall">
+  <div class="logo-tile">
+    <button class="logo" id="logo" aria-label="PlayCraft home"><b>🛠</b>PlayCraft</button>
+    <label class="search"><span aria-hidden="true">🔍</span><span class="sr">Search games</span><input id="q" type="text" placeholder="Search games" autocomplete="off"></label>
+    <div class="icons">
+      <button class="ic" data-go="home" aria-current="true" title="Home" aria-label="Home">🏠</button>
+      <button class="ic" data-go="about" title="About PlayCraft" aria-label="About PlayCraft">💡</button>
+      <button class="ic" data-go="random" title="Random game" aria-label="Random game">🎲</button>
+    </div>
+  </div>
+  <section class="player" id="player" hidden aria-label="Game screen">
+    <div class="screen" id="screen">
+      <div class="start" id="start">
+        <div class="big" id="start-emo"></div>
+        <h2 id="start-title"></h2>
+        <button class="play" id="play-btn">▶ Play</button>
+        <div class="lang-note" id="start-lang"></div>
+      </div>
+    </div>
+    <div class="pbar">
+      <div class="emo" id="pb-emo"></div>
+      <div class="grow"><div class="t" id="pb-title"></div><div class="s" id="pb-sub"></div></div>
+      <button class="pbtn" id="reload-btn" title="Restart" aria-label="Restart">↻</button>
+      <button class="pbtn" id="full-btn" title="Full screen" aria-label="Full screen">⛶</button>
+    </div>
+  </section>
+</div>
+
+<div class="below" id="home-below">
+  <section>
+    <h2 class="sec">Categories</h2>
+    <div class="cats" id="cats"></div>
+  </section>
+  <section class="panel about" id="about">
+    <div>
+      <h2>What is PlayCraft?</h2>
+      <p>PlayCraft is a home for original browser games made by young creators. Tap a tile and the game starts right away. Nothing to download, no account needed.</p>
+      <p>Soon you will be able to send in your own game and leave ideas on other games. When an idea is picked, it goes into the next version, and the version history credits the player who suggested it.</p>
+      <p class="note" id="stats"></p>
+    </div>
+    <ol class="steps">
+      <li><div><strong>Make it and send it in</strong><span>Any game that runs as a single HTML file (coming soon)</span></div></li>
+      <li><div><strong>Admin review</strong><span>An admin plays it first, then publishes it to the site</span></div></li>
+      <li><div><strong>Upgrade ideas</strong><span>Players suggest ways to make the game more fun (coming soon)</span></div></li>
+      <li><div><strong>Pick → upgrade</strong><span>The best ideas ship in the next version</span></div></li>
+    </ol>
+  </section>
+</div>
+
+<div class="below" id="game-below" hidden>
+  <div class="cols">
+    <section class="panel">
+      <h2 class="sec">💡 Upgrade ideas</h2>
+      <div class="soon"><b>Coming soon.</b> You’ll be able to sign in and suggest how to make this game more fun. Picked ideas go into the next version.</div>
+    </section>
+    <aside class="panel">
+      <h3>📜 Version history</h3>
+      <ul class="versions" id="versions"></ul>
+      <h3 style="margin-top:22px">🏷️ Categories</h3>
+      <div class="chips" id="g-cats"></div>
+    </aside>
+  </div>
+  <p class="rights-line">© 2026 PlayCraft. This game is an original work. Play it here; please don’t copy, download, re-upload, or embed it elsewhere. <a href="terms.html">Terms of Use</a></p>
+</div>
+
+<footer>
+  <div><div class="fl">PlayCraft</div>Make it. Play it. Make it better.</div>
+  <nav><a href="#/">Games</a><a href="#/about">About</a><a href="terms.html">Terms of Use</a></nav>
+  <p class="legal">© 2026 PlayCraft. All rights reserved. All games on this site are original works owned by their creators and PlayCraft. You may play them on playcraft-kr.github.io for personal, non-commercial fun. Copying, downloading, re-hosting, embedding on other websites, modifying, or selling any game or site content without written permission is prohibited. See the <a href="terms.html">Terms of Use</a>.</p>
+</footer>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const h = (tag, props = {}, ...kids) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v; else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (k === 'style') e.style.cssText = v; else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) e.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return e;
+};
+const CATS = [['Action','💥'],['Fighting','🥊'],['3D','🧊'],['Space','🪐'],['Adventure','🗺️'],['Sports','⚽'],['Puzzle','🧩'],['Racing','🏎️']];
+const GRADS = [['#ffd36e','#ff9f43'],['#7ee8c7','#22b38a'],['#9cc2ff','#5b7cf5'],['#ffb3c7','#f0567e'],['#c9b6ff','#7b5cd6'],['#a5f0ff','#35a9d6'],['#ffcf9e','#ef7b45']];
+const hash = s => { let n = 0; for (const c of String(s)) n = (n * 31 + c.charCodeAt(0)) >>> 0; return n; };
+const grad = id => { const [a, b] = GRADS[hash(id) % GRADS.length]; return `background:linear-gradient(140deg,${a},${b})`; };
+const WEEK = 7 * 864e5;
+const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+const S = { games: [], slug: null, cat: null, q: '', playing: false };
+
+/* routing: #/ , #/about , #/game/<slug> , #/cat/<name> */
+function route() {
+  const p = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('/');
+  if (p[0] === 'game' && p[1]) return open(p[1]);
+  S.cat = p[0] === 'cat' ? p[1] : null;
+  open(null);
+  if (p[0] === 'about') setTimeout(() => $('#about').scrollIntoView({ behavior: 'smooth' }), 60);
+}
+addEventListener('hashchange', route);
+const go = hash => { if (location.hash === hash) route(); else location.hash = hash; };
+
+function open(slug) {
+  if (S.slug && S.slug !== slug) stopGame();
+  S.slug = slug;
+  $('#player').hidden = !slug; $('#home-below').hidden = !!slug; $('#game-below').hidden = !slug;
+  renderWall(); renderCats(); if (slug) renderGame();
+  if (!location.hash.includes('about')) window.scrollTo({ top: 0 });
+  const g = slug && S.games.find(x => x.slug === slug);
+  document.title = g ? `${g.title} · PlayCraft` : 'PlayCraft — Free Original Browser Games';
+}
+
+function tile(g, size) {
+  const fresh = Date.now() - Date.parse(g.added) < WEEK;
+  return h('a', { class: 'gt' + (size ? ' ' + size : ''), style: grad(g.slug), href: '#/game/' + g.slug, 'aria-label': g.title },
+    h('span', { class: 'emo', 'aria-hidden': 'true', text: g.emoji }),
+    fresh ? h('span', { class: 'badge' + (g.version > 1 ? ' up' : ''), text: g.version > 1 ? 'UP' : 'NEW' }) : null,
+    g.version > 1 ? h('span', { class: 'ver', text: 'v' + g.version }) : null,
+    h('span', { class: 'ttl' }, g.title, size === 'l' ? h('small', { text: g.desc }) : null));
+}
+const SIZES = ['l', 'm', '', '', '', 'm', '', '', '', '', 'm', '', ''];
+function renderWall() {
+  const wall = $('#wall');
+  wall.querySelectorAll('.gt,.filter-tile,.empty-tile').forEach(n => n.remove());
+  let games = [...S.games];
+  const q = S.q.toLowerCase();
+  if (q) games = games.filter(g => (g.title + ' ' + g.desc + ' ' + g.cats.join(' ')).toLowerCase().includes(q));
+  if (S.cat) games = games.filter(g => g.cats.includes(S.cat));
+  if (S.slug) games = games.filter(g => g.slug !== S.slug);
+  const filtering = q || S.cat;
+  if (filtering && !S.slug) wall.append(h('div', { class: 'filter-tile' }, h('span', { text: S.cat ? `${S.cat} · ${plural(games.length, 'game')}` : `“${S.q}” · ${plural(games.length, 'game')}` }), h('button', { text: '✕ Show all', onclick: () => { S.q = ''; $('#q').value = ''; go('#/'); } })));
+  if (!games.length && !S.slug) wall.append(h('div', { class: 'empty-tile', text: filtering ? 'No games match that yet.' : 'Loading games…' }));
+  games.forEach((g, i) => wall.append(tile(g, S.slug ? (i < 2 ? 'm' : '') : (filtering ? '' : SIZES[i % SIZES.length]))));
+  $('#stats').textContent = `${plural(S.games.length, 'game')} to play right now.`;
+}
+function renderCats() {
+  $('#cats').replaceChildren(...CATS.map(([c, e]) => h('a', { class: 'cat', href: '#/cat/' + encodeURIComponent(c) },
+    h('span', { class: 'ce', style: grad(c), text: e }), h('div', {}, h('b', { text: c }), h('span', { text: plural(S.games.filter(g => g.cats.includes(c)).length, 'game') })))));
+}
+function renderGame() {
+  const g = S.games.find(x => x.slug === S.slug);
+  if (!g) { $('#start-title').textContent = S.games.length ? 'We couldn’t find that game.' : 'Loading…'; $('#play-btn').hidden = true; return; }
+  $('#play-btn').hidden = false;
+  $('#start-emo').textContent = g.emoji; $('#start-title').textContent = g.title;
+  $('#start-lang').textContent = g.lang === 'English' ? '' : `In-game text is in ${g.lang}.`;
+  if (!S.playing) $('#screen').style.cssText = grad(g.slug).replace('140deg', '160deg');
+  $('#pb-emo').textContent = g.emoji; $('#pb-emo').style.cssText = grad(g.slug);
+  $('#pb-title').textContent = g.title; $('#pb-sub').textContent = `PlayCraft Original · v${g.version} · ${g.desc}`;
+  $('#versions').replaceChildren(h('li', {}, h('span', { class: 'v', text: 'v' + g.version }), h('span', { class: 'd', text: g.added }), h('span', { class: 'n', text: g.notes })));
+  $('#g-cats').replaceChildren(...g.cats.map(c => h('a', { class: 'btn sm', href: '#/cat/' + encodeURIComponent(c), text: c })));
+}
+
+/* player */
+function playGame() {
+  const g = S.games.find(x => x.slug === S.slug); if (!g) return;
+  $('#screen').querySelectorAll('iframe').forEach(f => f.remove());
+  const f = h('iframe', { src: `games/${g.slug}/`, allow: 'autoplay; fullscreen; gamepad', title: g.title });
+  $('#start').hidden = true; $('#screen').style.cssText = ''; $('#screen').append(f); S.playing = true;
+  setTimeout(() => f.focus(), 400);
+}
+function stopGame() { $('#screen').querySelectorAll('iframe').forEach(f => f.remove()); $('#start').hidden = false; S.playing = false; setFull(false); }
+function setFull(on) { $('#player').classList.toggle('full', on); $('#full-btn').textContent = on ? '✕' : '⛶'; $('#full-btn').setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen'); document.body.style.overflow = on ? 'hidden' : ''; }
+$('#play-btn').addEventListener('click', playGame);
+$('#reload-btn').addEventListener('click', () => { if (S.playing) playGame(); });
+$('#full-btn').addEventListener('click', () => setFull(!$('#player').classList.contains('full')));
+addEventListener('keydown', e => { if (e.key === 'Escape') setFull(false); });
+
+/* menu */
+$('#logo').addEventListener('click', () => { S.q = ''; $('#q').value = ''; go('#/'); });
+document.querySelectorAll('.ic').forEach(b => b.addEventListener('click', () => {
+  if (b.dataset.go === 'home') go('#/');
+  else if (b.dataset.go === 'about') go('#/about');
+  else if (S.games.length) go('#/game/' + S.games[Math.floor(Math.random() * S.games.length)].slug);
+}));
+$('#q').addEventListener('input', e => { S.q = e.target.value.trim(); if (S.slug) go('#/'); else renderWall(); });
+
+fetch('games.json', { cache: 'no-cache' }).then(r => r.json()).then(list => { S.games = list; route(); })
+  .catch(() => { $('#wall').append(h('div', { class: 'empty-tile', text: 'We couldn’t load the game list. Please refresh the page.' })); });
+route();
+})();
+</script>
+</body>
+</html>
