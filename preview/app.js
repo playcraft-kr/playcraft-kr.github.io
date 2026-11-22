@@ -341,6 +341,18 @@ $('#si-form').addEventListener('submit', async e => {
   go.disabled = false; go.textContent = 'Sign in';
 });
 
+// eye buttons: show / hide what was typed in a password box
+document.querySelectorAll('.eye').forEach(b => b.addEventListener('click', () => {
+  const inp = document.getElementById(b.dataset.for), show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  b.setAttribute('aria-pressed', String(show)); b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  inp.focus();
+}));
+// hide old error messages as soon as the player changes something
+$('#si-form').addEventListener('input', () => ($('#si-err').hidden = true));
+$('#su-form').addEventListener('input', () => ($('#su-err').hidden = true));
+dlg.addEventListener('close', () => document.querySelectorAll('.eye').forEach(b => { const i = document.getElementById(b.dataset.for); i.type = 'password'; b.setAttribute('aria-pressed', 'false'); }));
+
 // sign-up form
 const ageSel = $('#su-age');
 for (let a = 6; a <= 17; a++) ageSel.append(h('option', { value: a, text: `${a}` }));
@@ -348,6 +360,13 @@ ageSel.append(h('option', { value: 18, text: '18 or older' }));
 const RULES = { len: p => p.length >= 8, letter: p => /[A-Za-z]/.test(p), num: p => /[0-9]/.test(p), sym: p => /[^A-Za-z0-9\s]/.test(p) };
 const pwOk = p => Object.values(RULES).every(f => f(p));
 $('#su-pw').addEventListener('input', () => { const p = $('#su-pw').value; document.querySelectorAll('#pw-rules li').forEach(li => li.classList.toggle('ok', RULES[li.dataset.r](p))); });
+function checkMatch() {
+  const a = $('#su-pw').value, b = $('#su-pw2').value, hint = $('#su-pw2-hint');
+  hint.className = 'hint';
+  if (!b) { hint.textContent = ''; return; }
+  const ok = a === b; hint.textContent = ok ? '✓ Passwords match.' : '✗ Not the same yet.'; hint.classList.add(ok ? 'good' : 'bad');
+}
+$('#su-pw').addEventListener('input', checkMatch); $('#su-pw2').addEventListener('input', checkMatch);
 ageSel.addEventListener('change', () => { const a = +ageSel.value; $('#su-guardian-row').hidden = !(a && a < 14); });
 const ID_RE = /^[a-z0-9][a-z0-9._-]{2,19}$/;
 let idTimer;
@@ -375,7 +394,7 @@ $('#su-form').addEventListener('submit', async e => {
     if (!(await ACC.idAvailable(id))) { say('Someone already has this ID. Try another one.'); }
     else {
       await ACC.signUp({ id, password: pw, nickname: nick, age, guardianOk: $('#su-guardian').checked });
-      dlg.close(); $('#su-form').reset(); document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok'));
+      dlg.close(); $('#su-form').reset(); document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok')); $('#su-pw2-hint').textContent = '';
       toast(`Welcome to PlayCraft, ${nick}! 🎉`);
     }
   } catch (x) {

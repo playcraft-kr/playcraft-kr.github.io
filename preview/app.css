@@ -341,3 +341,14 @@ h2.sub{font-size:24px;margin:26px 0 14px}
 .btn.tiny{min-height:34px;padding:0 12px;font-size:13.5px}
 .note{color:var(--ink-2);font-size:14px}
 @media (max-width:860px){.adm-cols{grid-template-columns:1fr}}
+
+/* show/hide password */
+.pw-field{position:relative;display:grid}
+.pw-field input{padding-right:54px!important}
+.eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:42px;height:42px;border:0;background:transparent;border-radius:10px;cursor:pointer;display:grid;place-items:center;color:var(--ink-2)}
+.eye:hover{background:var(--bg);color:var(--ink)}
+.eye svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.eye .slash{display:none}
+.eye[aria-pressed="true"]{color:var(--violet)}
+.eye[aria-pressed="true"] .slash{display:block}
+.guardian[hidden]{display:none!important}
