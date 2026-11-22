@@ -10,9 +10,9 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 12,
+  "version": 13,
   "added": "2026-11-22",
-  "notes": "Fantasy: animated battles, knockout moments, hero gear shop. Soccer: realistic team shape and pressing",
+  "notes": "Armory with painted heroes and gear, six formations, offside rule, parent-configurable penalty duel",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
