@@ -16,6 +16,8 @@ const Account = {
   get user() { return user; },
   get profile() { return profile; },
   get signedIn() { return !!user; },
+  // 게임끼리 실시간으로 만나는 채널용 (방송 채널만 사용)
+  get realtime() { return sb ? { channel: (...a) => sb.channel(...a), removeChannel: c => sb.removeChannel(c) } : null; },
   onChange(fn) { listeners.add(fn); },
 
   async signIn(id, password) {
