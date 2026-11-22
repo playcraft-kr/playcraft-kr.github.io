@@ -171,7 +171,7 @@ h2.sub{font-size:24px;margin:26px 0 14px}
 .crumbs a:hover{color:var(--violet)}
 .stage-wrap{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:stretch}
 .stage{position:relative;aspect-ratio:16/9;border-radius:24px;overflow:hidden;background:var(--night);box-shadow:var(--shadow-lg)}
-.stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.stage iframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0;background:#000}
 .start{position:absolute;inset:0;display:grid;align-items:center}
 .start-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .start::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,15,51,.9),rgba(20,15,51,.55) 45%,rgba(20,15,51,.05) 75%)}
@@ -185,7 +185,7 @@ h2.sub{font-size:24px;margin:26px 0 14px}
 .big-bar .hint{flex:1;font-size:13px;color:#bdb6ec;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .btn.small{min-height:38px;padding:0 16px;font-size:15px;box-shadow:0 3px 0 var(--sun-d)}
 .stage.full{padding-top:env(safe-area-inset-top,0px)}
-.stage.full iframe{top:calc(52px + env(safe-area-inset-top,0px));height:calc(100% - 52px - env(safe-area-inset-top,0px))}
+
 .howto{background:var(--card);border-radius:24px;padding:20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
 .howto h2{font-size:22px}
 .keys{list-style:none;margin:0;padding:0;display:grid;gap:9px}

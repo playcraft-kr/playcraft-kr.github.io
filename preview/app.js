@@ -220,9 +220,22 @@ function playGame() {
   if (!current) return;
   const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove());
   const f = h('iframe', { src: `${ROOT}games/${current.slug}/`, allow: 'autoplay; fullscreen; gamepad', title: current.title });
-  $('#start').hidden = true; st.append(f); playing = true; markPlayed(current.slug);
+  $('#start').hidden = true; st.append(f); fitFrame(); playing = true; markPlayed(current.slug);
   setTimeout(() => f.focus(), 400);
 }
+// Games are designed for a full desktop window. When the player box is smaller than 1280×720,
+// render the game at that size and scale it down so nothing gets cut off.
+const MIN_W = 1280, MIN_H = 720;
+function fitFrame() {
+  const st = $('#stage'), f = st && st.querySelector('iframe'); if (!f) return;
+  const top = st.classList.contains('full') ? (st.querySelector('.big-bar')?.offsetHeight || 0) : 0;
+  const w = st.clientWidth, hgt = st.clientHeight - top;
+  const s = Math.min(1, w / MIN_W, hgt / MIN_H);
+  f.style.width = (w / s) + 'px'; f.style.height = (hgt / s) + 'px';
+  f.style.transform = s < 1 ? `scale(${s})` : ''; f.style.transformOrigin = '0 0';
+  f.style.top = top + 'px'; f.style.left = '0';
+}
+new ResizeObserver(fitFrame).observe(document.querySelector('#stage'));
 function stopGame() { const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove()); $('#start').hidden = false; playing = false; setFull(false); }
 // "Big screen": the game fills the browser window, with a slim bar ABOVE the game (never on top of it).
 // We don't use the browser's own full screen, because there Esc both frees the mouse and exits full screen.
@@ -237,10 +250,11 @@ function setFull(on) {
       h('strong', { text: current ? current.title : '' }),
       h('span', { class: 'hint', text: 'Esc is for the game (it frees the mouse). Use the button to leave big screen.' }),
       h('button', { class: 'btn primary small', onclick: () => setFull(false) }, '✕ Small screen'));
-    st.prepend(bar);
+    st.prepend(bar); fitFrame();
     setTimeout(() => { const f = st.querySelector('iframe'); if (f) f.focus(); }, 100);
   }
   if (!on && bar) { bar.remove(); bar = null; }
+  requestAnimationFrame(fitFrame);
 }
 $('#play-btn').addEventListener('click', playGame);
 $('#restart-btn').addEventListener('click', () => { if (playing) playGame(); else playGame(); });
