@@ -274,17 +274,17 @@
  {
   "slug": "math-space-war",
   "title": "Math Space War",
-  "desc": "Defend your castle across alien planets. Solve math problems to power up your heroes, collect 758 of them, and conquer 330 battles.",
+  "desc": "Defend your castle across alien planets. Solve math problems to power up your heroes, collect 758 of them, battle a friend 1v1 and climb the leaderboard.",
   "emoji": "🧮",
   "cats": [
    "Puzzle",
    "Space",
    "Action"
   ],
-  "lang": "Korean (Practice tab has an English mode)",
-  "version": 1,
+  "lang": "English & Korean",
+  "version": 2,
   "added": "2026-11-22",
-  "notes": "First release on PlayCraft",
+  "notes": "Play in English or Korean (EN / 한 button), friend 1v1 battles and leaderboards now run on PlayCraft",
   "cover": "img/cover-math-space-war.webp",
   "wide": "img/wide-math-space-war.webp",
   "controls": [
@@ -297,12 +297,17 @@
     "Solve a problem in battle for extra mana"
    ],
    [
-    "Practice tab",
-    "10-question rounds by grade and topic"
+    "EN / 한",
+    "Switch between English and Korean"
+   ],
+   [
+    "⚔ 1v1 with a friend",
+    "Make a room and share the 4-digit code"
    ]
   ],
   "tip": "Signed in to PlayCraft? You start right away and your progress saves to your account. Wrong answers go to the Mistakes tab — fix them for bonus coins.",
   "mobile": true,
-  "author": "hugo"
+  "author": "hugo",
+  "multiplayer": true
  }
 ]

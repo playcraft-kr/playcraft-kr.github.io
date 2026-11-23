@@ -142,6 +142,26 @@ const Account = {
     return true;
   },
 
+  // ---- shared game data: leaderboards and shared decks (table game_kv; anyone reads, players write their own rows) ----
+  async kvGet(game, coll, id) {
+    if (!sb) return null;
+    const { data, error } = await sb.from('game_kv').select('data').eq('game', game).eq('coll', coll).eq('doc_id', id).maybeSingle();
+    if (error) throw error;
+    return data ? data.data : null;
+  },
+  async kvList(game, coll, limit = 500) {
+    if (!sb) return [];
+    const { data, error } = await sb.from('game_kv').select('doc_id, data').eq('game', game).eq('coll', coll).order('updated_at', { ascending: false }).limit(limit);
+    if (error) throw error;
+    return data || [];
+  },
+  async kvSet(game, coll, id, value) {
+    if (!user) throw new Error('Please sign in first.');
+    const { error } = await sb.from('game_kv').upsert({ game, coll, doc_id: id, data: value }, { onConflict: 'game,coll,doc_id' });
+    if (error) throw error;
+    return true;
+  },
+
   // ---- play sessions ----
   async startPlay(slug) {
     if (!user) return null;
