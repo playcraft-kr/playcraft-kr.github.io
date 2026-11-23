@@ -1,5 +1,39 @@
 [
  {
+  "slug": "ssat-word-league",
+  "title": "SSAT Word League",
+  "desc": "Learn SSAT Upper vocabulary by winning soccer league matches or conquering a fantasy map. 30 questions a match, with SSAT-style scoring.",
+  "emoji": "📚",
+  "cats": [
+   "Sports",
+   "Puzzle",
+   "Adventure"
+  ],
+  "lang": "English & Korean",
+  "version": 17,
+  "added": "2026-11-22",
+  "notes": "Armory with painted heroes and gear, six formations, offside rule, parent-configurable penalty duel",
+  "cover": "img/cover-ssat-word-league.webp",
+  "wide": "img/wide-ssat-word-league.webp",
+  "controls": [
+   [
+    "Click / Tap",
+    "Pick an answer"
+   ],
+   [
+    "Train",
+    "30-question match: +1 right, −¼ wrong, 0 blank"
+   ],
+   [
+    "Settings",
+    "Switch Korean/English or soccer/fantasy"
+   ]
+  ],
+  "tip": "Sign in and your progress follows your account. Words you keep missing come back until they become Legend cards.",
+  "mobile": true,
+  "author": "hugo"
+ },
+ {
   "slug": "legend-arena-en",
   "title": "Legend Arena",
   "desc": "Pick a fighting type, level up, and battle bots and bosses in the arena.",
