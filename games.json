@@ -270,5 +270,39 @@
   "tip": "Drop off 3 or more pods at once to refill your dash and fix your hull. Gold pods are big Arks!",
   "mobile": true,
   "author": "hugo"
+ },
+ {
+  "slug": "math-space-war",
+  "title": "Math Space War",
+  "desc": "Defend your castle across alien planets. Solve math problems to power up your heroes, collect 758 of them, and conquer 330 battles.",
+  "emoji": "🧮",
+  "cats": [
+   "Puzzle",
+   "Space",
+   "Action"
+  ],
+  "lang": "Korean (Practice tab has an English mode)",
+  "version": 1,
+  "added": "2026-11-22",
+  "notes": "First release on PlayCraft",
+  "cover": "img/cover-math-space-war.webp",
+  "wide": "img/wide-math-space-war.webp",
+  "controls": [
+   [
+    "Click / Tap",
+    "Send heroes, upgrade energy, fire the laser"
+   ],
+   [
+    "📘 Quiz button",
+    "Solve a problem in battle for extra mana"
+   ],
+   [
+    "Practice tab",
+    "10-question rounds by grade and topic"
+   ]
+  ],
+  "tip": "Signed in to PlayCraft? You start right away and your progress saves to your account. Wrong answers go to the Mistakes tab — fix them for bonus coins.",
+  "mobile": true,
+  "author": "hugo"
  }
 ]
