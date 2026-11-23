@@ -240,9 +240,9 @@
    "Action"
   ],
   "lang": "English",
-  "version": 1,
+  "version": 2,
   "added": "2026-11-21",
-  "notes": "First release",
+  "notes": "Leaderboard: see the top pilots when your run ends (sign in to join)",
   "cover": "img/cover-event-horizon.webp",
   "wide": "img/wide-event-horizon.webp",
   "controls": [

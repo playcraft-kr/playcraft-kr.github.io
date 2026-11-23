@@ -118,7 +118,26 @@ function deliver(pl){const s=G.ship,n=s.cargo.length;let t=0;for(const c of s.ca
  if(n>=3){s.dashCd=0;ftext(pl.x,pl.y-pl.r-4,'Squad bonus! Dash refilled · Hull repaired','#7ff6ff',18);}
  burst(pl.x,pl.y,'#8dffb0',50,260,1,3);[523,659,784,1046].forEach((f,i)=>setTimeout(()=>sfx(f,0.18,'triangle',0.14),i*70));
  const nc=Math.min(6,3+Math.floor(G.delivered/8));if(nc>G.capacity){G.capacity=nc;banner('Bigger tow! You can carry '+nc+' pods now','#7ff6ff');}}
-function gameOver(){state='over';overT=0;if(G.saved>best){best=G.saved;G.newBest=true;try{localStorage.setItem('eh_best',String(best));}catch(e){}}}
+/* PlayCraft leaderboard: best rescue score per player (table game_kv, the server files it under the player's own ID) */
+let LB=null,LBme='';
+const PCA_=(()=>{try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})();
+function lbMe(){try{return PCA_&&PCA_.signedIn&&PCA_.profile?String(PCA_.profile.username||''):''}catch(e){return ''}}
+async function lbSync(score){if(!PCA_)return;for(let i=0;i<50&&!PCA_.ready;i++)await new Promise(r=>setTimeout(r,100));const me=lbMe();LBme=me;
+ try{if(me&&score>0){let cur=null;try{cur=await PCA_.kvGet('event-horizon','rank',me)}catch(e){}if(!cur||score>(+cur.s||0))await PCA_.kvSet('event-horizon','rank',me,{s:score,t:Date.now()})}
+  const rows=await PCA_.kvList('event-horizon','rank',300);LB=rows.map(r=>({n:(r.data&&r.data.n)||r.doc_id,s:+(r.data&&r.data.s)||0})).filter(r=>r.s>0).sort((a,b)=>b.s-a.s)}catch(e){LB=LB||[]}}
+function drawLB(){if(!PCA_)return;const n=LB?Math.min(10,Math.max(1,LB.length)):1,x=1236,y=286,w=340,h=82+n*34+50;ctx.save();ctx.fillStyle='rgba(8,14,36,0.86)';ctx.strokeStyle='rgba(255,209,102,0.55)';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(x,y,w,h,18);ctx.fill();ctx.stroke();ctx.restore();
+ label('🏆 TOP PILOTS',x+w/2,y+40,22,'#ffd166',900,'center');
+ if(!LB){label('Loading…',x+w/2,y+100,17,'#cfd8ff',400,'center');return}
+ if(!LB.length){label('No scores yet — be the first!',x+w/2,y+100,17,'#cfd8ff',400,'center')}
+ const top=LB.slice(0,10),myI=LB.findIndex(r=>r.n===LBme);
+ top.forEach((r,i)=>{const yy=y+82+i*34,me=r.n===LBme,col=me?'#8dffb0':(i<3?'#ffe2a8':'#dfe8ff');if(me){ctx.fillStyle='rgba(141,255,176,0.14)';ctx.fillRect(x+10,yy-23,w-20,31)}
+  label((i<3?['🥇','🥈','🥉'][i]:(i+1)+'.'),x+26,yy,17,col,700,'left');label(String(r.n).slice(0,14),x+70,yy,17,col,me?900:600,'left');label(fmt(r.s),x+w-22,yy,17,col,700,'right')});
+ const fy=y+h-24;
+ if(!LBme)label('Sign in to PlayCraft to join',x+w/2,fy,16,'#ffd6a8',600,'center');
+ else if(myI>=10)label(`You: #${myI+1} · ${fmt(LB[myI].s)}`,x+w/2,fy,17,'#8dffb0',800,'center');
+ else if(myI<0)label('Your best will appear here',x+w/2,fy,16,'#ffd6a8',600,'center');}
+lbSync(0);
+function gameOver(){state='over';overT=0;lbSync(G.saved);if(G.saved>best){best=G.saved;G.newBest=true;try{localStorage.setItem('eh_best',String(best));}catch(e){}}}
 
 function solid(o,b,pad){const dx=o.x-b.x,dy=o.y-b.y,d=hyp(dx,dy)||1,m=b.r*(b.sc||1)+pad;if(d<m){o.x=b.x+dx/d*m;o.y=b.y+dy/d*m;const vn=(o.vx*dx+o.vy*dy)/d;if(vn<0){o.vx-=1.5*vn*dx/d;o.vy-=1.5*vn*dy/d;}}}
 
@@ -372,7 +391,7 @@ function drawOver(){const g=G;ctx.fillStyle=`rgba(0,0,0,${Math.min(0.72,overT*0.
  label(`Pods saved ${g.delivered}   ·   Lost ${fmt(g.lost)}   ·   Survived ${Math.floor(g.t)}s`,W/2,460,19,'#dfe8ff',400,'center');
  const [rk,msg]=rank(g.saved);label('RANK',W/2,508,16,'#ffd6a8',700,'center');shadowText(rk,W/2,578,`52px ${FT}`,'#ffb347');label(msg,W/2,618,19,'#ffe2c2',400,'center');
  if(g.newBest)label('★ NEW BEST!',W/2,670,22,'#ffd166',900,'center');else if(best>0)label('Best: '+fmt(best)+' saved',W/2,670,18,'#ffd6a8',400,'center');
- if(overT>1.2&&Math.sin(time*4)>-0.3)shadowText('▶  Click or press Enter to fly again',W/2,760,`900 28px ${F}`,'#fff');}
+ if(overT>1.2&&Math.sin(time*4)>-0.3)shadowText('▶  Click or press Enter to fly again',W/2,760,`900 28px ${F}`,'#fff');drawLB();}
 function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,cv.width,cv.height);
  ctx.setTransform(dpr*sc,0,0,dpr*sc,dpr*ox,dpr*oy);ctx.save();ctx.beginPath();ctx.rect(0,0,W,H);ctx.clip();
  const bg=ctx.createRadialGradient(W*0.7,H*0.5,50,W*0.5,H*0.5,W*0.8);bg.addColorStop(0,'#120a1c');bg.addColorStop(1,'#02030a');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
