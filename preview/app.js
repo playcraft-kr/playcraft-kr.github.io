@@ -286,6 +286,12 @@ function syncSave() { const on = current && isSaved(current.slug); const b = $('
 /* playing needs an account: without one the sign-in window opens, and the game starts right after signing in */
 let pendingPlay = null;
 function playLabel() { const b = $('#play-btn'); if (b) b.innerHTML = signedIn() ? '<span aria-hidden="true">▶</span> Play' : '<span aria-hidden="true">🔒</span> Sign in to play'; }
+// a locked game area asks for the sign-up window (message from games/guard.js, same site only)
+addEventListener('message', e => {
+  if (e.origin !== location.origin || !e.data || e.data.pc !== 'signup') return;
+  if (current) pendingPlay = current.slug;
+  stopGame(); openSignIn(true);
+});
 function playGame() {
   if (!current) return;
   if (!signedIn()) {
