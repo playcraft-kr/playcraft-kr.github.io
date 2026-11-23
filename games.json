@@ -282,9 +282,9 @@
    "Action"
   ],
   "lang": "English & Korean",
-  "version": 2,
+  "version": 3,
   "added": "2026-11-22",
-  "notes": "Play in English or Korean (EN / 한 button), friend 1v1 battles and leaderboards now run on PlayCraft",
+  "notes": "1v1 shows which side is yours (⭐ ME flag, green circles), mana gauge fills when you solve a quiz, mana bug in 1v1 fixed",
   "cover": "img/cover-math-space-war.webp",
   "wide": "img/wide-math-space-war.webp",
   "controls": [
