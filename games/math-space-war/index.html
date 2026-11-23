@@ -2812,15 +2812,18 @@ $('#authF').addEventListener('submit',async e=>{e.preventDefault();const err=m=>
  finally{$('#aGo').disabled=false}});
 $('#userBtn').onclick=()=>{save();UID=null;try{localStorage.removeItem(CKEY)}catch(e){}if(BT){cancelAnimationFrame(raf);BT=null}$('#modal').classList.remove('on');show('adv');$('#userBtn').hidden=true;$('#aPw').value='';$('#aPw2').value='';aTab('in');$('#auth').classList.add('on')};
 /* PlayCraft: 사이트에 로그인돼 있으면 그 아이디로 바로 시작하고, 진행은 PlayCraft 계정에 저장 */
-var PSL='math-space-war',pcOn=false,pcT=0;
-async function pcSend(){clearTimeout(pcT);if(!pcOn||!UID||!S||!(PCA.signedIn&&PCA.user))return;try{await PCA.writeSave(PSL,{ts:S._ts||Date.now(),id:UID,save:JSON.stringify(S)})}catch(e){}}
+var PSL='math-space-war',pcOn=false,pcT=0,pcLast=0;
+/* 서버에 더 새 기록이 있으면(다른 기기·옮겨 온 기록) 덮어쓰지 않고 그걸 불러와요 */
+async function pcSend(){clearTimeout(pcT);if(!pcOn||!UID||!S||!(PCA.signedIn&&PCA.user))return;
+ try{const sv=await PCA.loadSave(PSL),c=sv&&sv.data;if(c&&c.save&&(c.ts||0)>pcLast&&(c.ts||0)>(S._ts||0)){localStorage.setItem(KEY,c.save);pcLast=c.ts;load();try{renderWiz()}catch(e){}$('#coinV').textContent=S.coins.toLocaleString();try{if(cur&&cur!=='battle')show(cur)}catch(e){}toast(LGE()?'Loaded your newest saved progress':'가장 최근 기록을 불러왔어요');return}
+  const ts=S._ts||Date.now();await PCA.writeSave(PSL,{ts,id:UID,save:JSON.stringify(S)});pcLast=ts}catch(e){}}
 function pcPush(){if(!pcOn)return;clearTimeout(pcT);pcT=setTimeout(pcSend,3000)}
 addEventListener('pagehide',()=>{pcSend()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')pcSend()});
 async function pcStart(){if(!PCA)return false;const t0=Date.now();while(!PCA.ready&&Date.now()-t0<8000)await new Promise(r=>setTimeout(r,100));if(!(PCA.signedIn&&PCA.user))return false;
  const p=PCA.profile||{},id=String(p.username||'').toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,16);if(id.length<3)return false;
  const A=accs();if(!A[id]){A[id]={pc:1,at:Date.now()};setAccs(A)}
  let cl=null;try{cl=await PCA.loadSave(PSL)}catch(e){}
- try{const k=KEY0+'.u.'+id,loc=JSON.parse(localStorage.getItem(k)||'null'),c=cl&&cl.data;if(c&&c.save&&(!loc||(c.ts||0)>(loc._ts||0)))localStorage.setItem(k,c.save)}catch(e){}
+ try{const k=KEY0+'.u.'+id,loc=JSON.parse(localStorage.getItem(k)||'null'),c=cl&&cl.data;if(c)pcLast=c.ts||0;if(c&&c.save&&(!loc||(c.ts||0)>(loc._ts||0)))localStorage.setItem(k,c.save)}catch(e){}
  pcOn=true;enter(id,false);if(!S.age&&p.age>=4){S.age=p.age;save()}$('#userBtn').hidden=true;return true}
 setTimeout(()=>{if(!ROOMP)$('#pvBtn').hidden=true},4000);
 (async()=>{if(await pcStart())return;
