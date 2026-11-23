@@ -257,7 +257,7 @@ function openMy(fromRefresh) {
 let current = null, playing = false;
 function openGame(g) {
   if (current !== g) stopGame();
-  current = g; document.title = `${g.title} · PlayCraft`;
+  current = g; document.title = `${g.title} · PlayCraft`; playLabel();
   $('#crumbs').replaceChildren(h('a', { href: '#/', text: 'Home' }), h('span', { 'aria-hidden': 'true', text: '›' }), h('a', { href: '#/cat/' + encodeURIComponent(g.cats[0]), text: g.cats[0] }), h('span', { 'aria-hidden': 'true', text: '›' }), h('span', { 'aria-current': 'page', text: g.title }));
   const wb = wideOf(g); $('#start-bg').hidden = !wb; if (wb) $('#start-bg').src = wb;
   $('#start').style.cssText = wb ? '' : genBg(g.slug);
@@ -283,8 +283,17 @@ function openGame(g) {
   show('game', null);
 }
 function syncSave() { const on = current && isSaved(current.slug); const b = $('#save-btn'); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '♥ Saved' : '♡ Save'; }
+/* playing needs an account: without one the sign-in window opens, and the game starts right after signing in */
+let pendingPlay = null;
+function playLabel() { const b = $('#play-btn'); if (b) b.innerHTML = signedIn() ? '<span aria-hidden="true">▶</span> Play' : '<span aria-hidden="true">🔒</span> Sign in to play'; }
 function playGame() {
   if (!current) return;
+  if (!signedIn()) {
+    pendingPlay = current.slug; openSignIn(false);
+    $('#si-form .si-lead').textContent = `Sign in to play ${current.title}. New here? Make a free account — it only takes a minute.`;
+    return;
+  }
+  pendingPlay = null;
   const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove());
   let f;
   if (current.community) {
@@ -367,6 +376,7 @@ function setTab(up) {
   setTimeout(() => (up ? $('#su-id') : $('#si-id')).focus(), 30);
 }
 function openSignIn(up) {
+  $('#si-form .si-lead').textContent = 'Your plays, play time and saved games follow you to any computer.';
   $('#si-err').hidden = true; $('#su-err').hidden = true; $('#si-pw').value = '';
   if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
   setTab(!!up);
@@ -474,7 +484,9 @@ function renderAccount() {
 }
 let mergedOnce = false;
 if (ACC) ACC.onChange(async () => {
-  renderAccount();
+  renderAccount(); playLabel();
+  if (!signedIn() && playing) stopGame();
+  if (signedIn() && pendingPlay && current && current.slug === pendingPlay && !$('#v-game').hidden) { if (dlg.open) dlg.close(); playGame(); }
   if (signedIn() && !mergedOnce) { // bring games saved on this device into the account, once
     mergedOnce = true; const local = store.get('saved');
     await refreshAccountData();
