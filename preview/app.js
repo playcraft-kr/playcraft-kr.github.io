@@ -65,18 +65,28 @@ function artNode(g, cls) {
 function genBg(s) { let n = 0; for (const c of s) n = (n * 31 + c.charCodeAt(0)) >>> 0; const hue = n % 360; return `background:linear-gradient(140deg,hsl(${hue} 70% 55%),hsl(${(hue + 50) % 360} 70% 38%))`; }
 
 /* ---------- cards ---------- */
-function card(g) {
-  const oldest = Math.min(...GAMES.map(x => Date.parse(x.added)));
-  const fresh = Date.now() - Date.parse(g.added) < WEEK && Date.parse(g.added) > oldest;
-  return h('a', { class: 'card', href: '#/game/' + g.slug, 'aria-label': `${g.title}. ${g.desc}` },
+/* new & updated: NEW for 2 weeks after a game is added (not the launch-day games), UPDATED for 1 week after "updated" */
+const dayOf = d => d ? Date.parse(d + 'T12:00') : 0;
+function newness(g) {
+  const launch = Math.min(...GAMES.map(x => dayOf(x.added))), now = Date.now();
+  if (dayOf(g.added) > launch && now - dayOf(g.added) < 2 * WEEK) return 'new';
+  if (g.updated && now - dayOf(g.updated) < WEEK) return 'upd';
+  return '';
+}
+const freshAt = g => Math.max(dayOf(g.added), dayOf(g.updated));
+const freshList = () => MAIN().filter(newness).sort((a, b) => (newness(a) === 'new' ? 0 : 1) - (newness(b) === 'new' ? 0 : 1) || freshAt(b) - freshAt(a));
+function card(g, opt) {
+  const nw = newness(g);
+  return h('a', { class: 'card' + (nw ? ' is-' + nw : ''), href: '#/game/' + g.slug, 'aria-label': `${g.title}. ${g.desc}` },
     h('div', { class: 'art' },
       artNode(g),
       g.multiplayer ? h('span', { class: 'mp-badge' }, '👥 Online') : null,
-      fresh ? h('span', { class: 'badge' }, '✨ NEW') : null,
-      g.lang !== 'English' ? h('span', { class: 'badge lang', title: `In-game text is in ${g.lang}` }, g.lang === 'Korean' ? 'KR' : g.lang) : null),
+      nw === 'new' ? h('span', { class: 'badge new' }, '🆕 NEW') : nw === 'upd' ? h('span', { class: 'badge upd' }, `✨ UPDATED · v${g.version}`) : null,
+      g.lang !== 'English' ? h('span', { class: 'badge lang', title: `In-game text is in ${g.lang}` }, g.lang === 'Korean' ? 'KR' : /English/.test(g.lang) && /Korean/.test(g.lang) ? 'EN · KR' : g.lang) : null),
     h('span', { class: 't', text: g.title }),
     h('span', { class: 'by', text: madeBy(g) }),
-    h('span', { class: 's', text: g.cats.slice(0, 2).join(' · ') }));
+    h('span', { class: 's', text: g.cats.slice(0, 2).join(' · ') }),
+    opt && opt.notes && g.notes ? h('span', { class: 'whatsnew', text: (nw === 'new' ? 'New! ' : 'What’s new: ') + g.notes }) : null);
 }
 const fill = (el, games) => el.replaceChildren(...games.map(card));
 
@@ -91,12 +101,12 @@ function catTile(name, img, emoji) {
 let heroI = 0, heroT = null, heroPaused = false;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function buildHero() {
-  const feat = MAIN().filter(g => wideOf(g)).slice(0, 6);
+  const fr = freshList().filter(g => wideOf(g)), feat = fr.concat(MAIN().filter(g => wideOf(g) && !fr.includes(g))).slice(0, 6);
   const slides = $('#hero-slides'), picks = $('#hero-picks');
   slides.replaceChildren(...feat.map((g, i) => h('div', { class: 'slide', id: 'slide-' + i, role: 'tabpanel', 'aria-roledescription': 'slide', 'aria-label': `${i + 1} of ${feat.length}: ${g.title}` },
     h('img', { src: wideOf(g), alt: '', loading: i ? 'lazy' : 'eager' }),
     h('div', { class: 'slide-copy' },
-      h('span', { class: 'eyebrow', text: i === 0 ? '★ Featured' : '★ Top pick' }),
+      h('span', { class: 'eyebrow' + (newness(g) ? ' fresh' : ''), text: newness(g) === 'new' ? '🆕 New game!' : newness(g) === 'upd' ? '✨ Just updated · v' + g.version : i === 0 ? '★ Featured' : '★ Top pick' }),
       h('h2', { text: g.title }), h('p', { text: g.desc }),
       h('div', { class: 'chips' }, ...g.cats.map(c => h('a', { class: 'chip hero-chip', href: '#/cat/' + encodeURIComponent(c), text: c }))),
       h('div', {}, h('a', { class: 'btn primary', href: '#/game/' + g.slug }, '▶ Play now'))))));
@@ -201,6 +211,8 @@ addEventListener('hashchange', () => { const d = document.querySelector('#signin
 
 function renderHome() {
   const played = playedList().map(bySlug).filter(Boolean);
+  const fresh = freshList();
+  $('#shelf-new').hidden = !fresh.length; $('#row-new').replaceChildren(...fresh.map(g => card(g, { notes: true })));
   $('#shelf-recent').hidden = !played.length; fill($('#row-recent'), played);
   fill($('#grid-all'), MAIN()); $('#all-count').textContent = plural(MAIN().length, 'game');
 }
@@ -267,7 +279,7 @@ function openGame(g) {
   const next = MAIN().filter(x => x !== g && x.slug !== g.variantOf && x.variantOf !== g.slug)
     .sort((a, b) => b.cats.filter(c => g.cats.includes(c)).length - a.cats.filter(c => g.cats.includes(c)).length);
   fill($('#row-next'), next);
-  $('#versions').replaceChildren(h('li', {}, h('span', { class: 'v', text: 'v' + g.version }), h('span', { class: 'd', text: new Date(g.added + 'T12:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }), h('span', { class: 'n', text: g.notes })));
+  $('#versions').replaceChildren(h('li', {}, h('span', { class: 'v', text: 'v' + g.version }), h('span', { class: 'd', text: new Date((g.updated || g.added) + 'T12:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }), h('span', { class: 'n', text: g.notes })));
   show('game', null);
 }
 function syncSave() { const on = current && isSaved(current.slug); const b = $('#save-btn'); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '♥ Saved' : '♡ Save'; }

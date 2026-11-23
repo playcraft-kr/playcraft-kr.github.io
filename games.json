@@ -73,7 +73,8 @@
   ],
   "tip": "Each fighting type levels up on its own. Try them all!",
   "mobile": false,
-  "author": "hugo"
+  "author": "hugo",
+  "updated": "2026-11-22"
  },
  {
   "slug": "boxing",
@@ -181,7 +182,8 @@
   ],
   "tip": "Rolling makes you invincible for a moment. Use it to escape crowds.",
   "mobile": false,
-  "author": "hugo"
+  "author": "hugo",
+  "updated": "2026-11-22"
  },
  {
   "slug": "black-hole",
@@ -194,9 +196,9 @@
    "Action"
   ],
   "lang": "English",
-  "version": 2,
+  "version": 3,
   "added": "2026-11-21",
-  "notes": "Online matches: play with up to 12 people at once",
+  "notes": "Leaderboard: see the top survivors (wins, KOs, best time) after every match",
   "cover": "img/cover-black-hole.webp",
   "wide": "img/wide-black-hole.webp",
   "controls": [
@@ -228,7 +230,8 @@
   "tip": "Press “Play online” to race real players. Empty spots are filled with bots.",
   "mobile": true,
   "multiplayer": true,
-  "author": "hugo"
+  "author": "hugo",
+  "updated": "2026-11-23"
  },
  {
   "slug": "event-horizon",
@@ -269,7 +272,8 @@
   ],
   "tip": "Drop off 3 or more pods at once to refill your dash and fix your hull. Gold pods are big Arks!",
   "mobile": true,
-  "author": "hugo"
+  "author": "hugo",
+  "updated": "2026-11-22"
  },
  {
   "slug": "math-space-war",

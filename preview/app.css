@@ -402,3 +402,17 @@ a.chip.hero-chip:hover{background:rgba(255,255,255,.26)}
 .pv-frame{flex:1;border:0;width:100%;background:#000}
 
 .log-day{margin-top:14px}.log-day h3{font-size:16px;margin:0 0 6px}.log-day h3 .note{font-weight:700}.log-table{min-width:520px}
+
+/* new & updated games stand out */
+.badge.new{background:linear-gradient(90deg,#ff4f8b,#ffb347);color:#fff;box-shadow:0 0 0 2px #fff,0 4px 14px rgba(255,79,139,.55);animation:newPulse 1.8s ease-in-out infinite}
+.badge.upd{background:linear-gradient(90deg,#16a34a,#4ade80);color:#fff;box-shadow:0 0 0 2px #fff,0 4px 12px rgba(22,163,74,.45)}
+@keyframes newPulse{50%{transform:scale(1.08)}}
+.card.is-new .art{outline:3px solid #ffb347;outline-offset:-3px;box-shadow:0 0 22px rgba(255,140,90,.55)}
+.card.is-upd .art{outline:3px solid #4ade80;outline-offset:-3px}
+.whatsnew{display:block;margin-top:6px;font-size:13px;line-height:1.35;color:var(--muted,#5b5878);background:rgba(255,179,71,.14);border-radius:10px;padding:6px 9px}
+.card.is-upd .whatsnew{background:rgba(74,222,128,.14)}
+.shelf-new{background:linear-gradient(120deg,rgba(255,79,139,.10),rgba(255,179,71,.12) 50%,rgba(74,222,128,.10));border-radius:24px;padding:16px 18px 6px}
+.shelf-new .shelf-head h2 .nw-t{background:linear-gradient(90deg,#ff4f8b,#ff8a3d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow.fresh{background:linear-gradient(90deg,#ff4f8b,#ffb347);color:#fff!important;padding:4px 12px;border-radius:999px;display:inline-block;align-self:flex-start;width:max-content}
+.card .art:has(.badge.new) .badge.lang,.card .art:has(.badge.upd) .badge.lang{top:auto;bottom:10px}
+@media (prefers-reduced-motion: reduce){.badge.new{animation:none}}

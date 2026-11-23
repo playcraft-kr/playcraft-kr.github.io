@@ -147,6 +147,7 @@ h1{font:400 clamp(40px,7vw,68px)/1.02 "Black Han Sans",sans-serif;margin:0;color
  <div style="font:400 64px 'Black Han Sans',sans-serif;color:#9dff7a" id="rRank">#5</div>
  <div id="rStats" style="color:#cfd6ea;margin:6px 0"></div>
  <div style="font-weight:900;color:#ffd166;font-size:22px" id="rCoins"></div>
+ <div id="rBoard" style="margin:14px 0 4px;text-align:left"></div>
  <div id="rWait" style="display:none"></div>
  <div id="rList" style="display:none"></div>
  <div class="row" id="rOff"><button class="btn" id="againBtn">Play Again</button><button class="btn ghost" id="menuBtn">Change Element</button></div>
@@ -689,6 +690,21 @@ function syncEnt(e,dt){const m=e.mesh;
  if(e.dzT>0&&Math.random()<0.8)spark(e.x,e.y+1.5,e.z,0x9a6bff,1,1.5,1);if(e.spdT>0&&Math.random()<0.3)spark(e.x,e.y+0.4,e.z,ELM[e.el].hex,1,1,1);
  const on=onRoad(e.x,e.z);e.shadow.visible=on;e.shadow.position.set(e.x,0.03,e.z);e.shadow.scale.setScalar(clamp(1-e.y/12,0.4,1)*e.sc);
  e.aura.position.set(e.x,0.05,e.z);e.aura.visible=on;e.aura.scale.setScalar(e.sc);}
+
+/* ---------- PlayCraft 순위표: 승리 수 → KO 수 → 가장 오래 버틴 시간 (표 game_kv, 서버가 본인 아이디로만 기록) ---------- */
+const PCA_=(()=>{try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})();
+function lbEsc(t){return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function bhLB(win,kos,surv){const box=$('#rBoard');if(!box||!PCA_)return;box.innerHTML='<div style="color:#cfd6ea;text-align:center">🏆 Loading leaderboard…</div>';
+ for(let i=0;i<50&&!PCA_.ready;i++)await new Promise(r=>setTimeout(r,100));
+ let me='';try{me=PCA_.signedIn&&PCA_.profile?String(PCA_.profile.username||''):''}catch(e){}
+ try{if(me){let c=null;try{c=await PCA_.kvGet('black-hole','rank',me)}catch(e){}c=c||{};const d={w:(+c.w||0)+(win?1:0),g:(+c.g||0)+1,k:(+c.k||0)+(kos||0),s:Math.max(+c.s||0,Math.floor(surv||0)),t:Date.now()};await PCA_.kvSet('black-hole','rank',me,d)}
+  const rows=(await PCA_.kvList('black-hole','rank',300)).map(r=>({n:(r.data&&r.data.n)||r.doc_id,w:+r.data.w||0,g:+r.data.g||0,k:+r.data.k||0,s:+r.data.s||0})).sort((a,b)=>b.w-a.w||b.k-a.k||b.s-a.s);
+  const myI=rows.findIndex(r=>r.n===me),row=(r,i)=>`<div style="display:grid;grid-template-columns:34px 1fr 52px 52px 52px;gap:6px;padding:5px 10px;border-radius:10px;${r.n===me?'background:rgba(157,255,122,.16);color:#9dff7a;font-weight:900':''}"><span>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'.'}</span><span>${lbEsc(String(r.n).slice(0,14))}</span><span style="text-align:right">${r.w}</span><span style="text-align:right">${r.k}</span><span style="text-align:right">${r.s}s</span></div>`;
+  let h=`<div style="font:400 22px 'Black Han Sans',sans-serif;color:#ffd166;text-align:center;margin-bottom:6px">🏆 TOP SURVIVORS</div><div style="display:grid;grid-template-columns:34px 1fr 52px 52px 52px;gap:6px;padding:0 10px;color:#8f9bbd;font-size:12px;font-weight:700"><span></span><span>Player</span><span style="text-align:right">Wins</span><span style="text-align:right">KOs</span><span style="text-align:right">Best</span></div>`;
+  h+=rows.length?rows.slice(0,10).map(row).join(''):'<div style="color:#cfd6ea;text-align:center">No scores yet — be the first!</div>';
+  if(myI>=10)h+='<div style="text-align:center;color:#8f9bbd">…</div>'+row(rows[myI],myI);
+  if(!me)h+='<div style="text-align:center;color:#ffd6a8;margin-top:6px;font-size:14px">Sign in to PlayCraft to join the leaderboard</div>';
+  box.innerHTML=h}catch(e){box.innerHTML=''}}
 function showResult(win){const g=G,p=g.player;g.over=true;
  const rank=win?1:p.rank,surv=p.surv||g.t;const coins=Math.floor(surv*1.2)+p.kos*25+(12-rank)*5+(win?150:0);save.coins+=coins;persist();
  $('#rTitle').textContent=win?'Last One Standing!':'You’re Out!';$('#rTitle').style.color=win?'#9dff7a':'#ff9a3c';
@@ -696,7 +712,7 @@ function showResult(win){const g=G,p=g.player;g.over=true;
  $('#rRank').textContent='#'+rank;$('#rStats').innerHTML=`Survived ${Math.floor(surv)}s · ${p.kos} KO${p.kos===1?'':'s'} · Black Hole Lv.${g.L}`;$('#rCoins').textContent=`+${coins} coins (you have ${save.coins})`;
  if(NET)netResultUI();else{$('#rOff').style.display='';$('#rOn').style.display='none';$('#rList').style.display='none';$('#rWait').style.display='none';}
  setTimeout(()=>{try{document.exitPointerLock();}catch(e){}setPause(false);$('#result').style.display='flex';$('#touch').style.display='none';$('#cross').style.display='none';},win?600:0);
- if(win){sfx(523,0.2,'triangle',0.15);setTimeout(()=>sfx(659,0.2,'triangle',0.15),150);setTimeout(()=>sfx(784,0.4,'triangle',0.15),300);}}
+ bhLB(win,p.kos,surv);if(win){sfx(523,0.2,'triangle',0.15);setTimeout(()=>sfx(659,0.2,'triangle',0.15),150);setTimeout(()=>sfx(784,0.4,'triangle',0.15),300);}}
 
 /* ---------- 온라인 대전 (Supabase Realtime: Broadcast + Presence 만, 테이블·로그인 없음) ----------
    로비 채널 bh-lobby: 각자 {r:방, st:'f'찾는중|'w'대기|'p'경기중} 를 presence 로 알림 → 대기 중인 방(12명 미만)에 들어가거나 새로 만든다.
