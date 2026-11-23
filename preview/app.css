@@ -416,3 +416,15 @@ a.chip.hero-chip:hover{background:rgba(255,255,255,.26)}
 .eyebrow.fresh{background:linear-gradient(90deg,#ff4f8b,#ffb347);color:#fff!important;padding:4px 12px;border-radius:999px;display:inline-block;align-self:flex-start;width:max-content}
 .card .art:has(.badge.new) .badge.lang,.card .art:has(.badge.upd) .badge.lang{top:auto;bottom:10px}
 @media (prefers-reduced-motion: reduce){.badge.new{animation:none}}
+
+/* admin: play time by day + review history */
+.daily{width:100%;overflow-x:auto}
+.daily-svg{width:100%;min-width:560px;height:auto;display:block}
+.daily-svg .grid{stroke:rgba(91,69,190,.14);stroke-width:1}
+.daily-svg .ax{font:700 12px Nunito,system-ui,sans-serif;fill:#6b6890}
+.daily-svg .val{font:800 11px Nunito,system-ui,sans-serif;fill:#3b2a8c}
+.daily-svg rect:hover{opacity:.8}
+.daily-legend{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;font-weight:700}
+.daily-legend li{display:flex;align-items:center;gap:6px}.daily-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}.daily-legend b{color:#6b6890;font-weight:700}
+.seg{display:flex;gap:6px}.seg .btn.on{background:var(--violet);color:#fff;border-color:var(--violet)}
+.hist-h{margin:22px 0 8px;font-size:18px}

@@ -56,6 +56,16 @@ const Account = {
   async adminResetPassword(id, pw) { const { error } = await sb.rpc('admin_reset_password', { target: id, new_password: pw }); if (error) throw error; },
   // one player's play sessions, newest first (admin only; checked in the database)
   async adminUserPlays(id) { const { data, error } = await sb.rpc('admin_user_plays', { target: id, max_rows: 500 }); if (error) throw error; return data || []; },
+  // minutes played per game per day, grouped in the admin's own time zone (admin only; checked in the database)
+  async adminDailyMinutes(days) {
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const { data, error } = await sb.rpc('admin_daily_minutes', { n_days: days, zone }); if (error) throw error; return data || [];
+  },
+  // games the admin already approved or sent back, newest decision first
+  async adminReviewedGames() {
+    const { data, error } = await sb.from('community_games').select('slug, title, category, creator_username, status, review_note, created_at, reviewed_at').in('status', ['approved', 'rejected']).order('reviewed_at', { ascending: false }).limit(200);
+    if (error) throw error; return data || [];
+  },
   async adminSetAdmin(id, value) { const { error } = await sb.rpc('admin_set_admin', { target: id, value }); if (error) throw error; },
 
   // ---- player-made games ----

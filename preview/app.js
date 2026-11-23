@@ -493,7 +493,7 @@ async function openAdmin() {
   const isAdm = signedIn() && ACC.profile && ACC.profile.is_admin;
   $('#adm-denied').hidden = !!isAdm; $('#adm-body').hidden = !isAdm;
   if (!isAdm) return;
-  renderReview();
+  renderReview(); renderDaily();
   try { admData = await ACC.adminData(); } catch { toast('Couldn’t load admin data. Try Refresh.'); return; }
   renderAdmin();
 }
@@ -661,7 +661,52 @@ async function renderReview() {
     h('button', { class: 'btn primary tiny', onclick: async () => { if (!(await ask(`Publish “${g.title}” by ${g.creator_username}? Everyone will be able to play it.`))) return; try { await ACC.adminApprove(g); toast('Published!'); renderReview(); } catch (x) { toast('Couldn’t publish: ' + (x.message || 'try again')); } } }, 'Approve'),
     h('button', { class: 'btn ghost tiny', onclick: async () => { const note = await askText(`Why isn’t “${g.title}” ready? ${g.creator_username} will see this note.`, 'Please fix: '); if (note === null) return; try { await ACC.adminReject(g, note); toast('Sent back with your note.'); renderReview(); } catch (x) { toast('Couldn’t update: ' + (x.message || 'try again')); } } }, 'Send back')))
     : [h('li', { class: 'note', text: 'No games waiting. 🎉' })]));
+  renderHistory();
 }
+async function renderHistory() {
+  const list = await ACC.adminReviewedGames().catch(() => null);
+  if (!list) { $('#adm-history').replaceChildren(h('li', { class: 'note', text: 'Couldn’t load the history.' })); return; }
+  const d = t => t ? new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—';
+  $('#adm-hist-count').textContent = list.length ? `${list.filter(g => g.status === 'approved').length} approved · ${list.filter(g => g.status === 'rejected').length} sent back` : '';
+  $('#adm-history').replaceChildren(...(list.length ? list.map(g => h('li', {},
+    h('span', { class: 'pill ' + (g.status === 'approved' ? 'ok' : 'bad'), text: g.status === 'approved' ? '✓ Approved' : '↩ Sent back' }),
+    h('span', { class: 't' }, g.title, h('small', { text: `Made by ${g.creator_username || '—'} · ${g.category} · sent ${d(g.created_at)} · decided ${d(g.reviewed_at)}${g.review_note ? ' · Note: ' + g.review_note : ''}` })),
+    g.status === 'approved' ? h('a', { class: 'btn ghost tiny', href: '#/game/' + g.slug }, 'Play') : null))
+    : [h('li', { class: 'note', text: 'No games approved or sent back yet.' })]));
+}
+let dailyDays = 14;
+const DCOL = ['#6d28d9', '#f97316', '#10b981', '#3b82f6', '#ec4899', '#eab308', '#14b8a6', '#ef4444', '#8b5cf6', '#84cc16', '#0ea5e9', '#f43f5e'];
+async function renderDaily() {
+  const box = $('#adm-daily'), leg = $('#adm-daily-legend');
+  document.querySelectorAll('#adm-daily-wrap [data-days]').forEach(b => b.classList.toggle('on', +b.dataset.days === dailyDays));
+  box.replaceChildren(h('p', { class: 'note', text: 'Loading…' })); leg.replaceChildren();
+  let rows; try { rows = await ACC.adminDailyMinutes(dailyDays); } catch { box.replaceChildren(h('p', { class: 'note', text: 'Couldn’t load the chart.' })); return; }
+  const key = dt => `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+  const days = []; for (let i = dailyDays - 1; i >= 0; i--) { const dt = new Date(); dt.setDate(dt.getDate() - i); days.push(key(dt)); }
+  const tot = {}; rows.forEach(r => { tot[r.game_slug] = (tot[r.game_slug] || 0) + Number(r.minutes); });
+  const games = Object.keys(tot).sort((a, b) => tot[b] - tot[a]), col = s => DCOL[games.indexOf(s) % DCOL.length], name = s => bySlug(s) ? bySlug(s).title : s;
+  const by = {}; rows.forEach(r => { const k = String(r.day).slice(0, 10); (by[k] = by[k] || {})[r.game_slug] = r; });
+  const dayTot = days.map(k => Object.values(by[k] || {}).reduce((a, r) => a + Number(r.minutes), 0));
+  const all = dayTot.reduce((a, b) => a + b, 0);
+  $('#adm-daily-sum').textContent = `${Math.round(all)} min in ${dailyDays} days`;
+  if (!all) { box.replaceChildren(h('p', { class: 'note', text: 'No play time in these days yet.' })); return; }
+  const step = [5, 10, 15, 30, 60, 120, 180, 300, 600].find(s => Math.max(...dayTot) / s <= 5) || 1200, top = Math.max(step, Math.ceil(Math.max(...dayTot) / step) * step);
+  const W = 900, H = 300, L = 52, B = 34, T = 12, pw = W - L - 10, ph = H - B - T, bw = pw / days.length, NS = 'http://www.w3.org/2000/svg';
+  const el = (n, a, kids) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); (kids || []).forEach(c => e.append(c)); return e; };
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, class: 'daily-svg', role: 'img', 'aria-label': `Minutes played per day, last ${dailyDays} days` });
+  for (let v = 0; v <= top; v += step) { const y = T + ph - v / top * ph; svg.append(el('line', { x1: L, x2: W - 10, y1: y, y2: y, class: 'grid' }), el('text', { x: L - 8, y: y + 4, 'text-anchor': 'end', class: 'ax' }, [document.createTextNode(v >= 60 && v % 60 === 0 ? (v / 60) + 'h' : v + 'm')])); }
+  const lab = k => { const [, m, d] = k.split('-'); return `${+m}/${+d}`; }, every = days.length > 45 ? 7 : days.length > 20 ? 3 : 1;
+  days.forEach((k, i) => {
+    let y = T + ph; const x = L + i * bw + bw * 0.14, w = bw * 0.72, g = el('g', {});
+    games.forEach(s => { const r = by[k] && by[k][s]; if (!r) return; const hgt = Number(r.minutes) / top * ph; y -= hgt;
+      g.append(el('rect', { x, y, width: w, height: Math.max(hgt, 0.5), fill: col(s), rx: 2 }, [el('title', {}, [document.createTextNode(`${lab(k)} · ${name(s)}: ${Number(r.minutes)} min · ${r.plays} plays · ${r.players} players`)])])); });
+    if (dayTot[i]) g.append(el('text', { x: x + w / 2, y: y - 5, 'text-anchor': 'middle', class: 'val' }, [document.createTextNode(Math.round(dayTot[i]))]));
+    if (i % every === 0 || i === days.length - 1) g.append(el('text', { x: x + w / 2, y: H - 12, 'text-anchor': 'middle', class: 'ax' }, [document.createTextNode(lab(k))]));
+    svg.append(g); });
+  box.replaceChildren(svg);
+  leg.replaceChildren(...games.map(s => h('li', {}, h('i', { style: `background:${col(s)}` }), h('span', { text: name(s) }), h('b', { text: `${Math.round(tot[s])} min` }))));
+}
+document.querySelectorAll('#adm-daily-wrap [data-days]').forEach(b => b.addEventListener('click', () => { dailyDays = +b.dataset.days; renderDaily(); }));
 async function previewGame(g) {
   try {
     const html = await ACC.submissionText(g.file_path);
