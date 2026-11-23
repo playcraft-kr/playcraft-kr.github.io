@@ -547,7 +547,15 @@ async function openPlayLog(p) {
   const total = rows.reduce((a, r) => a + (Number(r.seconds) || 0), 0);
   $('#adm-log-sum').textContent = `${plural(rows.length, 'play')} · ${fmtTime(total)}${rows.length >= 500 ? ' (latest 500)' : ''}`;
   const title = s => (bySlug(s) ? bySlug(s).title : s);
-  $('#adm-log-body').replaceChildren(...days.map(D => h('div', { class: 'log-day' },
+  const agg = {}; for (const r of rows) { const k = dayKey(r.started_at) + '|' + r.game_slug; const A = agg[k] || (agg[k] = { day: dayKey(r.started_at), game_slug: r.game_slug, minutes: 0, plays: 0 }); A.minutes += (Number(r.seconds) || 0) / 60; A.plays++; }
+  const aggRows = Object.values(agg).map(r => ({ ...r, minutes: Math.round(r.minutes * 10) / 10 }));
+  const chartBox = h('div', { class: 'log-chart' }), legBox = h('ul', { class: 'daily-legend' });
+  const span = Math.ceil((Date.now() - Math.min(...rows.map(r => Date.parse(r.started_at)))) / 864e5) + 1;
+  let logDays = span <= 14 ? 14 : 30;
+  const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'How many days' }, ...[14, 30, 90].map(n => h('button', { class: 'btn ghost tiny', 'data-n': n, onclick: () => { logDays = n; drawLog(); } }, `${n} days`)));
+  const drawLog = () => { const c = dailyChart(aggRows, logDays); chartBox.replaceChildren(c.chart); legBox.replaceChildren(...c.legend); seg.querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.n === logDays)); };
+  drawLog();
+  $('#adm-log-body').replaceChildren(h('div', { class: 'log-chart-wrap' }, h('div', { class: 'adm-users-head' }, h('h3', { text: 'Play time by day' }), seg), chartBox, legBox), ...days.map(D => h('div', { class: 'log-day' },
     h('h3', {}, D.label, h('span', { class: 'note', text: ` · ${fmtTime(D.secs)} · ` + Object.entries(D.games).filter(e => e[1] > 0).sort((a, b) => b[1] - a[1]).map(([g, s]) => `${title(g)} ${fmtTime(s)}`).join(', ') })),
     h('div', { class: 'table-wrap' }, h('table', { class: 'adm-table log-table' },
       h('thead', {}, h('tr', {}, h('th', { text: 'Started' }), h('th', { text: 'Ended' }), h('th', { text: 'Game' }), h('th', { text: 'Time played' }))),
@@ -676,35 +684,41 @@ async function renderHistory() {
 }
 let dailyDays = 14;
 const DCOL = ['#6d28d9', '#f97316', '#10b981', '#3b82f6', '#ec4899', '#eab308', '#14b8a6', '#ef4444', '#8b5cf6', '#84cc16', '#0ea5e9', '#f43f5e'];
-async function renderDaily() {
-  const box = $('#adm-daily'), leg = $('#adm-daily-legend');
-  document.querySelectorAll('#adm-daily-wrap [data-days]').forEach(b => b.classList.toggle('on', +b.dataset.days === dailyDays));
-  box.replaceChildren(h('p', { class: 'note', text: 'Loading…' })); leg.replaceChildren();
-  let rows; try { rows = await ACC.adminDailyMinutes(dailyDays); } catch { box.replaceChildren(h('p', { class: 'note', text: 'Couldn’t load the chart.' })); return; }
+/* stacked bar chart: minutes per game per day. rows = [{day:'YYYY-MM-DD', game_slug, minutes, plays, players?}] */
+function dailyChart(rows, nDays) {
   const key = dt => `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
-  const days = []; for (let i = dailyDays - 1; i >= 0; i--) { const dt = new Date(); dt.setDate(dt.getDate() - i); days.push(key(dt)); }
-  const tot = {}; rows.forEach(r => { tot[r.game_slug] = (tot[r.game_slug] || 0) + Number(r.minutes); });
+  const days = []; for (let i = nDays - 1; i >= 0; i--) { const dt = new Date(); dt.setDate(dt.getDate() - i); days.push(key(dt)); }
+  const inRange = rows.filter(r => days.includes(String(r.day).slice(0, 10)));
+  const tot = {}; inRange.forEach(r => { tot[r.game_slug] = (tot[r.game_slug] || 0) + Number(r.minutes); });
   const games = Object.keys(tot).sort((a, b) => tot[b] - tot[a]), col = s => DCOL[games.indexOf(s) % DCOL.length], name = s => bySlug(s) ? bySlug(s).title : s;
-  const by = {}; rows.forEach(r => { const k = String(r.day).slice(0, 10); (by[k] = by[k] || {})[r.game_slug] = r; });
+  const by = {}; inRange.forEach(r => { const k = String(r.day).slice(0, 10); (by[k] = by[k] || {})[r.game_slug] = r; });
   const dayTot = days.map(k => Object.values(by[k] || {}).reduce((a, r) => a + Number(r.minutes), 0));
   const all = dayTot.reduce((a, b) => a + b, 0);
-  $('#adm-daily-sum').textContent = `${Math.round(all)} min in ${dailyDays} days`;
-  if (!all) { box.replaceChildren(h('p', { class: 'note', text: 'No play time in these days yet.' })); return; }
+  if (!all) return { all, chart: h('p', { class: 'note', text: 'No play time in these days.' }), legend: [] };
   const step = [5, 10, 15, 30, 60, 120, 180, 300, 600].find(s => Math.max(...dayTot) / s <= 5) || 1200, top = Math.max(step, Math.ceil(Math.max(...dayTot) / step) * step);
-  const W = 900, H = 300, L = 52, B = 34, T = 12, pw = W - L - 10, ph = H - B - T, bw = pw / days.length, NS = 'http://www.w3.org/2000/svg';
+  const W = 900, H = 300, L = 52, B = 34, T = 18, pw = W - L - 10, ph = H - B - T, bw = pw / days.length, NS = 'http://www.w3.org/2000/svg';
   const el = (n, a, kids) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); (kids || []).forEach(c => e.append(c)); return e; };
-  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, class: 'daily-svg', role: 'img', 'aria-label': `Minutes played per day, last ${dailyDays} days` });
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, class: 'daily-svg', role: 'img', 'aria-label': `Minutes played per day, last ${nDays} days` });
   for (let v = 0; v <= top; v += step) { const y = T + ph - v / top * ph; svg.append(el('line', { x1: L, x2: W - 10, y1: y, y2: y, class: 'grid' }), el('text', { x: L - 8, y: y + 4, 'text-anchor': 'end', class: 'ax' }, [document.createTextNode(v >= 60 && v % 60 === 0 ? (v / 60) + 'h' : v + 'm')])); }
   const lab = k => { const [, m, d] = k.split('-'); return `${+m}/${+d}`; }, every = days.length > 45 ? 7 : days.length > 20 ? 3 : 1;
   days.forEach((k, i) => {
     let y = T + ph; const x = L + i * bw + bw * 0.14, w = bw * 0.72, g = el('g', {});
     games.forEach(s => { const r = by[k] && by[k][s]; if (!r) return; const hgt = Number(r.minutes) / top * ph; y -= hgt;
-      g.append(el('rect', { x, y, width: w, height: Math.max(hgt, 0.5), fill: col(s), rx: 2 }, [el('title', {}, [document.createTextNode(`${lab(k)} · ${name(s)}: ${Number(r.minutes)} min · ${r.plays} plays · ${r.players} players`)])])); });
+      g.append(el('rect', { x, y, width: w, height: Math.max(hgt, 0.5), fill: col(s), rx: 2 }, [el('title', {}, [document.createTextNode(`${lab(k)} · ${name(s)}: ${Number(r.minutes)} min · ${r.plays} plays${r.players != null ? ' · ' + r.players + ' players' : ''}`)])])); });
     if (dayTot[i]) g.append(el('text', { x: x + w / 2, y: y - 5, 'text-anchor': 'middle', class: 'val' }, [document.createTextNode(Math.round(dayTot[i]))]));
     if (i % every === 0 || i === days.length - 1) g.append(el('text', { x: x + w / 2, y: H - 12, 'text-anchor': 'middle', class: 'ax' }, [document.createTextNode(lab(k))]));
     svg.append(g); });
-  box.replaceChildren(svg);
-  leg.replaceChildren(...games.map(s => h('li', {}, h('i', { style: `background:${col(s)}` }), h('span', { text: name(s) }), h('b', { text: `${Math.round(tot[s])} min` }))));
+  const chart = h('div', { class: 'daily' }); chart.append(svg);
+  return { all, chart, legend: games.map(s => h('li', {}, h('i', { style: `background:${col(s)}` }), h('span', { text: name(s) }), h('b', { text: `${Math.round(tot[s])} min` }))) };
+}
+async function renderDaily() {
+  const box = $('#adm-daily'), leg = $('#adm-daily-legend');
+  document.querySelectorAll('#adm-daily-wrap [data-days]').forEach(b => b.classList.toggle('on', +b.dataset.days === dailyDays));
+  box.replaceChildren(h('p', { class: 'note', text: 'Loading…' })); leg.replaceChildren();
+  let rows; try { rows = await ACC.adminDailyMinutes(dailyDays); } catch { box.replaceChildren(h('p', { class: 'note', text: 'Couldn’t load the chart.' })); return; }
+  const c = dailyChart(rows, dailyDays);
+  $('#adm-daily-sum').textContent = `${Math.round(c.all)} min in ${dailyDays} days`;
+  box.replaceChildren(c.chart); leg.replaceChildren(...c.legend);
 }
 document.querySelectorAll('#adm-daily-wrap [data-days]').forEach(b => b.addEventListener('click', () => { dailyDays = +b.dataset.days; renderDaily(); }));
 async function previewGame(g) {
