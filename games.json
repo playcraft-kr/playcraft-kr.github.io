@@ -452,9 +452,10 @@
    "Action"
   ],
   "lang": "English & Korean",
-  "version": 4,
+  "version": 5,
+  "updated": "2026-11-24",
   "added": "2026-11-22",
-  "notes": "1v1 shows which side is yours (⭐ ME flag, green circles), mana gauge fills when you solve a quiz, mana bug in 1v1 fixed",
+  "notes": "Learning mode: a finished 10-question round at your grade with 8+ right gives 1 minute of PlayCraft game time",
   "cover": "img/cover-math-space-war.webp",
   "wide": "img/wide-math-space-war.webp",
   "controls": [

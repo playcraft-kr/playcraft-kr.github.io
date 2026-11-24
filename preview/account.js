@@ -99,6 +99,12 @@ const Account = {
   async adminSetApproved(id, value) { const { error } = await sb.rpc('admin_set_approved', { target: id, value }); if (error) throw error; },
   async adminSetLearnMode(id, value) { const { error } = await sb.rpc('admin_set_learn_mode', { target: id, value }); if (error) throw error; },
   async adminClearPin(id) { const { error } = await sb.rpc('admin_clear_parent_pin', { target: id }); if (error) throw error; },
+  // ---- learning mode, round 2: game minutes from Math Space War, daily limit, 10 Word League coins per minute ----
+  get WL_PER_MIN() { return 10; },
+  async learnWallet() { const { data, error } = await sb.rpc('learn_wallet', { p_tz: TZ() }); if (error) throw error; return (data && data[0]) || null; },
+  async mathRound(n, levels) { const { data, error } = await sb.rpc('math_round', { p_n: n, p_levels: levels, p_tz: TZ() }); if (error) throw error; return data || {}; },
+  async playMinute(wlOk) { const { data, error } = await sb.rpc('play_minute', { p_wl_ok: !!wlOk, p_tz: TZ() }); if (error) throw error; return data; },
+  async setLearnLimits(pin, playCap, mathGrade) { const { data, error } = await sb.rpc('set_learn_limits', { p_pin: pin, p_play_cap: playCap, p_math_grade: mathGrade }); if (error) throw error; return data; },
   // The coin wallet is Word League's: its saved state keeps xp, spent and (written by the game) pcCoins.
   async walletCoins() {
     const st = walletState(await this.loadSave(WALLET_SLUG));
@@ -260,6 +266,7 @@ window.Account = Account;
 
 
 const WALLET_SLUG = 'ssat-word-league';
+const TZ = () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch { return null; } };
 // Word League saves { ts, docs: { '<…>study/state': state, … } }
 function walletState(sv) {
   const data = sv && sv.data; if (!data || !data.docs) return null;

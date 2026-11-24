@@ -1971,12 +1971,12 @@ $('#selAll').onclick=()=>{S.subs=[...new Set(S.subs.concat(gradeSubs(CURG)))];sa
 $('#taGo').onclick=()=>startTA();$('#goStudy').onclick=()=>{if(!S.subs.length){toast('소단원을 하나 이상 골라 주세요');return}const LS=langSubs();startQuiz(Array.from({length:10},()=>makeQ(pick(LS),DIFK[S.diff||'norm']||0)),false)};
 $('#retry').onclick=()=>{if(!S.wrong.length){toast('오답노트가 비어 있어요');return}startQuiz(shuf(S.wrong).slice(0,10).map(w=>({...w,opts:shuf(w.opts)})),true);show('study')};
 function startQuiz(list,retry){Q={list,i:0,ok:0,earn:0,streak:0,retry};petInit();$('#studyPick').hidden=true;$('#studyRun').hidden=false;drawQ()}
-function drawQ(){const q=Q.list[Q.i];const L='ABCD';
+function drawQ(){const q=Q.list[Q.i];const L='ABCD';Q.t0=Date.now();
  $('#studyRun').innerHTML=`<div class="card ${Q.streak>=feverAt()?'fever':''}"><div class="qtop"><span>${(q.lv||q.hard)?`<span class="tag" style="background:${(q.lv===1)?'var(--blu)':'var(--pur)'}">${'★'.repeat((q.lv!=null?q.lv:2)+1)} ${LVN[q.lv!=null?q.lv:2]}</span> `:''}${Q.retry?tx('오답 다시 풀기 · ','Retry · '):''}${q.deck?'📚 '+escH(q.dn||''):(gradeOf(q.sub)||{name:''}).name+' · '+SUBNAME[q.sub]}</span>${Q.ta?`<span class="pill" id="taT">⏱ ${Math.ceil(Math.max(0,Q.ta-Date.now())/1000)}</span><span class="pill">✔ ${Q.ok}</span>`:`<span class="pill">${Q.i+1} / ${Q.list.length}</span>`}${Q.streak>=feverAt()?`<span class="combo">🔥 ${tx('피버','FEVER')} ×1.5 · ${Q.streak}</span>`:Q.streak>=2?`<span class="combo">${Q.streak}${tx('연속 콤보!','-streak!')}</span>`:''}<span class="pill">${Q.earn>=0?'+':'−'}${Math.abs(Q.earn)} 코인</span></div>
  <div class="bar"><i style="width:${Q.i/Q.list.length*100}%"></i></div><div class="petbox"><canvas id="petcv" aria-label="팀 펫 — 눌러서 쓰다듬기"></canvas><span>펫을 눌러 봐!</span></div><div class="qtxt">${q.q}</div>${q.fig?`<div class="qfig">${q.fig}</div>`:''}
  <div class="opts">${q.opts.map((o,j)=>`<button class="opt" data-j="${j}"><b>${L[j]}</b>${o}</button>`).join('')}</div><div class="fb" id="fb"></div>
  <div class="row" style="margin-top:14px"><button id="qQuit">${tx('그만하기','Quit')}</button><button id="qHint" class="y">💡 50:50 <small>(${tx('코인 절반','half coins')})</small></button></div></div>`;$('#qQuit').onclick=finishQuiz;$('#qHint').onclick=()=>{if(Q.hintAt===Q.i)return;Q.hintAt=Q.i;const ws=[...document.querySelectorAll('.opt')].filter(o=>q.opts[+o.dataset.j]!==q.a);shuf(ws).slice(0,2).forEach(o=>{o.disabled=true;o.style.opacity=.25});$('#qHint').disabled=true;SND.p('click')};petBind()}
-$('#studyRun').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b||b.disabled)return;const q=Q.list[Q.i];const pickd=q.opts[+b.dataset.j];const ok=pickd===q.a;
+$('#studyRun').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b||b.disabled)return;const q=Q.list[Q.i];const pickd=q.opts[+b.dataset.j];const ok=pickd===q.a;(Q.log=Q.log||[]).push({ok,lv:q.deck?0:(QLV[(SUBG[q.sub]||{}).id]||0),fast:Date.now()-(Q.t0||0)<3000,hint:Q.hintAt===Q.i});
  document.querySelectorAll('.opt').forEach(o=>{o.disabled=true;if(q.opts[+o.dataset.j]===q.a)o.classList.add('ok')});if(!ok)b.classList.add('no');
  if(!isEasy(q.sub))S.solved++;let gain;const lv=q.lv!=null?q.lv:(q.hard?2:0),C=LVC[lv],easy=isEasy(q.sub);logAns(ok,lv,easy,q.sub);SND.p(ok?'ok':'no');if(ok){if(!isEasy(q.sub))S.correct++;Q.ok++;Q.streak++;gain=C[0]+(Q.streak>=3?C[1]:0);if(Q.retry)S.wrong=S.wrong.filter(w=>!(w.q===q.q&&w.a===q.a))}
  else{Q.streak=0;gain=C[2];if(!S.wrong.some(w=>w.q===q.q&&w.a===q.a)){S.wrong.unshift({sub:q.sub,lv,hard:lv===2,q:q.q,a:q.a,opts:q.opts,ex:q.ex,fig:q.fig,mine:pickd});S.wrong=S.wrong.slice(0,60)}}
@@ -1988,7 +1988,19 @@ function finishQuiz(){const r=Q;if(!r)return;if(r.taInt)clearInterval(r.taInt);Q
  <p>${powBadge()}</p><p class="mut">${r.ok>=8?'전설의 영웅감이에요!':r.ok>=5?'좋아요, 조금만 더!':'오답노트로 복습하면 금방 늘어요.'}</p>
  <div class="row" style="justify-content:center"><button id="again" class="r">한 번 더</button><button id="toShop" class="y">상점 가기</button><button id="toMap">모험으로</button></div></div>`;
  petBind();PET.pets.forEach((p,i)=>{p.delay=i*.1;p.pend=r.ok>=5?'happy':'sad'});petSay(pick(PET.pets),r.ok>=8?`${r.ok}문제나 맞혔어! 대단해!`:r.ok>=5?'수고했어! 한 판 더?':'오답노트로 같이 복습하자!',4);
- $('#again').onclick=()=>{renderStudy();$('#goStudy').click()};$('#toShop').onclick=()=>show('shop');$('#toMap').onclick=()=>show('adv')}
+ $('#again').onclick=()=>{renderStudy();$('#goStudy').click()};$('#toShop').onclick=()=>show('shop');$('#toMap').onclick=()=>show('adv');pcLearn(r)}
+/* PlayCraft 학습 모드: 10문제 한 판(내 학년 이상, 8개 이상, 3초 넘게 생각, 50:50 없이) = PlayCraft 게임 시간 1분 */
+function pcLearn(r){try{if(!PCA||!PCA.mathRound||!PCA.profile||!PCA.profile.learn_mode)return;const h2=document.querySelector('#studyRun .card h2');if(!h2)return;
+ const say=(t,good)=>{const p=document.createElement('p');p.className='qtxt';p.style.cssText='margin:8px 0;font-size:16px;font-weight:700;color:'+(good?'var(--grn2)':'inherit');p.textContent='🎮 '+t;h2.after(p)};
+ if(r.ta)return say(tx('타임어택은 PlayCraft 게임 시간이 생기지 않아요. 10문제 수련을 해 보세요.','Time Attack doesn’t give PlayCraft game time. Try a 10-question round.'));
+ if(r.retry)return say(tx('오답 다시 풀기는 게임 시간이 생기지 않아요.','Retry rounds don’t give game time.'));
+ const lg=r.log||[];if(lg.length<10)return say(tx('10문제를 끝까지 풀어야 게임 시간이 생겨요.','Finish all 10 questions to earn game time.'));
+ const good=lg.filter(a=>a.ok&&!a.fast&&!a.hint&&a.lv>0).map(a=>a.lv);
+ PCA.mathRound(lg.length,good).then(x=>{if(!x||x.why==='off'||x.why==='signin')return;const g=x.grade?lvName(x.grade):'';
+  if(x.ok)say(tx(`PlayCraft 게임 시간 +1분! (오늘 ${x.math_today}/${x.math_cap}분 · 모은 시간 ${x.math_min}분)`,`+1 minute of PlayCraft game time! (today ${x.math_today}/${x.math_cap} · saved ${x.math_min} min)`),true);
+  else if(x.why==='score')say(tx(`게임 시간은 ${g} 이상 문제를 8개 이상 맞혀야 생겨요 (이번 판 ${x.good||0}개). 3초 안에 고른 답과 50:50을 쓴 문제는 세지 않아요.`,`Game time needs 8+ right at ${g} or higher (this round: ${x.good||0}). Answers picked in under 3 seconds or with 50:50 don’t count.`));
+  else if(x.why==='fast')say(tx('게임 시간은 1분에 한 판까지만 생겨요.','Game time comes at most once a minute.'));
+  else if(x.why==='cap')say(tx(`오늘 수학으로 모을 수 있는 게임 시간(${x.math_cap}분)을 다 모았어요. 수련은 계속할 수 있어요!`,`You’ve earned today’s math game time (${x.math_cap} min). You can keep practicing!`))}).catch(()=>{})}catch(e){}}
 
 
 /* ================= 수련 펫 ================= */

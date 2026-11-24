@@ -298,7 +298,7 @@ addEventListener('message', e => {
   stopGame(); openSignIn(true);
 });
 
-/* ---------- learning mode: other games cost coins (1 per minute), earned in the learning games ---------- */
+/* ---------- learning mode: other games cost game minutes (from Math Space War) or 10 Word League coins a minute, with a daily limit ---------- */
 const LEARN_GAMES = new Set(['ssat-word-league', 'math-space-war']);
 const learnOn = () => !!(signedIn() && ACC.profile && ACC.profile.learn_mode);
 const needsCoins = g => learnOn() && g && !LEARN_GAMES.has(g.slug);
@@ -317,7 +317,8 @@ async function renderLearnAcct() {
   let ls; try { ls = await ACC.learnStatus(); } catch { st.textContent = '—'; return; }
   st.textContent = ls.learn_mode ? 'On' : 'Off';
   coinEl.textContent = '';
-  if (ls.learn_mode) ACC.walletCoins().then(c => { coinEl.textContent = `· 🪙 ${c} coin${c === 1 ? '' : 's'} (1 coin = 1 minute of other games)`; }).catch(() => {});
+  if (ls.learn_mode) walletText(true).then(t => { coinEl.textContent = '· ' + t; }).catch(() => {});
+  const lb = $('#ma-limits-btn'); if (lb) lb.hidden = true;
   btn.hidden = false;
   if (ACC.profile && ACC.profile.age && ACC.profile.age < 13) {
     btn.textContent = 'Ask my parent to change it'; btn.onclick = () => askParent('Type your parent’s e-mail. We’ll send them a link where they can turn learning mode on or off.');
@@ -327,30 +328,65 @@ async function renderLearnAcct() {
       if (!/^[0-9]{4}$/.test(pin)) return toast('The PIN must be 4 numbers.'); try { await ACC.setupLearnMode(true, pin); toast('Learning mode is on.'); renderLearnAcct(); } catch (x) { toast(x.message || 'Couldn’t turn it on.'); } };
   } else if (!ls.has_pin) { btn.hidden = true; st.textContent += ' (set by the admin)'; }
   else {
+    if (lb && ls.learn_mode) { lb.hidden = false; lb.onclick = changeLimits; }
     btn.textContent = ls.learn_mode ? 'Turn off (parent PIN)' : 'Turn on (parent PIN)';
     btn.onclick = async () => { const pin = await askText(`Parent: enter your PIN to turn learning mode ${ls.learn_mode ? 'off' : 'on'}.`, '', ls.learn_mode ? 'Turn off' : 'Turn on'); if (pin === null) return;
       let r; try { r = await ACC.setLearnMode(pin, !ls.learn_mode); } catch { return toast('Couldn’t change it. Try again.'); }
       toast(r === 'ok' ? `Learning mode is ${ls.learn_mode ? 'off' : 'on'}.` : r === 'locked' ? 'Too many wrong tries. Try again in 15 minutes.' : r === 'wrong' ? 'Wrong PIN.' : 'Couldn’t change it.'); renderLearnAcct(); };
   }
 }
-let coinTimer = null, coinMins = 0, coinGame = null;
-async function showCoins() { const el = $('#g-coins'); if (!needsCoins(current)) { el.hidden = true; return; } try { const c = await ACC.walletCoins(); el.textContent = `🪙 ${c} coin${c === 1 ? '' : 's'} · 1 per minute`; el.hidden = false; return c; } catch { el.hidden = true; } }
-function needCoinsDialog(g, ranOut) {
-  const d = h('dialog', { class: 'confirm' }, h('p', {}, h('b', { text: ranOut ? 'Your coins ran out! 🪙' : 'You need coins to play this game 🪙' })),
-    h('p', { text: `Learning mode is on, so ${g.title} costs 1 coin per minute. Earn coins in Word League (training and matches), then come back.` }),
+let coinTimer = null, coinMins = 0, wlMins = 0, coinGame = null;
+const capText = c => c == null ? 'no daily limit' : `${c} min a day`;
+// "⏱ 3 game min · 🪙 120 coins (= 12 min) · today 20 / 60 min"
+async function walletText(long) {
+  const [w, c] = await Promise.all([ACC.learnWallet().catch(() => null), ACC.walletCoins().catch(() => 0)]);
+  const per = ACC.WL_PER_MIN, gm = w ? w.math_min : 0;
+  const parts = [`⏱ ${gm} game min`, `🪙 ${c} coin${c === 1 ? '' : 's'}${long ? ` (${per} coins = 1 min)` : ''}`];
+  if (w) parts.push(w.play_cap == null ? `today ${w.play_today} min` : `today ${w.play_today} / ${w.play_cap} min`);
+  return parts.join(' · ');
+}
+async function showCoins() { const el = $('#g-coins'); if (!needsCoins(current)) { el.hidden = true; return; } try { el.textContent = await walletText(false); el.hidden = false; } catch { el.hidden = true; } }
+async function changeLimits() {
+  let w = null; try { w = await ACC.learnWallet(); } catch {}
+  const cap = await askText(`Parent: minutes of other games per day (now ${capText(w && w.play_cap)}). Type 0–600, or leave empty for no limit.`, w && w.play_cap != null ? String(w.play_cap) : '', 'Next');
+  if (cap === null) return;
+  const capN = cap.trim() === '' ? null : parseInt(cap, 10);
+  if (capN !== null && !(capN >= 0 && capN <= 600)) return toast('Type a number from 0 to 600.');
+  const gr = await askText(`School grade for Math Space War (1–12). Only rounds at this grade or higher give game minutes. Leave empty to use the age (grade ${w ? w.math_grade : '?'} now).`, w && w.math_grade ? String(w.math_grade) : '', 'Next');
+  if (gr === null) return;
+  const grN = gr.trim() === '' ? null : parseInt(gr, 10);
+  if (grN !== null && !(grN >= 1 && grN <= 12)) return toast('Type a grade from 1 to 12.');
+  const pin = await askText('Parent: enter your PIN to save.', '', 'Save'); if (pin === null) return;
+  let r; try { r = await ACC.setLearnLimits(pin, capN, grN); } catch { return toast('Couldn’t save. Try again.'); }
+  toast(r === 'ok' ? 'Saved.' : r === 'locked' ? 'Too many wrong tries. Try again in 15 minutes.' : r === 'wrong' ? 'Wrong PIN.' : 'Couldn’t save.'); renderLearnAcct();
+}
+function needCoinsDialog(g, why) {
+  const cap = why === 'cap', per = ACC.WL_PER_MIN;
+  const d = h('dialog', { class: 'confirm' }, h('p', {}, h('b', { text: cap ? 'That’s all for today! ⏰' : why === 'out' ? 'Your game time ran out! ⏱' : 'You need game time to play this ⏱' })),
+    h('p', { text: cap ? 'You’ve used today’s game time that your parent set. The learning games are still open, and the time starts again tomorrow.'
+      : `Learning mode is on. ${g.title} uses game minutes first, then ${per} Word League coins per minute. Earn a game minute with each 10-question round in Math Space War (8 or more right, at your grade), or earn coins in Word League.` }),
     h('div', { class: 'si-actions' }, h('button', { class: 'btn ghost', onclick: () => d.close() }, 'OK'),
-      h('button', { class: 'btn primary', onclick: () => { d.close(); location.hash = '#/game/ssat-word-league'; } }, 'Go to Word League')));
+      h('button', { class: 'btn ghost', onclick: () => { d.close(); location.hash = '#/game/math-space-war'; } }, 'Math Space War'),
+      h('button', { class: 'btn primary', onclick: () => { d.close(); location.hash = '#/game/ssat-word-league'; } }, 'Word League')));
   d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
 }
 function stopCoinTimer() {
   clearInterval(coinTimer); coinTimer = null;
-  if (coinMins && coinGame) { const n = coinMins, t = coinGame; ACC.walletNote(`PlayCraft: ${t} (${n} min)`, n).catch(() => {}); }
-  coinMins = 0; coinGame = null;
+  if (wlMins && coinGame) { const n = wlMins, t = coinGame; ACC.walletNote(`PlayCraft: ${t} (${n} min)`, n * ACC.WL_PER_MIN).catch(() => {}); }
+  coinMins = 0; wlMins = 0; coinGame = null;
+}
+// Pays one minute: game minutes first, then Word League coins. Returns 'math' | 'wl' | 'cap' | 'none'.
+async function payMinute() {
+  const per = ACC.WL_PER_MIN;
+  let coins = 0; try { coins = await ACC.walletCoins(); } catch {}
+  let r = 'none'; try { r = await ACC.playMinute(coins >= per); } catch { return 'none'; }
+  if (r === 'wl') { let ok = false; try { ok = await ACC.walletSpend(per); } catch {} if (!ok) return 'none'; wlMins++; }
+  return r;
 }
 async function chargeMinute() {
   if (!playing || !current || document.hidden) return;
-  let ok = false; try { ok = await ACC.walletSpend(1); } catch {}
-  if (!ok) { const g = current; stopGame(); needCoinsDialog(g, true); return; }
+  const r = await payMinute();
+  if (r !== 'math' && r !== 'wl') { const g = current; stopGame(); needCoinsDialog(g, r === 'cap' ? 'cap' : 'out'); return; }
   coinMins++; showCoins();
 }
 async function playGame() {
@@ -362,9 +398,11 @@ async function playGame() {
   }
   pendingPlay = null;
   if (needsCoins(current)) {
-    let ok = false; try { ok = await ACC.walletSpend(1); } catch {}
-    if (!ok) { needCoinsDialog(current, false); return; }
-    stopCoinTimer(); coinGame = current.title; coinMins = 1; coinTimer = setInterval(chargeMinute, 60000); showCoins();
+    stopCoinTimer(); coinGame = current.title;
+    const r = await payMinute();
+    if (r !== 'math' && r !== 'wl') { coinGame = null; wlMins = 0; needCoinsDialog(current, r === 'cap' ? 'cap' : 'none'); return; }
+    coinMins = 1;
+    coinTimer = setInterval(chargeMinute, 60000); showCoins();
   }
   const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove());
   let f;
