@@ -175,10 +175,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 24,
+  "version": 25,
   "added": "2026-11-22",
   "updated": "2026-11-24",
-  "notes": "Trophies and mock tests give fewer coins (trophies 1-16, mock test 1 per point, new best +30). Coins already earned stay.",
+  "notes": "Added 5 reading words missed on Nov 24 (2 new: ford, pediatric). They come first in training.",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
