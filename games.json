@@ -175,10 +175,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 23,
+  "version": 24,
   "added": "2026-11-22",
-  "updated": "2026-11-23",
-  "notes": "Penalty duel: the parent side is plain push-ups now",
+  "updated": "2026-11-24",
+  "notes": "Trophies and mock tests give fewer coins (trophies 1-16, mock test 1 per point, new best +30). Coins already earned stay.",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
