@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261123202008">
+<link rel="stylesheet" href="app.css?v=20261123202151">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -199,7 +199,8 @@
       </section>
       <section class="panel" id="adm-req-wrap">
         <div class="adm-users-head"><h2>Game requests <span class="count" id="adm-req-count"></span></h2>
-          <div class="req-filters"><select id="adm-req-game" aria-label="Show requests for"><option value="">All games</option></select></div></div>
+          <div class="req-filters"><select id="adm-req-game" aria-label="Show requests for"><option value="">All games</option></select>
+            <div class="seg" role="group" aria-label="Which requests"><button class="btn ghost tiny on" data-st="open">In progress</button><button class="btn ghost tiny" data-st="all">All</button></div></div></div>
         <p class="note">Every change to a game goes here first, whoever asks. The Claude window that looks after the game reads this list, marks each request, and writes what it changed.</p>
         <form class="req-form" id="adm-req-form">
           <select id="adm-req-new-game" aria-label="Game" required></select>
@@ -208,8 +209,6 @@
         </form>
         <div class="req-game" id="adm-req-info" hidden></div>
         <ul class="sub-list req-list" id="adm-req-list"></ul>
-        <h3 class="hist-h">✓ Done log <span class="count" id="adm-req-done-count"></span></h3>
-        <ul class="sub-list req-list" id="adm-req-done"></ul>
       </section>
       <section class="panel adm-users">
         <div class="adm-users-head"><h2>Players <span class="count" id="adm-count"></span></h2>
@@ -352,7 +351,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261123202008"></script>
-<script src="app.js?v=20261123202008"></script>
+<script src="account.js?v=20261123202151"></script>
+<script src="app.js?v=20261123202151"></script>
 </body>
 </html>
