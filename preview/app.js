@@ -324,7 +324,7 @@ $('#forgot-pw').addEventListener('click', async e => {
   if (id === null) return;
   try { await ACC.requestPasswordReset(id); } catch {}
   // Same answer every time, so nobody can find out which accounts exist or have an email.
-  infoDialog('Check the email 📬', 'If this account has a confirmed email, we just sent a link there. Under 13? The link goes to your parent.\n\nNo email after 10 minutes? Check the spam folder. If the account has no email, the password can’t be recovered, so ask a grown-up to help you make a new account.');
+  infoDialog('Check your email 📬', 'If your account has a verified email address, we’ve sent you a password reset link. Under 13? We’ll send the link to your parent’s email address instead.\n\nStill no email after 10 minutes? Check your spam folder.\n\nIf your account doesn’t have an email address, you won’t be able to reset your password. Ask a grown-up to help you create a new account.');
 });
 $('#forgot-id').addEventListener('click', async e => {
   e.preventDefault();
