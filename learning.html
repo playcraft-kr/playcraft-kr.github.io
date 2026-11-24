@@ -12,6 +12,12 @@
 .lm-table th,.lm-table td{border-bottom:1px solid #e3def7;padding:8px 6px;text-align:left;vertical-align:top}
 .lm-table th{color:#3d2a8c}
 .box{background:#f6f4ff;border-radius:14px;padding:12px 16px;margin:12px 0}
+.rules{list-style:none;padding:0;margin:10px 0 0;font-size:15px;line-height:1.45}
+.rules li{position:relative;padding:5px 0 5px 30px;border-top:1px dashed #e3def7}
+.rules li::before{position:absolute;left:4px;top:5px;font-weight:900}
+.rules li.ok::before{content:"✓";color:#18a874}
+.rules li.no::before{content:"✗";color:#e0476b}
+.rules li.day::before{content:"📅"}
 .pics{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:16px 0 8px}
 .pic{background:#fff;border:2px solid #e3def7;border-radius:18px;padding:14px 14px 12px}
 .pic h3{margin:0 0 10px;font-size:18px;color:#3d2a8c}
@@ -60,13 +66,25 @@
         <h3>🧮 Math Space War</h3>
         <div class="eq"><div class="qs" aria-label="10 questions, 8 right"><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i class="x">✗</i><i class="x">✗</i></div><span class="arrow">→</span><span class="clock">⏱ 1 min</span></div>
         <p class="cap">One round of 10 questions at your grade.<br><b>8 or more right = 1 minute.</b></p>
-        <div class="chips" style="margin-top:8px"><span>🐢 Think 3+ seconds</span><span class="no">🚫 No 50:50</span><span class="no">🚫 Time Attack</span><span>📅 Up to 30 min a day</span></div>
+        <ul class="rules">
+          <li class="ok">Answer questions at your grade or higher.</li>
+          <li class="no">Answers picked in under 3 seconds don’t count. Take your time and think!</li>
+          <li class="no">Questions where you used the 50:50 hint don’t count.</li>
+          <li class="no">Time Attack doesn’t give game time.</li>
+          <li class="day">You can earn up to 30 minutes a day.</li>
+        </ul>
       </section>
       <section class="pic">
         <h3>📚 Word League</h3>
         <div class="eq"><div class="coins" aria-label="10 coins"><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i></div><span class="arrow">→</span><span class="clock">⏱ 1 min</span></div>
         <p class="cap"><b>10 Word League coins = 1 minute.</b></p>
-        <div class="chips" style="margin-top:8px"><span>✓ Right answer +1</span><span class="no">✗ Wrong guess −1</span><span>🏆 Win a match +30</span><span>🎯 Daily goal +20</span><span>🔥 7 days in a row +100</span></div>
+        <ul class="rules">
+          <li class="ok">Each right answer: +1 coin</li>
+          <li class="no">Each wrong guess: −1 coin</li>
+          <li class="ok">Win a match: +30 coins</li>
+          <li class="ok">Reach your goal for the day: +20 coins</li>
+          <li class="ok">Study 7 days in a row: +100 coins</li>
+        </ul>
       </section>
       <section class="pic">
         <h3>🎮 Which pays first?</h3>
