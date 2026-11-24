@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261123211536">
+<link rel="stylesheet" href="app.css?v=20261123212434">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -110,7 +110,7 @@
   <section id="v-my" class="view" hidden>
     <div class="page-head"><a class="back" href="#/">← Back</a><h1>My Games</h1></div>
     <p class="lead" id="my-lead">Games you saved with ♥ and games you played lately. They’re kept on this device only. <a href="#" id="my-signin">Sign in</a> to keep them everywhere.</p>
-    <div class="warn-box" id="my-waiting" hidden>👪 You can play every game. Putting your ID on leaderboards, online play and sending in games turn on after your parent says OK to PlayCraft.</div>
+    <div class="warn-box" id="my-waiting" hidden>👪 You can play every game. Leaderboards, online play and sending in games turn on after your parent says OK. <span id="my-parent-line"></span> <button class="btn ghost tiny" id="my-parent-btn" type="button">Send to my parent again</button></div>
     <div class="warn-box" id="my-paused" hidden>⏸ Your account is paused by an admin, so new plays aren’t being saved right now.</div>
     <div class="stats" id="my-stats" hidden></div>
     <h2 class="sub">Saved</h2>
@@ -332,11 +332,10 @@
       <input id="su-nick" maxlength="16" placeholder="e.g. Rocket Fox">
       <label for="su-age">Age</label>
       <select id="su-age"><option value="">Choose your age</option></select>
-      <label class="guardian" id="su-guardian-row" hidden><input type="checkbox" id="su-guardian"> A parent or guardian knows I’m making this account and says it’s OK. (We keep only the ID, nickname, age and play records. <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>)</label>
-      <div class="learn-box" id="su-learn-row" hidden>
-        <label class="guardian"><input type="checkbox" id="su-learn"> <span><b>Learning mode</b> (for parents): the other games cost coins, 1 coin per minute. Coins are earned in the learning game Word League.</span></label>
-        <div id="su-pin-row" hidden><label for="su-pin">Parent PIN (4 numbers). You’ll need it to turn learning mode off later.</label>
-          <input id="su-pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="4 numbers"></div>
+      <div class="learn-box" id="su-parent-row" hidden>
+        <label for="su-parent">Your parent’s e-mail</label>
+        <input id="su-parent" type="email" autocomplete="off" maxlength="200" placeholder="parent@example.com">
+        <p class="hint">You can play right away. We e-mail your parent so they can say OK to leaderboards and online play, and choose learning mode. (We keep only your ID, nickname, age and play records. <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>)</p>
       </div>
       <label for="su-pw">Password</label>
       <div class="pw-field"><input id="su-pw" type="password" autocomplete="new-password" maxlength="72"><button type="button" class="eye" data-for="su-pw" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="open" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="open" cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></div>
@@ -360,7 +359,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261123211536"></script>
-<script src="app.js?v=20261123211536"></script>
+<script src="account.js?v=20261123212434"></script>
+<script src="app.js?v=20261123212434"></script>
 </body>
 </html>

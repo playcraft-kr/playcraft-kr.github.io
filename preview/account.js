@@ -92,6 +92,10 @@ const Account = {
   async learnStatus() { const { data, error } = await sb.rpc('learn_status'); if (error) throw error; return (data && data[0]) || { learn_mode: false, has_pin: false }; },
   async setupLearnMode(on, pin) { const { error } = await sb.rpc('setup_learn_mode', { p_on: !!on, p_pin: pin }); if (error) throw error; await loadProfile(); emit(); },
   async setLearnMode(pin, on) { const { data, error } = await sb.rpc('set_learn_mode', { p_pin: pin, p_on: !!on }); if (error) throw error; if (data === 'ok') { await loadProfile(); emit(); } return data; },
+  // ---- parent e-mail consent (under 13) ----
+  async requestParentConsent(email) { const { data, error } = await sb.rpc('request_parent_consent', { p_email: email }); if (error) throw error; return data || {}; },
+  async myParentConsent() { const { data, error } = await sb.rpc('my_parent_consent'); if (error) throw error; return (data && data[0]) || null; },
+  async adminParentConsents() { const { data, error } = await sb.rpc('admin_parent_consents'); if (error) throw error; return data || []; },
   async adminSetApproved(id, value) { const { error } = await sb.rpc('admin_set_approved', { target: id, value }); if (error) throw error; },
   async adminSetLearnMode(id, value) { const { error } = await sb.rpc('admin_set_learn_mode', { target: id, value }); if (error) throw error; },
   async adminClearPin(id) { const { error } = await sb.rpc('admin_clear_parent_pin', { target: id }); if (error) throw error; },

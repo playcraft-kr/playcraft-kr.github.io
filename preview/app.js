@@ -236,6 +236,7 @@ function openMy(fromRefresh) {
   if (signedIn() && ACC.profile) { $('#ma-id').textContent = ACC.profile.username; $('#ma-nick').textContent = ACC.profile.nickname; $('#ma-age').textContent = ACC.profile.age ? (ACC.profile.age >= 18 ? '18+' : String(ACC.profile.age)) : '—'; }
   $('#my-paused').hidden = !(signedIn() && ACC.profile && ACC.profile.blocked);
   $('#my-waiting').hidden = !(signedIn() && ACC.profile && ACC.profile.approved === false);
+  if (!$('#my-waiting').hidden) ACC.myParentConsent().then(c => { $('#my-parent-line').textContent = c ? (c.status === 'declined' ? `Your parent (${c.email_hint}) said not yet.` : c.expired ? `The message to ${c.email_hint} ran out.` : `We sent a message to ${c.email_hint}.`) : 'We haven’t e-mailed your parent yet.'; }).catch(() => {});
   if (signedIn()) renderLearnAcct();
   const st = $('#my-stats'), on = signedIn() && cloudStats;
   $('#my-lead').hidden = signedIn();
@@ -301,6 +302,16 @@ addEventListener('message', e => {
 const LEARN_GAMES = new Set(['ssat-word-league', 'math-space-war']);
 const learnOn = () => !!(signedIn() && ACC.profile && ACC.profile.learn_mode);
 const needsCoins = g => learnOn() && g && !LEARN_GAMES.has(g.slug);
+
+async function askParent(reason) {
+  const em = await askText(reason || 'Type your parent’s e-mail. We’ll send them a link to say OK (and to choose learning mode).', '', 'Send');
+  if (em === null) return;
+  let r; try { r = await ACC.requestParentConsent(em); } catch { return toast('Couldn’t send. Try again.'); }
+  toast(r.ok ? (r.mailed ? 'Sent! Ask your parent to check their e-mail.' : 'Saved! A PlayCraft grown-up will pass the message to your parent.')
+    : r.why === 'email' ? 'That e-mail doesn’t look right.' : r.why === 'wait' ? 'Please wait 2 minutes before sending again.' : r.why === 'limit' ? 'You’ve sent 5 today. Try again tomorrow.' : 'Couldn’t send.');
+  if (!$('#v-my').hidden) openMy(true);
+}
+$('#my-parent-btn').addEventListener('click', () => askParent());
 async function renderLearnAcct() {
   const st = $('#ma-learn-state'), btn = $('#ma-learn-btn'), coinEl = $('#ma-coins');
   let ls; try { ls = await ACC.learnStatus(); } catch { st.textContent = '—'; return; }
@@ -308,7 +319,9 @@ async function renderLearnAcct() {
   coinEl.textContent = '';
   if (ls.learn_mode) ACC.walletCoins().then(c => { coinEl.textContent = `· 🪙 ${c} coin${c === 1 ? '' : 's'} (1 coin = 1 minute of other games)`; }).catch(() => {});
   btn.hidden = false;
-  if (!ls.has_pin && !ls.learn_mode) {
+  if (ACC.profile && ACC.profile.age && ACC.profile.age < 13) {
+    btn.textContent = 'Ask my parent to change it'; btn.onclick = () => askParent('Type your parent’s e-mail. We’ll send them a link where they can turn learning mode on or off.');
+  } else if (!ls.has_pin && !ls.learn_mode) {
     btn.textContent = 'Turn on (parent)';
     btn.onclick = async () => { const pin = await askText('Parent: choose a 4-number PIN. You’ll need it to turn learning mode off later.', '', 'Turn on'); if (pin === null) return;
       if (!/^[0-9]{4}$/.test(pin)) return toast('The PIN must be 4 numbers.'); try { await ACC.setupLearnMode(true, pin); toast('Learning mode is on.'); renderLearnAcct(); } catch (x) { toast(x.message || 'Couldn’t turn it on.'); } };
@@ -485,8 +498,7 @@ function checkMatch() {
   const ok = a === b; hint.textContent = ok ? '✓ Passwords match.' : '✗ Not the same yet.'; hint.classList.add(ok ? 'good' : 'bad');
 }
 $('#su-pw').addEventListener('input', checkMatch); $('#su-pw2').addEventListener('input', checkMatch);
-ageSel.addEventListener('change', () => { const a = +ageSel.value; $('#su-guardian-row').hidden = $('#su-learn-row').hidden = !(a && a < 13); });
-$('#su-learn').addEventListener('change', e => { $('#su-pin-row').hidden = !e.target.checked; });
+ageSel.addEventListener('change', () => { const a = +ageSel.value; $('#su-parent-row').hidden = !(a && a < 13); });
 const ID_RE = /^[a-z0-9][a-z0-9._-]{2,19}$/;
 let idTimer;
 $('#su-id').addEventListener('input', () => {
@@ -504,9 +516,8 @@ $('#su-form').addEventListener('submit', async e => {
   if (!ID_RE.test(id)) return say('Please choose an ID with 3–20 letters or numbers.');
   if (nick.length < 2) return say('Please choose a nickname with at least 2 characters.');
   if (!age) return say('Please choose your age.');
-  if (age < 13 && !$('#su-guardian').checked) return say('Because you’re under 13, a parent or guardian needs to know. Ask them, then tick the box.');
-  const learnOn = age < 13 && $('#su-learn').checked, pin = $('#su-pin').value.trim();
-  if (learnOn && !/^[0-9]{4}$/.test(pin)) return say('For learning mode, a parent needs to choose a 4-number PIN.');
+  const parentEmail = $('#su-parent').value.trim();
+  if (age < 13 && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(parentEmail)) return say('Because you’re under 13, please type your parent’s e-mail so they can say OK.');
   if (!pwOk(pw)) return say('Your password needs at least 8 characters with a letter, a number and a special character.');
   if (pw !== $('#su-pw2').value) return say('The two passwords don’t match. Type them again.');
   if (pw.toLowerCase().includes(id)) return say('Your password can’t contain your ID.');
@@ -514,10 +525,10 @@ $('#su-form').addEventListener('submit', async e => {
   try {
     if (!(await ACC.idAvailable(id))) { say('Someone already has this ID. Try another one.'); }
     else {
-      await ACC.signUp({ id, password: pw, nickname: nick, age, guardianOk: $('#su-guardian').checked });
-      if (learnOn) { try { await ACC.setupLearnMode(true, pin); } catch { toast('Account made, but learning mode couldn’t be set. A parent can turn it on from My Games.'); } }
-      dlg.close(); $('#su-form').reset(); $('#su-pin-row').hidden = true; document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok')); $('#su-pw2-hint').textContent = '';
-      toast(age < 13 ? `Welcome, ${nick}! 🎉 You can play now. Leaderboards and online play open after your parent says OK.` : `Welcome to PlayCraft, ${nick}! 🎉`);
+      await ACC.signUp({ id, password: pw, nickname: nick, age, guardianOk: age < 13 });
+      if (age < 13) { try { await ACC.requestParentConsent(parentEmail); } catch { toast('Account made. Open My Games to send the message to your parent again.'); } }
+      dlg.close(); $('#su-form').reset(); $('#su-parent-row').hidden = true; document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok')); $('#su-pw2-hint').textContent = '';
+      toast(age < 13 ? `Welcome, ${nick}! 🎉 You can play now. We sent your parent an e-mail so they can turn on leaderboards and online play.` : `Welcome to PlayCraft, ${nick}! 🎉`);
     }
   } catch (x) {
     const m = (x && x.message || '').toLowerCase();
@@ -578,14 +589,23 @@ async function approveUser(p) {
   if (!(await ask(`Approve ${p.username}${p.age ? ' (age ' + p.age + ')' : ''}? Do this only after their parent has said OK. Leaderboards, online play and sending in games open for them.`))) return;
   try { await ACC.adminSetApproved(p.id, true); toast(`${p.username} now has every feature.`); openAdmin(); } catch { toast('Couldn’t approve. Try again.'); }
 }
-function renderWaiting(profiles) {
-  const w = profiles.filter(p => p.approved === false), d = t => new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+async function renderWaiting(profiles) {
+  const w = profiles.filter(p => p.approved === false), d = t => t ? new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—';
   $('#adm-wait-wrap').hidden = !w.length; $('#adm-wait-count').textContent = w.length ? `${w.length} waiting` : '';
-  $('#adm-wait').replaceChildren(...w.map(p => h('li', {},
-    h('span', { class: 'pill wait', text: 'Needs parent OK' }),
-    h('span', { class: 't' }, `${p.username} · ${p.nickname}`, h('small', { text: `age ${p.age ?? '—'} · guardian box ${p.guardian_ok ? 'ticked' : 'not ticked'} · learning mode ${p.learn_mode ? 'on' : 'off'} · signed up ${d(p.created_at)}` })),
-    h('button', { class: 'btn primary tiny', onclick: () => approveUser(p) }, 'Approve'),
-    h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'block') }, p.blocked ? 'Unpause' : 'Pause'))));
+  if (!w.length) return;
+  const reqs = await ACC.adminParentConsents().catch(() => []), by = Object.fromEntries(reqs.map(r => [r.user_id, r]));
+  const ready = reqs.length ? reqs[0].mail_ready : null;
+  const head = ready === false ? [h('li', { class: 'note', text: '✉️ The e-mail service isn’t set up yet, so nothing is sent automatically. Copy each parent link below and send it to the parent yourself.' })] : [];
+  $('#adm-wait').replaceChildren(...head, ...w.map(p => {
+    const r = by[p.id];
+    const info = r ? `parent ${r.parent_email} · ${r.status === 'declined' ? 'parent said not yet' : 'waiting for parent'} · sent ${r.sends}× · last ${d(r.last_sent)} · link until ${d(r.expires_at)}` : 'no parent e-mail yet';
+    return h('li', {},
+      h('span', { class: 'pill wait', text: 'Needs parent OK' }),
+      h('span', { class: 't' }, `${p.username} · ${p.nickname}`, h('small', { text: `age ${p.age ?? '—'} · signed up ${d(p.created_at)} · ${info}` })),
+      r && r.manual_link ? h('button', { class: 'btn ghost tiny', onclick: () => navigator.clipboard.writeText(r.manual_link).then(() => toast('Parent link copied. Send it to the parent.'), () => toast(r.manual_link)) }, '📋 Copy parent link') : null,
+      h('button', { class: 'btn primary tiny', onclick: () => approveUser(p) }, 'Approve'),
+      h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'block') }, p.blocked ? 'Unpause' : 'Pause'));
+  }));
 }
 function renderAdmin() {
   if (!admData) return;
