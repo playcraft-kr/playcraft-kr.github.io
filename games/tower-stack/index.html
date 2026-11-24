@@ -34,6 +34,12 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .btn:active{transform:translateY(2px);box-shadow:0 2px 0 #c9962e}
 .tips{color:var(--sub);font-size:13px;margin-top:14px;text-align:center;max-width:420px}
+.lb{width:100%;max-width:300px;margin-top:6px;font-size:13px;text-align:left;max-height:46%;overflow:auto}
+.lb h3{font:400 18px "Black Han Sans",sans-serif;color:#ffd166;text-align:center;margin:4px 0}
+.lb .r{display:grid;grid-template-columns:30px 1fr 44px;gap:6px;padding:3px 8px;border-radius:8px}
+.lb .r.me{background:rgba(255,209,102,.18);color:#ffd166;font-weight:700}
+.lb .r span:last-child{text-align:right}
+.lb .m{color:#c9cfee;text-align:center;font-size:12px}
 @media (prefers-reduced-motion:reduce){.combo,.overlay{transition:none}}
 </style>
 </head>
@@ -49,6 +55,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
       <h2 id="ovTitle">Tower Stack</h2>
       <p id="ovText">Tap the screen or press Space to drop the block. Line it up exactly for a Perfect. Three Perfects in a row and the block grows wider again.</p>
       <button class="btn" id="startBtn" type="button">Start</button>
+      <div class="lb" id="lb"></div>
     </div>
   </div>
 </div>
@@ -126,6 +133,7 @@ function end(){
   state='over';endAt=performance.now();comboEl.classList.remove('on');shake=reduce?0:10;beep(140,.4,'sawtooth');
   const isBest=score>best;
   if(isBest){best=score;try{localStorage.setItem('stackBest',best)}catch(e){}bestEl.textContent='Best '+best}
+  pcRecord(score);
   setTimeout(()=>{
     ovTitle.textContent=isBest&&score>0?'New record!':'It fell!';
     ovText.textContent=`You stacked ${score} ${score===1?'floor':'floors'}. Your best is ${best}.`;
@@ -181,6 +189,33 @@ function frame(now){
   ctx.restore();
   requestAnimationFrame(frame);
 }
+
+/* PlayCraft leaderboard (shared table game_kv; the server files each row under the player's own ID) and
+   my recent games (my own save, only I can read it). */
+const PCA=(()=>{try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})();
+const lbEl=document.getElementById('lb');let recent=[];
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const myName=()=>{try{return PCA&&PCA.signedIn&&PCA.profile?String(PCA.profile.username||''):''}catch(e){return ''}};
+const ago=t=>{const m=Math.round((Date.now()-t)/60000);return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' d ago'};
+async function pcReady(){for(let i=0;i<50&&PCA&&!PCA.ready;i++)await new Promise(r=>setTimeout(r,100))}
+async function pcLoad(){if(!PCA)return;await pcReady();if(!myName())return;
+  try{const sv=await PCA.loadSave('tower-stack');const d=sv&&sv.data;if(d){recent=Array.isArray(d.recent)?d.recent:[];if(+d.best>best){best=+d.best;try{localStorage.setItem('stackBest',best)}catch(e){}bestEl.textContent='Best '+best}}}catch(e){}
+  showBoard()}
+async function pcRecord(sc){if(!PCA)return;await pcReady();const me=myName();if(!me){showBoard();return}
+  recent.unshift({s:sc,t:Date.now()});recent=recent.slice(0,10);
+  try{await PCA.writeSave('tower-stack',{best,recent})}catch(e){}
+  try{let c=null;try{c=await PCA.kvGet('tower-stack','rank',me)}catch(e){}c=c||{};
+    await PCA.kvSet('tower-stack','rank',me,{s:Math.max(+c.s||0,sc),g:(+c.g||0)+1,t:Date.now()})}catch(e){}
+  showBoard()}
+async function showBoard(){if(!lbEl||!PCA)return;const me=myName();
+  let rows=[];try{rows=(await PCA.kvList('tower-stack','rank',300)).map(r=>({n:(r.data&&r.data.n)||r.doc_id,s:+r.data.s||0,g:+r.data.g||0})).sort((a,b)=>b.s-a.s||a.g-b.g)}catch(e){}
+  const myI=rows.findIndex(r=>r.n===me),row=(r,i)=>`<div class="r${r.n===me?' me':''}"><span>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'.'}</span><span>${esc(String(r.n).slice(0,14))}</span><span>${r.s}</span></div>`;
+  let h='<h3>🏆 Top builders</h3>'+(rows.length?rows.slice(0,10).map(row).join(''):'<div class="m">No scores yet. Be the first!</div>');
+  if(myI>=10)h+='<div class="m">…</div>'+row(rows[myI],myI);
+  if(me&&recent.length)h+='<h3>🕒 My recent games</h3>'+recent.slice(0,5).map(x=>`<div class="r"><span></span><span>${ago(x.t)}</span><span>${x.s}</span></div>`).join('');
+  if(!me)h+='<div class="m">Sign in to PlayCraft to join the leaderboard</div>';
+  lbEl.innerHTML=h}
+pcLoad();
 reset();cur=null;requestAnimationFrame(frame);
 
 screen.addEventListener('pointerdown',e=>{if(e.target===startBtn)return;e.preventDefault();drop()});

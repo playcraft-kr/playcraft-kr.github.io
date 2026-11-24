@@ -704,7 +704,7 @@ async function renderHistory() {
     : [h('li', { class: 'note', text: 'No games approved or sent back yet.' })]));
 }
 /* ---------- game requests: one inbox per game ---------- */
-let reqStatus = 'open', reqGame = '';
+let reqGame = '';
 const REQ_LABEL = { waiting: ['wait', '⏳ Waiting'], doing: ['adm', '🔧 Working on it'], done: ['ok', '✓ Done'], declined: ['bad', '✕ Declined'] };
 const when = t => t ? new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
 const gameName = s => bySlug(s) ? bySlug(s).title : s;
@@ -715,13 +715,14 @@ function fillReqGames() {
 }
 async function renderRequests() {
   fillReqGames();
-  document.querySelectorAll('#adm-req-wrap [data-st]').forEach(b => b.classList.toggle('on', b.dataset.st === reqStatus));
-  const list = $('#adm-req-list');
+  const list = $('#adm-req-list'), doneList = $('#adm-req-done');
   let rows; try { rows = await ACC.adminRequests(); } catch { list.replaceChildren(h('li', { class: 'note', text: 'Couldn’t load requests.' })); return; }
-  const open = rows.filter(r => r.status === 'waiting' || r.status === 'doing');
-  $('#adm-req-count').textContent = open.length ? `${open.length} open` : '';
-  const shown = rows.filter(r => (!reqGame || r.slug === reqGame) && (reqStatus === 'all' || r.status === 'waiting' || r.status === 'doing'));
-  list.replaceChildren(...(shown.length ? shown.map(reqItem) : [h('li', { class: 'note', text: reqStatus === 'open' ? 'No open requests. 🎉' : 'No requests yet.' })]));
+  const isOpen = r => r.status === 'waiting' || r.status === 'doing', mine = rows.filter(r => !reqGame || r.slug === reqGame);
+  const open = mine.filter(isOpen), done = mine.filter(r => !isOpen(r)).sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
+  $('#adm-req-count').textContent = rows.filter(isOpen).length ? `${rows.filter(isOpen).length} open` : '';
+  list.replaceChildren(...(open.length ? open.map(reqItem) : [h('li', { class: 'note', text: 'No open requests. 🎉' })]));
+  $('#adm-req-done-count').textContent = done.length ? `${done.filter(r => r.status === 'done').length} done · ${done.filter(r => r.status === 'declined').length} declined` : '';
+  doneList.replaceChildren(...(done.length ? done.map(reqItem) : [h('li', { class: 'note', text: 'Nothing finished yet.' })]));
   renderReqGame();
 }
 function reqItem(r) {
@@ -731,7 +732,7 @@ function reqItem(r) {
   return h('li', { class: 'req-item' },
     h('span', { class: 'pill ' + cls, text: lab }),
     h('span', { class: 't' }, h('b', { class: 'req-game-name', text: gameName(r.slug) + ' · ' }), h('span', { class: 'req-body', text: r.body }),
-      h('small', { text: `#${r.id} · asked by ${r.author_name || '—'} · ${when(r.created_at)}${r.handled_by ? ' · handled by ' + r.handled_by : ''}${r.status !== 'waiting' && r.updated_at ? ' · updated ' + when(r.updated_at) : ''}` }),
+      h('small', { text: `#${r.id} · asked by ${r.author_name || '—'} · ${when(r.created_at)}${r.handled_by ? ' · handled by ' + r.handled_by : ''}${r.updated_at && r.status !== 'waiting' ? (r.status === 'done' ? ' · finished ' : r.status === 'declined' ? ' · declined ' : ' · started ') + when(r.updated_at) : ''}` }),
       r.reply ? h('small', { class: 'req-reply', text: '→ ' + r.reply }) : null),
     isOpen ? h('button', { class: 'btn primary tiny', onclick: async () => { const v = await askText('What was changed? (one line)', r.reply || '', 'Mark done', true); if (v !== null) upd({ status: 'done', reply: v }, 'Marked done.'); } }, 'Mark done') : null,
     isOpen ? h('button', { class: 'btn ghost tiny', onclick: async () => { const v = await askText('Why not? (the asker will see this)', '', 'Decline', true); if (v !== null) upd({ status: 'declined', reply: v }, 'Declined.'); } }, 'Decline') : null,
@@ -751,7 +752,6 @@ async function renderReqGame() {
   } catch { hist.replaceChildren(h('li', { class: 'note', text: 'Couldn’t load the change history (GitHub may be busy). Try again later.' })); }
 }
 $('#adm-req-game').addEventListener('change', e => { reqGame = e.target.value; if (reqGame) $('#adm-req-new-game').value = reqGame; renderRequests(); });
-document.querySelectorAll('#adm-req-wrap [data-st]').forEach(b => b.addEventListener('click', () => { reqStatus = b.dataset.st; renderRequests(); }));
 $('#adm-req-form').addEventListener('submit', async e => {
   e.preventDefault(); const slug = $('#adm-req-new-game').value, body = $('#adm-req-text').value.trim(); if (!slug || !body) return;
   try { await ACC.adminAddRequest(slug, body); $('#adm-req-text').value = ''; toast('Request added.'); renderRequests(); } catch (x) { toast('Couldn’t add: ' + (x.message || 'try again')); }
