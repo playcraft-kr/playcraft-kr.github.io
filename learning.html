@@ -12,6 +12,30 @@
 .lm-table th,.lm-table td{border-bottom:1px solid #e3def7;padding:8px 6px;text-align:left;vertical-align:top}
 .lm-table th{color:#3d2a8c}
 .box{background:#f6f4ff;border-radius:14px;padding:12px 16px;margin:12px 0}
+.steps{display:grid;gap:14px;margin:16px 0}
+.step{display:flex;gap:14px;background:#fff;border:2px solid #e3def7;border-radius:20px;padding:16px}
+.sn{flex:0 0 46px;height:46px;border-radius:50%;background:#5b3fd0;color:#fff;font:900 24px/46px system-ui,sans-serif;text-align:center}
+.sb{flex:1;min-width:0}
+.sb h3{margin:6px 0 12px;font-size:22px;color:#1d1b3a}
+.earn{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tile{background:#f6f4ff;border-radius:16px;padding:12px;text-align:center}
+.tt{margin:0 0 10px;font-weight:900;font-size:18px;color:#3d2a8c}
+.qs.big,.coins.big{display:inline-grid;grid-template-columns:repeat(5,32px);gap:5px}
+.qs.big i,.coins.big i{width:32px;height:32px;font-size:17px}
+.big-eq{font-size:19px;font-weight:800;margin:12px 0 0;line-height:1.9}
+.sum .t{font-size:16px;min-width:110px}
+.sum .t b{font-size:26px}
+.sum .total{background:#5b3fd0;color:#fff}.sum .total b{color:#fff}
+.mock{position:relative;height:120px;border-radius:16px;background:linear-gradient(160deg,#2b2160,#5b3fd0);display:grid;place-items:center;max-width:360px}
+.mock-g{font-size:48px}
+.mock-t{position:absolute;top:10px;right:10px;background:rgba(20,16,48,.85);color:#fff;font-weight:900;border-radius:999px;padding:4px 12px;font-size:16px}
+.say{font-size:17px;margin:10px 0 0}
+.bar.full i{height:26px}
+.tips{background:#f6f4ff;border-radius:18px;padding:14px 18px;margin:6px 0 18px}
+.tips h3{margin:8px 0 4px;font-size:18px;color:#3d2a8c}
+.tips .rules{font-size:16px}
+.mut{color:#5d5a7a;font-weight:400}
+@media (max-width:520px){.step{flex-direction:column;gap:6px}.sn{flex-basis:auto;width:40px;height:40px;line-height:40px;font-size:20px}}
 .rules{list-style:none;padding:0;margin:10px 0 0;font-size:15px;line-height:1.45}
 .rules li{text-wrap:pretty;position:relative;padding:5px 0 5px 30px;border-top:1px dashed #e3def7}
 .rules li::before{position:absolute;left:4px;top:5px;font-weight:900}
@@ -60,52 +84,67 @@
       <p><strong>In one line:</strong> the learning games are free. Every other game costs game time, one minute at a time. You earn game time in Math Space War and Word League. There is a limit for each day.</p>
     </div>
 
-    <h2>Game time in pictures</h2>
-    <div class="pics">
-      <section class="pic">
-        <h3>🧮 Math Space War</h3>
-        <div class="eq"><div class="qs" aria-label="10 questions, 8 right"><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i class="x">✗</i><i class="x">✗</i></div><span class="arrow">→</span><span class="clock">⏱ 1 min</span></div>
-        <p class="cap">One round of 10 questions at your grade.<br><b>8 or more right = 1 minute.</b></p>
-        <ul class="rules">
-          <li class="ok">Answer questions at your grade or higher.</li>
-          <li class="no">Answers picked in under 3 seconds don’t count. Take your time and think!</li>
-          <li class="no">Questions where you used the 50:50 hint don’t count.</li>
-          <li class="no">Time Attack doesn’t give game time.</li>
-          <li class="day">You can earn up to 30 minutes a day.</li>
-        </ul>
+    <h2>Game time in 4 steps</h2>
+    <div class="steps">
+      <section class="step">
+        <div class="sn">1</div>
+        <div class="sb">
+          <h3>Learn to earn game time</h3>
+          <div class="earn">
+            <div class="tile">
+              <p class="tt">🧮 Math Space War</p>
+              <div class="qs big" aria-label="10 questions, 8 right"><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i>✓</i><i class="x">✗</i><i class="x">✗</i></div>
+              <p class="big-eq">8 right out of 10<br>= <span class="clock">⏱ 1 minute</span></p>
+            </div>
+            <div class="tile">
+              <p class="tt">📚 Word League</p>
+              <div class="coins big" aria-label="10 coins"><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i></div>
+              <p class="big-eq">10 coins<br>= <span class="clock">⏱ 1 minute</span></p>
+            </div>
+          </div>
+        </div>
       </section>
-      <section class="pic">
-        <h3>📚 Word League</h3>
-        <div class="eq"><div class="coins" aria-label="10 coins"><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i><i>1</i></div><span class="arrow">→</span><span class="clock">⏱ 1 min</span></div>
-        <p class="cap"><b>10 Word League coins = 1 minute.</b></p>
-        <ul class="rules">
-          <li class="ok">Each right answer: +1 coin</li>
-          <li class="no">Each wrong guess: −1 coin</li>
-          <li class="ok">Win a match: +30 coins</li>
-          <li class="ok">Reach your goal for the day: +20 coins</li>
-          <li class="ok">Study 7 days in a row: +100 coins</li>
-        </ul>
+      <section class="step">
+        <div class="sn">2</div>
+        <div class="sb">
+          <h3>Your minutes add up</h3>
+          <div class="sum"><div class="t">5 math rounds<b>5 min</b></div><span class="arrow">+</span><div class="t">150 coins<b>15 min</b></div><span class="arrow">=</span><div class="t total">Game time<b>20 min</b></div></div>
+        </div>
       </section>
-      <section class="pic">
-        <h3>🎮 Which pays first?</h3>
-        <div class="jars"><div class="jar"><span class="n">1st</span><b>⏱</b>Math minutes</div><span class="arrow">→</span><div class="jar"><span class="n">2nd</span><b><span class="coins" style="display:inline-grid;grid-template-columns:26px"><i>1</i></span></b>Word League coins</div><span class="arrow">→</span><b style="font-size:34px">🎮</b></div>
-        <p class="cap">Other games use the first jar first.<br>When it’s empty, they use the second jar.</p>
+      <section class="step">
+        <div class="sn">3</div>
+        <div class="sb">
+          <h3>Play any game</h3>
+          <div class="mock"><span class="mock-t">⏱ 19:42 left</span><span class="mock-g">🎮</span></div>
+          <p class="say">The clock in the corner counts down while you play.</p>
+        </div>
       </section>
-      <section class="pic">
-        <h3>📏 The daily limit</h3>
-        <div class="bar" aria-label="25 of 60 minutes used"><i></i><i></i><i></i><i></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i></div>
-        <div class="scale"><span>0</span><span>30 min</span><span>1 hour</span></div>
-        <ul class="rules">
-          <li class="day">Other games stop after <b>1 hour a day</b>.<br>Your parent can choose a different limit.</li>
-          <li class="ok">Time you didn’t use is saved for tomorrow.</li>
-          <li class="ok">Learning games don’t count toward the limit.</li>
-        </ul>
+      <section class="step">
+        <div class="sn">4</div>
+        <div class="sb">
+          <h3>Stop for today</h3>
+          <div class="bar full" aria-label="1 hour used"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="scale"><span>0</span><span>1 hour</span></div>
+          <p class="say">After <b>1 hour</b> of games, it’s time to stop.<br><span class="mut">(Your parent can change this.)</span><br>Leftover minutes wait for tomorrow.</p>
+        </div>
       </section>
-      <section class="pic" style="grid-column:1/-1">
-        <h3>🧾 Example: how much can I play today?</h3>
-        <div class="sum"><div class="t">5 math rounds<b>⏱ 5 min</b></div><span class="arrow">+</span><div class="t">150 Word League coins<b>⏱ 15 min</b></div><span class="arrow">=</span><div class="t" style="background:#5b3fd0;color:#fff">Other games<b style="color:#fff">⏱ 20 min</b></div></div>
-        <p class="cap">150 coins ÷ 10 = 15 minutes.<br>The clock at the top right of the game shows how much time is left.</p>
-      </section>
+    </div>
+
+    <div class="tips">
+      <h3>💡 Tips for Math Space War</h3>
+      <ul class="rules">
+        <li class="ok">Pick questions at your grade or harder.</li>
+        <li class="ok">Think before you answer. Answers in under 3 seconds don’t count.</li>
+        <li class="no">The 50:50 hint and Time Attack don’t earn minutes.</li>
+        <li class="day">You can earn up to 30 minutes a day here.</li>
+      </ul>
+      <h3>💡 Ways to earn Word League coins</h3>
+      <ul class="rules">
+        <li class="ok">Right answer: +1 coin <span class="mut">(a wrong guess takes 1 away)</span></li>
+        <li class="ok">Win a match: +30 coins</li>
+        <li class="ok">Reach your goal for the day: +20 coins</li>
+        <li class="ok">Study 7 days in a row: +100 coins</li>
+      </ul>
     </div>
 
     <h2>1. Which games are free?</h2>
