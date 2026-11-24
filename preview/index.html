@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261123202151">
+<link rel="stylesheet" href="app.css?v=20261123205139">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -123,6 +123,7 @@
     <section class="panel acct-panel" id="my-account" hidden>
       <h2>Your account</h2>
       <dl class="acct-facts"><div><dt>ID</dt><dd id="ma-id"></dd></div><div><dt>Nickname</dt><dd id="ma-nick"></dd></div><div><dt>Age</dt><dd id="ma-age"></dd></div></dl>
+      <div class="learn-acct" id="ma-learn"><b>Learning mode:</b> <span id="ma-learn-state">…</span> <span id="ma-coins"></span> <button class="btn ghost tiny" id="ma-learn-btn" hidden></button></div>
       <p class="note">Want to leave PlayCraft? Deleting your account removes your ID, nickname, age, saved games and play records for good.</p>
       <button class="btn danger" id="ma-delete">Delete my account</button>
     </section>
@@ -253,7 +254,7 @@
     </div>
     <div class="game-bar">
       <img id="g-cover" alt="" width="56" height="56">
-      <div class="gb-text"><strong id="g-name"></strong><span id="g-meta"></span></div>
+      <div class="gb-text"><strong id="g-name"></strong><span id="g-meta"></span><span id="g-coins" class="coin-pill" hidden></span></div>
       <div class="gb-actions">
         <button class="btn ghost" id="save-btn" aria-pressed="false">♡ Save</button>
         <button class="btn ghost" id="share-btn">🔗 Copy link</button>
@@ -329,6 +330,11 @@
       <label for="su-age">Age</label>
       <select id="su-age"><option value="">Choose your age</option></select>
       <label class="guardian" id="su-guardian-row" hidden><input type="checkbox" id="su-guardian"> A parent or guardian knows I’m making this account and says it’s OK. (We keep only the ID, nickname, age and play records. <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>)</label>
+      <div class="learn-box" id="su-learn-row" hidden>
+        <label class="guardian"><input type="checkbox" id="su-learn"> <span><b>Learning mode</b> (for parents): the other games cost coins, 1 coin per minute. Coins are earned in the learning game Word League.</span></label>
+        <div id="su-pin-row" hidden><label for="su-pin">Parent PIN (4 numbers). You’ll need it to turn learning mode off later.</label>
+          <input id="su-pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"></div>
+      </div>
       <label for="su-pw">Password</label>
       <div class="pw-field"><input id="su-pw" type="password" autocomplete="new-password" maxlength="72"><button type="button" class="eye" data-for="su-pw" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="open" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="open" cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></div>
       <ul class="pw-rules" id="pw-rules">
@@ -351,7 +357,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261123202151"></script>
-<script src="app.js?v=20261123202151"></script>
+<script src="account.js?v=20261123205139"></script>
+<script src="app.js?v=20261123205139"></script>
 </body>
 </html>

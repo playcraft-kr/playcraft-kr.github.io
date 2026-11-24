@@ -46,7 +46,7 @@ const Account = {
   async adminData() {
     // totals are added up inside the database, so they stay right no matter how many plays there are
     const [p, us, gs, tot] = await Promise.all([
-      sb.from('profiles').select('id, username, nickname, age, guardian_ok, is_admin, blocked, created_at').order('created_at', { ascending: false }).range(0, 4999),
+      sb.from('profiles').select('id, username, nickname, age, guardian_ok, is_admin, blocked, created_at, learn_mode').order('created_at', { ascending: false }).range(0, 4999),
       sb.rpc('admin_user_stats'), sb.rpc('admin_game_stats'), sb.rpc('admin_totals'),
     ]);
     for (const r of [p, us, gs, tot]) if (r.error) throw r.error;
@@ -84,6 +84,30 @@ const Account = {
     const r = await fetch(`https://api.github.com/repos/playcraft-kr/playcraft-kr.github.io/commits?path=games/${encodeURIComponent(slug)}&per_page=12`);
     if (!r.ok) throw new Error('history ' + r.status);
     return (await r.json()).map(c => ({ sha: c.sha, url: c.html_url, date: c.commit.author.date, msg: c.commit.message.split('\n')[0] }));
+  },
+
+  // ---- learning mode: other games cost coins earned in the learning games (the database guards the switch) ----
+  async learnStatus() { const { data, error } = await sb.rpc('learn_status'); if (error) throw error; return (data && data[0]) || { learn_mode: false, has_pin: false }; },
+  async setupLearnMode(on, pin) { const { error } = await sb.rpc('setup_learn_mode', { p_on: !!on, p_pin: pin }); if (error) throw error; await loadProfile(); emit(); },
+  async setLearnMode(pin, on) { const { data, error } = await sb.rpc('set_learn_mode', { p_pin: pin, p_on: !!on }); if (error) throw error; if (data === 'ok') { await loadProfile(); emit(); } return data; },
+  async adminSetLearnMode(id, value) { const { error } = await sb.rpc('admin_set_learn_mode', { target: id, value }); if (error) throw error; },
+  async adminClearPin(id) { const { error } = await sb.rpc('admin_clear_parent_pin', { target: id }); if (error) throw error; },
+  // The coin wallet is Word League's: its saved state keeps xp, spent and (written by the game) pcCoins.
+  async walletCoins() {
+    const st = walletState(await this.loadSave(WALLET_SLUG));
+    return st ? coinsOf(st.doc) : 0;
+  },
+  async walletSpend(n) {
+    const sv = await this.loadSave(WALLET_SLUG), st = walletState(sv);
+    if (!st || coinsOf(st.doc) < n) return false;
+    const d = st.doc, before = coinsOf(d); d.spent = (+d.spent || 0) + n; d.pcCoins = Math.max(0, before - n);
+    st.data.docs[st.key] = d; st.data.ts = (+st.data.ts || 0) + 1;
+    await this.writeSave(WALLET_SLUG, st.data); return true;
+  },
+  async walletNote(name, cost) {
+    const sv = await this.loadSave(WALLET_SLUG), st = walletState(sv); if (!st || !cost) return;
+    st.doc.claims = [...(st.doc.claims || []), { name, cost, at: new Date().toISOString(), pc: 1 }];
+    st.data.docs[st.key] = st.doc; st.data.ts = (+st.data.ts || 0) + 1; await this.writeSave(WALLET_SLUG, st.data);
   },
   async adminSetAdmin(id, value) { const { error } = await sb.rpc('admin_set_admin', { target: id, value }); if (error) throw error; },
 
@@ -226,9 +250,18 @@ const Account = {
 };
 window.Account = Account;
 
+
+const WALLET_SLUG = 'ssat-word-league';
+// Word League saves { ts, docs: { '<…>study/state': state, … } }
+function walletState(sv) {
+  const data = sv && sv.data; if (!data || !data.docs) return null;
+  const key = Object.keys(data.docs).find(k => /study\/state$/.test(k)); if (!key) return null;
+  return { data, key, doc: data.docs[key] || {} };
+}
+const coinsOf = d => Math.max(0, d.pcCoins != null ? +d.pcCoins : (+d.xp || 0) - (+d.spent || 0));
 async function loadProfile() {
   if (!user) { profile = null; return; }
-  const { data } = await sb.from('profiles').select('username, nickname, is_admin, blocked, age').eq('id', user.id).maybeSingle();
+  const { data } = await sb.from('profiles').select('username, nickname, is_admin, blocked, age, learn_mode').eq('id', user.id).maybeSingle();
   profile = data || { username: (user.email || '').split('@')[0], nickname: (user.email || '').split('@')[0], is_admin: false };
 }
 if (sb) {

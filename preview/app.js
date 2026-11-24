@@ -235,6 +235,7 @@ function openMy(fromRefresh) {
   const acc = $('#my-account'); acc.hidden = !signedIn();
   if (signedIn() && ACC.profile) { $('#ma-id').textContent = ACC.profile.username; $('#ma-nick').textContent = ACC.profile.nickname; $('#ma-age').textContent = ACC.profile.age ? (ACC.profile.age >= 18 ? '18+' : String(ACC.profile.age)) : '—'; }
   $('#my-paused').hidden = !(signedIn() && ACC.profile && ACC.profile.blocked);
+  if (signedIn()) renderLearnAcct();
   const st = $('#my-stats'), on = signedIn() && cloudStats;
   $('#my-lead').hidden = signedIn();
   st.hidden = !on;
@@ -272,6 +273,7 @@ function openGame(g) {
   const cu = coverOf(g); $('#g-cover').hidden = !cu; if (cu) $('#g-cover').src = cu;
   $('#g-name').textContent = g.title;
   $('#req-btn').hidden = !(signedIn() && ACC.profile && ACC.profile.is_admin);
+  showCoins();
   $('#g-meta').textContent = `${madeBy(g)} · v${g.version} · ${g.cats.join(', ')}${g.multiplayer ? ' · 👥 Online' : ''}`;
   const alt = GAMES.find(x => x.variantOf === g.slug) || bySlug(g.variantOf);
   const meta = $('#g-meta'); meta.querySelectorAll('.alt-lang').forEach(n => n.remove());
@@ -293,7 +295,51 @@ addEventListener('message', e => {
   if (current) pendingPlay = current.slug;
   stopGame(); openSignIn(true);
 });
-function playGame() {
+
+/* ---------- learning mode: other games cost coins (1 per minute), earned in the learning games ---------- */
+const LEARN_GAMES = new Set(['ssat-word-league', 'math-space-war']);
+const learnOn = () => !!(signedIn() && ACC.profile && ACC.profile.learn_mode);
+const needsCoins = g => learnOn() && g && !LEARN_GAMES.has(g.slug);
+async function renderLearnAcct() {
+  const st = $('#ma-learn-state'), btn = $('#ma-learn-btn'), coinEl = $('#ma-coins');
+  let ls; try { ls = await ACC.learnStatus(); } catch { st.textContent = '—'; return; }
+  st.textContent = ls.learn_mode ? 'On' : 'Off';
+  coinEl.textContent = '';
+  if (ls.learn_mode) ACC.walletCoins().then(c => { coinEl.textContent = `· 🪙 ${c} coin${c === 1 ? '' : 's'} (1 coin = 1 minute of other games)`; }).catch(() => {});
+  btn.hidden = false;
+  if (!ls.has_pin && !ls.learn_mode) {
+    btn.textContent = 'Turn on (parent)';
+    btn.onclick = async () => { const pin = await askText('Parent: choose a 4-number PIN. You’ll need it to turn learning mode off later.', '', 'Turn on'); if (pin === null) return;
+      if (!/^[0-9]{4}$/.test(pin)) return toast('The PIN must be 4 numbers.'); try { await ACC.setupLearnMode(true, pin); toast('Learning mode is on.'); renderLearnAcct(); } catch (x) { toast(x.message || 'Couldn’t turn it on.'); } };
+  } else if (!ls.has_pin) { btn.hidden = true; st.textContent += ' (set by the admin)'; }
+  else {
+    btn.textContent = ls.learn_mode ? 'Turn off (parent PIN)' : 'Turn on (parent PIN)';
+    btn.onclick = async () => { const pin = await askText(`Parent: enter your PIN to turn learning mode ${ls.learn_mode ? 'off' : 'on'}.`, '', ls.learn_mode ? 'Turn off' : 'Turn on'); if (pin === null) return;
+      let r; try { r = await ACC.setLearnMode(pin, !ls.learn_mode); } catch { return toast('Couldn’t change it. Try again.'); }
+      toast(r === 'ok' ? `Learning mode is ${ls.learn_mode ? 'off' : 'on'}.` : r === 'locked' ? 'Too many wrong tries. Try again in 15 minutes.' : r === 'wrong' ? 'Wrong PIN.' : 'Couldn’t change it.'); renderLearnAcct(); };
+  }
+}
+let coinTimer = null, coinMins = 0, coinGame = null;
+async function showCoins() { const el = $('#g-coins'); if (!needsCoins(current)) { el.hidden = true; return; } try { const c = await ACC.walletCoins(); el.textContent = `🪙 ${c} coin${c === 1 ? '' : 's'} · 1 per minute`; el.hidden = false; return c; } catch { el.hidden = true; } }
+function needCoinsDialog(g, ranOut) {
+  const d = h('dialog', { class: 'confirm' }, h('p', {}, h('b', { text: ranOut ? 'Your coins ran out! 🪙' : 'You need coins to play this game 🪙' })),
+    h('p', { text: `Learning mode is on, so ${g.title} costs 1 coin per minute. Earn coins in Word League (training and matches), then come back.` }),
+    h('div', { class: 'si-actions' }, h('button', { class: 'btn ghost', onclick: () => d.close() }, 'OK'),
+      h('button', { class: 'btn primary', onclick: () => { d.close(); location.hash = '#/game/ssat-word-league'; } }, 'Go to Word League')));
+  d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
+}
+function stopCoinTimer() {
+  clearInterval(coinTimer); coinTimer = null;
+  if (coinMins && coinGame) { const n = coinMins, t = coinGame; ACC.walletNote(`PlayCraft: ${t} (${n} min)`, n).catch(() => {}); }
+  coinMins = 0; coinGame = null;
+}
+async function chargeMinute() {
+  if (!playing || !current || document.hidden) return;
+  let ok = false; try { ok = await ACC.walletSpend(1); } catch {}
+  if (!ok) { const g = current; stopGame(); needCoinsDialog(g, true); return; }
+  coinMins++; showCoins();
+}
+async function playGame() {
   if (!current) return;
   if (!signedIn()) {
     pendingPlay = current.slug; openSignIn(false);
@@ -301,6 +347,11 @@ function playGame() {
     return;
   }
   pendingPlay = null;
+  if (needsCoins(current)) {
+    let ok = false; try { ok = await ACC.walletSpend(1); } catch {}
+    if (!ok) { needCoinsDialog(current, false); return; }
+    stopCoinTimer(); coinGame = current.title; coinMins = 1; coinTimer = setInterval(chargeMinute, 60000); showCoins();
+  }
   const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove());
   let f;
   if (current.community) {
@@ -326,7 +377,7 @@ function fitFrame() {
 new ResizeObserver(fitFrame).observe(document.querySelector('#stage'));
 // Player-made games can't use the site's storage inside the sandbox, so give them a temporary one.
 const SANDBOX_SHIM = '<script>(function(){var m={};var s={getItem:function(k){return Object.prototype.hasOwnProperty.call(m,k)?m[k]:null},setItem:function(k,v){m[k]=String(v)},removeItem:function(k){delete m[k]},clear:function(){m={}},key:function(i){return Object.keys(m)[i]||null},get length(){return Object.keys(m).length}};try{window.localStorage.getItem("x")}catch(e){try{Object.defineProperty(window,"localStorage",{value:s});Object.defineProperty(window,"sessionStorage",{value:s})}catch(_){}}})();<\/script>';
-function stopGame() { endSession(); const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove()); $('#start').hidden = false; playing = false; setFull(false); }
+function stopGame() { stopCoinTimer(); endSession(); const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove()); $('#start').hidden = false; playing = false; setFull(false); }
 // "Big screen": the game fills the browser window, with a slim bar ABOVE the game (never on top of it).
 // We don't use the browser's own full screen, because there Esc both frees the mouse and exits full screen.
 // Here Esc belongs to the game only.
@@ -433,7 +484,8 @@ function checkMatch() {
   const ok = a === b; hint.textContent = ok ? '✓ Passwords match.' : '✗ Not the same yet.'; hint.classList.add(ok ? 'good' : 'bad');
 }
 $('#su-pw').addEventListener('input', checkMatch); $('#su-pw2').addEventListener('input', checkMatch);
-ageSel.addEventListener('change', () => { const a = +ageSel.value; $('#su-guardian-row').hidden = !(a && a < 14); });
+ageSel.addEventListener('change', () => { const a = +ageSel.value; $('#su-guardian-row').hidden = $('#su-learn-row').hidden = !(a && a < 14); });
+$('#su-learn').addEventListener('change', e => { $('#su-pin-row').hidden = !e.target.checked; });
 const ID_RE = /^[a-z0-9][a-z0-9._-]{2,19}$/;
 let idTimer;
 $('#su-id').addEventListener('input', () => {
@@ -452,6 +504,8 @@ $('#su-form').addEventListener('submit', async e => {
   if (nick.length < 2) return say('Please choose a nickname with at least 2 characters.');
   if (!age) return say('Please choose your age.');
   if (age < 14 && !$('#su-guardian').checked) return say('Because you’re under 14, a parent or guardian needs to say it’s OK. Ask them, then tick the box.');
+  const learnOn = age < 14 && $('#su-learn').checked, pin = $('#su-pin').value.trim();
+  if (learnOn && !/^[0-9]{4}$/.test(pin)) return say('For learning mode, a parent needs to choose a 4-number PIN.');
   if (!pwOk(pw)) return say('Your password needs at least 8 characters with a letter, a number and a special character.');
   if (pw !== $('#su-pw2').value) return say('The two passwords don’t match. Type them again.');
   if (pw.toLowerCase().includes(id)) return say('Your password can’t contain your ID.');
@@ -460,7 +514,8 @@ $('#su-form').addEventListener('submit', async e => {
     if (!(await ACC.idAvailable(id))) { say('Someone already has this ID. Try another one.'); }
     else {
       await ACC.signUp({ id, password: pw, nickname: nick, age, guardianOk: $('#su-guardian').checked });
-      dlg.close(); $('#su-form').reset(); document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok')); $('#su-pw2-hint').textContent = '';
+      if (learnOn) { try { await ACC.setupLearnMode(true, pin); } catch { toast('Account made, but learning mode couldn’t be set. A parent can turn it on from My Games.'); } }
+      dlg.close(); $('#su-form').reset(); $('#su-pin-row').hidden = true; document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok')); $('#su-pw2-hint').textContent = '';
       toast(`Welcome to PlayCraft, ${nick}! 🎉`);
     }
   } catch (x) {
@@ -546,6 +601,8 @@ function renderAdmin() {
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'block') }, p.blocked ? 'Unpause' : 'Pause'));
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'admin') }, p.is_admin ? 'Remove admin' : 'Make admin'));
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => resetPw(p) }, 'Reset password'));
+      acts.append(h('button', { class: 'btn ghost tiny', title: 'Learning mode: other games cost coins earned in Word League', onclick: async () => { if (!(await ask(`${p.learn_mode ? 'Turn off' : 'Turn on'} learning mode for ${p.username}?`))) return; try { await ACC.adminSetLearnMode(p.id, !p.learn_mode); toast('Saved.'); openAdmin(); } catch { toast('Couldn’t change it.'); } } }, p.learn_mode ? '📘 Learning: on' : '📘 Learning: off'));
+      acts.append(h('button', { class: 'btn ghost tiny', title: 'Clear a forgotten parent PIN', onclick: async () => { if (!(await ask(`Clear the parent PIN for ${p.username}? A parent can then choose a new one.`))) return; try { await ACC.adminClearPin(p.id); toast('PIN cleared.'); } catch { toast('Couldn’t clear it.'); } } }, 'Clear PIN'));
     } else acts.append(h('span', { class: 'note', text: 'You' }));
     return h('tr', {}, h('td', { class: 'mono', text: p.username }), h('td', { text: p.nickname }),
       h('td', {}, p.age ? String(p.age >= 18 ? '18+' : p.age) : '—', p.age && p.age < 14 ? h('span', { class: 'g', title: 'Guardian OK ticked at sign-up', text: p.guardian_ok ? ' ✓G' : ' !G' }) : null),
