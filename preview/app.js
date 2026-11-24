@@ -336,8 +336,10 @@ async function renderLearnAcct() {
   }
 }
 let coinTimer = null, coinMins = 0, wlMins = 0, coinGame = null;
-// Countdown on the game screen (also in Big screen): minutes still paid for + seconds left in this minute.
-let leftMin = 0, lastPay = 0, tickT = null, warned = false;
+// Paid time is counted by the second, only while a game is on screen and the window is in use.
+// "credit" = seconds already paid for; unused seconds carry over to the next game (no new minute each time a game opens).
+let leftMin = 0, credit = 0, warned = false, paying = false;
+const activeNow = () => playing && !document.hidden && document.hasFocus();
 async function refreshLeft() {
   const [w, c] = await Promise.all([ACC.learnWallet().catch(() => null), ACC.walletCoins().catch(() => 0)]);
   let n = (w ? w.math_min : 0) + Math.floor(c / ACC.WL_PER_MIN);
@@ -348,8 +350,8 @@ function drawLeft() {
   let el = $('#play-timer');
   if (!coinTimer) { if (el) el.hidden = true; return; }
   if (!el) { el = h('div', { id: 'play-timer', class: 'play-timer', 'aria-live': 'polite' }); $('#stage').append(el); }
-  const secs = Math.max(0, leftMin * 60 + Math.max(0, 60 - Math.floor((Date.now() - lastPay) / 1000)));
-  el.textContent = `⏱ ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')} left`;
+  const secs = Math.max(0, leftMin * 60 + credit), t = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+  el.textContent = activeNow() ? `⏱ ${t} left` : `⏸ Paused · ${t} left`;
   el.classList.toggle('low', secs <= 60); el.hidden = false;
   if (secs <= 60 && !warned) { warned = true; toast('1 minute of game time left!'); }
 }
@@ -389,7 +391,7 @@ function needCoinsDialog(g, why) {
   d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
 }
 function stopCoinTimer() {
-  clearInterval(coinTimer); coinTimer = null; clearInterval(tickT); tickT = null; drawLeft();
+  clearInterval(coinTimer); coinTimer = null; drawLeft();
   if (wlMins && coinGame) { const n = wlMins, t = coinGame; ACC.walletNote(`PlayCraft: ${t} (${n} min)`, n * ACC.WL_PER_MIN).catch(() => {}); }
   coinMins = 0; wlMins = 0; coinGame = null;
 }
@@ -401,12 +403,17 @@ async function payMinute() {
   if (r === 'wl') { let ok = false; try { ok = await ACC.walletSpend(per); } catch {} if (!ok) return 'none'; wlMins++; }
   return r;
 }
-async function chargeMinute() {
-  if (!playing || !current) return;
-  if (document.hidden) { lastPay = Date.now(); return; }
-  const r = await payMinute();
-  if (r !== 'math' && r !== 'wl') { const g = current; stopGame(); needCoinsDialog(g, r === 'cap' ? 'cap' : 'out'); return; }
-  coinMins++; lastPay = Date.now(); showCoins(); refreshLeft();
+async function secondTick() {
+  if (!playing || !current || !coinTimer) return;
+  if (activeNow() && !paying) {
+    credit--;
+    if (credit <= 0) {
+      paying = true; const r = await payMinute(); paying = false;
+      if (r !== 'math' && r !== 'wl') { credit = 0; const g = current; stopGame(); needCoinsDialog(g, r === 'cap' ? 'cap' : 'out'); return; }
+      credit += 60; coinMins++; showCoins(); refreshLeft();
+    }
+  }
+  drawLeft();
 }
 async function playGame() {
   if (!current) return;
@@ -418,11 +425,12 @@ async function playGame() {
   pendingPlay = null;
   if (needsCoins(current)) {
     stopCoinTimer(); coinGame = current.title;
-    const r = await payMinute();
-    if (r !== 'math' && r !== 'wl') { coinGame = null; wlMins = 0; needCoinsDialog(current, r === 'cap' ? 'cap' : 'none'); return; }
-    coinMins = 1;
-    coinTimer = setInterval(chargeMinute, 60000); showCoins();
-    lastPay = Date.now(); warned = false; tickT = setInterval(drawLeft, 1000); refreshLeft();
+    if (credit <= 0) {
+      const r = await payMinute();
+      if (r !== 'math' && r !== 'wl') { coinGame = null; wlMins = 0; needCoinsDialog(current, r === 'cap' ? 'cap' : 'none'); return; }
+      credit = 60; coinMins = 1;
+    }
+    warned = false; coinTimer = setInterval(secondTick, 1000); showCoins(); refreshLeft();
   }
   const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove());
   let f;
