@@ -434,14 +434,18 @@ async function changeLimits() {
   toast(r === 'ok' ? 'Saved.' : r === 'locked' ? 'Too many wrong tries. Try again in 15 minutes.' : r === 'wrong' ? 'Wrong PIN.' : 'Couldn’t save.'); renderLearnAcct();
 }
 function needCoinsDialog(g, why) {
-  const cap = why === 'cap', per = ACC.WL_PER_MIN;
-  const d = h('dialog', { class: 'confirm' }, h('p', {}, h('b', { text: cap ? 'That’s all for today! ⏰' : why === 'out' ? 'Your game time ran out! ⏱' : 'You need game time to play this ⏱' })),
-    h('p', { text: cap ? 'You’ve used today’s game time that your parent set. The learning games are still open, and the time starts again tomorrow.'
-      : `Learning mode is on. ${g.title} uses game minutes first, then ${per} Word League coins per minute. Earn a game minute with each 10-question round in Math Space War (8 or more right, at your grade), or earn coins in Word League.` }),
-    h('p', {}, h('a', { href: '../learning.html', target: '_blank', rel: 'noopener' }, 'How learning mode works')),
-    h('div', { class: 'si-actions' }, h('button', { class: 'btn ghost', onclick: () => d.close() }, 'OK'),
-      h('button', { class: 'btn ghost', onclick: () => { d.close(); location.hash = '#/game/math-space-war'; } }, 'Math Space War'),
-      h('button', { class: 'btn primary', onclick: () => { d.close(); location.hash = '#/game/ssat-word-league'; } }, 'Word League')));
+  const cap = why === 'cap';
+  const go = slug => () => { d.close(); location.hash = '#/game/' + slug; };
+  const card = (slug, icon, name, line) => h('button', { class: 'gt-card', onclick: go(slug) },
+    h('span', { class: 'gt-ic', text: icon }), h('span', { class: 'gt-tx' }, h('b', { text: name }), h('small', { text: line })), h('span', { class: 'gt-go', text: '›' }));
+  const d = h('dialog', { class: 'confirm gt-dialog' },
+    h('div', { class: 'gt-big', text: cap ? '⏰' : '⏱' }),
+    h('h3', { text: cap ? 'That’s all for today!' : why === 'out' ? 'Your game time is up!' : 'You need game time first' }),
+    h('p', { class: 'gt-sub', text: cap ? 'Come back tomorrow for more game time.\nThe learning games are still open.' : 'Play a learning game to earn more.' }),
+    card('math-space-war', '🧮', 'Math Space War', '8 right out of 10 = 1 minute'),
+    card('ssat-word-league', '📚', 'Word League', 'Earn coins = more minutes'),
+    h('div', { class: 'gt-foot' }, h('a', { href: '../learning.html', target: '_blank', rel: 'noopener' }, 'How it works'),
+      h('button', { class: 'btn ghost', onclick: () => d.close() }, 'Not now')));
   d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
 }
 function stopCoinTimer() {

@@ -452,3 +452,15 @@ textarea.ask-input{width:100%;box-sizing:border-box;font:inherit;border:2px soli
 
 .confirm p{white-space:pre-line}
 .learn-box input[type=email]{width:100%;box-sizing:border-box}
+.gt-dialog{text-align:center;max-width:380px;padding:22px 20px 16px}
+.gt-dialog .gt-big{font-size:46px;line-height:1}
+.gt-dialog h3{margin:8px 0 4px;font-size:22px}
+.gt-dialog .gt-sub{margin:0 0 14px;color:var(--ink-2);font-weight:700;white-space:pre-line}
+.gt-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#f6f4ff;border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin:8px 0;cursor:pointer;font:inherit;color:inherit}
+.gt-card:hover,.gt-card:focus-visible{border-color:var(--violet);background:#efeaff}
+.gt-ic{font-size:30px}
+.gt-tx{flex:1;display:grid}
+.gt-tx b{font-size:17px}
+.gt-tx small{color:var(--ink-2);font-weight:700;font-size:14px}
+.gt-go{font-size:26px;color:var(--violet);font-weight:900}
+.gt-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-weight:700}
