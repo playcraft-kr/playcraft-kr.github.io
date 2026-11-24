@@ -235,6 +235,7 @@ function openMy(fromRefresh) {
   const acc = $('#my-account'); acc.hidden = !signedIn();
   if (signedIn() && ACC.profile) { $('#ma-id').textContent = ACC.profile.username; $('#ma-nick').textContent = ACC.profile.nickname; $('#ma-age').textContent = ACC.profile.age ? (ACC.profile.age >= 18 ? '18+' : String(ACC.profile.age)) : '—'; }
   $('#my-paused').hidden = !(signedIn() && ACC.profile && ACC.profile.blocked);
+  $('#my-waiting').hidden = !(signedIn() && ACC.profile && ACC.profile.approved === false);
   if (signedIn()) renderLearnAcct();
   const st = $('#my-stats'), on = signedIn() && cloudStats;
   $('#my-lead').hidden = signedIn();
@@ -321,6 +322,12 @@ async function renderLearnAcct() {
 }
 let coinTimer = null, coinMins = 0, coinGame = null;
 async function showCoins() { const el = $('#g-coins'); if (!needsCoins(current)) { el.hidden = true; return; } try { const c = await ACC.walletCoins(); el.textContent = `🪙 ${c} coin${c === 1 ? '' : 's'} · 1 per minute`; el.hidden = false; return c; } catch { el.hidden = true; } }
+function waitingDialog() {
+  const d = h('dialog', { class: 'confirm' }, h('p', {}, h('b', { text: 'Your account is waiting for approval ⏳' })),
+    h('p', { text: 'Because you’re under 14, a PlayCraft grown-up checks with your parent first. You can play as soon as your account is approved.' }),
+    h('div', { class: 'si-actions' }, h('button', { class: 'btn primary', onclick: () => d.close() }, 'OK')));
+  d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
+}
 function needCoinsDialog(g, ranOut) {
   const d = h('dialog', { class: 'confirm' }, h('p', {}, h('b', { text: ranOut ? 'Your coins ran out! 🪙' : 'You need coins to play this game 🪙' })),
     h('p', { text: `Learning mode is on, so ${g.title} costs 1 coin per minute. Earn coins in Word League (training and matches), then come back.` }),
@@ -347,6 +354,7 @@ async function playGame() {
     return;
   }
   pendingPlay = null;
+  if (ACC.profile && ACC.profile.approved === false) { waitingDialog(); return; }
   if (needsCoins(current)) {
     let ok = false; try { ok = await ACC.walletSpend(1); } catch {}
     if (!ok) { needCoinsDialog(current, false); return; }
@@ -516,7 +524,7 @@ $('#su-form').addEventListener('submit', async e => {
       await ACC.signUp({ id, password: pw, nickname: nick, age, guardianOk: $('#su-guardian').checked });
       if (learnOn) { try { await ACC.setupLearnMode(true, pin); } catch { toast('Account made, but learning mode couldn’t be set. A parent can turn it on from My Games.'); } }
       dlg.close(); $('#su-form').reset(); $('#su-pin-row').hidden = true; document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok')); $('#su-pw2-hint').textContent = '';
-      toast(`Welcome to PlayCraft, ${nick}! 🎉`);
+      toast(age < 14 ? `Welcome, ${nick}! 🎉 A PlayCraft grown-up will approve your account soon. Then you can play.` : `Welcome to PlayCraft, ${nick}! 🎉`);
     }
   } catch (x) {
     const m = (x && x.message || '').toLowerCase();
@@ -572,6 +580,20 @@ async function openAdmin() {
   try { admData = await ACC.adminData(); } catch { toast('Couldn’t load admin data. Try Refresh.'); return; }
   renderAdmin();
 }
+
+async function approveUser(p) {
+  if (!(await ask(`Approve ${p.username}${p.age ? ' (age ' + p.age + ')' : ''}? Make sure their parent agrees. They can play right away.`))) return;
+  try { await ACC.adminSetApproved(p.id, true); toast(`${p.username} can play now.`); openAdmin(); } catch { toast('Couldn’t approve. Try again.'); }
+}
+function renderWaiting(profiles) {
+  const w = profiles.filter(p => p.approved === false), d = t => new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  $('#adm-wait-wrap').hidden = !w.length; $('#adm-wait-count').textContent = w.length ? `${w.length} waiting` : '';
+  $('#adm-wait').replaceChildren(...w.map(p => h('li', {},
+    h('span', { class: 'pill wait', text: 'Waiting' }),
+    h('span', { class: 't' }, `${p.username} · ${p.nickname}`, h('small', { text: `age ${p.age ?? '—'} · guardian box ${p.guardian_ok ? 'ticked' : 'not ticked'} · learning mode ${p.learn_mode ? 'on' : 'off'} · signed up ${d(p.created_at)}` })),
+    h('button', { class: 'btn primary tiny', onclick: () => approveUser(p) }, 'Approve'),
+    h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'block') }, p.blocked ? 'Unpause' : 'Pause'))));
+}
 function renderAdmin() {
   if (!admData) return;
   const { profiles, userStats, gameStats, totals } = admData, now = Date.now(), WEEKMS = 7 * 864e5;
@@ -592,12 +614,14 @@ function renderAdmin() {
   const list = profiles.filter(p => !q || p.username.includes(q) || (p.nickname || '').toLowerCase().includes(q));
   $('#adm-count').textContent = `${list.length} of ${profiles.length}`;
   const me = ACC.user && ACC.user.id, d = t => t ? new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+  renderWaiting(profiles);
   $('#adm-rows').replaceChildren(...list.map(p => {
     const u = per[p.id] || { plays: 0, secs: 0, last: null };
-    const status = p.blocked ? h('span', { class: 'pill bad', text: 'Paused' }) : p.is_admin ? h('span', { class: 'pill adm', text: 'Admin' }) : h('span', { class: 'pill ok', text: 'Active' });
+    const status = p.approved === false ? h('span', { class: 'pill wait', text: 'Waiting' }) : p.blocked ? h('span', { class: 'pill bad', text: 'Paused' }) : p.is_admin ? h('span', { class: 'pill adm', text: 'Admin' }) : h('span', { class: 'pill ok', text: 'Active' });
     const acts = h('div', { class: 'acts' });
     acts.append(h('button', { class: 'btn primary tiny', onclick: () => openPlayLog(p) }, 'Play log'));
     if (p.id !== me) {
+      if (p.approved === false) acts.append(h('button', { class: 'btn primary tiny', onclick: () => approveUser(p) }, 'Approve'));
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'block') }, p.blocked ? 'Unpause' : 'Pause'));
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'admin') }, p.is_admin ? 'Remove admin' : 'Make admin'));
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => resetPw(p) }, 'Reset password'));

@@ -46,7 +46,7 @@ const Account = {
   async adminData() {
     // totals are added up inside the database, so they stay right no matter how many plays there are
     const [p, us, gs, tot] = await Promise.all([
-      sb.from('profiles').select('id, username, nickname, age, guardian_ok, is_admin, blocked, created_at, learn_mode').order('created_at', { ascending: false }).range(0, 4999),
+      sb.from('profiles').select('id, username, nickname, age, guardian_ok, is_admin, blocked, created_at, learn_mode, approved').order('created_at', { ascending: false }).range(0, 4999),
       sb.rpc('admin_user_stats'), sb.rpc('admin_game_stats'), sb.rpc('admin_totals'),
     ]);
     for (const r of [p, us, gs, tot]) if (r.error) throw r.error;
@@ -90,6 +90,7 @@ const Account = {
   async learnStatus() { const { data, error } = await sb.rpc('learn_status'); if (error) throw error; return (data && data[0]) || { learn_mode: false, has_pin: false }; },
   async setupLearnMode(on, pin) { const { error } = await sb.rpc('setup_learn_mode', { p_on: !!on, p_pin: pin }); if (error) throw error; await loadProfile(); emit(); },
   async setLearnMode(pin, on) { const { data, error } = await sb.rpc('set_learn_mode', { p_pin: pin, p_on: !!on }); if (error) throw error; if (data === 'ok') { await loadProfile(); emit(); } return data; },
+  async adminSetApproved(id, value) { const { error } = await sb.rpc('admin_set_approved', { target: id, value }); if (error) throw error; },
   async adminSetLearnMode(id, value) { const { error } = await sb.rpc('admin_set_learn_mode', { target: id, value }); if (error) throw error; },
   async adminClearPin(id) { const { error } = await sb.rpc('admin_clear_parent_pin', { target: id }); if (error) throw error; },
   // The coin wallet is Word League's: its saved state keeps xp, spent and (written by the game) pcCoins.
@@ -261,7 +262,7 @@ function walletState(sv) {
 const coinsOf = d => Math.max(0, d.pcCoins != null ? +d.pcCoins : (+d.xp || 0) - (+d.spent || 0));
 async function loadProfile() {
   if (!user) { profile = null; return; }
-  const { data } = await sb.from('profiles').select('username, nickname, is_admin, blocked, age, learn_mode').eq('id', user.id).maybeSingle();
+  const { data } = await sb.from('profiles').select('username, nickname, is_admin, blocked, age, learn_mode, approved').eq('id', user.id).maybeSingle();
   profile = data || { username: (user.email || '').split('@')[0], nickname: (user.email || '').split('@')[0], is_admin: false };
 }
 if (sb) {
