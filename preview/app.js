@@ -706,6 +706,7 @@ function renderAdmin() {
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => resetPw(p) }, 'Reset password'));
       acts.append(h('button', { class: 'btn ghost tiny', title: 'Learning mode: other games cost coins earned in Word League', onclick: async () => { if (!(await ask(`${p.learn_mode ? 'Turn off' : 'Turn on'} learning mode for ${p.username}?`))) return; try { await ACC.adminSetLearnMode(p.id, !p.learn_mode); toast('Saved.'); openAdmin(); } catch { toast('Couldn’t change it.'); } } }, p.learn_mode ? '📘 Learning: on' : '📘 Learning: off'));
       acts.append(h('button', { class: 'btn ghost tiny', title: 'Clear a forgotten parent PIN', onclick: async () => { if (!(await ask(`Clear the parent PIN for ${p.username}? A parent can then choose a new one.`))) return; try { await ACC.adminClearPin(p.id); toast('PIN cleared.'); } catch { toast('Couldn’t clear it.'); } } }, 'Clear PIN'));
+      if (!p.is_admin) acts.append(h('button', { class: 'btn ghost tiny', style: 'color:#b3123d;border-color:#f3b6c6', title: 'Delete this account for good', onclick: () => deleteAccount(p) }, 'Delete account'));
     } else acts.append(h('span', { class: 'note', text: 'You' }));
     return h('tr', {}, h('td', { class: 'mono', text: p.username }), h('td', { text: p.nickname }),
       h('td', {}, p.age ? String(p.age >= 18 ? '18+' : p.age) : '—', p.age && p.age < 13 ? h('span', { class: 'g', title: 'Guardian OK ticked at sign-up', text: p.guardian_ok ? ' ✓G' : ' !G' }) : null),
@@ -754,6 +755,15 @@ async function adminAct(p, kind) {
   } catch (x) { toast('That didn’t work: ' + ((x && x.message) || 'try again')); }
 }
 // Give a player who forgot their password a temporary one (shown once, for the admin to pass on)
+// Delete an account for good. To avoid mistakes the admin must type the nickname exactly (the server checks it too).
+async function deleteAccount(p) {
+  const typed = await askText(`Delete ${p.username} for good? Their saves, play records, game time and parent settings are erased, and this can’t be undone. Games they sent in stay on the site.\n\nType the nickname exactly to confirm:\n${p.nickname}`, '', 'Delete for good');
+  if (typed === null) return;
+  if (typed !== p.nickname) return toast('The nickname doesn’t match, so nothing was deleted.');
+  let r; try { r = await ACC.adminDeleteUser(p.id, typed); } catch { return toast('Couldn’t delete. Try again.'); }
+  toast(r === 'ok' ? `${p.username} was deleted.` : r === 'mismatch' ? 'The nickname doesn’t match, so nothing was deleted.' : r === 'admin' ? 'Admins can’t be deleted here.' : 'Couldn’t delete.');
+  if (r === 'ok') openAdmin();
+}
 async function resetPw(p) {
   const pw = await askText(`New temporary password for ${p.username}. Tell them in person, and ask them to remember it.`, makeTempPw());
   if (!pw) return;

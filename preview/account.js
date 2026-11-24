@@ -55,6 +55,7 @@ const Account = {
     return { profiles: p.data || [], userStats: us.data || [], gameStats: gs.data || [], totals: tot.data || {} };
   },
   async adminSetBlocked(id, value) { const { error } = await sb.rpc('admin_set_blocked', { target: id, value }); if (error) throw error; },
+  async adminDeleteUser(id, nickname) { const { data, error } = await sb.rpc('admin_delete_user', { target: id, confirm_nickname: nickname }); if (error) throw error; return data; },
   async adminResetPassword(id, pw) { const { error } = await sb.rpc('admin_reset_password', { target: id, new_password: pw }); if (error) throw error; },
   // one player's play sessions, newest first (admin only; checked in the database)
   async adminUserPlays(id) { const { data, error } = await sb.rpc('admin_user_plays', { target: id, max_rows: 500 }); if (error) throw error; return data || []; },
