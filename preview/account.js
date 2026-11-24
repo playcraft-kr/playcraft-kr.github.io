@@ -101,6 +101,7 @@ const Account = {
   async adminClearPin(id) { const { error } = await sb.rpc('admin_clear_parent_pin', { target: id }); if (error) throw error; },
   // ---- learning mode, round 2: game minutes from Math Space War, daily limit, 10 Word League coins per minute ----
   get WL_PER_MIN() { return 10; },
+  get WL_WELCOME() { return 100; },   // Word League's start bonus: usable only inside Word League, not for other games
   async learnWallet() { const { data, error } = await sb.rpc('learn_wallet', { p_tz: TZ() }); if (error) throw error; return (data && data[0]) || null; },
   async mathRound(n, levels) { const { data, error } = await sb.rpc('math_round', { p_n: n, p_levels: levels, p_tz: TZ() }); if (error) throw error; return data || {}; },
   async playMinute(wlOk) { const { data, error } = await sb.rpc('play_minute', { p_wl_ok: !!wlOk, p_tz: TZ() }); if (error) throw error; return data; },
@@ -110,9 +111,9 @@ const Account = {
     const st = walletState(await this.loadSave(WALLET_SLUG));
     return st ? coinsOf(st.doc) : 0;
   },
-  async walletSpend(n) {
+  async walletSpend(n, keep = 0) {
     const sv = await this.loadSave(WALLET_SLUG), st = walletState(sv);
-    if (!st || coinsOf(st.doc) < n) return false;
+    if (!st || coinsOf(st.doc) < n + keep) return false;
     const d = st.doc, before = coinsOf(d); d.spent = (+d.spent || 0) + n; d.pcCoins = Math.max(0, before - n);
     st.data.docs[st.key] = d; st.data.ts = (+st.data.ts || 0) + 1;
     await this.writeSave(WALLET_SLUG, st.data); return true;

@@ -340,7 +340,7 @@ let coinTimer = null, coinMins = 0, wlMins = 0, coinGame = null;
 let leftMin = 0, lastPay = 0, tickT = null, warned = false;
 async function refreshLeft() {
   const [w, c] = await Promise.all([ACC.learnWallet().catch(() => null), ACC.walletCoins().catch(() => 0)]);
-  let n = (w ? w.math_min : 0) + Math.floor(c / ACC.WL_PER_MIN);
+  let n = (w ? w.math_min : 0) + Math.floor(Math.max(0, c - ACC.WL_WELCOME) / ACC.WL_PER_MIN);
   if (w && w.play_cap != null) n = Math.min(n, Math.max(0, w.play_cap - w.play_today));
   leftMin = n; drawLeft();
 }
@@ -357,8 +357,8 @@ const capText = c => c == null ? 'no daily limit' : `${c} min a day`;
 // "⏱ 3 game min · 🪙 120 coins (= 12 min) · today 20 / 60 min"
 async function walletText(long) {
   const [w, c] = await Promise.all([ACC.learnWallet().catch(() => null), ACC.walletCoins().catch(() => 0)]);
-  const per = ACC.WL_PER_MIN, gm = w ? w.math_min : 0;
-  const parts = [`⏱ ${gm} game min`, `🪙 ${c} coin${c === 1 ? '' : 's'}${long ? ` (${per} coins = 1 min)` : ''}`];
+  const per = ACC.WL_PER_MIN, gm = w ? w.math_min : 0, u = Math.max(0, c - ACC.WL_WELCOME);
+  const parts = [`⏱ ${gm} game min`, `🪙 ${u} coin${u === 1 ? '' : 's'} for games${long ? ` (${per} coins = 1 min; Word League's ${ACC.WL_WELCOME} welcome coins stay in Word League)` : ''}`];
   if (w) parts.push(w.play_cap == null ? `today ${w.play_today} min` : `today ${w.play_today} / ${w.play_cap} min`);
   return parts.join(' · ');
 }
@@ -381,7 +381,7 @@ function needCoinsDialog(g, why) {
   const cap = why === 'cap', per = ACC.WL_PER_MIN;
   const d = h('dialog', { class: 'confirm' }, h('p', {}, h('b', { text: cap ? 'That’s all for today! ⏰' : why === 'out' ? 'Your game time ran out! ⏱' : 'You need game time to play this ⏱' })),
     h('p', { text: cap ? 'You’ve used today’s game time that your parent set. The learning games are still open, and the time starts again tomorrow.'
-      : `Learning mode is on. ${g.title} uses game minutes first, then ${per} Word League coins per minute. Earn a game minute with each 10-question round in Math Space War (8 or more right, at your grade), or earn coins in Word League.` }),
+      : `Learning mode is on. ${g.title} uses game minutes first, then ${per} Word League coins per minute (the ${ACC.WL_WELCOME} welcome coins stay in Word League). Earn a game minute with each 10-question round in Math Space War (8 or more right, at your grade), or earn coins in Word League.` }),
     h('div', { class: 'si-actions' }, h('button', { class: 'btn ghost', onclick: () => d.close() }, 'OK'),
       h('button', { class: 'btn ghost', onclick: () => { d.close(); location.hash = '#/game/math-space-war'; } }, 'Math Space War'),
       h('button', { class: 'btn primary', onclick: () => { d.close(); location.hash = '#/game/ssat-word-league'; } }, 'Word League')));
@@ -396,8 +396,9 @@ function stopCoinTimer() {
 async function payMinute() {
   const per = ACC.WL_PER_MIN;
   let coins = 0; try { coins = await ACC.walletCoins(); } catch {}
-  let r = 'none'; try { r = await ACC.playMinute(coins >= per); } catch { return 'none'; }
-  if (r === 'wl') { let ok = false; try { ok = await ACC.walletSpend(per); } catch {} if (!ok) return 'none'; wlMins++; }
+  const keep = ACC.WL_WELCOME;
+  let r = 'none'; try { r = await ACC.playMinute(coins - keep >= per); } catch { return 'none'; }
+  if (r === 'wl') { let ok = false; try { ok = await ACC.walletSpend(per, keep); } catch {} if (!ok) return 'none'; wlMins++; }
   return r;
 }
 async function chargeMinute() {
