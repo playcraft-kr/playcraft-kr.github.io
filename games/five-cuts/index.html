@@ -35,6 +35,12 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .btn:active{transform:translateY(2px);box-shadow:0 2px 0 #b4561a}
 .tips{color:var(--sub);font-size:13px;margin-top:14px;text-align:center;max-width:420px}
+.lb{width:100%;max-width:300px;margin-top:6px;font-size:13px;text-align:left;max-height:44%;overflow:auto}
+.lb h3{font:400 18px "Black Han Sans",sans-serif;color:#ffcf5a;text-align:center;margin:4px 0}
+.lb .r{display:grid;grid-template-columns:30px 1fr 54px 44px;gap:6px;padding:3px 8px;border-radius:8px}
+.lb .r.me{background:rgba(255,207,90,.18);color:#ffcf5a;font-weight:700}
+.lb .r span:nth-child(n+3){text-align:right}.lb .hd{color:#bba68f;font-size:11px}
+.lb .m{color:#eee2d2;text-align:center;font-size:12px}
 @media (prefers-reduced-motion:reduce){.msg,.overlay{transition:none}}
 </style>
 </head>
@@ -51,6 +57,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
       <h2 id="ovT">Five Cuts</h2>
       <p id="ovP">Tap the screen or press Space and the knife rises to cut the bread. Miss the bread and you fail. Tip: aim for the middle of what is left!</p>
       <button class="btn" id="go" type="button">Start</button>
+      <div class="lb" id="lb"></div>
     </div>
   </div>
 </div>
@@ -111,14 +118,14 @@ function tap(){
 }
 function lose(){
   state='over';endAt=performance.now();shake=reduce?0:9;sound(110,.45,'sawtooth',.1);say('Missed','lose');
-  const s=streak;streak=0;hud();
+  const s=streak;streak=0;hud();pcRecord(false,n,0);
   setTimeout(()=>{ovT.textContent='So close!';ovP.textContent=`You missed after ${n} cuts. Streak this time: ${s}, best: ${best}.`;go.textContent='Play again';ov.classList.remove('hide')},1000);
 }
 function win(){
   state='over';endAt=performance.now();streak++;if(streak>best){best=streak;try{localStorage.setItem('bread5Best',best)}catch(e){}}
   hud();say('Success!','win');sound(660,.2,'triangle',.1);setTimeout(()=>sound(990,.3,'triangle',.1),130);
   if(!reduce)for(let i=0;i<90;i++)confetti.push({x:Math.random()*W,y:-Math.random()*H*0.4,vy:80+Math.random()*160,vx:(Math.random()-.5)*60,r:Math.random()*6,vr:(Math.random()-.5)*8,c:['#ffcf5a','#ff7a59','#7ad8ff','#b78cff','#7cf0a0'][i%5],s:4+Math.random()*5});
-  const remain=Math.round((b-a)*1000)/10;
+  const remain=Math.round((b-a)*1000)/10;pcRecord(true,n,remain);
   setTimeout(()=>{ovT.textContent=`Success! Streak ${streak}`;ovP.textContent=`The bread left is ${remain}% of the original. The next loaf’s knife is a bit faster.`;go.textContent='Next loaf';ov.classList.remove('hide')},1400);
 }
 
@@ -171,6 +178,33 @@ function frame(now){
   ctx.restore();
   requestAnimationFrame(frame);
 }
+
+/* PlayCraft leaderboard (shared table game_kv; the server files each row under the player's own ID):
+   best streak of whole loaves, then total loaves cut. Plus my recent games (my own save). */
+const PCA=(()=>{try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})();
+const lbEl=document.getElementById('lb');let recent=[];
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const myName=()=>{try{return PCA&&PCA.signedIn&&PCA.profile?String(PCA.profile.username||''):''}catch(e){return ''}};
+const ago=t=>{const m=Math.round((Date.now()-t)/60000);return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' d ago'};
+async function pcReady(){for(let i=0;i<50&&PCA&&!PCA.ready;i++)await new Promise(r=>setTimeout(r,100))}
+async function pcLoad(){if(!PCA)return;await pcReady();if(!myName())return showBoard();
+  try{const sv=await PCA.loadSave('five-cuts');const d=sv&&sv.data;if(d){recent=Array.isArray(d.recent)?d.recent:[];if(+d.best>best){best=+d.best;try{localStorage.setItem('bread5Best',best)}catch(e){}hud()}}}catch(e){}
+  showBoard()}
+async function pcRecord(won,cuts,left){if(!PCA)return;await pcReady();const me=myName();if(!me)return;
+  recent.unshift({w:won?1:0,c:cuts,l:left,t:Date.now()});recent=recent.slice(0,10);
+  try{await PCA.writeSave('five-cuts',{best,recent})}catch(e){}
+  try{let c=null;try{c=await PCA.kvGet('five-cuts','rank',me)}catch(e){}c=c||{};
+    await PCA.kvSet('five-cuts','rank',me,{s:Math.max(+c.s||0,best),w:(+c.w||0)+(won?1:0),g:(+c.g||0)+1,t:Date.now()})}catch(e){}
+  showBoard()}
+async function showBoard(){if(!lbEl||!PCA)return;const me=myName();
+  let rows=[];try{rows=(await PCA.kvList('five-cuts','rank',300)).map(r=>({n:(r.data&&r.data.n)||r.doc_id,s:+r.data.s||0,w:+r.data.w||0})).sort((a,b)=>b.s-a.s||b.w-a.w)}catch(e){}
+  const myI=rows.findIndex(r=>r.n===me),row=(r,i)=>`<div class="r${r.n===me?' me':''}"><span>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'.'}</span><span>${esc(String(r.n).slice(0,14))}</span><span>${r.s}</span><span>${r.w}</span></div>`;
+  let h='<h3>🏆 Top bakers</h3>'+(rows.length?'<div class="r hd"><span></span><span>Player</span><span>Best streak</span><span>Loaves</span></div>'+rows.slice(0,10).map(row).join(''):'<div class="m">No scores yet. Be the first!</div>');
+  if(myI>=10)h+='<div class="m">…</div>'+row(rows[myI],myI);
+  if(me&&recent.length)h+='<h3>🕒 My recent games</h3>'+recent.slice(0,5).map(x=>`<div class="r"><span>${x.w?'✅':'❌'}</span><span>${ago(x.t)}</span><span>${x.w?x.l+'% left':x.c+' cut'+(x.c===1?'':'s')}</span><span></span></div>`).join('');
+  if(!me)h+='<div class="m">Sign in to PlayCraft to join the leaderboard</div>';
+  lbEl.innerHTML=h}
+pcLoad();
 hud();requestAnimationFrame(frame);
 
 screen.addEventListener('pointerdown',e=>{if(e.target===go)return;e.preventDefault();tap()});
