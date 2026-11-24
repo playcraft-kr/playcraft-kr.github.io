@@ -175,10 +175,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 22,
+  "version": 23,
   "added": "2026-11-22",
   "updated": "2026-11-23",
-  "notes": "Your Word League coins now also pay for other PlayCraft games when a parent turns on learning mode",
+  "notes": "Penalty duel: the parent side is plain push-ups now",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
