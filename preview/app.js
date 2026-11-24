@@ -237,7 +237,7 @@ function openMy(fromRefresh) {
   $('#my-paused').hidden = !(signedIn() && ACC.profile && ACC.profile.blocked);
   $('#my-waiting').hidden = !(signedIn() && ACC.profile && ACC.profile.approved === false);
   if (!$('#my-waiting').hidden) ACC.myParentConsent().then(c => { $('#my-parent-line').textContent = c ? (c.status === 'declined' ? `Your parent (${c.email_hint}) said not yet.` : c.expired ? `The message to ${c.email_hint} ran out.` : `We sent a message to ${c.email_hint}.`) : 'We haven’t e-mailed your parent yet.'; }).catch(() => {});
-  if (signedIn()) renderLearnAcct();
+  if (signedIn()) { renderLearnAcct(); renderRecovery(); }
   const st = $('#my-stats'), on = signedIn() && cloudStats;
   $('#my-lead').hidden = signedIn();
   st.hidden = !on;
@@ -312,6 +312,60 @@ async function askParent(reason) {
   if (!$('#v-my').hidden) openMy(true);
 }
 $('#my-parent-btn').addEventListener('click', () => askParent());
+/* ---------- password recovery ---------- */
+function infoDialog(title, text) {
+  const d = h('dialog', { class: 'confirm' }, h('p', {}, h('b', { text: title })), h('p', { text }),
+    h('div', { class: 'si-actions' }, h('button', { class: 'btn primary', onclick: () => d.close() }, 'OK')));
+  d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
+}
+$('#forgot-pw').addEventListener('click', async e => {
+  e.preventDefault();
+  const id = await askText('Type your PlayCraft ID. If your account has a confirmed email (your parent’s, or your own recovery email), we’ll send a link to set a new password.', $('#si-id').value.trim(), 'Send link');
+  if (id === null) return;
+  try { await ACC.requestPasswordReset(id); } catch {}
+  // Same answer every time, so nobody can find out which accounts exist or have an email.
+  infoDialog('Check the email 📬', 'If this account has a confirmed email, we just sent a link there. Under 13? The link goes to your parent.\n\nNo email after 10 minutes? Check the spam folder. If the account has no email, the password can’t be recovered, so ask a grown-up to help you make a new account.');
+});
+$('#forgot-id').addEventListener('click', async e => {
+  e.preventDefault();
+  const em = await askText('Parents: type the email you used to approve your child. We’ll email you every PlayCraft ID linked to it.', '', 'Email me the IDs');
+  if (em === null) return;
+  try { await ACC.sendUsernames(em); } catch {}
+  infoDialog('Check your email 📬', 'If any PlayCraft IDs are linked to this email, we just sent you the list.');
+});
+async function addRecovery(pw, email) {
+  if (!pw) { pw = await askText('To add a recovery email, first type your current password.', '', 'Next', false, 'password'); if (pw === null) return; }
+  if (!email) { email = await askText('Type the email you want to use if you forget your password.', '', 'Send code'); if (email === null) return; }
+  let r; try { r = await ACC.setRecoveryEmail(pw, email); } catch { return toast('Couldn’t send the code. Try again.'); }
+  if (r !== 'sent') return toast(r === 'password' ? 'That password isn’t right.' : r === 'email' ? 'That email doesn’t look right.' : r === 'wait' ? 'Too many tries. Wait an hour and try again.' : r === 'child' ? 'Under 13, your parent’s email is used instead.' : 'Couldn’t send the code.');
+  await enterRecoveryCode();
+}
+async function enterRecoveryCode() {
+  for (let i = 0; i < 5; i++) {
+    const code = await askText('We emailed you a 6-number code. Type it here (it works for 15 minutes).', '', 'Confirm');
+    if (code === null) break;
+    let r; try { r = await ACC.confirmRecoveryEmail(code); } catch { toast('Couldn’t check the code. Try again.'); break; }
+    if (r === 'ok') { toast('Recovery email saved. ✓'); break; }
+    if (r !== 'wrong') { toast('That code ran out. Add the email again to get a new one.'); break; }
+    toast('That code isn’t right. Try again.');
+  }
+  renderRecovery();
+}
+async function renderRecovery() {
+  const row = $('#ma-recovery'); if (!row) return;
+  let r; try { r = await ACC.myRecoveryEmail(); } catch { row.hidden = true; return; }
+  if (!r || !r.can_add) { row.hidden = true; return; }
+  row.hidden = false;
+  $('#ma-recovery-state').textContent = r.email_hint ? `${r.email_hint} ✓` : r.pending_hint ? `${r.pending_hint} (waiting for the code)` : 'None — without one, a forgotten password can’t be recovered.';
+  const add = $('#ma-recovery-add'), code = $('#ma-recovery-code'), del = $('#ma-recovery-del');
+  add.hidden = false; add.textContent = r.email_hint ? 'Change' : 'Add'; add.onclick = () => addRecovery();
+  code.hidden = !r.pending_hint; code.onclick = () => enterRecoveryCode();
+  del.hidden = !r.email_hint; del.onclick = async () => {
+    const pw = await askText('To remove your recovery email, type your current password.', '', 'Remove', false, 'password'); if (pw === null) return;
+    let x; try { x = await ACC.removeRecoveryEmail(pw); } catch { return toast('Couldn’t remove it.'); }
+    toast(x === 'ok' ? 'Recovery email removed.' : x === 'password' ? 'That password isn’t right.' : 'Too many tries. Wait an hour.'); renderRecovery();
+  };
+}
 async function renderLearnAcct() {
   const st = $('#ma-learn-state'), btn = $('#ma-learn-btn'), coinEl = $('#ma-coins');
   let ls; try { ls = await ACC.learnStatus(); } catch { st.textContent = '—'; return; }
@@ -554,7 +608,11 @@ dlg.addEventListener('close', () => document.querySelectorAll('.eye').forEach(b 
 const ageSel = $('#su-age');
 for (let a = 6; a <= 17; a++) ageSel.append(h('option', { value: a, text: `${a}` }));
 ageSel.append(h('option', { value: 18, text: '18 or older' }));
-const RULES = { len: p => p.length >= 8, letter: p => /[A-Za-z]/.test(p), num: p => /[0-9]/.test(p), sym: p => /[^A-Za-z0-9\s]/.test(p) };
+// Password rule (NIST SP 800-63B-4 style): length, no easy passwords, not the ID. No character-type rules. The server checks the same on resets.
+const COMMON_PW = new Set('12345678 123456789 1234567890 password password1 password12 password123 passw0rd qwerty123 qwertyuiop iloveyou iloveyou1 11111111 00000000 88888888 12341234 asdfasdf asdfghjkl qwertyui abc12345 abcd1234 1q2w3e4r 1qaz2wsx zaq12wsx zxcvbnm1 baseball baseball1 football football1 basketball soccer123 princess princess1 sunshine sunshine1 superman superman1 starwars pokemon1 pokemon123 minecraft minecraft1 fortnite fortnite1 roblox123 robloxian letmein1 welcome1 welcome123 trustno1 computer michelle jennifer whatever dragon123 monkey123 shadow123 master123 killer123 charlie1 freedom1 internet 00001111 87654321 11223344 12121212 qwer1234 asdf1234 zxcv1234 game1234 gamer123 playgame password! iloveyou! chocolate butterfly unicorn1 spiderman batman123 ninja123 hello123 hello1234 abcdefgh aaaaaaaa'.split(' '));
+const pwCommon = p => { const l = p.toLowerCase(); return COMMON_PW.has(l) || /^(.)\1+$/.test(l) || '01234567890123456789'.includes(l) || '98765432109876543210'.includes(l) || 'abcdefghijklmnopqrstuvwxyz'.includes(l); };
+const pwHasName = (p, id) => { const l = p.toLowerCase(); return l.includes('playcraft') || (id && id.length >= 3 && l.includes(id.toLowerCase())); };
+const RULES = { len: p => p.length >= 8, common: p => p.length > 0 && !pwCommon(p), name: p => p.length > 0 && !pwHasName(p, ($('#su-id') ? $('#su-id').value.trim() : '')) };
 const pwOk = p => Object.values(RULES).every(f => f(p));
 $('#su-pw').addEventListener('input', () => { const p = $('#su-pw').value; document.querySelectorAll('#pw-rules li').forEach(li => li.classList.toggle('ok', RULES[li.dataset.r](p))); });
 function checkMatch() {
@@ -564,7 +622,7 @@ function checkMatch() {
   const ok = a === b; hint.textContent = ok ? '✓ Passwords match.' : '✗ Not the same yet.'; hint.classList.add(ok ? 'good' : 'bad');
 }
 $('#su-pw').addEventListener('input', checkMatch); $('#su-pw2').addEventListener('input', checkMatch);
-ageSel.addEventListener('change', () => { const a = +ageSel.value; $('#su-parent-row').hidden = !(a && a < 13); });
+ageSel.addEventListener('change', () => { const a = +ageSel.value; $('#su-parent-row').hidden = !(a && a < 13); $('#su-recovery-row').hidden = !(a >= 13); });
 const ID_RE = /^[a-z0-9][a-z0-9._-]{2,19}$/;
 let idTimer;
 $('#su-id').addEventListener('input', () => {
@@ -584,7 +642,11 @@ $('#su-form').addEventListener('submit', async e => {
   if (!age) return say('Please choose your age.');
   const parentEmail = $('#su-parent').value.trim();
   if (age < 13 && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(parentEmail)) return say('Because you’re under 13, please type your parent’s e-mail so they can approve your account.');
-  if (!pwOk(pw)) return say('Your password needs at least 8 characters with a letter, a number and a special character.');
+  if (pw.length < 8) return say('Your password needs at least 8 characters.');
+  if (pwCommon(pw)) return say('That password is too easy to guess. Try three words, like tiger-pizza-moon.');
+  if (pwHasName(pw, id)) return say('Your password can’t contain your ID or “playcraft”.');
+  const recEmail = age >= 13 ? $('#su-recovery').value.trim() : '';
+  if (recEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(recEmail)) return say('That recovery email doesn’t look right. Fix it or leave it empty.');
   if (pw !== $('#su-pw2').value) return say('The two passwords don’t match. Type them again.');
   if (pw.toLowerCase().includes(id)) return say('Your password can’t contain your ID.');
   go.disabled = true; go.textContent = 'Creating…';
@@ -593,7 +655,8 @@ $('#su-form').addEventListener('submit', async e => {
     else {
       await ACC.signUp({ id, password: pw, nickname: nick, age, guardianOk: age < 13 });
       if (age < 13) { try { await ACC.requestParentConsent(parentEmail); } catch { toast('Account made. Open My Games to send the message to your parent again.'); } }
-      dlg.close(); $('#su-form').reset(); $('#su-parent-row').hidden = true; document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok')); $('#su-pw2-hint').textContent = '';
+      dlg.close(); $('#su-form').reset(); $('#su-parent-row').hidden = true; $('#su-recovery-row').hidden = true;
+      if (recEmail) setTimeout(() => addRecovery(pw, recEmail), 400); document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok')); $('#su-pw2-hint').textContent = '';
       toast(age < 13 ? `Welcome, ${nick}! 🎉 You can play now. We sent your parent an e-mail so they can turn on leaderboards and online play.` : `Welcome to PlayCraft, ${nick}! 🎉`);
     }
   } catch (x) {
@@ -703,7 +766,7 @@ function renderAdmin() {
       if (p.approved === false) acts.append(h('button', { class: 'btn primary tiny', onclick: () => approveUser(p) }, 'Approve'));
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'block') }, p.blocked ? 'Unpause' : 'Pause'));
       acts.append(h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'admin') }, p.is_admin ? 'Remove admin' : 'Make admin'));
-      acts.append(h('button', { class: 'btn ghost tiny', onclick: () => resetPw(p) }, 'Reset password'));
+      acts.append(h('button', { class: 'btn ghost tiny', title: 'Send a reset link to an email confirmed before (parent or recovery email)', onclick: () => sendResetLink(p) }, 'Send reset link'));
       acts.append(h('button', { class: 'btn ghost tiny', title: 'Learning mode: other games cost coins earned in Word League', onclick: async () => { if (!(await ask(`${p.learn_mode ? 'Turn off' : 'Turn on'} learning mode for ${p.username}?`))) return; try { await ACC.adminSetLearnMode(p.id, !p.learn_mode); toast('Saved.'); openAdmin(); } catch { toast('Couldn’t change it.'); } } }, p.learn_mode ? '📘 Learning: on' : '📘 Learning: off'));
       acts.append(h('button', { class: 'btn ghost tiny', title: 'Clear a forgotten parent PIN', onclick: async () => { if (!(await ask(`Clear the parent PIN for ${p.username}? A parent can then choose a new one.`))) return; try { await ACC.adminClearPin(p.id); toast('PIN cleared.'); } catch { toast('Couldn’t clear it.'); } } }, 'Clear PIN'));
       if (!p.is_admin) acts.append(h('button', { class: 'btn ghost tiny', style: 'color:#b3123d;border-color:#f3b6c6', title: 'Delete this account for good', onclick: () => deleteAccount(p) }, 'Delete account'));
@@ -755,6 +818,13 @@ async function adminAct(p, kind) {
   } catch (x) { toast('That didn’t work: ' + ((x && x.message) || 'try again')); }
 }
 // Give a player who forgot their password a temporary one (shown once, for the admin to pass on)
+// Admin can only re-send a reset link to an email that was confirmed before (never type a password or attach a new email).
+async function sendResetLink(p) {
+  if (!(await ask(`Send a password reset link for ${p.username}? It goes only to the email already confirmed for this account (parent or recovery email).`))) return;
+  let r; try { r = await ACC.adminSendReset(p.id); } catch { return toast('Couldn’t send. Try again.'); }
+  toast(r === 'parent' ? 'Sent to the parent’s email.' : r === 'self' ? 'Sent to their recovery email.' : r === 'limit' ? 'Too many links for this account today. Try again later.'
+    : 'This account has no confirmed email, so no link can be sent. They’ll need a new account.');
+}
 // Delete an account for good. To avoid mistakes the admin must type the nickname exactly (the server checks it too).
 async function deleteAccount(p) {
   const typed = await askText(`Delete ${p.username} for good? Their saves, play records, game time and parent settings are erased, and this can’t be undone. Games they sent in stay on the site.\n\nType the nickname exactly to confirm:\n${p.nickname}`, '', 'Delete for good');
@@ -775,9 +845,9 @@ function makeTempPw() {
   const r = n => Math.floor((crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32) * n);
   return words[r(words.length)] + (100 + r(900)) + sym[r(sym.length)];
 }
-function askText(text, value, okLabel = 'Set password', multi = false) {
+function askText(text, value, okLabel = 'Set password', multi = false, inputType = 'text') {
   return new Promise(res => {
-    const inp = multi ? h('textarea', { rows: 4, maxlength: 2000, 'aria-label': text, class: 'ask-input' }) : h('input', { type: 'text', value, 'aria-label': okLabel === 'Set password' ? 'New password' : text, class: 'ask-input' });
+    const inp = multi ? h('textarea', { rows: 4, maxlength: 2000, 'aria-label': text, class: 'ask-input' }) : h('input', { type: inputType, value, 'aria-label': okLabel === 'Set password' ? 'New password' : text, class: 'ask-input' });
     if (multi) inp.value = value || '';
     const d = h('dialog', { class: 'confirm' }, h('p', { text }), inp, h('div', { class: 'si-actions' },
       h('button', { class: 'btn ghost', onclick: () => { d.close(); res(null); } }, 'Cancel'),

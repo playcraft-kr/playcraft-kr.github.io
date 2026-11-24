@@ -55,6 +55,14 @@ const Account = {
     return { profiles: p.data || [], userStats: us.data || [], gameStats: gs.data || [], totals: tot.data || {} };
   },
   async adminSetBlocked(id, value) { const { error } = await sb.rpc('admin_set_blocked', { target: id, value }); if (error) throw error; },
+  // ---- password recovery (SQL 017) ----
+  async requestPasswordReset(id) { const { error } = await sb.rpc('request_password_reset', { p_username: String(id || '').trim().toLowerCase() }); if (error) throw error; },
+  async sendUsernames(email) { const { error } = await sb.rpc('send_usernames', { p_email: email }); if (error) throw error; },
+  async myRecoveryEmail() { const { data, error } = await sb.rpc('my_recovery_email'); if (error) throw error; return (data && data[0]) || null; },
+  async setRecoveryEmail(pw, email) { const { data, error } = await sb.rpc('set_recovery_email', { p_password: pw, p_email: email }); if (error) throw error; return data; },
+  async confirmRecoveryEmail(code) { const { data, error } = await sb.rpc('confirm_recovery_email', { p_code: code }); if (error) throw error; return data; },
+  async removeRecoveryEmail(pw) { const { data, error } = await sb.rpc('remove_recovery_email', { p_password: pw }); if (error) throw error; return data; },
+  async adminSendReset(id) { const { data, error } = await sb.rpc('admin_send_reset', { target: id }); if (error) throw error; return data; },
   async adminDeleteUser(id, nickname) { const { data, error } = await sb.rpc('admin_delete_user', { target: id, confirm_nickname: nickname }); if (error) throw error; return data; },
   async adminResetPassword(id, pw) { const { error } = await sb.rpc('admin_reset_password', { target: id, new_password: pw }); if (error) throw error; },
   // one player's play sessions, newest first (admin only; checked in the database)

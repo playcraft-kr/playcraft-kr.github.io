@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261124124958">
+<link rel="stylesheet" href="app.css?v=20261124130741">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -125,6 +125,7 @@
       <h2>Your account</h2>
       <dl class="acct-facts"><div><dt>ID</dt><dd id="ma-id"></dd></div><div><dt>Nickname</dt><dd id="ma-nick"></dd></div><div><dt>Age</dt><dd id="ma-age"></dd></div></dl>
       <div class="learn-acct" id="ma-learn"><b>Learning mode:</b> <span id="ma-learn-state">…</span> <span id="ma-coins"></span> <button class="btn ghost tiny" id="ma-learn-btn" hidden></button> <button class="btn ghost tiny" id="ma-limits-btn" hidden>Daily limit (parent PIN)</button> <a href="../learning.html" target="_blank" rel="noopener">How it works</a></div>
+      <div class="learn-acct" id="ma-recovery" hidden><b>Recovery email:</b> <span id="ma-recovery-state">…</span> <button class="btn ghost tiny" id="ma-recovery-add" hidden>Add</button> <button class="btn ghost tiny" id="ma-recovery-code" hidden>Enter code</button> <button class="btn ghost tiny" id="ma-recovery-del" hidden>Remove</button></div>
       <p class="note">Want to leave PlayCraft? Deleting your account removes your ID, nickname, age, saved games and play records for good.</p>
       <button class="btn danger" id="ma-delete">Delete my account</button>
     </section>
@@ -318,7 +319,7 @@
         <button type="button" class="btn ghost si-cancel">Cancel</button>
         <button type="submit" class="btn primary" id="si-go">Sign in</button>
       </div>
-      <p class="si-note">Forgot your password? Ask a grown-up to contact the PlayCraft admin. They can give you a new one.</p>
+      <p class="si-note"><a href="#" id="forgot-pw">Forgot your password?</a> · <a href="#" id="forgot-id">Parents: forgot your child’s ID?</a></p>
       <p class="si-note">New here? <a href="#" id="go-up">Create an account</a> — it’s free.</p>
     </form>
 
@@ -332,6 +333,11 @@
       <input id="su-nick" maxlength="16" placeholder="e.g. Rocket Fox">
       <label for="su-age">Age</label>
       <select id="su-age"><option value="">Choose your age</option></select>
+      <div class="learn-box" id="su-recovery-row" hidden>
+        <label for="su-recovery">Recovery email <small>(optional)</small></label>
+        <input id="su-recovery" type="email" autocomplete="email" maxlength="200" placeholder="you@example.com">
+        <p class="hint">Only used to get back into your account if you forget your password. We’ll send a code to check it. Without one, a forgotten password can’t be recovered.</p>
+      </div>
       <div class="learn-box" id="su-parent-row" hidden>
         <label for="su-parent">Your parent’s e-mail</label>
         <input id="su-parent" type="email" autocomplete="off" maxlength="200" placeholder="parent@example.com">
@@ -341,9 +347,11 @@
       <div class="pw-field"><input id="su-pw" type="password" autocomplete="new-password" maxlength="72"><button type="button" class="eye" data-for="su-pw" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="open" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="open" cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></div>
       <ul class="pw-rules" id="pw-rules">
         <li data-r="len">At least 8 characters</li>
-        <li data-r="letter">A letter (a–z)</li>
-        <li data-r="num">A number (0–9)</li>
-        <li data-r="sym">A special character (! @ # $ % …)</li>
+        <li data-r="common">Not an easy one like “password1” or “12345678”</li>
+        <li data-r="name">Doesn’t contain your ID or “playcraft”</li>
+      </ul>
+      <p class="hint">Tip: three words are easy to remember and hard to guess, like <b>tiger-pizza-moon</b>.</p>
+      <ul hidden>
       </ul>
       <label for="su-pw2">Type the password again</label>
       <div class="pw-field"><input id="su-pw2" type="password" autocomplete="new-password" maxlength="72"><button type="button" class="eye" data-for="su-pw2" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="open" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="open" cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></div>
@@ -353,13 +361,13 @@
         <button type="button" class="btn ghost si-cancel">Cancel</button>
         <button type="submit" class="btn primary" id="su-go">Create account</button>
       </div>
-      <p class="si-note">By joining you agree to the <a href="../terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>. We never ask for your email, school or phone number.</p>
+      <p class="si-note">By joining you agree to the <a href="../terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>. We never ask for your school or phone number. An email is optional (13 and over), only for getting back into your account.</p>
     </form>
   </div>
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261124124958"></script>
-<script src="app.js?v=20261124124958"></script>
+<script src="account.js?v=20261124130741"></script>
+<script src="app.js?v=20261124130741"></script>
 </body>
 </html>

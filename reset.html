@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>PlayCraft · New password</title>
+<style>
+:root{--violet:#5b3fd0;--ink:#1d1b3a;--ink2:#5d5a7a;--line:#e3def7;--bg:#f6f4ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:520px;margin:0 auto;padding:24px 16px 48px}
+h1{color:var(--violet);margin:0 0 4px;font-size:28px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 18px 20px;margin:16px 0}
+.muted{color:var(--ink2);font-size:15px}
+label{display:block;font-weight:700;margin:14px 0 4px}
+input{width:100%;font:inherit;padding:10px 12px;border:2px solid var(--line);border-radius:12px}
+input:focus{outline:none;border-color:var(--violet)}
+.show{font-size:15px;font-weight:600;margin-top:8px;display:flex;gap:6px;align-items:center}
+.show input{width:auto}
+ul.rules{list-style:none;padding:0;margin:10px 0 0;font-size:15px}
+ul.rules li{padding:2px 0 2px 24px;position:relative;color:var(--ink2)}
+ul.rules li::before{content:"○";position:absolute;left:4px}
+ul.rules li.ok{color:#0f8a63}ul.rules li.ok::before{content:"✓"}
+button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor:pointer;border:2px solid var(--violet);background:var(--violet);color:#fff;margin-top:18px}
+.msg{font-weight:700}.err{color:#b3123d}.ok{color:#0f8a63}
+a{color:var(--violet)}
+</style>
+</head>
+<body>
+<main>
+  <h1>PlayCraft</h1>
+  <div id="box" class="card"><p>Loading…</p></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
+<script>
+(function () {
+  const sb = window.supabase.createClient('https://mglfvwxlleevbvglijzl.supabase.co', 'sb_publishable_0jKAyNY2GzWyIU63M_eD3g_PkVubQ6X', { auth: { persistSession: false } });
+  const box = document.getElementById('box');
+  const token = (location.hash.match(/t=([0-9a-f]{40,})/) || [])[1] || '';
+  history.replaceState(null, '', location.pathname);   // keep the link out of the address bar and history
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const say = html => { box.innerHTML = html; };
+  const again = '<p class="muted">Need a new link? On PlayCraft, open Sign in and choose “Forgot your password?”.</p><p><a href="preview/">Go to PlayCraft</a></p>';
+  if (!token) return say('<p class="msg err">This link is not complete. Please open the link from the email again.</p>' + again);
+  const COMMON = new Set('12345678 123456789 1234567890 password password1 password12 password123 passw0rd qwerty123 qwertyuiop iloveyou iloveyou1 11111111 00000000 88888888 12341234 asdfasdf asdfghjkl qwertyui abc12345 abcd1234 1q2w3e4r 1qaz2wsx zaq12wsx zxcvbnm1 baseball baseball1 football football1 basketball soccer123 princess princess1 sunshine sunshine1 superman superman1 starwars pokemon1 pokemon123 minecraft minecraft1 fortnite fortnite1 roblox123 robloxian letmein1 welcome1 welcome123 trustno1 computer michelle jennifer whatever dragon123 monkey123 shadow123 master123 killer123 charlie1 freedom1 internet 00001111 87654321 11223344 12121212 qwer1234 asdf1234 zxcv1234 game1234 gamer123 playgame password! iloveyou! chocolate butterfly unicorn1 spiderman batman123 ninja123 hello123 hello1234 abcdefgh aaaaaaaa'.split(' '));
+  const common = p => { const l = p.toLowerCase(); return COMMON.has(l) || /^(.)\1+$/.test(l) || '01234567890123456789'.includes(l) || '98765432109876543210'.includes(l) || 'abcdefghijklmnopqrstuvwxyz'.includes(l); };
+  sb.rpc('reset_info', { p_token: token }).then(({ data, error }) => {
+    const r = data && data[0];
+    if (error || !r) return say('<p class="msg err">This link isn’t valid.</p>' + again);
+    if (r.state === 'used') return say('<p class="msg err">This link was already used, or a newer link was sent.</p>' + again);
+    if (r.state === 'expired') return say(`<p class="msg err">This link has run out (it worked for ${r.kind === 'parent' ? '24 hours' : '1 hour'}).</p>` + again);
+    const parent = r.kind === 'parent', id = r.username;
+    say(`
+      <h2 style="margin:0 0 6px">${parent ? 'Choose a new password for ' + esc(id) : 'Choose a new password'}</h2>
+      <p class="muted">${parent ? 'Your child forgot their password. Choose a new one here, then tell your child.' : 'PlayCraft ID: <b>' + esc(id) + '</b>'}</p>
+      <label for="p1">New password</label><input id="p1" type="password" autocomplete="new-password" maxlength="72">
+      <ul class="rules"><li data-r="len">At least 8 characters</li><li data-r="common">Not an easy one like “password1”</li><li data-r="name">Doesn’t contain the ID or “playcraft”</li></ul>
+      <p class="muted" style="margin:8px 0 0">Tip: three words are easy to remember, like <b>tiger-pizza-moon</b>.</p>
+      <label for="p2">Type it again</label><input id="p2" type="password" autocomplete="new-password" maxlength="72">
+      <label class="show"><input type="checkbox" id="sh"> Show the password</label>
+      <p class="msg" id="m"></p>
+      <button id="go">Save the new password</button>`);
+    const p1 = document.getElementById('p1'), p2 = document.getElementById('p2'), m = document.getElementById('m');
+    const rules = { len: p => p.length >= 8, common: p => p.length > 0 && !common(p), name: p => { const l = p.toLowerCase(); return p.length > 0 && !l.includes('playcraft') && !l.includes(id.toLowerCase()); } };
+    p1.addEventListener('input', () => document.querySelectorAll('ul.rules li').forEach(li => li.classList.toggle('ok', rules[li.dataset.r](p1.value))));
+    document.getElementById('sh').addEventListener('change', e => { p1.type = p2.type = e.target.checked ? 'text' : 'password'; });
+    p1.focus();
+    document.getElementById('go').onclick = async () => {
+      const a = p1.value, b = p2.value; m.className = 'msg err';
+      if (!rules.len(a)) return (m.textContent = 'Please use at least 8 characters.');
+      if (!rules.common(a)) return (m.textContent = 'That password is too easy to guess. Try three words.');
+      if (!rules.name(a)) return (m.textContent = 'The password can’t contain the ID or “playcraft”.');
+      if (a !== b) return (m.textContent = 'The two passwords aren’t the same.');
+      const { data: res, error: e2 } = await sb.rpc('reset_password', { p_token: token, p_new: a });
+      if (e2 || res !== 'ok') {
+        m.textContent = res === 'used' ? 'This link was already used.' : res === 'expired' ? 'This link has run out.' : res === 'common' ? 'That password is too easy to guess.' : res === 'name' ? 'The password can’t contain the ID or “playcraft”.'
+          : res === 'wait' ? 'Too many tries. Please wait an hour.' : 'That didn’t work. Please try again.';
+        return;
+      }
+      say(`<p class="msg ok">Done! The new password is saved.</p><p>${parent ? 'Tell your child their new password. ' : ''}Every device was signed out, so sign in again with the new password.</p><p class="muted">We also sent a confirmation email.</p><p><a href="preview/">Go to PlayCraft</a></p>`);
+    };
+  });
+})();
+</script>
+</body>
+</html>
