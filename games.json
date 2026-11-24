@@ -8,7 +8,7 @@
    "Action",
    "Puzzle"
   ],
-  "lang": "Korean",
+  "lang": "English",
   "controls": [
    [
     "Tap / Space",
@@ -17,12 +17,13 @@
   ],
   "tip": "A perfect drop keeps the full width. The sky turns to night as your tower climbs.",
   "mobile": true,
-  "version": 1,
+  "version": 2,
   "added": "2026-11-23",
-  "notes": "New on PlayCraft",
+  "notes": "All game text now in English",
   "author": "hugo",
   "cover": "img/cover-tower-stack.webp",
-  "wide": "img/wide-tower-stack.webp"
+  "wide": "img/wide-tower-stack.webp",
+  "updated": "2026-11-23"
  },
  {
   "slug": "merge-2048",

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head><script src="../guard.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>탑 쌓기</title>
+<title>Tower Stack</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* VOICE: 가볍고 손맛 있는 아케이드, 짬 시간용
-   IDEA: 노을에서 밤하늘로 올라가는 탑 — 높이 쌓을수록 하늘색이 바뀜
-   PICTURE: 게임 화면 자체가 그림, 휴대폰 화면 같은 세로 케이스
-   COLOUR and TYPE: 깊은 남색 바탕, 블록은 층마다 색이 흐름; Black Han Sans 점수, Gothic A1 본문
-   LAYOUT: 작은 제목 아래 세로 게임판 하나, 점수는 판 위에 크게 */
+/* VOICE: light, snappy arcade for a quick break
+   IDEA: a tower rising from sunset into the night sky; the sky changes as it grows
+   PICTURE: the game screen itself, in a tall phone-like case
+   COLOUR and TYPE: deep navy; block colours flow floor by floor; Black Han Sans score, Gothic A1 text
+   LAYOUT: small title over one tall board, big score on the board */
 :root{color-scheme:light dark;--bg:light-dark(#e9ecf5,#0c0f1d);--ink:light-dark(#141a2e,#eef1fb);--sub:light-dark(#4a5373,#9aa3c4);--case:light-dark(#1b2140,#05070f)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
@@ -38,21 +38,21 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 </style>
 </head>
 <body>
-<h1>탑 쌓기</h1>
-<p class="sub">움직이는 블록을 타이밍 맞춰 내려놓으세요. 삐져나온 부분은 잘려 나갑니다.</p>
+<h1>Tower Stack</h1>
+<p class="sub">Drop each moving block at the right moment. Anything that hangs over gets sliced off.</p>
 <div class="case">
   <div class="screen" id="screen">
     <canvas id="cv"></canvas>
-    <div class="best" id="best">최고 0</div>
-    <div class="hud"><div class="score" id="score">0</div><div class="combo" id="combo">퍼펙트!</div></div>
+    <div class="best" id="best">Best 0</div>
+    <div class="hud"><div class="score" id="score">0</div><div class="combo" id="combo">Perfect!</div></div>
     <div class="overlay" id="ov">
-      <h2 id="ovTitle">탑 쌓기</h2>
-      <p id="ovText">화면을 탭하거나 스페이스바를 눌러 블록을 떨어뜨리세요. 딱 맞추면 퍼펙트, 3연속이면 블록이 다시 넓어져요.</p>
-      <button class="btn" id="startBtn" type="button">시작</button>
+      <h2 id="ovTitle">Tower Stack</h2>
+      <p id="ovText">Tap the screen or press Space to drop the block. Line it up exactly for a Perfect. Three Perfects in a row and the block grows wider again.</p>
+      <button class="btn" id="startBtn" type="button">Start</button>
     </div>
   </div>
 </div>
-<p class="tips">한 판 1~2분. 점수가 오를수록 블록이 빨라지고 하늘이 밤으로 바뀝니다.</p>
+<p class="tips">A game takes 1–2 minutes. The higher you score, the faster the blocks move and the darker the sky gets.</p>
 <script>
 {
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),screen=document.getElementById('screen');
@@ -62,7 +62,7 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let W=0,H=0,dpr=1,BH=28,BASEW=200;
 let stack=[],cur=null,debris=[],ripples=[],state='ready',score=0,combo=0,camY=0,camT=0,hue0=0,best=0,shake=0;
 try{best=+localStorage.getItem('stackBest')||0}catch(e){}
-bestEl.textContent='최고 '+best;
+bestEl.textContent='Best '+best;
 
 function size(){
   const r=screen.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);
@@ -106,7 +106,7 @@ function drop(){
     if(combo>=3&&nw<BASEW){const g=Math.min(BASEW-nw,W*0.04);nx-=g/2;nw+=g}
     stack.push({x:nx,w:nw});ripples.push({x:nx,w:nw,i:stack.length-1,t:0});
     beep(520+Math.min(combo,12)*60,.18,'sine');
-    comboEl.textContent=combo>=2?`퍼펙트 ×${combo}`:'퍼펙트!';comboEl.classList.add('on');
+    comboEl.textContent=combo>=2?`Perfect ×${combo}`:'Perfect!';comboEl.classList.add('on');
     score+=1+(combo>=3?1:0);
   }else{
     combo=0;comboEl.classList.remove('on');
@@ -125,11 +125,11 @@ function start(){
 function end(){
   state='over';endAt=performance.now();comboEl.classList.remove('on');shake=reduce?0:10;beep(140,.4,'sawtooth');
   const isBest=score>best;
-  if(isBest){best=score;try{localStorage.setItem('stackBest',best)}catch(e){}bestEl.textContent='최고 '+best}
+  if(isBest){best=score;try{localStorage.setItem('stackBest',best)}catch(e){}bestEl.textContent='Best '+best}
   setTimeout(()=>{
-    ovTitle.textContent=isBest&&score>0?'신기록!':'무너졌다';
-    ovText.textContent=`${score}층까지 쌓았어요. 최고 기록은 ${best}층.`;
-    startBtn.textContent='다시 하기';ov.classList.remove('hide');
+    ovTitle.textContent=isBest&&score>0?'New record!':'It fell!';
+    ovText.textContent=`You stacked ${score} ${score===1?'floor':'floors'}. Your best is ${best}.`;
+    startBtn.textContent='Play again';ov.classList.remove('hide');
   },650);
 }
 
