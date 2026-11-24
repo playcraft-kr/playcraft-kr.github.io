@@ -1,8 +1,8 @@
 [
  {
   "slug": "ssat-word-league",
-  "title": "SSAT Word League",
-  "desc": "Learn SSAT Upper vocabulary by winning soccer league matches or conquering a fantasy map. 30 questions a match, with SSAT-style scoring.",
+  "title": "Word League",
+  "desc": "Learn hard English vocabulary by winning soccer league matches or conquering a fantasy map. 30 questions a match, scored like a real entrance test. For SSAT® prep · not affiliated with SSAT or The Enrollment Management Association.",
   "emoji": "📚",
   "cats": [
    "Sports",
@@ -10,9 +10,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 20,
+  "version": 21,
   "added": "2026-11-22",
-  "notes": "Armory with painted heroes and gear, six formations, offside rule, parent-configurable penalty duel",
+  "updated": "2026-11-23",
+  "notes": "New name, made-up league and clubs, every definition, example and synonym rewritten and double-checked",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
