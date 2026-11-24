@@ -1,0 +1,33 @@
+# Rules for any Claude window working on this repo (PlayCraft)
+
+Several Claude windows (local and cloud) change these games. Two people give instructions. Follow these rules so nobody's work is lost.
+
+## 1. One inbox per game: Admin → Game requests
+- Every change to a published game is a **request** in the Admin page's "Game requests" list (Supabase table `game_requests`).
+- Before you change a game, read its open requests. When you finish, mark each one `done` with a one-line result (or `declined` with why).
+- If someone asks you for a change directly in chat, write it down as a request first (`add`), then do it.
+- Each game has **one owner window** (shown as "Looked after by" in Admin). If you are not the owner, do not edit that game: add a request and tell the user.
+
+With the worker key (local Mac: `~/projects/seonjun-games/.secrets/worker_key`, or env `PLAYCRAFT_WORKER_KEY`):
+```
+python3 ~/projects/seonjun-games/tools/requests.py list <slug>
+python3 ~/projects/seonjun-games/tools/requests.py start <id> --by "<your window name>"
+python3 ~/projects/seonjun-games/tools/requests.py done <id> "what changed" --by "<your window name>"
+python3 ~/projects/seonjun-games/tools/requests.py add <slug> "request text" --author luke|hugo
+```
+No key (for example a cloud window)? Ask the user to paste the open requests from Admin, and at the end tell them which ones to mark done and the one-line results. Never ask for the key in chat, and never print it.
+
+## 2. Always start from the live file
+- `git pull --rebase` first. Change `games/<slug>/index.html` **as it is in the repo now**.
+- Never rebuild a game from your own older copy, an artifact or a local source; if you keep a source, first bring the live file's changes into it.
+- Check `git log -3 -- games/<slug>` right before you push; if someone else pushed in between, merge their change, do not overwrite it.
+
+## 3. Publishing
+- Bump the game's `version` in `games.json`, set `"updated": "YYYY-MM-DD"` and a short `notes`.
+- After changing `preview/app.css|app.js|account.js`, run `./stamp.sh`.
+- `git add` files by name (not `-A`; there is an untracked workflow file).
+
+## 4. Privacy and rights (this repo is public)
+- No real names of children or family in files, commit messages or game text. Use account names (hugo, luke) only.
+- No patient or personal data.
+- No real brands, leagues, clubs, players or test names as game content; no text copied from textbooks or prep books. Write definitions and examples fresh. Never invent meanings.

@@ -429,3 +429,14 @@ a.chip.hero-chip:hover{background:rgba(255,255,255,.26)}
 .seg{display:flex;gap:6px}.seg .btn.on{background:var(--violet);color:#fff;border-color:var(--violet)}
 .hist-h{margin:22px 0 8px;font-size:18px}
 .log-chart-wrap{margin:4px 0 18px;padding:14px 16px;background:var(--bg);border-radius:18px}.log-chart-wrap h3{margin:0}
+.req-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.req-filters select,.req-form select,.req-form textarea{border:2px solid var(--line);border-radius:12px;padding:8px 12px;font:inherit;font-weight:700;background:#fff}
+.req-form{display:grid;grid-template-columns:minmax(140px,220px) 1fr auto;gap:8px;align-items:start;margin:10px 0 14px}
+.req-form textarea{resize:vertical;min-height:44px}
+@media (max-width:640px){.req-form{grid-template-columns:1fr}}
+.req-list .t{min-width:220px}.req-body{white-space:pre-wrap;font-weight:800}.req-game-name{color:var(--violet-d)}
+.req-list small.req-reply{color:#0f8a63}
+.req-game{background:var(--bg);border-radius:14px;padding:10px 14px;margin:0 0 12px}
+.req-owner{margin:0 0 4px}.req-commits{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px;font-size:14px}
+.req-commits a{color:inherit}
+textarea.ask-input{width:100%;box-sizing:border-box;font:inherit;border:2px solid var(--line);border-radius:12px;padding:10px}

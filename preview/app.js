@@ -271,6 +271,7 @@ function openGame(g) {
   $('#device').textContent = g.mobile ? '📱 Works on a computer or a touch screen.' : '⌨️ Best on a computer with a keyboard and mouse.';
   const cu = coverOf(g); $('#g-cover').hidden = !cu; if (cu) $('#g-cover').src = cu;
   $('#g-name').textContent = g.title;
+  $('#req-btn').hidden = !(signedIn() && ACC.profile && ACC.profile.is_admin);
   $('#g-meta').textContent = `${madeBy(g)} · v${g.version} · ${g.cats.join(', ')}${g.multiplayer ? ' · 👥 Online' : ''}`;
   const alt = GAMES.find(x => x.variantOf === g.slug) || bySlug(g.variantOf);
   const meta = $('#g-meta'); meta.querySelectorAll('.alt-lang').forEach(n => n.remove());
@@ -500,6 +501,7 @@ if (ACC) ACC.onChange(async () => {
     store.set('saved', []); store.set('played', []);
   } else await refreshAccountData();
   if (!signedIn()) mergedOnce = false;
+  $('#req-btn').hidden = !(signedIn() && ACC.profile && ACC.profile.is_admin);
   if (GAMES.length) { if (current) syncSave(); if (!$('#v-home').hidden) renderHome(); if (!$('#v-my').hidden) openMy(); if (!$('#v-admin').hidden) openAdmin(); }
 });
 renderAccount();
@@ -511,7 +513,7 @@ async function openAdmin() {
   const isAdm = signedIn() && ACC.profile && ACC.profile.is_admin;
   $('#adm-denied').hidden = !!isAdm; $('#adm-body').hidden = !isAdm;
   if (!isAdm) return;
-  renderReview(); renderDaily();
+  renderReview(); renderDaily(); renderRequests();
   try { admData = await ACC.adminData(); } catch { toast('Couldn’t load admin data. Try Refresh.'); return; }
   renderAdmin();
 }
@@ -603,12 +605,13 @@ function makeTempPw() {
   const r = n => Math.floor((crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32) * n);
   return words[r(words.length)] + (100 + r(900)) + sym[r(sym.length)];
 }
-function askText(text, value) {
+function askText(text, value, okLabel = 'Set password', multi = false) {
   return new Promise(res => {
-    const inp = h('input', { type: 'text', value, 'aria-label': 'New password', class: 'ask-input' });
+    const inp = multi ? h('textarea', { rows: 4, maxlength: 2000, 'aria-label': text, class: 'ask-input' }) : h('input', { type: 'text', value, 'aria-label': okLabel === 'Set password' ? 'New password' : text, class: 'ask-input' });
+    if (multi) inp.value = value || '';
     const d = h('dialog', { class: 'confirm' }, h('p', { text }), inp, h('div', { class: 'si-actions' },
       h('button', { class: 'btn ghost', onclick: () => { d.close(); res(null); } }, 'Cancel'),
-      h('button', { class: 'btn primary', onclick: () => { const v = inp.value.trim(); d.close(); res(v || null); } }, 'Set password')));
+      h('button', { class: 'btn primary', onclick: () => { const v = inp.value.trim(); d.close(); res(v || null); } }, okLabel)));
     d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal(); inp.select();
   });
 }
@@ -685,7 +688,7 @@ async function renderReview() {
     h('span', { class: 't' }, g.title, h('small', { text: `Made by ${g.creator_username} · ${g.category}${g.multiplayer ? ' · online' : ''} · ${g.description || ''}` })),
     h('button', { class: 'btn ghost tiny', onclick: () => previewGame(g) }, '▶ Try it'),
     h('button', { class: 'btn primary tiny', onclick: async () => { if (!(await ask(`Publish “${g.title}” by ${g.creator_username}? Everyone will be able to play it.`))) return; try { await ACC.adminApprove(g); toast('Published!'); renderReview(); } catch (x) { toast('Couldn’t publish: ' + (x.message || 'try again')); } } }, 'Approve'),
-    h('button', { class: 'btn ghost tiny', onclick: async () => { const note = await askText(`Why isn’t “${g.title}” ready? ${g.creator_username} will see this note.`, 'Please fix: '); if (note === null) return; try { await ACC.adminReject(g, note); toast('Sent back with your note.'); renderReview(); } catch (x) { toast('Couldn’t update: ' + (x.message || 'try again')); } } }, 'Send back')))
+    h('button', { class: 'btn ghost tiny', onclick: async () => { const note = await askText(`Why isn’t “${g.title}” ready? ${g.creator_username} will see this note.`, 'Please fix: ', 'Send back'); if (note === null) return; try { await ACC.adminReject(g, note); toast('Sent back with your note.'); renderReview(); } catch (x) { toast('Couldn’t update: ' + (x.message || 'try again')); } } }, 'Send back')))
     : [h('li', { class: 'note', text: 'No games waiting. 🎉' })]));
   renderHistory();
 }
@@ -700,6 +703,63 @@ async function renderHistory() {
     g.status === 'approved' ? h('a', { class: 'btn ghost tiny', href: '#/game/' + g.slug }, 'Play') : null))
     : [h('li', { class: 'note', text: 'No games approved or sent back yet.' })]));
 }
+/* ---------- game requests: one inbox per game ---------- */
+let reqStatus = 'open', reqGame = '';
+const REQ_LABEL = { waiting: ['wait', '⏳ Waiting'], doing: ['adm', '🔧 Working on it'], done: ['ok', '✓ Done'], declined: ['bad', '✕ Declined'] };
+const when = t => t ? new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+const gameName = s => bySlug(s) ? bySlug(s).title : s;
+function fillReqGames() {
+  const opts = sel => GAMES.slice().sort((a, b) => a.title.localeCompare(b.title)).map(g => h('option', { value: g.slug, text: g.title, selected: g.slug === sel }));
+  $('#adm-req-game').replaceChildren(h('option', { value: '', text: 'All games' }), ...opts(reqGame));
+  const keep = $('#adm-req-new-game').value || reqGame; $('#adm-req-new-game').replaceChildren(...opts(keep));
+}
+async function renderRequests() {
+  fillReqGames();
+  document.querySelectorAll('#adm-req-wrap [data-st]').forEach(b => b.classList.toggle('on', b.dataset.st === reqStatus));
+  const list = $('#adm-req-list');
+  let rows; try { rows = await ACC.adminRequests(); } catch { list.replaceChildren(h('li', { class: 'note', text: 'Couldn’t load requests.' })); return; }
+  const open = rows.filter(r => r.status === 'waiting' || r.status === 'doing');
+  $('#adm-req-count').textContent = open.length ? `${open.length} open` : '';
+  const shown = rows.filter(r => (!reqGame || r.slug === reqGame) && (reqStatus === 'all' || r.status === 'waiting' || r.status === 'doing'));
+  list.replaceChildren(...(shown.length ? shown.map(reqItem) : [h('li', { class: 'note', text: reqStatus === 'open' ? 'No open requests. 🎉' : 'No requests yet.' })]));
+  renderReqGame();
+}
+function reqItem(r) {
+  const [cls, lab] = REQ_LABEL[r.status] || ['wait', r.status];
+  const upd = async (fields, msg) => { try { await ACC.adminUpdateRequest(r.id, fields); toast(msg); renderRequests(); } catch (x) { toast('Couldn’t update: ' + (x.message || 'try again')); } };
+  const isOpen = r.status === 'waiting' || r.status === 'doing';
+  return h('li', { class: 'req-item' },
+    h('span', { class: 'pill ' + cls, text: lab }),
+    h('span', { class: 't' }, h('b', { class: 'req-game-name', text: gameName(r.slug) + ' · ' }), h('span', { class: 'req-body', text: r.body }),
+      h('small', { text: `#${r.id} · asked by ${r.author_name || '—'} · ${when(r.created_at)}${r.handled_by ? ' · handled by ' + r.handled_by : ''}${r.status !== 'waiting' && r.updated_at ? ' · updated ' + when(r.updated_at) : ''}` }),
+      r.reply ? h('small', { class: 'req-reply', text: '→ ' + r.reply }) : null),
+    isOpen ? h('button', { class: 'btn primary tiny', onclick: async () => { const v = await askText('What was changed? (one line)', r.reply || '', 'Mark done', true); if (v !== null) upd({ status: 'done', reply: v }, 'Marked done.'); } }, 'Mark done') : null,
+    isOpen ? h('button', { class: 'btn ghost tiny', onclick: async () => { const v = await askText('Why not? (the asker will see this)', '', 'Decline', true); if (v !== null) upd({ status: 'declined', reply: v }, 'Declined.'); } }, 'Decline') : null,
+    !isOpen ? h('button', { class: 'btn ghost tiny', onclick: () => upd({ status: 'waiting' }, 'Reopened.') }, 'Reopen') : null,
+    h('button', { class: 'btn ghost tiny', 'aria-label': 'Delete request', onclick: async () => { if (!(await ask(`Delete request #${r.id}? This can’t be undone.`))) return; try { await ACC.adminDeleteRequest(r.id); toast('Deleted.'); renderRequests(); } catch { toast('Couldn’t delete.'); } } }, '🗑'));
+}
+async function renderReqGame() {
+  const box = $('#adm-req-info'); box.hidden = !reqGame; if (!reqGame) return;
+  const slug = reqGame, owners = await ACC.adminOwners().catch(() => []), own = (owners.find(o => o.slug === slug) || {}).owner;
+  const ownLine = h('p', { class: 'req-owner' }, h('b', { text: 'Looked after by: ' }), h('span', { text: own || 'not set yet' }), ' ',
+    h('button', { class: 'btn ghost tiny', onclick: async () => { const v = await askText(`Which Claude window looks after ${gameName(slug)}? Only that window should change it. (Leave empty to clear.)`, own || '', 'Save'); if (v === null && !own) return; try { await ACC.adminSetOwner(slug, v || ''); toast('Saved.'); renderReqGame(); } catch { toast('Couldn’t save.'); } } }, own ? 'Change' : 'Set'));
+  const hist = h('ul', { class: 'req-commits' }, h('li', { class: 'note', text: 'Loading recent changes…' }));
+  box.replaceChildren(ownLine, h('h3', { class: 'hist-h', text: 'Recent changes to this game' }), hist);
+  try {
+    const cs = await ACC.gameCommits(slug); if (reqGame !== slug) return;
+    hist.replaceChildren(...(cs.length ? cs.map(c => h('li', {}, h('span', { class: 'mono', text: when(c.date) }), ' ', h('a', { href: c.url, target: '_blank', rel: 'noopener', text: c.msg }))) : [h('li', { class: 'note', text: 'No changes yet.' })]));
+  } catch { hist.replaceChildren(h('li', { class: 'note', text: 'Couldn’t load the change history (GitHub may be busy). Try again later.' })); }
+}
+$('#adm-req-game').addEventListener('change', e => { reqGame = e.target.value; if (reqGame) $('#adm-req-new-game').value = reqGame; renderRequests(); });
+document.querySelectorAll('#adm-req-wrap [data-st]').forEach(b => b.addEventListener('click', () => { reqStatus = b.dataset.st; renderRequests(); }));
+$('#adm-req-form').addEventListener('submit', async e => {
+  e.preventDefault(); const slug = $('#adm-req-new-game').value, body = $('#adm-req-text').value.trim(); if (!slug || !body) return;
+  try { await ACC.adminAddRequest(slug, body); $('#adm-req-text').value = ''; toast('Request added.'); renderRequests(); } catch (x) { toast('Couldn’t add: ' + (x.message || 'try again')); }
+});
+$('#req-btn').addEventListener('click', async () => {
+  if (!current) return; const v = await askText(`What should change in ${current.title}? It goes to the Game requests list on the Admin page.`, '', 'Send request', true);
+  if (v === null) return; try { await ACC.adminAddRequest(current.slug, v); toast('Request sent. You can follow it on the Admin page.'); } catch (x) { toast('Couldn’t send: ' + (x.message || 'try again')); }
+});
 let dailyDays = 14;
 const DCOL = ['#6d28d9', '#f97316', '#10b981', '#3b82f6', '#ec4899', '#eab308', '#14b8a6', '#ef4444', '#8b5cf6', '#84cc16', '#0ea5e9', '#f43f5e'];
 /* stacked bar chart: minutes per game per day. rows = [{day:'YYYY-MM-DD', game_slug, minutes, plays, players?}] */

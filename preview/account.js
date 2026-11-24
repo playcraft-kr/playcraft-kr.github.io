@@ -66,6 +66,25 @@ const Account = {
     const { data, error } = await sb.from('community_games').select('slug, title, category, creator_username, status, review_note, created_at, reviewed_at').in('status', ['approved', 'rejected']).order('reviewed_at', { ascending: false }).limit(200);
     if (error) throw error; return data || [];
   },
+  // ---- game requests: one inbox per game (admin only; checked in the database) ----
+  async adminRequests() {
+    const { data, error } = await sb.from('game_requests').select('id, slug, author_name, body, status, reply, handled_by, created_at, updated_at').order('created_at', { ascending: false }).limit(500);
+    if (error) throw error; return data || [];
+  },
+  async adminAddRequest(slug, body) { const { error } = await sb.from('game_requests').insert({ slug, body }); if (error) throw error; },
+  async adminUpdateRequest(id, fields) { const { error } = await sb.from('game_requests').update(fields).eq('id', id); if (error) throw error; },
+  async adminDeleteRequest(id) { const { error } = await sb.from('game_requests').delete().eq('id', id); if (error) throw error; },
+  async adminOwners() { const { data, error } = await sb.from('game_owners').select('slug, owner'); if (error) throw error; return data || []; },
+  async adminSetOwner(slug, owner) {
+    const r = owner ? await sb.from('game_owners').upsert({ slug, owner, updated_at: new Date().toISOString() }) : await sb.from('game_owners').delete().eq('slug', slug);
+    if (r.error) throw r.error;
+  },
+  // what changed in a game lately, from the public GitHub history of its folder
+  async gameCommits(slug) {
+    const r = await fetch(`https://api.github.com/repos/playcraft-kr/playcraft-kr.github.io/commits?path=games/${encodeURIComponent(slug)}&per_page=12`);
+    if (!r.ok) throw new Error('history ' + r.status);
+    return (await r.json()).map(c => ({ sha: c.sha, url: c.html_url, date: c.commit.author.date, msg: c.commit.message.split('\n')[0] }));
+  },
   async adminSetAdmin(id, value) { const { error } = await sb.rpc('admin_set_admin', { target: id, value }); if (error) throw error; },
 
   // ---- player-made games ----
