@@ -362,9 +362,9 @@
    "Action"
   ],
   "lang": "English",
-  "version": 3,
+  "version": 4,
   "added": "2026-11-21",
-  "notes": "Leaderboard: see the top survivors (wins, KOs, best time) after every match",
+  "notes": "Online play waits for a parent’s OK on under-13 accounts",
   "cover": "img/cover-black-hole.webp",
   "wide": "img/wide-black-hole.webp",
   "controls": [

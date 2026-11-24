@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261123210626">
+<link rel="stylesheet" href="app.css?v=20261123211536">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -110,7 +110,7 @@
   <section id="v-my" class="view" hidden>
     <div class="page-head"><a class="back" href="#/">← Back</a><h1>My Games</h1></div>
     <p class="lead" id="my-lead">Games you saved with ♥ and games you played lately. They’re kept on this device only. <a href="#" id="my-signin">Sign in</a> to keep them everywhere.</p>
-    <div class="warn-box" id="my-waiting" hidden>⏳ Your account is waiting for a PlayCraft grown-up to approve it. You can look around, and you can play as soon as it’s approved.</div>
+    <div class="warn-box" id="my-waiting" hidden>👪 You can play every game. Putting your ID on leaderboards, online play and sending in games turn on after your parent says OK to PlayCraft.</div>
     <div class="warn-box" id="my-paused" hidden>⏸ Your account is paused by an admin, so new plays aren’t being saved right now.</div>
     <div class="stats" id="my-stats" hidden></div>
     <h2 class="sub">Saved</h2>
@@ -157,6 +157,7 @@
   <section id="v-submit" class="view" hidden>
     <div class="page-head"><a class="back" href="#/">← Back</a><h1>Submit a game</h1></div>
     <div class="empty" id="sub-signin" hidden><img src="../img/mascot-0.webp" alt=""><div><h2>Sign in first</h2><p>You need a free account so we can show “Made by” with your ID.</p><button class="btn primary" id="sub-signin-btn">Sign in or create an account</button></div></div>
+    <div class="empty" id="sub-limited" hidden><img src="../img/mascot-0.webp" alt=""><div><h2>Ask a parent first 👪</h2><p>Sending in a game shows your ID to everyone, so it opens after your parent says OK to PlayCraft.</p></div></div>
     <form class="panel sub-form" id="game-form" hidden novalidate>
       <p class="lead">Your game shows up after an admin plays it and says OK. It will say <strong>Made by <span id="sub-me"></span></strong>.</p>
       <label for="g-title-in">Game name</label>
@@ -183,7 +184,7 @@
     <div class="empty" id="adm-denied" hidden><img src="../img/mascot-0.webp" alt=""><div><h2>Admins only</h2><p>Sign in with an admin account to see this page.</p></div></div>
     <div id="adm-body" hidden>
       <div class="stats" id="adm-stats"></div>
-      <section class="panel" id="adm-wait-wrap" hidden><h2>⏳ Accounts waiting for approval <span class="count" id="adm-wait-count"></span></h2><p class="note">Players under 14 can play only after you approve them. Check with their parent first.</p><ul class="sub-list" id="adm-wait"></ul></section>
+      <section class="panel" id="adm-wait-wrap" hidden><h2>👪 Under-13 accounts waiting for a parent’s OK <span class="count" id="adm-wait-count"></span></h2><p class="note">They can already play. Leaderboards, online play and sending in games stay off until you approve them, after checking with their parent.</p><ul class="sub-list" id="adm-wait"></ul></section>
       <div class="adm-cols">
         <section class="panel"><h2>Most played games</h2><ul class="bars" id="adm-games"></ul></section>
         <section class="panel"><h2>Ages</h2><ul class="bars" id="adm-ages"></ul></section>
@@ -359,7 +360,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261123210626"></script>
-<script src="app.js?v=20261123210626"></script>
+<script src="account.js?v=20261123211536"></script>
+<script src="app.js?v=20261123211536"></script>
 </body>
 </html>

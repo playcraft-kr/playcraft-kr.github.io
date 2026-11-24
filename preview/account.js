@@ -17,7 +17,9 @@ const Account = {
   get profile() { return profile; },
   get signedIn() { return !!user; },
   // 게임끼리 실시간으로 만나는 채널용 (방송 채널만 사용)
-  get realtime() { return sb ? { channel: (...a) => sb.channel(...a), removeChannel: c => sb.removeChannel(c) } : null; },
+  // under-13 accounts waiting for a parent's OK: no online play, nothing on leaderboards
+  get limited() { return !!(profile && profile.approved === false); },
+  get realtime() { return sb && !(profile && profile.approved === false) ? { channel: (...a) => sb.channel(...a), removeChannel: c => sb.removeChannel(c) } : null; },
   onChange(fn) { listeners.add(fn); },
 
   async signIn(id, password) {
@@ -211,6 +213,7 @@ const Account = {
   },
   async kvSet(game, coll, id, value) {
     if (!user) throw new Error('Please sign in first.');
+    if (profile && profile.approved === false) return false;
     const { error } = await sb.from('game_kv').upsert({ game, coll, doc_id: id, data: value }, { onConflict: 'game,coll,doc_id' });
     if (error) throw error;
     return true;

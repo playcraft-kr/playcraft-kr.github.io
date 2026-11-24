@@ -745,7 +745,7 @@ function lobbyUI(msg){if(!NET&&!msg)return;$('#lobby').style.display='flex';$('#
 
 function netOnline(){netLeave();clearGame();try{document.exitPointerLock();}catch(e){}
  $('#result').style.display='none';$('#hud').style.display='none';$('#touch').style.display='none';$('#vig').style.opacity=0;setPause(false);state='lobby';
- if(!window.supabase||!window.supabase.createClient){lobbyUI('Can’t reach the game server right now. Try again later!');return;}
+ if(PCA_&&PCA_.limited){lobbyUI('Online play opens after your parent says OK to PlayCraft. You can still play with bots!');return}if(!window.supabase||!window.supabase.createClient){lobbyUI('Can’t reach the game server right now. Try again later!');return;}
  try{if(!SB)SB=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:30}}});}catch(e){lobbyUI('Can’t reach the game server right now. Try again later!');return;}
  initAudio();if(!MYID)MYID=Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
  NET={id:MYID,nick:myNick(),el:save.sel,room:'',lobby:null,rc:null,jt:0,host:false,hostId:null,members:[],phase:'find',cdEnd:0,cd:-1,lbT:0,mergeT:2,

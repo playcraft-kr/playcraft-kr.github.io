@@ -322,12 +322,6 @@ async function renderLearnAcct() {
 }
 let coinTimer = null, coinMins = 0, coinGame = null;
 async function showCoins() { const el = $('#g-coins'); if (!needsCoins(current)) { el.hidden = true; return; } try { const c = await ACC.walletCoins(); el.textContent = `🪙 ${c} coin${c === 1 ? '' : 's'} · 1 per minute`; el.hidden = false; return c; } catch { el.hidden = true; } }
-function waitingDialog() {
-  const d = h('dialog', { class: 'confirm' }, h('p', {}, h('b', { text: 'Your account is waiting for approval ⏳' })),
-    h('p', { text: 'Because you’re under 14, a PlayCraft grown-up checks with your parent first. You can play as soon as your account is approved.' }),
-    h('div', { class: 'si-actions' }, h('button', { class: 'btn primary', onclick: () => d.close() }, 'OK')));
-  d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
-}
 function needCoinsDialog(g, ranOut) {
   const d = h('dialog', { class: 'confirm' }, h('p', {}, h('b', { text: ranOut ? 'Your coins ran out! 🪙' : 'You need coins to play this game 🪙' })),
     h('p', { text: `Learning mode is on, so ${g.title} costs 1 coin per minute. Earn coins in Word League (training and matches), then come back.` }),
@@ -354,7 +348,6 @@ async function playGame() {
     return;
   }
   pendingPlay = null;
-  if (ACC.profile && ACC.profile.approved === false) { waitingDialog(); return; }
   if (needsCoins(current)) {
     let ok = false; try { ok = await ACC.walletSpend(1); } catch {}
     if (!ok) { needCoinsDialog(current, false); return; }
@@ -492,7 +485,7 @@ function checkMatch() {
   const ok = a === b; hint.textContent = ok ? '✓ Passwords match.' : '✗ Not the same yet.'; hint.classList.add(ok ? 'good' : 'bad');
 }
 $('#su-pw').addEventListener('input', checkMatch); $('#su-pw2').addEventListener('input', checkMatch);
-ageSel.addEventListener('change', () => { const a = +ageSel.value; $('#su-guardian-row').hidden = $('#su-learn-row').hidden = !(a && a < 14); });
+ageSel.addEventListener('change', () => { const a = +ageSel.value; $('#su-guardian-row').hidden = $('#su-learn-row').hidden = !(a && a < 13); });
 $('#su-learn').addEventListener('change', e => { $('#su-pin-row').hidden = !e.target.checked; });
 const ID_RE = /^[a-z0-9][a-z0-9._-]{2,19}$/;
 let idTimer;
@@ -511,8 +504,8 @@ $('#su-form').addEventListener('submit', async e => {
   if (!ID_RE.test(id)) return say('Please choose an ID with 3–20 letters or numbers.');
   if (nick.length < 2) return say('Please choose a nickname with at least 2 characters.');
   if (!age) return say('Please choose your age.');
-  if (age < 14 && !$('#su-guardian').checked) return say('Because you’re under 14, a parent or guardian needs to say it’s OK. Ask them, then tick the box.');
-  const learnOn = age < 14 && $('#su-learn').checked, pin = $('#su-pin').value.trim();
+  if (age < 13 && !$('#su-guardian').checked) return say('Because you’re under 13, a parent or guardian needs to know. Ask them, then tick the box.');
+  const learnOn = age < 13 && $('#su-learn').checked, pin = $('#su-pin').value.trim();
   if (learnOn && !/^[0-9]{4}$/.test(pin)) return say('For learning mode, a parent needs to choose a 4-number PIN.');
   if (!pwOk(pw)) return say('Your password needs at least 8 characters with a letter, a number and a special character.');
   if (pw !== $('#su-pw2').value) return say('The two passwords don’t match. Type them again.');
@@ -524,7 +517,7 @@ $('#su-form').addEventListener('submit', async e => {
       await ACC.signUp({ id, password: pw, nickname: nick, age, guardianOk: $('#su-guardian').checked });
       if (learnOn) { try { await ACC.setupLearnMode(true, pin); } catch { toast('Account made, but learning mode couldn’t be set. A parent can turn it on from My Games.'); } }
       dlg.close(); $('#su-form').reset(); $('#su-pin-row').hidden = true; document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok')); $('#su-pw2-hint').textContent = '';
-      toast(age < 14 ? `Welcome, ${nick}! 🎉 A PlayCraft grown-up will approve your account soon. Then you can play.` : `Welcome to PlayCraft, ${nick}! 🎉`);
+      toast(age < 13 ? `Welcome, ${nick}! 🎉 You can play now. Leaderboards and online play open after your parent says OK.` : `Welcome to PlayCraft, ${nick}! 🎉`);
     }
   } catch (x) {
     const m = (x && x.message || '').toLowerCase();
@@ -582,14 +575,14 @@ async function openAdmin() {
 }
 
 async function approveUser(p) {
-  if (!(await ask(`Approve ${p.username}${p.age ? ' (age ' + p.age + ')' : ''}? Make sure their parent agrees. They can play right away.`))) return;
-  try { await ACC.adminSetApproved(p.id, true); toast(`${p.username} can play now.`); openAdmin(); } catch { toast('Couldn’t approve. Try again.'); }
+  if (!(await ask(`Approve ${p.username}${p.age ? ' (age ' + p.age + ')' : ''}? Do this only after their parent has said OK. Leaderboards, online play and sending in games open for them.`))) return;
+  try { await ACC.adminSetApproved(p.id, true); toast(`${p.username} now has every feature.`); openAdmin(); } catch { toast('Couldn’t approve. Try again.'); }
 }
 function renderWaiting(profiles) {
   const w = profiles.filter(p => p.approved === false), d = t => new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   $('#adm-wait-wrap').hidden = !w.length; $('#adm-wait-count').textContent = w.length ? `${w.length} waiting` : '';
   $('#adm-wait').replaceChildren(...w.map(p => h('li', {},
-    h('span', { class: 'pill wait', text: 'Waiting' }),
+    h('span', { class: 'pill wait', text: 'Needs parent OK' }),
     h('span', { class: 't' }, `${p.username} · ${p.nickname}`, h('small', { text: `age ${p.age ?? '—'} · guardian box ${p.guardian_ok ? 'ticked' : 'not ticked'} · learning mode ${p.learn_mode ? 'on' : 'off'} · signed up ${d(p.created_at)}` })),
     h('button', { class: 'btn primary tiny', onclick: () => approveUser(p) }, 'Approve'),
     h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'block') }, p.blocked ? 'Unpause' : 'Pause'))));
@@ -617,7 +610,7 @@ function renderAdmin() {
   renderWaiting(profiles);
   $('#adm-rows').replaceChildren(...list.map(p => {
     const u = per[p.id] || { plays: 0, secs: 0, last: null };
-    const status = p.approved === false ? h('span', { class: 'pill wait', text: 'Waiting' }) : p.blocked ? h('span', { class: 'pill bad', text: 'Paused' }) : p.is_admin ? h('span', { class: 'pill adm', text: 'Admin' }) : h('span', { class: 'pill ok', text: 'Active' });
+    const status = p.approved === false ? h('span', { class: 'pill wait', text: 'Needs parent OK' }) : p.blocked ? h('span', { class: 'pill bad', text: 'Paused' }) : p.is_admin ? h('span', { class: 'pill adm', text: 'Admin' }) : h('span', { class: 'pill ok', text: 'Active' });
     const acts = h('div', { class: 'acts' });
     acts.append(h('button', { class: 'btn primary tiny', onclick: () => openPlayLog(p) }, 'Play log'));
     if (p.id !== me) {
@@ -629,7 +622,7 @@ function renderAdmin() {
       acts.append(h('button', { class: 'btn ghost tiny', title: 'Clear a forgotten parent PIN', onclick: async () => { if (!(await ask(`Clear the parent PIN for ${p.username}? A parent can then choose a new one.`))) return; try { await ACC.adminClearPin(p.id); toast('PIN cleared.'); } catch { toast('Couldn’t clear it.'); } } }, 'Clear PIN'));
     } else acts.append(h('span', { class: 'note', text: 'You' }));
     return h('tr', {}, h('td', { class: 'mono', text: p.username }), h('td', { text: p.nickname }),
-      h('td', {}, p.age ? String(p.age >= 18 ? '18+' : p.age) : '—', p.age && p.age < 14 ? h('span', { class: 'g', title: 'Guardian OK ticked at sign-up', text: p.guardian_ok ? ' ✓G' : ' !G' }) : null),
+      h('td', {}, p.age ? String(p.age >= 18 ? '18+' : p.age) : '—', p.age && p.age < 13 ? h('span', { class: 'g', title: 'Guardian OK ticked at sign-up', text: p.guardian_ok ? ' ✓G' : ' !G' }) : null),
       h('td', { text: d(p.created_at) }), h('td', { text: d(u.last) }), h('td', { text: String(u.plays) }), h('td', { text: fmtTime(u.secs) }), h('td', {}, status), h('td', {}, acts));
   }));
 }
@@ -727,7 +720,8 @@ const gCat = $('#g-cat-in'); CATS.forEach(([n]) => gCat.append(h('option', { val
 function openSubmit() {
   show('submit', null);
   const on = signedIn();
-  $('#sub-signin').hidden = on; $('#game-form').hidden = !on;
+  const lim = on && ACC.limited;
+  $('#sub-signin').hidden = on; $('#game-form').hidden = !on || lim; $('#sub-limited').hidden = !lim;
   if (on && ACC.profile) $('#sub-me').textContent = ACC.profile.username;
 }
 $('#sub-signin-btn').addEventListener('click', () => openSignIn(true));
