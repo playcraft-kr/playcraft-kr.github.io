@@ -336,6 +336,23 @@ async function renderLearnAcct() {
   }
 }
 let coinTimer = null, coinMins = 0, wlMins = 0, coinGame = null;
+// Countdown on the game screen (also in Big screen): minutes still paid for + seconds left in this minute.
+let leftMin = 0, lastPay = 0, tickT = null, warned = false;
+async function refreshLeft() {
+  const [w, c] = await Promise.all([ACC.learnWallet().catch(() => null), ACC.walletCoins().catch(() => 0)]);
+  let n = (w ? w.math_min : 0) + Math.floor(c / ACC.WL_PER_MIN);
+  if (w && w.play_cap != null) n = Math.min(n, Math.max(0, w.play_cap - w.play_today));
+  leftMin = n; drawLeft();
+}
+function drawLeft() {
+  let el = $('#play-timer');
+  if (!coinTimer) { if (el) el.hidden = true; return; }
+  if (!el) { el = h('div', { id: 'play-timer', class: 'play-timer', 'aria-live': 'polite' }); $('#stage').append(el); }
+  const secs = Math.max(0, leftMin * 60 + Math.max(0, 60 - Math.floor((Date.now() - lastPay) / 1000)));
+  el.textContent = `⏱ ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')} left`;
+  el.classList.toggle('low', secs <= 60); el.hidden = false;
+  if (secs <= 60 && !warned) { warned = true; toast('1 minute of game time left!'); }
+}
 const capText = c => c == null ? 'no daily limit' : `${c} min a day`;
 // "⏱ 3 game min · 🪙 120 coins (= 12 min) · today 20 / 60 min"
 async function walletText(long) {
@@ -371,7 +388,7 @@ function needCoinsDialog(g, why) {
   d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
 }
 function stopCoinTimer() {
-  clearInterval(coinTimer); coinTimer = null;
+  clearInterval(coinTimer); coinTimer = null; clearInterval(tickT); tickT = null; drawLeft();
   if (wlMins && coinGame) { const n = wlMins, t = coinGame; ACC.walletNote(`PlayCraft: ${t} (${n} min)`, n * ACC.WL_PER_MIN).catch(() => {}); }
   coinMins = 0; wlMins = 0; coinGame = null;
 }
@@ -384,10 +401,11 @@ async function payMinute() {
   return r;
 }
 async function chargeMinute() {
-  if (!playing || !current || document.hidden) return;
+  if (!playing || !current) return;
+  if (document.hidden) { lastPay = Date.now(); return; }
   const r = await payMinute();
   if (r !== 'math' && r !== 'wl') { const g = current; stopGame(); needCoinsDialog(g, r === 'cap' ? 'cap' : 'out'); return; }
-  coinMins++; showCoins();
+  coinMins++; lastPay = Date.now(); showCoins(); refreshLeft();
 }
 async function playGame() {
   if (!current) return;
@@ -403,6 +421,7 @@ async function playGame() {
     if (r !== 'math' && r !== 'wl') { coinGame = null; wlMins = 0; needCoinsDialog(current, r === 'cap' ? 'cap' : 'none'); return; }
     coinMins = 1;
     coinTimer = setInterval(chargeMinute, 60000); showCoins();
+    lastPay = Date.now(); warned = false; tickT = setInterval(drawLeft, 1000); refreshLeft();
   }
   const st = $('#stage'); st.querySelectorAll('iframe').forEach(f => f.remove());
   let f;
