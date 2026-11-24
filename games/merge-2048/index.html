@@ -3,15 +3,15 @@
 <head><script src="../guard.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>합치기 2048</title>
+<title>Merge 2048</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* VOICE: 조용하고 손에 붙는 퍼즐, 짬 시간용
-   IDEA: 숫자 타일이 합쳐질수록 따뜻한 색에서 차가운 보석색으로 변하는 보석 상자
-   PICTURE: 게임판 자체가 그림, 제목 바로 아래
-   COLOUR and TYPE: 깊은 남색 판, 산호→금→초록→청록→파랑→보라 타일; Black Han Sans 숫자, Gothic A1 본문
-   LAYOUT: 작은 제목 + 점수 줄, 정사각 판, 아래 버튼 */
+/* VOICE: a quiet puzzle that sticks to your hand, for spare moments
+   IDEA: a jewel box where number tiles turn from warm colors to cool gem colors as they merge
+   PICTURE: the board itself is the picture, right below the title
+   COLOUR and TYPE: deep navy board, coral→gold→green→teal→blue→purple tiles; Black Han Sans numbers, Gothic A1 body
+   LAYOUT: small title + score row, square board, buttons below */
 :root{color-scheme:light dark;--bg:light-dark(#eef0f6,#0d1020);--ink:light-dark(#151a2e,#eef1fb);--sub:light-dark(#4d5676,#9aa3c4);--board:light-dark(#232a45,#171c33);--cell:light-dark(#2f3758,#222a47);--chip:light-dark(#ffffff,#1a2036)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
@@ -57,20 +57,20 @@ h1{font:400 32px/1.05 "Black Han Sans",sans-serif;margin:0}
 <body>
 <div class="wrap">
   <div class="top">
-    <div><h1>합치기 2048</h1><p class="sub">같은 숫자를 밀어 합쳐서 2048을 만드세요.</p></div>
-    <div class="chips"><div class="chip"><small>점수</small><b id="score">0</b></div><div class="chip"><small>최고</small><b id="best">0</b></div></div>
+    <div><h1>Merge 2048</h1><p class="sub">Slide matching numbers together to make 2048.</p></div>
+    <div class="chips"><div class="chip"><small>Score</small><b id="score">0</b></div><div class="chip"><small>Best</small><b id="best">0</b></div></div>
   </div>
-  <div class="board" id="board" tabindex="0" aria-label="게임판. 방향키나 스와이프로 움직입니다">
+  <div class="board" id="board" tabindex="0" aria-label="Game board. Move with arrow keys or swipe">
     <div class="ov" id="ov" hidden>
       <h2 id="ovT"></h2><p id="ovP"></p>
       <div class="row"><button class="btn" id="ovA" type="button"></button><button class="btn alt" id="ovB" type="button"></button></div>
     </div>
   </div>
   <div class="controls">
-    <button class="btn alt" id="undo" type="button" disabled>되돌리기</button>
-    <button class="btn" id="newg" type="button">새 게임</button>
+    <button class="btn alt" id="undo" type="button" disabled>Undo</button>
+    <button class="btn" id="newg" type="button">New game</button>
   </div>
-  <p class="tips">휴대폰은 스와이프, 컴퓨터는 방향키(또는 WASD). 되돌리기는 최대 10번까지.</p>
+  <p class="tips">Swipe on a phone, or use arrow keys (or WASD) on a computer. You can undo up to 10 times.</p>
 </div>
 <script>
 {
@@ -152,8 +152,8 @@ function show(t,p,a,fa,b,fb){ovT.textContent=t;ovP.textContent=p;ovA.textContent
 function hide(){ov.hidden=true;board.focus({preventScroll:true})}
 function check(){
   if(!won&&tiles.some(t=>t.v>=2048)){won=true;save();
-    show('2048 달성!',`점수 ${score}점. 계속 더 큰 숫자에 도전할 수 있어요.`,'계속하기',()=>{keepGoing=true;save();hide()},'새 게임',()=>{hide();start()});return}
-  if(!canMove())show('더 이상 움직일 수 없어요',`이번 점수 ${score}점 · 최고 ${best}점`,'새 게임',()=>{hide();start()},history.length?'한 수 되돌리기':null,()=>{hide();undo()});
+    show('You made 2048!',`Score: ${score}. You can keep going for even bigger numbers.`,'Resume',()=>{keepGoing=true;save();hide()},'New game',()=>{hide();start()});return}
+  if(!canMove())show('No more moves',`This score: ${score} · Best: ${best}`,'New game',()=>{hide();start()},history.length?'Undo one move':null,()=>{hide();undo()});
 }
 function undo(){
   if(!history.length||busy)return;const s=history.pop();

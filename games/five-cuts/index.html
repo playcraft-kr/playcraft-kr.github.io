@@ -3,15 +3,15 @@
 <head><script src="../guard.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>빵 다섯 번 자르기</title>
+<title>Five Cuts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* VOICE: 짧고 긴장감 있는 원터치 챌린지
-   IDEA: 어두운 무대 위 조명 받은 둥근 빵 한 덩이와 칼 한 자루
-   PICTURE: 게임판이 그림: 스포트라이트 아래 빵, 아래에서 좌우로 오가는 칼
-   COLOUR and TYPE: 거의 검정 무대, 구운 갈색 빵, 강철 칼날과 주황 손잡이, 실패는 토마토 빨강; Black Han Sans, Gothic A1
-   LAYOUT: 작은 제목, 세로형 게임판, 아래 짧은 규칙 */
+/* VOICE: a short, tense one-tap challenge
+   IDEA: a spotlit round loaf of bread and a single knife on a dark stage
+   PICTURE: the board is the picture: bread under a spotlight, a knife sliding left and right below it
+   COLOUR and TYPE: near-black stage, toasty brown bread, steel blade with an orange handle, tomato red for failure; Black Han Sans, Gothic A1
+   LAYOUT: small title, tall game board, short rules below */
 :root{color-scheme:light dark;--bg:light-dark(#f2ece4,#120e0b);--ink:light-dark(#22180f,#f6eee3);--sub:light-dark(#6b5643,#bba68f);--case:light-dark(#2a1f16,#050403)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
@@ -39,22 +39,22 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 </style>
 </head>
 <body>
-<h1>빵 다섯 번 자르기</h1>
-<p class="sub">칼이 빵 아래를 오갑니다. 자르면 큰 쪽은 떨어지고 작은 쪽만 남아요. 5번 다 맞히면 성공!</p>
+<h1>Five Cuts</h1>
+<p class="sub">The knife slides back and forth under the bread. When you cut, the bigger piece falls and only the smaller piece stays. Make all 5 cuts to win!</p>
 <div class="case">
   <div class="screen" id="screen">
     <canvas id="cv"></canvas>
-    <div class="count" id="count">0 컷<small id="width">남은 빵 100%</small></div>
-    <div class="best" id="best">연속 0 · 최고 0</div>
+    <div class="count" id="count">0 cuts<small id="width">Bread left 100%</small></div>
+    <div class="best" id="best">Streak 0 · Best 0</div>
     <div class="msg" id="msg"></div>
     <div class="overlay" id="ov">
-      <h2 id="ovT">빵 다섯 번 자르기</h2>
-      <p id="ovP">화면을 탭하거나 스페이스바를 누르면 칼이 위로 올라가 빵을 잘라요. 빵을 빗나가면 실패. 요령은 남은 빵의 한가운데!</p>
-      <button class="btn" id="go" type="button">시작</button>
+      <h2 id="ovT">Five Cuts</h2>
+      <p id="ovP">Tap the screen or press Space and the knife rises to cut the bread. Miss the bread and you fail. Tip: aim for the middle of what is left!</p>
+      <button class="btn" id="go" type="button">Start</button>
     </div>
   </div>
 </div>
-<p class="tips">성공할 때마다 다음 빵은 칼이 조금 더 빨라져요.</p>
+<p class="tips">Each time you succeed, the knife moves a bit faster on the next loaf.</p>
 <script>
 {
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),screen=document.getElementById('screen');
@@ -87,7 +87,7 @@ const ro=new ResizeObserver(size);ro.observe(screen);size();
 let ac=null;
 function sound(f,d,type,vol){try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=type||'square';o.frequency.setValueAtTime(f,ac.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(40,f*0.4),ac.currentTime+d);g.gain.setValueAtTime(vol||.08,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
 function say(t,cls){msg.textContent=t;msg.className='msg on '+cls}
-function hud(){countEl.firstChild.nodeValue=n+' 컷';document.getElementById('width').textContent=`남은 빵 ${Math.round((b-a)*1000)/10}%`;bestEl.textContent=`연속 ${streak} · 최고 ${best}`}
+function hud(){countEl.firstChild.nodeValue=n+(n===1?' cut':' cuts');document.getElementById('width').textContent=`Bread left ${Math.round((b-a)*1000)/10}%`;bestEl.textContent=`Streak ${streak} · Best ${best}`}
 function speed(){return 0.42*(1+n*0.03)*(1+Math.min(streak,12)*0.07)}
 
 function start(){
@@ -110,16 +110,16 @@ function tap(){
   if(n>=CUTS)win();
 }
 function lose(){
-  state='over';endAt=performance.now();shake=reduce?0:9;sound(110,.45,'sawtooth',.1);say('빗나갔어요','lose');
+  state='over';endAt=performance.now();shake=reduce?0:9;sound(110,.45,'sawtooth',.1);say('Missed','lose');
   const s=streak;streak=0;hud();
-  setTimeout(()=>{ovT.textContent='아깝다!';ovP.textContent=`${n}번 자르고 빗나갔어요. 이번 연속 성공 ${s}회, 최고 ${best}회.`;go.textContent='다시 하기';ov.classList.remove('hide')},1000);
+  setTimeout(()=>{ovT.textContent='So close!';ovP.textContent=`You missed after ${n} cuts. Streak this time: ${s}, best: ${best}.`;go.textContent='Play again';ov.classList.remove('hide')},1000);
 }
 function win(){
   state='over';endAt=performance.now();streak++;if(streak>best){best=streak;try{localStorage.setItem('bread5Best',best)}catch(e){}}
-  hud();say('성공!','win');sound(660,.2,'triangle',.1);setTimeout(()=>sound(990,.3,'triangle',.1),130);
+  hud();say('Success!','win');sound(660,.2,'triangle',.1);setTimeout(()=>sound(990,.3,'triangle',.1),130);
   if(!reduce)for(let i=0;i<90;i++)confetti.push({x:Math.random()*W,y:-Math.random()*H*0.4,vy:80+Math.random()*160,vx:(Math.random()-.5)*60,r:Math.random()*6,vr:(Math.random()-.5)*8,c:['#ffcf5a','#ff7a59','#7ad8ff','#b78cff','#7cf0a0'][i%5],s:4+Math.random()*5});
   const remain=Math.round((b-a)*1000)/10;
-  setTimeout(()=>{ovT.textContent=`성공! 연속 ${streak}회`;ovP.textContent=`남은 빵 조각은 원래의 ${remain}%. 다음 빵은 칼이 조금 더 빨라요.`;go.textContent='다음 빵';ov.classList.remove('hide')},1400);
+  setTimeout(()=>{ovT.textContent=`Success! Streak ${streak}`;ovP.textContent=`The bread left is ${remain}% of the original. The next loaf’s knife is a bit faster.`;go.textContent='Next loaf';ov.classList.remove('hide')},1400);
 }
 
 function drawPiece(pa,pb,ox,oy,rot,alpha,dark){

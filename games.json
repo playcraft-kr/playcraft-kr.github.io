@@ -33,7 +33,7 @@
   "cats": [
    "Puzzle"
   ],
-  "lang": "Korean",
+  "lang": "English",
   "controls": [
    [
     "Arrow keys / WASD",
@@ -50,12 +50,13 @@
   ],
   "tip": "Keep your biggest tile in one corner.",
   "mobile": true,
-  "version": 1,
+  "version": 2,
   "added": "2026-11-23",
-  "notes": "New on PlayCraft",
+  "notes": "All game text now in English",
   "author": "hugo",
   "cover": "img/cover-merge-2048.webp",
-  "wide": "img/wide-merge-2048.webp"
+  "wide": "img/wide-merge-2048.webp",
+  "updated": "2026-11-23"
  },
  {
   "slug": "five-cuts",
@@ -65,7 +66,7 @@
   "cats": [
    "Action"
   ],
-  "lang": "Korean",
+  "lang": "English",
   "controls": [
    [
     "Tap / Space",
@@ -74,12 +75,13 @@
   ],
   "tip": "Aim for the middle of what is left.",
   "mobile": true,
-  "version": 1,
+  "version": 2,
   "added": "2026-11-23",
-  "notes": "New on PlayCraft",
+  "notes": "All game text now in English",
   "author": "hugo",
   "cover": "img/cover-five-cuts.webp",
-  "wide": "img/wide-five-cuts.webp"
+  "wide": "img/wide-five-cuts.webp",
+  "updated": "2026-11-23"
  },
  {
   "slug": "planet-maker",
@@ -90,7 +92,7 @@
    "Space",
    "Puzzle"
   ],
-  "lang": "Korean",
+  "lang": "English",
   "controls": [
    [
     "Click / Tap",
@@ -103,12 +105,13 @@
   ],
   "tip": "Keep the average temperature between 5 and 35 °C for the best chance of life.",
   "mobile": true,
-  "version": 1,
+  "version": 2,
   "added": "2026-11-23",
-  "notes": "New on PlayCraft",
+  "notes": "All game text now in English",
   "author": "hugo",
   "cover": "img/cover-planet-maker.webp",
-  "wide": "img/wide-planet-maker.webp"
+  "wide": "img/wide-planet-maker.webp",
+  "updated": "2026-11-23"
  },
  {
   "slug": "echoes-of-the-unknown",
@@ -120,7 +123,7 @@
    "3D",
    "Action"
   ],
-  "lang": "English & Korean",
+  "lang": "English",
   "controls": [
    [
     "WASD",
@@ -153,12 +156,13 @@
   ],
   "tip": "Wake the stones you find: they let you warp back later.",
   "mobile": false,
-  "version": 1,
+  "version": 2,
   "added": "2026-11-23",
-  "notes": "New on PlayCraft",
+  "notes": "Story, quests and controls now in English",
   "author": "hugo",
   "cover": "img/cover-echoes-of-the-unknown.webp",
-  "wide": "img/wide-echoes-of-the-unknown.webp"
+  "wide": "img/wide-echoes-of-the-unknown.webp",
+  "updated": "2026-11-23"
  },
  {
   "slug": "ssat-word-league",

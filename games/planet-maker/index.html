@@ -3,15 +3,15 @@
 <head><script src="../guard.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>행성 만들기</title>
+<title>Planet Maker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-/* VOICE: 호기심 많은 우주 탐험가의 실험실, 밝고 친절하게
-   IDEA: 별 옆에 행성을 직접 빚어 놓고 50억 년을 돌려 보는 행성 실험 장치
-   PICTURE: 별빛을 받는 살아 있는 행성 — 바다·얼음·용암·구름·도시 불빛이 조건에 따라 바뀜
-   COLOUR and TYPE: 깊은 보라빛 우주, 별 색이 주조명, 산호색 포인트 / Do Hyeon + Noto Sans KR
-   LAYOUT: 왼쪽 행성 화면과 시간 막대, 오른쪽 조절판과 도감 — 좁은 화면에선 위아래 */
+/* VOICE: a curious space explorer’s lab, bright and friendly
+   IDEA: a planet lab where you shape a planet next to a star and run it for 5 billion years
+   PICTURE: a living planet in starlight — oceans, ice, lava, clouds and city lights change with the conditions
+   COLOUR and TYPE: deep purple space, the star’s color as the main light, coral accents / Do Hyeon + Noto Sans KR
+   LAYOUT: planet view and time bar on the left, control panel and collection on the right — stacked on narrow screens */
 :root{color-scheme:dark;--bg:#0b0918;--panel:#15122a;--line:rgba(255,255,255,.1);--ink:#eef0ff;--dim:#a9a7c9;--accent:#ff7b6b;--good:#5ad1c4;--warn:#ffc36b}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Noto Sans KR",system-ui,sans-serif;overflow-x:clip}
@@ -177,106 +177,106 @@ body.fs{overflow:hidden}
 </head>
 <body>
 <header>
-  <h1>행성 만들기</h1>
-  <p class="build-only">별을 고르고, 거리·크기·대기·물을 정한 다음 50억 년을 돌려 보세요. 생명이 태어날까요?</p>
-  <p class="civ-only">원시 시대부터 은하 문명까지. 미래의 물건을 과거로 보내면 역사가 어떻게 바뀔까요?</p>
-  <button class="hbtn build-only" id="civBtn">문명 시뮬레이션</button>
+  <h1>Planet Maker</h1>
+  <p class="build-only">Pick a star, set the distance, size, atmosphere and water, then run 5 billion years. Will life appear?</p>
+  <p class="civ-only">From the Stone Age to a galactic civilization. What happens to history if you send future things into the past?</p>
+  <button class="hbtn build-only" id="civBtn">Civilization Sim</button>
 </header>
 <main class="app">
   <section>
     <div class="fig" id="fig">
-      <canvas id="c" aria-label="내가 만든 행성"></canvas>
-      <div class="age" id="age">0년<small id="stageTxt">아직 생명 없음</small></div>
+      <canvas id="c" aria-label="My Planet"></canvas>
+      <div class="age" id="age">0 years<small id="stageTxt">No life yet</small></div>
       <div class="toast" id="toast"></div>
-      <button class="fsbtn civ-only" id="fsbtn">전체 화면</button>
-      <div class="zhint civ-only" id="zhint">행성을 눌러 마을을 들여다보세요</div>
+      <button class="fsbtn civ-only" id="fsbtn">Full Screen</button>
+      <div class="zhint civ-only" id="zhint">Tap the planet to look into a village</div>
       <div class="zoomui civ-only" id="zoomui" hidden>
         <div id="sceneName"></div>
-        <div id="zsize"><button data-v="village" class="on">작은 마을</button><button data-v="city">큰 도시</button></div>
-        <button class="zb" id="zback">← 행성으로</button>
-        <div class="zpm"><button id="zin" aria-label="확대">+</button><button id="zout" aria-label="축소">−</button><button id="vrl" aria-label="왼쪽으로 돌리기">↺</button><button id="vrr" aria-label="오른쪽으로 돌리기">↻</button></div>
-        <div id="tray" hidden></div><div id="placeTag" hidden></div><div id="pinfo" hidden></div><canvas id="mini" width="160" height="120" aria-label="미니맵"></canvas>
-        <div id="godbar"><button data-t="hand" class="on">손 (들어 올리기)</button><button data-t="eye">시점 돌리기</button><button data-t="draw">그려서 만들기</button><button data-t="gift">물건 내려 주기</button><button data-t="lab">창조 연구소</button><button data-t="lev">모두 띄우기</button><button data-t="follow">따라가기</button><button data-t="night">밤으로</button></div>
-        <div id="vpanel"><span>시점</span><div id="vpre"><button data-p="90">위에서</button><button data-p="50">비스듬히</button><button data-p="22">낮게</button></div><input type="range" id="vpitch" min="18" max="90" value="55" aria-label="기울기"></div>
+        <div id="zsize"><button data-v="village" class="on">Small Village</button><button data-v="city">Big City</button></div>
+        <button class="zb" id="zback">← To Planet</button>
+        <div class="zpm"><button id="zin" aria-label="Zoom In">+</button><button id="zout" aria-label="Zoom Out">−</button><button id="vrl" aria-label="Rotate Left">↺</button><button id="vrr" aria-label="Rotate Right">↻</button></div>
+        <div id="tray" hidden></div><div id="placeTag" hidden></div><div id="pinfo" hidden></div><canvas id="mini" width="160" height="120" aria-label="Minimap"></canvas>
+        <div id="godbar"><button data-t="hand" class="on">Hand (lift up)</button><button data-t="eye">Rotate View</button><button data-t="draw">Draw and Create</button><button data-t="gift">Drop an Item</button><button data-t="lab">Creation Lab</button><button data-t="lev">Float All</button><button data-t="follow">Follow</button><button data-t="night">Go to Night</button></div>
+        <div id="vpanel"><span>View</span><div id="vpre"><button data-p="90">Top</button><button data-p="50">Angled</button><button data-p="22">Low</button></div><input type="range" id="vpitch" min="18" max="90" value="55" aria-label="Tilt"></div>
       </div>
       <div class="pad" id="pad" hidden><div class="box">
-        <h3>그려서 만들기</h3><p class="sub2">생명체는 살아 움직이고 번식해요. 발명품은 마을에 내려 줄 수 있어요</p>
-        <div class="prow"><select id="pmode"><option value="life">생명체로 살리기</option><option value="inv">발명품으로 만들기</option></select></div>
+        <h3>Draw and Create</h3><p class="sub2">Creatures come alive, move and multiply. Inventions can be dropped into the village</p>
+        <div class="prow"><select id="pmode"><option value="life">Bring to Life</option><option value="inv">Make an Invention</option></select></div>
         <canvas id="padc" width="300" height="240"></canvas>
-        <div id="pcols"><button data-c="#3a2a1a" class="on" style="background:#3a2a1a" aria-label="검정"></button><button data-c="#c0392b" style="background:#c0392b" aria-label="빨강"></button><button data-c="#e67e22" style="background:#e67e22" aria-label="주황"></button><button data-c="#f1c40f" style="background:#f1c40f" aria-label="노랑"></button><button data-c="#27ae60" style="background:#27ae60" aria-label="초록"></button><button data-c="#2e86de" style="background:#2e86de" aria-label="파랑"></button><button data-c="#8e44ad" style="background:#8e44ad" aria-label="보라"></button><button data-c="#ffffff" style="background:#fff" aria-label="흰색"></button>
-          <button data-w="4" class="w">가늘게</button><button data-w="8" class="w on">보통</button><button data-w="14" class="w">굵게</button></div>
-        <div class="prow"><input id="pname" maxlength="12" placeholder="이름 (예: 불꽃여우)"><select id="psize"><option value="28">작게</option><option value="44" selected>보통</option><option value="80">크게</option><option value="140">거대하게</option></select></div>
-        <div class="prow" id="pinvrow" hidden><select id="plvl"><option value="0">원시 기술</option><option value="8">고대 기술</option><option value="12">중세 기술</option><option value="16">근대 기술</option><option value="19">산업 기술</option><option value="24">현대 기술</option><option value="28">미래 기술</option><option value="33">먼 미래 기술</option></select><select id="peff"><option value="sci">과학 발전</option><option value="peace">평화</option><option value="env">환경 보호</option><option value="pop">인구 증가</option></select></div>
-        <div class="prow"><button id="pclear" class="back">지우기</button><button id="pcancel" class="back">취소</button><button id="plive" class="play">살아나라!</button></div>
+        <div id="pcols"><button data-c="#3a2a1a" class="on" style="background:#3a2a1a" aria-label="Black"></button><button data-c="#c0392b" style="background:#c0392b" aria-label="Red"></button><button data-c="#e67e22" style="background:#e67e22" aria-label="Orange"></button><button data-c="#f1c40f" style="background:#f1c40f" aria-label="Yellow"></button><button data-c="#27ae60" style="background:#27ae60" aria-label="Green"></button><button data-c="#2e86de" style="background:#2e86de" aria-label="Blue"></button><button data-c="#8e44ad" style="background:#8e44ad" aria-label="Purple"></button><button data-c="#ffffff" style="background:#fff" aria-label="White"></button>
+          <button data-w="4" class="w">Thin</button><button data-w="8" class="w on">Medium</button><button data-w="14" class="w">Thick</button></div>
+        <div class="prow"><input id="pname" maxlength="12" placeholder="Name (e.g. Flame Fox)"><select id="psize"><option value="28">Small</option><option value="44" selected>Medium</option><option value="80">Big</option><option value="140">Giant</option></select></div>
+        <div class="prow" id="pinvrow" hidden><select id="plvl"><option value="0">Primitive Tech</option><option value="8">Ancient Tech</option><option value="12">Medieval Tech</option><option value="16">Early Modern Tech</option><option value="19">Industrial Tech</option><option value="24">Modern Tech</option><option value="28">Future Tech</option><option value="33">Far-Future Tech</option></select><select id="peff"><option value="sci">Science</option><option value="peace">Peace</option><option value="env">Environment</option><option value="pop">Population Growth</option></select></div>
+        <div class="prow"><button id="pclear" class="back">Erase</button><button id="pcancel" class="back">Cancel</button><button id="plive" class="play">Come Alive!</button></div>
       </div></div>
       <div class="lab" id="lab" hidden><div class="box">
-        <div class="labhead"><h3>창조 연구소</h3><span id="labcount"></span><button id="labclose" class="back" style="width:auto;padding:0 14px">닫기</button></div>
-        <div id="labtabs"><button data-tab="mix" class="on">조합하기</button><button data-tab="atom">원자 만들기</button></div>
+        <div class="labhead"><h3>Creation Lab</h3><span id="labcount"></span><button id="labclose" class="back" style="width:auto;padding:0 14px">Close</button></div>
+        <div id="labtabs"><button data-tab="mix" class="on">Combine</button><button data-tab="atom">Build an Atom</button></div>
         <div id="tab-atom" hidden><canvas id="atomc" width="240" height="240"></canvas><div id="pzinfo"></div>
           <div id="atomctl">
-            <div class="arow"><span class="dot" style="background:#ff6b5a"></span><label for="ap">양성자</label><button data-f="ap" data-d="-1">−</button><input id="ap" type="number" min="0" max="1000000" value="1"><button data-f="ap" data-d="1">+</button><button data-f="ap" data-d="100">+100</button></div>
-            <div class="arow"><span class="dot" style="background:#c9ced6"></span><label for="an">중성자</label><button data-f="an" data-d="-1">−</button><input id="an" type="number" min="0" max="1000000" value="0"><button data-f="an" data-d="1">+</button><button data-f="an" data-d="100">+100</button></div>
-            <div class="arow"><span class="dot" style="background:#8fe3ff"></span><label for="ae">전자</label><button data-f="ae" data-d="-1">−</button><input id="ae" type="number" min="0" max="1000000" value="1"><button data-f="ae" data-d="1">+</button><button data-f="ae" data-d="1000">+1000</button></div>
-            <label class="auto"><input type="checkbox" id="autoe" checked> 양성자를 바꾸면 전자·중성자 자동 맞추기</label>
-            <div class="pres"><button data-pre="1,0,1">수소</button><button data-pre="6,6,6">탄소</button><button data-pre="8,8,8">산소</button><button data-pre="26,30,26">철</button><button data-pre="79,118,79">금</button><button data-pre="1,1,10000">전자 10000개 수소</button><button data-pre="0,0,500">전자 구름</button><button data-pre="150,10,150">초무거운 원자</button></div>
+            <div class="arow"><span class="dot" style="background:#ff6b5a"></span><label for="ap">Protons</label><button data-f="ap" data-d="-1">−</button><input id="ap" type="number" min="0" max="1000000" value="1"><button data-f="ap" data-d="1">+</button><button data-f="ap" data-d="100">+100</button></div>
+            <div class="arow"><span class="dot" style="background:#c9ced6"></span><label for="an">Neutrons</label><button data-f="an" data-d="-1">−</button><input id="an" type="number" min="0" max="1000000" value="0"><button data-f="an" data-d="1">+</button><button data-f="an" data-d="100">+100</button></div>
+            <div class="arow"><span class="dot" style="background:#8fe3ff"></span><label for="ae">Electrons</label><button data-f="ae" data-d="-1">−</button><input id="ae" type="number" min="0" max="1000000" value="1"><button data-f="ae" data-d="1">+</button><button data-f="ae" data-d="1000">+1000</button></div>
+            <label class="auto"><input type="checkbox" id="autoe" checked> Auto-match electrons and neutrons when protons change</label>
+            <div class="pres"><button data-pre="1,0,1">Hydrogen</button><button data-pre="6,6,6">Carbon</button><button data-pre="8,8,8">Oxygen</button><button data-pre="26,30,26">Iron</button><button data-pre="79,118,79">Gold</button><button data-pre="1,1,10000">Hydrogen with 10000 electrons</button><button data-pre="0,0,500">Electron Cloud</button><button data-pre="150,10,150">Superheavy Atom</button></div>
           </div>
-          <div class="prow"><button id="pmake" class="play">이 원자 만들기</button></div><p class="hint">숫자를 마음대로 바꿔서 세상에 없는 물질도 만들 수 있어요. 양성자 수가 원소를 정하고, 전자가 많거나 적으면 전기를 띠고, 중성자가 안 맞으면 불안정해져요.</p></div>
-        <div id="tab-mix"><div id="slots"><div class="slot" id="slotA"></div><b>+</b><div class="slot" id="slotB"></div><button id="labmix" class="play">섞기!</button><button id="labhint" class="back" style="width:auto;padding:0 12px">힌트</button></div>
+          <div class="prow"><button id="pmake" class="play">Build This Atom</button></div><p class="hint">Change the numbers however you like to make matter that doesn’t exist. The number of protons decides the element, too many or too few electrons give it an electric charge, and the wrong number of neutrons makes it unstable.</p></div>
+        <div id="tab-mix"><div id="slots"><div class="slot" id="slotA"></div><b>+</b><div class="slot" id="slotB"></div><button id="labmix" class="play">Mix!</button><button id="labhint" class="back" style="width:auto;padding:0 12px">Hint</button></div>
           <div id="labres"></div>
-          <div id="labmode"><button data-m="mix" class="on">섞기</button><button data-m="put">마을에 넣기·붓기</button></div>
-          <div class="prow"><select id="labf"><option>전체</option><option>입자</option><option>원소</option><option>분자</option><option>에너지</option><option>물질</option><option>물건</option><option>생명</option><option>창조 물질</option></select></div>
+          <div id="labmode"><button data-m="mix" class="on">Mix</button><button data-m="put">Put or Pour into Village</button></div>
+          <div class="prow"><select id="labf"><option>All</option><option>Particles</option><option>Elements</option><option>Molecules</option><option>Energy</option><option>Materials</option><option>Objects</option><option>Life</option><option>Creation Matter</option></select></div>
           <div id="labinv"></div></div>
       </div></div>
-      <div class="dlg" id="dlg" hidden><div class="box"><p class="who">통치자님, 결정해 주세요</p><h3 id="dlgT"></h3><p id="dlgX"></p><div class="ch"><button id="dlgA"></button><button id="dlgB"></button></div></div></div>
-      <div class="endp" id="endp" hidden><div class="box"><h3>은하 문명 달성!</h3><p id="endTxt"></p><button class="play" id="endAgain">처음부터 다시</button></div></div>
+      <div class="dlg" id="dlg" hidden><div class="box"><p class="who">Ruler, please decide</p><h3 id="dlgT"></h3><p id="dlgX"></p><div class="ch"><button id="dlgA"></button><button id="dlgB"></button></div></div></div>
+      <div class="endp" id="endp" hidden><div class="box"><h3>Galactic Civilization Reached!</h3><p id="endTxt"></p><button class="play" id="endAgain">Start Over</button></div></div>
     </div>
     <div class="stats civ-only">
-      <div class="stat"><div class="k">인구</div><div class="v" id="cP">-</div></div>
-      <div class="stat"><div class="k">기술 단계</div><div class="v" id="cT">-</div></div>
-      <div class="stat"><div class="k">환경</div><div class="v" id="cE">-</div><div class="meter"><i id="cEm"></i></div></div>
-      <div class="stat"><div class="k">평화</div><div class="v" id="cPe">-</div><div class="meter"><i id="cPm"></i></div></div>
+      <div class="stat"><div class="k">Population</div><div class="v" id="cP">-</div></div>
+      <div class="stat"><div class="k">Tech Level</div><div class="v" id="cT">-</div></div>
+      <div class="stat"><div class="k">Environment</div><div class="v" id="cE">-</div><div class="meter"><i id="cEm"></i></div></div>
+      <div class="stat"><div class="k">Peace</div><div class="v" id="cPe">-</div><div class="meter"><i id="cPm"></i></div></div>
     </div>
     <div class="time civ-only">
       <div class="trow">
-        <div class="speed" id="speed"><button data-s="0">멈춤</button><button data-s="1" class="on">1배</button><button data-s="2">2배</button><button data-s="4">4배</button></div>
+        <div class="speed" id="speed"><button data-s="0">Pause</button><button data-s="1" class="on">1x</button><button data-s="2">2x</button><button data-s="4">4x</button></div>
         <div class="bar"><div class="fill" id="cfill"></div></div>
       </div>
       <ul class="log" id="clog"></ul>
     </div>
     <div class="stats build-only">
-      <div class="stat"><div class="k">평균 온도</div><div class="v" id="sT">-</div></div>
-      <div class="stat"><div class="k">물</div><div class="v" id="sW">-</div></div>
-      <div class="stat"><div class="k">대기</div><div class="v" id="sA">-</div></div>
-      <div class="stat"><div class="k">생명 가능 점수</div><div class="v" id="sS">-</div><div class="meter"><i id="sM"></i></div></div>
+      <div class="stat"><div class="k">Average Temp</div><div class="v" id="sT">-</div></div>
+      <div class="stat"><div class="k">Water</div><div class="v" id="sW">-</div></div>
+      <div class="stat"><div class="k">Atmosphere</div><div class="v" id="sA">-</div></div>
+      <div class="stat"><div class="k">Habitability Score</div><div class="v" id="sS">-</div><div class="meter"><i id="sM"></i></div></div>
     </div>
     <div class="time build-only">
       <div class="trow">
-        <button class="play" id="play">50억 년 돌려 보기</button>
-        <button class="play" id="toCiv" hidden style="background:var(--warn)">이 행성의 문명 시뮬레이션 →</button>
+        <button class="play" id="play">Run 5 Billion Years</button>
+        <button class="play" id="toCiv" hidden style="background:var(--warn)">Civilization Sim for This Planet →</button>
         <div class="bar" id="bar"><div class="fill" id="fill"></div></div>
       </div>
-      <ul class="log" id="log"><li>조건을 정하고 시간을 돌려 보세요.</li></ul>
+      <ul class="log" id="log"><li>Set the conditions and run time.</li></ul>
     </div>
   </section>
   <aside>
-    <div class="card civ-only"><h2>통치자의 책상</h2><p class="hint" style="font-size:13px;color:var(--dim);margin:-4px 0 10px">나라 예산을 어디에 쓸지 정하세요.</p><div id="pols"></div>
-      <h2 style="font-size:18px;margin-top:6px">명령 내리기</h2><div class="gifts" id="decrees"></div></div>
-    <div class="card civ-only"><h2>미래에서 온 선물</h2><p class="hint" style="font-size:13px;color:var(--dim);margin:-4px 0 10px">하나씩 과거로 보낼 수 있어요. 너무 앞선 물건은 사람들이 이해하지 못할 수도 있어요.</p><div class="gifts" id="gifts"></div></div>
-    <div class="card civ-only"><h2>발명 연표</h2><ul class="inv" id="inv"></ul></div>
-    <div class="card civ-only"><button class="back" id="back">행성 설계로 돌아가기</button></div>
+    <div class="card civ-only"><h2>The Ruler’s Desk</h2><p class="hint" style="font-size:13px;color:var(--dim);margin:-4px 0 10px">Decide how to spend the nation’s budget.</p><div id="pols"></div>
+      <h2 style="font-size:18px;margin-top:6px">Give Orders</h2><div class="gifts" id="decrees"></div></div>
+    <div class="card civ-only"><h2>Gifts from the Future</h2><p class="hint" style="font-size:13px;color:var(--dim);margin:-4px 0 10px">You can send them to the past one at a time. Things that are too advanced may not make sense to people.</p><div class="gifts" id="gifts"></div></div>
+    <div class="card civ-only"><h2>Invention Timeline</h2><ul class="inv" id="inv"></ul></div>
+    <div class="card civ-only"><button class="back" id="back">Back to Planet Design</button></div>
     <div class="card build-only">
-      <h2>행성 설계</h2>
+      <h2>Planet Design</h2>
       <div class="seg" id="stars"></div>
-      <div class="ctl"><label for="dist">별과의 거리 <span id="vDist"></span></label><input type="range" id="dist" min="0" max="100"><p class="hint">가까우면 뜨겁고, 멀면 추워요. 지구는 1</p></div>
-      <div class="ctl"><label for="mass">행성 크기(무게) <span id="vMass"></span></label><input type="range" id="mass" min="0" max="100"><p class="hint">작으면 대기를 붙잡기 힘들어요. 지구는 1</p></div>
-      <div class="ctl"><label for="atm">대기 두께 <span id="vAtm"></span></label><input type="range" id="atm" min="0" max="50"><p class="hint">두꺼울수록 온실효과로 따뜻해져요. 지구는 1</p></div>
-      <div class="ctl"><label for="water">물의 양 <span id="vWater"></span></label><input type="range" id="water" min="0" max="100"><p class="hint">지구는 표면의 약 70%가 바다예요</p></div>
-      <div class="toggle"><span>자기장 보호막</span><button class="sw" id="mag" aria-pressed="true" aria-label="자기장 켜기/끄기"></button></div>
-      <p class="hint" style="font-size:13px;color:var(--dim);margin:0 0 12px">자기장은 별에서 오는 바람으로부터 대기를 지켜 줘요</p>
+      <div class="ctl"><label for="dist">Distance from Star <span id="vDist"></span></label><input type="range" id="dist" min="0" max="100"><p class="hint">Closer is hotter, farther is colder. Earth is 1</p></div>
+      <div class="ctl"><label for="mass">Planet Size (Mass) <span id="vMass"></span></label><input type="range" id="mass" min="0" max="100"><p class="hint">Small planets struggle to hold on to air. Earth is 1</p></div>
+      <div class="ctl"><label for="atm">Atmosphere Thickness <span id="vAtm"></span></label><input type="range" id="atm" min="0" max="50"><p class="hint">Thicker air means more greenhouse warming. Earth is 1</p></div>
+      <div class="ctl"><label for="water">Amount of Water <span id="vWater"></span></label><input type="range" id="water" min="0" max="100"><p class="hint">About 70% of Earth’s surface is ocean</p></div>
+      <div class="toggle"><span>Magnetic Shield</span><button class="sw" id="mag" aria-pressed="true" aria-label="Magnetic Field On/Off"></button></div>
+      <p class="hint" style="font-size:13px;color:var(--dim);margin:0 0 12px">A magnetic field protects the atmosphere from the wind coming off the star</p>
       <div class="presets" id="presets"></div>
     </div>
-    <div class="card build-only"><h2>과학자의 메모</h2><ul class="warn" id="warn"></ul></div>
-    <div class="card build-only"><h2>행성 도감 <span class="count" id="count"></span></h2><div class="dex" id="dex"></div></div>
+    <div class="card build-only"><h2>Scientist’s Notes</h2><ul class="warn" id="warn"></ul></div>
+    <div class="card build-only"><h2>Planet Collection <span class="count" id="count"></span></h2><div class="dex" id="dex"></div></div>
   </aside>
 </main>
 <script>
@@ -285,27 +285,27 @@ const $=id=>document.getElementById(id);
 const store={get(k,d){try{const v=localStorage.getItem('planet_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('planet_'+k,JSON.stringify(v))}catch(e){}}};
 
 const STARS=[
- {name:'적색왜성',L:0.04,col:[255,120,80],size:0.55,life:Infinity},
- {name:'태양 같은 별',L:1,col:[255,232,175],size:1,life:Infinity},
- {name:'청색 거성',L:8,col:[175,205,255],size:1.7,life:1e9}
+ {name:'Red Dwarf',L:0.04,col:[255,120,80],size:0.55,life:Infinity},
+ {name:'Sun-like Star',L:1,col:[255,232,175],size:1,life:Infinity},
+ {name:'Blue Giant',L:8,col:[175,205,255],size:1.7,life:1e9}
 ];
-const STAGES=['아직 생명 없음','미생물 탄생','식물이 자람','동물 등장','문명 탄생'];
+const STAGES=['No life yet','Microbes Appear','Plants Grow','Animals Appear','Civilization Born'];
 const NEED=[[0,0],[0.5e9,45],[1.5e9,60],[3e9,72],[4.5e9,85]];
 const BADGES=[
- {id:'earth',name:'지구 쌍둥이',hint:'문명이 탄생한 행성'},
- {id:'ocean',name:'바다 행성',hint:'물 90% 이상, 바다가 출렁'},
- {id:'snow',name:'눈덩이 행성',hint:'영하 40도 아래 꽁꽁'},
- {id:'lava',name:'용암 행성',hint:'500도 넘게 끓는 표면'},
- {id:'venus',name:'온실 지옥',hint:'두꺼운 대기로 200도 이상'},
- {id:'mars',name:'붉은 사막',hint:'자기장 없이 대기를 잃음'},
- {id:'tidal',name:'반쪽 낮 행성',hint:'적색왜성 바로 옆, 한쪽만 낮'},
- {id:'nova',name:'초신성 목격',hint:'청색 거성의 마지막 순간'}
+ {id:'earth',name:'Earth Twin',hint:'A planet where civilization was born'},
+ {id:'ocean',name:'Ocean Planet',hint:'Over 90% water, waves everywhere'},
+ {id:'snow',name:'Snowball Planet',hint:'Frozen solid below -40 degrees'},
+ {id:'lava',name:'Lava Planet',hint:'A surface boiling at over 500 degrees'},
+ {id:'venus',name:'Greenhouse Inferno',hint:'Over 200 degrees under thick air'},
+ {id:'mars',name:'Red Desert',hint:'Lost its air without a magnetic field'},
+ {id:'tidal',name:'Half-Day Planet',hint:'Right next to a red dwarf, day on only one side'},
+ {id:'nova',name:'Supernova Witness',hint:'The final moment of a blue giant'}
 ];
 const PRESETS={
- '지구':{star:1,d:1,m:1,atm:1,water:70,mag:true},
- '금성':{star:1,d:0.72,m:0.8,atm:5,water:10,mag:false},
- '화성':{star:1,d:1.52,m:0.11,atm:1,water:30,mag:false},
- '랜덤':null
+ 'Earth':{star:1,d:1,m:1,atm:1,water:70,mag:true},
+ 'Venus':{star:1,d:0.72,m:0.8,atm:5,water:10,mag:false},
+ 'Mars':{star:1,d:1.52,m:0.11,atm:1,water:30,mag:false},
+ 'Random':null
 };
 
 const S={star:1,d:1,m:1,atm:1,water:70,mag:true};
@@ -336,7 +336,7 @@ function calc(a){
   return {T,atm,atm0,tidal,boiled,frozen,liquid,score:Math.max(0,Math.min(100,Math.round(sc)))};
 }
 
-// ---- 지형 지도 (구 표면 노이즈) ----
+// ---- Terrain map (sphere surface noise) ----
 const MW=256,MH=128;
 function hash(x,y,z){let h=Math.imul(x|0,374761393)^Math.imul(y|0,668265263)^Math.imul(z|0,1440662683);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;h=Math.imul(h,2246822519);h^=h>>>13;return (h>>>0)/4294967295}
 function vnoise(x,y,z){const xi=Math.floor(x),yi=Math.floor(y),zi=Math.floor(z),xf=x-xi,yf=y-yi,zf=z-zi;
@@ -350,7 +350,7 @@ for(let j=0;j<MH;j++){const lat=(j/(MH-1)-0.5)*Math.PI;for(let i=0;i<MW;i++){con
 const SORTED=Float32Array.from(HM).sort();
 const seaFor=w=>w<=0?-1:w>=100?2:SORTED[Math.floor(w/100*(SORTED.length-1))];
 
-// ---- 그리기 ----
+// ---- Drawing ----
 const cv=$('c'),ctx=cv.getContext('2d');
 const N=230,pc=document.createElement('canvas');pc.width=pc.height=N;const pctx=pc.getContext('2d');const img=pctx.createImageData(N,N);
 let W=0,H=0,dpr=1,stars=[];
@@ -437,10 +437,10 @@ function renderPlanet(c,t){
 }
 
 // ---- UI ----
-function ageText(a){if(a<=0)return '0년';if(a<1e8)return Math.round(a/1e6)+'백만 년';return Math.round(a/1e8)+'억 년'}
+function ageText(a){if(a<=0)return '0 years';if(a<1e9)return Math.round(a/1e6)+' million years';return (a/1e9).toFixed(1).replace(/\.0$/,'')+' billion years'}
 function toast(s){const el=$('toast');el.textContent=s;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2600)}
 function logEv(s){events.unshift(`<li><b>${ageText(age)}</b> · ${s}</li>`);$('log').innerHTML=events.slice(0,30).join('')}
-function award(id){if(got.has(id))return;got.add(id);store.set('dex',[...got]);const b=BADGES.find(x=>x.id===id);toast(`도감 발견: ${b.name}!`);logEv(`도감에 「${b.name}」 등록`);renderDex()}
+function award(id){if(got.has(id))return;got.add(id);store.set('dex',[...got]);const b=BADGES.find(x=>x.id===id);toast(`New in collection: ${b.name}!`);logEv(`Added 「${b.name}」 to the collection`);renderDex()}
 function renderDex(){$('dex').innerHTML=BADGES.map(b=>`<div class="badge${got.has(b.id)?' got':''}"><b>${got.has(b.id)?b.name:'???'}</b>${b.hint}</div>`).join('');$('count').textContent=`${got.size} / ${BADGES.length}`}
 
 function checkStatic(c){
@@ -452,38 +452,38 @@ function checkStatic(c){
 }
 function notes(c){
   const n=[],st=STARS[S.star];
-  if(c.boiled&&S.water>0)n.push('너무 뜨거워서 물이 모두 끓어 수증기가 됐어요. 별에서 더 멀리 가 보세요.');
-  if(c.frozen&&S.water>0)n.push('너무 추워서 바다가 얼어붙었어요. 별에 가까이 가거나 대기를 두껍게 해 보세요.');
-  if(S.water===0)n.push('물이 없으면 생명이 시작되기 어려워요.');
-  if(S.m<0.3&&S.atm>0)n.push('행성이 작아서 중력이 약해요. 대기를 많이 붙잡지 못해요.');
-  if(S.atm>=3)n.push('대기가 아주 두꺼우면 온실효과로 엄청 뜨거워져요. 금성이 그래요.');
-  if(S.atm<0.2)n.push('대기가 너무 얇으면 열을 붙잡지 못하고 물도 날아가요.');
-  if(!S.mag)n.push(S.m<0.6?'작은 행성에 자기장까지 없으면 별바람이 대기를 금방 벗겨 가요. 화성이 그렇게 됐어요.':'자기장이 없어서 별바람이 대기를 아주 천천히 벗겨 가요.');
-  if(c.tidal)n.push('적색왜성 바로 옆이라 행성이 한쪽 면만 별을 봐요. 낮인 쪽은 뜨겁고 밤인 쪽은 꽁꽁 얼어요.');
-  if(S.star===2)n.push('청색 거성은 아주 밝지만 수명이 약 10억 년밖에 안 돼요. 생명이 자랄 시간이 부족해요.');
-  if(S.m>5)n.push('행성이 아주 크면 중력이 너무 세서 생물이 살기 힘들 수 있어요.');
-  if(!n.length)n.push(c.score>=85?'아주 좋은 조건이에요! 시간을 돌려서 문명이 탄생하는지 보세요.':'꽤 괜찮아요. 온도를 5~35도 사이로 맞춰 보세요.');
+  if(c.boiled&&S.water>0)n.push('It’s so hot that all the water boiled into steam. Try moving farther from the star.');
+  if(c.frozen&&S.water>0)n.push('It’s so cold that the oceans froze. Move closer to the star or thicken the atmosphere.');
+  if(S.water===0)n.push('Without water, life has a hard time getting started.');
+  if(S.m<0.3&&S.atm>0)n.push('The planet is small, so its gravity is weak. It can’t hold on to much air.');
+  if(S.atm>=3)n.push('A very thick atmosphere makes things extremely hot through the greenhouse effect. That’s what happened to Venus.');
+  if(S.atm<0.2)n.push('If the atmosphere is too thin, it can’t hold in heat and the water escapes too.');
+  if(!S.mag)n.push(S.m<0.6?'A small planet with no magnetic field gets its air stripped away fast by the stellar wind. That’s what happened to Mars.':'With no magnetic field, the stellar wind slowly strips away the atmosphere.');
+  if(c.tidal)n.push('Right next to a red dwarf, the planet always shows the same side to the star. The day side is hot and the night side is frozen.');
+  if(S.star===2)n.push('Blue giants are very bright but live only about 1 billion years. That’s not enough time for life to grow.');
+  if(S.m>5)n.push('On a very big planet, gravity may be too strong for living things to thrive.');
+  if(!n.length)n.push(c.score>=85?'Great conditions! Run time and see if a civilization is born.':'Pretty good. Try keeping the temperature between 5 and 35 degrees.');
   return n.slice(0,4);
 }
 function updateUI(){
   const c=calc(age);
   $('vDist').textContent=(S.d<1?S.d.toFixed(2):S.d.toFixed(1))+' AU';
-  $('vMass').textContent='지구의 '+(S.m<1?S.m.toFixed(2):S.m.toFixed(1))+'배';
-  $('vAtm').textContent=S.atm===0?'없음':'지구의 '+S.atm.toFixed(1)+'배';
+  $('vMass').textContent=''+(S.m<1?S.m.toFixed(2):S.m.toFixed(1))+'× Earth';
+  $('vAtm').textContent=S.atm===0?'None':''+S.atm.toFixed(1)+'× Earth';
   $('vWater').textContent=S.water+'%';
   $('sT').textContent=Math.round(c.T)+'°C';
-  $('sW').textContent=S.water===0?'없음':c.boiled?'수증기':c.frozen?'얼음':c.atm<=0.05?'날아감':'바다';
-  $('sA').textContent=c.atm<0.05?'거의 없음':c.atm<0.5?'얇음':c.atm<=2?'적당':'두꺼움';
-  $('sS').textContent=c.score+'점';$('sM').style.width=c.score+'%';$('sM').style.background=c.score>=72?'var(--good)':c.score>=45?'var(--warn)':'var(--accent)';
+  $('sW').textContent=S.water===0?'None':c.boiled?'Steam':c.frozen?'Ice':c.atm<=0.05?'Escaped':'Ocean';
+  $('sA').textContent=c.atm<0.05?'Almost None':c.atm<0.5?'Thin':c.atm<=2?'Just Right':'Thick';
+  $('sS').textContent=c.score+' pts';$('sM').style.width=c.score+'%';$('sM').style.background=c.score>=72?'var(--good)':c.score>=45?'var(--warn)':'var(--accent)';
   $('warn').innerHTML=notes(c).map(s=>`<li>${s}</li>`).join('');
   $('age').firstChild.nodeValue=ageText(age);
-  $('stageTxt').textContent=extinct?'생명이 사라졌어요':ended&&S.star===2?'별이 폭발했어요':STAGES[stage];
+  $('stageTxt').textContent=extinct?'Life has vanished':ended&&S.star===2?'The star exploded':STAGES[stage];
   $('fill').style.width=(age/5e9*100)+'%';
   document.querySelectorAll('.mk').forEach((m,i)=>m.classList.toggle('got',stage>=i+1));
   if(!simming)checkStatic(c);
   return c;
 }
-function resetSim(){$('toCiv').hidden=true;age=0;stage=0;extinct=false;ended=false;lostAtm=false;simming=false;events=[];$('log').innerHTML='<li>조건을 정하고 시간을 돌려 보세요.</li>';$('play').disabled=false;$('play').textContent='50억 년 돌려 보기';setInputs(true)}
+function resetSim(){$('toCiv').hidden=true;age=0;stage=0;extinct=false;ended=false;lostAtm=false;simming=false;events=[];$('log').innerHTML='<li>Set the conditions and run time.</li>';$('play').disabled=false;$('play').textContent='Run 5 Billion Years';setInputs(true)}
 function setInputs(on){document.querySelectorAll('aside input,aside button').forEach(e=>e.disabled=!on)}
 function syncControls(){
   $('dist').value=vFromD(S.d);$('mass').value=vFromM(S.m);$('atm').value=Math.round(S.atm*10);$('water').value=S.water;
@@ -500,63 +500,63 @@ $('presets').innerHTML=Object.keys(PRESETS).map(k=>`<button data-k="${k}">${k}</
 $('presets').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;let p=PRESETS[b.dataset.k];
   if(!p)p={star:Math.floor(Math.random()*3),d:dFromV(Math.random()*100),m:mFromV(Math.random()*100),atm:Math.round(Math.random()*30)/10,water:Math.round(Math.random()*100),mag:Math.random()<0.6};
   Object.assign(S,p);syncControls();resetSim();updateUI()});
-$('bar').insertAdjacentHTML('beforeend',['미생물','식물','동물','문명'].map((s,i)=>`<div class="mk" style="left:${NEED[i+1][0]/5e9*100}%">${s}</div>`).join(''));
+$('bar').insertAdjacentHTML('beforeend',['Microbes','Plants','Animals','Civilization'].map((s,i)=>`<div class="mk" style="left:${NEED[i+1][0]/5e9*100}%">${s}</div>`).join(''));
 
 $('play').addEventListener('click',()=>{
   if(age>=5e9||ended){resetSim();updateUI()}
-  simming=true;setInputs(false);$('play').disabled=true;$('play').textContent='시간이 흐르는 중…';
-  logEv(`${STARS[S.star].name} 옆에서 행성이 태어났어요`);
+  simming=true;setInputs(false);$('play').disabled=true;$('play').textContent='Time is passing…';
+  logEv(`A planet was born next to a ${STARS[S.star].name}`);
 });
 
 function simTick(dt){
   const prev=age;age=Math.min(5e9,age+dt*5e9/14);
   const c=calc(age);
-  if(!S.mag&&!lostAtm&&c.atm0>=0.3&&c.atm<c.atm0*0.35){lostAtm=true;logEv('별바람에 대기가 대부분 벗겨졌어요');if(c.atm<0.3)award('mars')}
-  if(S.star===2&&age>=1e9){age=1e9;ended=true;flash=1;logEv('청색 거성이 초신성으로 폭발했어요!');award('nova');finish();return}
+  if(!S.mag&&!lostAtm&&c.atm0>=0.3&&c.atm<c.atm0*0.35){lostAtm=true;logEv('The stellar wind stripped away most of the atmosphere');if(c.atm<0.3)award('mars')}
+  if(S.star===2&&age>=1e9){age=1e9;ended=true;flash=1;logEv('The blue giant exploded as a supernova!');award('nova');finish();return}
   if(!extinct){
-    if(stage<4&&age>=NEED[stage+1][0]&&c.score>=NEED[stage+1][1]){stage++;logEv(['','바다에서 첫 미생물이 생겼어요','육지에 식물이 퍼졌어요','동물들이 나타났어요','문명이 탄생했어요! 밤에 도시 불빛이 보여요'][stage]);toast(STAGES[stage]+'!');if(stage===4){award('earth');$('toCiv').hidden=false;$('civBtn').disabled=false}}
-    if(stage>=1&&c.score<35){extinct=true;stage=0;logEv('환경이 나빠져서 생명이 사라졌어요')}
+    if(stage<4&&age>=NEED[stage+1][0]&&c.score>=NEED[stage+1][1]){stage++;logEv(['','The first microbes formed in the ocean','Plants spread across the land','Animals appeared','A civilization is born! City lights shine at night'][stage]);toast(STAGES[stage]+'!');if(stage===4){award('earth');$('toCiv').hidden=false;$('civBtn').disabled=false}}
+    if(stage>=1&&c.score<35){extinct=true;stage=0;logEv('The environment got worse and life vanished')}
   }
-  if(prev<5e9&&age>=5e9){logEv(stage>0?`50억 년 결과: ${STAGES[stage]}`:'50억 년 동안 생명이 생기지 않았어요');finish()}
+  if(prev<5e9&&age>=5e9){logEv(stage>0?`After 5 billion years: ${STAGES[stage]}`:'No life appeared in 5 billion years');finish()}
 }
-function finish(){simming=false;$('play').disabled=false;$('play').textContent='처음부터 다시';setInputs(true);checkStatic(calc(age))}
+function finish(){simming=false;$('play').disabled=false;$('play').textContent='Start Over';setInputs(true);checkStatic(calc(age))}
 
-// ================= 문명 시뮬레이션 =================
-const INV=[['석기와 불',-50000],['동굴 벽화',-40000],['활과 화살',-25000],['농업',-10000],['토기와 마을',-8000],['바퀴',-3500],['문자',-3200],['청동기',-3000],['철기',-1200],['수학과 철학',-500],['종이',105],['나침반',1000],['화약',1040],['인쇄술',1440],['망원경',1608],['증기기관',1769],['백신',1796],['전기',1831],['전화',1876],['비행기',1903],['컴퓨터',1946],['로켓과 인공위성',1957],['달 착륙',1969],['인터넷',1991],['스마트폰',2007],['인공지능',2023],['태양광 시대',2035],['핵융합 발전',2050],['화성 도시',2075],['우주 엘리베이터',2120],['소행성 채굴',2160],['항성 간 우주선',2300],['다른 별 식민지',2600],['은하 문명',3500]];
+// ================= Civilization simulation =================
+const INV=[['Stone Tools and Fire',-50000],['Cave Paintings',-40000],['Bow and Arrow',-25000],['Farming',-10000],['Pottery and Villages',-8000],['The Wheel',-3500],['Writing',-3200],['Bronze Age',-3000],['Iron Age',-1200],['Math and Philosophy',-500],['Paper',105],['Compass',1000],['Gunpowder',1040],['Printing',1440],['Telescope',1608],['Steam Engine',1769],['Vaccines',1796],['Electricity',1831],['Telephone',1876],['Airplane',1903],['Computer',1946],['Rockets and Satellites',1957],['Moon Landing',1969],['Internet',1991],['Smartphone',2007],['Artificial Intelligence',2023],['Solar Age',2035],['Fusion Power',2050],['Mars City',2075],['Space Elevator',2120],['Asteroid Mining',2160],['Interstellar Ship',2300],['Colonies at Other Stars',2600],['Galactic Civilization',3500]];
 const NI=INV.length;
-const ERAS=[[0,'원시 시대'],[3,'농경 시대'],[6,'고대 문명'],[10,'중세'],[14,'근대'],[17,'산업 시대'],[20,'정보화 시대'],[26,'가까운 미래'],[31,'우주 문명']];
+const ERAS=[[0,'Stone Age'],[3,'Farming Age'],[6,'Ancient Civilization'],[10,'Middle Ages'],[14,'Early Modern Era'],[17,'Industrial Age'],[20,'Information Age'],[26,'Near Future'],[31,'Space Civilization']];
 const CAP=[0.5,1,3,8,15,25,40,70,110,180,220,270,320,420,520,800,1100,1500,1900,2400,2900,3400,3900,5500,7000,8000,9000,10000,11500,13000,16000,40000,200000,5000000];
 const GIFTS=[
- {id:'seed',name:'씨앗 주머니',idx:3,desc:'밀·쌀·옥수수 씨앗'},
- {id:'book',name:'백과사전',idx:13,desc:'인류의 모든 지식이 담긴 책'},
- {id:'scope',name:'망원경',idx:14,desc:'하늘을 크게 보는 도구'},
- {id:'vaccine',name:'백신 상자',idx:16,desc:'병을 막아 주는 약'},
- {id:'radio',name:'라디오',idx:18,desc:'멀리서 오는 소리를 듣는 상자'},
- {id:'phone',name:'스마트폰',idx:24,desc:'배터리 가득, 인터넷은 안 됨'},
- {id:'robot',name:'AI 로봇',idx:25,desc:'말하고 생각하는 로봇'},
- {id:'solar',name:'태양광 패널',idx:26,desc:'햇빛으로 전기를 만드는 판'}
+ {id:'seed',name:'Seed Pouch',idx:3,desc:'Wheat, rice and corn seeds'},
+ {id:'book',name:'Encyclopedia',idx:13,desc:'A book of all human knowledge'},
+ {id:'scope',name:'Telescope',idx:14,desc:'A tool for seeing the sky up close'},
+ {id:'vaccine',name:'Vaccine Box',idx:16,desc:'Medicine that prevents disease'},
+ {id:'radio',name:'Radio',idx:18,desc:'A box that picks up sounds from far away'},
+ {id:'phone',name:'Smartphone',idx:24,desc:'Fully charged, but no internet'},
+ {id:'robot',name:'AI Robot',idx:25,desc:'A robot that talks and thinks'},
+ {id:'solar',name:'Solar Panel',idx:26,desc:'A panel that turns sunlight into electricity'}
 ];
 const FLAVOR={
- phone:{worship:'하늘에서 빛나는 돌판이 떨어졌어요! 사람들이 스마트폰을 신으로 모시기 시작했어요.',genius:'한 천재가 스마트폰을 분해하다가 전기와 금속의 비밀을 알아냈어요! 과학이 폭발적으로 발전해요.',fight:'빛나는 돌판을 서로 갖겠다고 부족끼리 큰 싸움이 났어요.',partial:'스마트폰 속 계산기와 사진을 연구하면서 수학과 과학이 크게 발전했어요.'},
- robot:{worship:'말하는 쇠 인형이 나타났어요! 사람들이 로봇을 왕처럼 모셨어요.',genius:'로봇이 사람들에게 글자와 숫자를 가르쳐 줬어요! 배우는 속도가 엄청 빨라졌어요.',fight:'로봇을 무서워한 사람들과 로봇을 지키려는 사람들이 싸웠어요.',partial:'로봇의 설명을 반쯤 알아듣고 과학 실험을 시작했어요.'}
+ phone:{worship:'A glowing stone slab fell from the sky! People began worshiping the smartphone as a god.',genius:'A genius took the smartphone apart and discovered the secrets of electricity and metal! Science takes off.',fight:'Tribes went to war over who would own the glowing stone slab.',partial:'Studying the calculator and photos inside the smartphone made math and science leap ahead.'},
+ robot:{worship:'A talking iron doll appeared! People treated the robot like a king.',genius:'The robot taught people letters and numbers! They learned incredibly fast.',fight:'People who feared the robot fought people who wanted to protect it.',partial:'Understanding about half of the robot’s explanations, people began doing science experiments.'}
 };
 let mode='build',speed=1,civC=null;
 const C={P:0,year:-50000,pop:0.5,env:100,peace:70,perm:1,boost:1,boostT:0,used:{},invYear:[],ended:false,base:1,vacc:false,green:false,gifts:0,anim:[],ships:[]};
 
 const natYear=P=>{const i=Math.floor(P);if(i>=NI-1)return INV[NI-1][1];return INV[i][1]+(P-i)*(INV[i+1][1]-INV[i][1])};
 const eraOf=i=>{let e=ERAS[0][1];for(const x of ERAS)if(i>=x[0])e=x[1];return e};
-const fmtYear=y=>y<0?`기원전 ${Math.round(-y).toLocaleString()}년`:`${Math.round(y)}년`;
-const fmtPop=p=>p>=1e6?(p/1e6).toFixed(1)+'조 명':p>=100?(p/100).toFixed(p<1000?1:0)+'억 명':Math.max(1,Math.round(p*100)).toLocaleString()+'만 명';
+const fmtYear=y=>y<0?`${Math.round(-y).toLocaleString()} BC`:`AD ${Math.round(y)}`;
+const fmtPop=p=>p>=1e6?(p/1e6).toFixed(1)+' trillion people':p>=1000?(p/1000).toFixed(1)+' billion people':p>=1?p.toFixed(p<10?1:0)+' million people':Math.max(1,Math.round(p*1e6)).toLocaleString()+' people';
 function clog(s){C.log.unshift(`<li><b>${fmtYear(C.year)}</b> · ${s}</li>`);C.log.length=Math.min(C.log.length,40);$('clog').innerHTML=C.log.join('')}
 
 function startCiv(){
-  if(calc(5e9).score<85)Object.assign(S,PRESETS['지구']),syncControls();
+  if(calc(5e9).score<85)Object.assign(S,PRESETS['Earth']),syncControls();
   civC=calc(5e9);stage=4;
   Object.assign(C,{P:0,year:-50000,pop:0.5,env:100,peace:70,perm:1,boost:1,boostT:0,used:{},invYear:[-50000],ended:false,base:clamp(civC.score/100,0.6,1),vacc:false,green:false,gifts:0,anim:[],ships:[],log:[],relic:null,itemKind:{},pol:{sci:25,eco:25,peace:25,env:25},cd:{},guard:0,dlg:null,dlgT:20,seen:new Set()});
   scene.on=false;scene.k=0;scene.dir=0;scene.tier=-1;scene.people=[];scene.objs=[];scene.creatures=[];scene.decals=[];scene.drops=[];scene.levT=0;scene.food=40;dialogs.length=0;evlog.length=0;document.body.classList.remove('zoomed');$('zoomui').hidden=true;$('zhint').hidden=false;$('dlg').hidden=true;renderGov();
   mode='civ';document.body.classList.add('civ');$('endp').hidden=true;
   setInputs(true);setSpeed(1);renderGifts();renderInv();
-  clog(`${eraOf(0)}. 사람들이 불을 피우고 돌로 도구를 만들어요`);
+  clog(`${eraOf(0)}. People light fires and make tools from stone`);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function backToBuild(){if(document.body.classList.contains('fs'))setFS(false);if(scene.on){scene.on=false;scene.k=0;scene.dir=0;$('zoomui').hidden=true;document.body.classList.remove('zoomed')}mode='build';document.body.classList.remove('civ');resetSim();stage=0;updateUI()}
@@ -565,8 +565,8 @@ function setSpeed(v){speed=v;document.querySelectorAll('#speed button').forEach(
 function invent(k){
   C.invYear[k]=Math.round(C.year);
   const d=Math.round(INV[k][1]-C.year);
-  clog(`<b>${INV[k][0]}</b> 발명!${k>0&&Math.abs(d)>=10?` (실제 역사보다 ${Math.abs(d).toLocaleString()}년 ${d>0?'빠름':'늦음'})`:''}`);
-  const era=ERAS.find(e=>e[0]===k);if(era)toast(`${era[1]} 시작!`);
+  clog(`<b>${INV[k][0]}</b> invented!${k>0&&Math.abs(d)>=10?` (vs. real history: ${Math.abs(d).toLocaleString()} years ${d>0?'earlier':'later'})`:''}`);
+  const era=ERAS.find(e=>e[0]===k);if(era)toast(`${era[1]} begins!`);
   if(k===NI-1)endCiv();
 }
 function setBack(n,why){
@@ -576,15 +576,15 @@ function setBack(n,why){
 }
 function civEvent(){
   const i=Math.floor(C.P),opts=[
-    [3,()=>{C.boost=1.5;C.boostT=6;clog('천재 과학자가 태어났어요! 한동안 발명이 빨라져요')}],
-    [3+(i>=12?2:0),()=>{const gd=C.guard>0?0.5:1,loss=(i>=12?0.08:0.04)*gd;C.pop*=1-loss;C.peace-=22*gd;clog('나라끼리 전쟁이 일어났어요');
-       if(i>=21&&C.peace<15){C.pop*=0.6;C.peace=55;C.env-=10;setBack(4,'세계 대전으로 도시가 무너지고 문명이 크게 후퇴했어요')}}],
-    [2,()=>{if(i>=16||C.vacc){C.pop*=0.98;clog('전염병이 돌았지만 백신으로 막아 냈어요')}else{C.pop*=0.85;clog('전염병이 퍼져서 인구가 줄었어요')}}],
-    [2,()=>{C.peace=Math.min(100,C.peace+20);clog('평화로운 황금시대가 찾아왔어요')}],
-    [2,()=>{C.P=Math.min(NI-1,C.P+0.4);clog('우연한 대발견! 연구가 앞당겨졌어요')}],
-    [i<4?2:0,()=>{C.pop*=0.7;clog('빙하기가 와서 많은 사람이 추위에 고생했어요')}],
-    [C.env<35?4:0,()=>{C.pop*=0.94;C.peace-=8;clog('폭염과 홍수 같은 기후 재난이 늘어나요')}],
-    [i>=29?1:0,()=>{C.boost=1.3;C.boostT=6;clog('외계 신호를 받았어요! 사람들이 우주 연구에 열광해요')}]
+    [3,()=>{C.boost=1.5;C.boostT=6;clog('A genius scientist was born! Inventions will come faster for a while')}],
+    [3+(i>=12?2:0),()=>{const gd=C.guard>0?0.5:1,loss=(i>=12?0.08:0.04)*gd;C.pop*=1-loss;C.peace-=22*gd;clog('War broke out between nations');
+       if(i>=21&&C.peace<15){C.pop*=0.6;C.peace=55;C.env-=10;setBack(4,'A world war destroyed cities and set civilization far back')}}],
+    [2,()=>{if(i>=16||C.vacc){C.pop*=0.98;clog('A plague spread, but vaccines stopped it')}else{C.pop*=0.85;clog('A plague spread and the population shrank')}}],
+    [2,()=>{C.peace=Math.min(100,C.peace+20);clog('A peaceful golden age has arrived')}],
+    [2,()=>{C.P=Math.min(NI-1,C.P+0.4);clog('A lucky big discovery! Research jumped ahead')}],
+    [i<4?2:0,()=>{C.pop*=0.7;clog('An ice age came and many people suffered from the cold')}],
+    [C.env<35?4:0,()=>{C.pop*=0.94;C.peace-=8;clog('Climate disasters like heat waves and floods are increasing')}],
+    [i>=29?1:0,()=>{C.boost=1.3;C.boostT=6;clog('An alien signal was received! People are wild about space research')}]
   ];
   let tot=opts.reduce((a,o)=>a+o[0],0),r=Math.random()*tot;
   for(const o of opts){if((r-=o[0])<0){o[1]();break}}
@@ -603,7 +603,7 @@ function civTick(dt){
   if(i1>=26)C.env+=0.3*dy*(i1>=27?2:1);
   if(C.green&&i1<26)C.env+=0.02*dy*(i1>=15?1:0);
   C.env=clamp(C.env,0,100);
-  if(C.env<=2&&!C.ended){C.env=40;C.pop*=0.5;setBack(3,'환경이 무너져 기후 붕괴가 일어났어요. 문명이 뒤로 물러났어요')}
+  if(C.env<=2&&!C.ended){C.env=40;C.pop*=0.5;setBack(3,'The environment collapsed and the climate broke down. Civilization fell back')}
   if(i1>=15)C.env+=(sh.env-0.25)*0.06*dy;
   C.peace=clamp(C.peace+(40+100*sh.peace-C.peace)*0.04*dts,0,100);
   for(const k in C.cd)C.cd[k]=Math.max(0,C.cd[k]-dts);if(C.guard>0)C.guard-=dts;
@@ -616,17 +616,17 @@ function give(id){
   if(C.used[id]||C.ended)return;
   const g=GIFTS.find(x=>x.id===id);C.used[id]=true;C.gifts++;C.anim.push({t:0});
   const gap=g.idx-C.P,fl=FLAVOR[id]||{},r=Math.random();let msg,ok=false;
-  const nm=g.name,obj=/[가-힣]$/.test(nm)&&((nm.charCodeAt(nm.length-1)-0xac00)%28)?'을':'를';
-  if(gap<=0.5){C.perm+=0.03;msg=`${nm}${obj} 받았지만 이미 비슷한 게 있어서 별로 신기해하지 않아요.`;ok=true}
-  else if(gap<=4){const from=Math.floor(C.P);C.P=Math.max(C.P,g.idx+0.02);for(let k=from+1;k<=g.idx;k++)if(C.invYear[k]===undefined)invent(k);msg=`${nm}${obj} 금방 이해하고 따라 만들었어요! ${INV[g.idx][0]}까지 단숨에 발명했어요.`;ok=true}
+  const nm=g.name,obj='';
+  if(gap<=0.5){C.perm+=0.03;msg=`They received the ${nm}${obj}, but they already had something similar, so they weren’t very impressed.`;ok=true}
+  else if(gap<=4){const from=Math.floor(C.P);C.P=Math.max(C.P,g.idx+0.02);for(let k=from+1;k<=g.idx;k++)if(C.invYear[k]===undefined)invent(k);msg=`They quickly understood the ${nm}${obj} and copied it! They invented ${INV[g.idx][0]} in one leap.`;ok=true}
   else if(gap<=12){
-    if(r<0.5){C.P+=gap*0.45;C.perm+=0.25;C.relic={name:nm,kind:'study'};msg=fl.partial||`${nm}${obj} 분해하고 연구하면서 과학이 크게 발전했어요.`;ok=true}
-    else if(r<0.8){C.peace=Math.min(100,C.peace+15);C.perm+=0.08;C.relic={name:nm,kind:'worship'};msg=fl.worship||`${nm}${obj} 신기한 보물로 모셔 두었어요. 사람들이 하나로 뭉쳤어요.`}
-    else{C.peace-=25;C.pop*=0.95;msg=fl.fight||`${nm}${obj} 서로 차지하려고 다툼이 벌어졌어요.`}
+    if(r<0.5){C.P+=gap*0.45;C.perm+=0.25;C.relic={name:nm,kind:'study'};msg=fl.partial||`Taking apart and studying the ${nm}${obj} made science leap ahead.`;ok=true}
+    else if(r<0.8){C.peace=Math.min(100,C.peace+15);C.perm+=0.08;C.relic={name:nm,kind:'worship'};msg=fl.worship||`They treasured the ${nm}${obj} as a marvel. It brought people together.`}
+    else{C.peace-=25;C.pop*=0.95;msg=fl.fight||`Fights broke out over who would get the ${nm}${obj}.`}
   }else{
-    if(r<0.25){C.P+=3;C.perm+=0.6;C.relic={name:nm,kind:'study'};msg=fl.genius||`한 천재가 ${nm}${obj} 살펴보다가 과학하는 방법을 깨달았어요! 발명이 훨씬 빨라져요.`;ok=true}
-    else if(r<0.8){C.peace=Math.min(100,C.peace+12);C.perm+=0.05;C.relic={name:nm,kind:'worship'};msg=fl.worship||`하늘에서 떨어진 ${nm}${obj} 신의 물건이라며 모시기 시작했어요.`}
-    else{C.peace-=25;C.pop*=0.92;msg=fl.fight||`${nm}${obj} 갖겠다고 부족끼리 싸움이 났어요.`}
+    if(r<0.25){C.P+=3;C.perm+=0.6;C.relic={name:nm,kind:'study'};msg=fl.genius||`A genius studying the ${nm}${obj} figured out how to do science! Inventions come much faster.`;ok=true}
+    else if(r<0.8){C.peace=Math.min(100,C.peace+12);C.perm+=0.05;C.relic={name:nm,kind:'worship'};msg=fl.worship||`They began worshiping the ${nm}${obj} that fell from the sky as an object of the gods.`}
+    else{C.peace-=25;C.pop*=0.92;msg=fl.fight||`Tribes fought over who would get the ${nm}${obj}.`}
   }
   if(ok&&id==='vaccine')C.vacc=true;
   if(ok&&id==='solar')C.green=true;
@@ -634,27 +634,27 @@ function give(id){
   if(ok&&id==='seed'&&gap>0.5)C.pop*=1.5;
   C.P=Math.min(NI-1,C.P);
   const i1=Math.floor(C.P);for(let k=1;k<=i1;k++)if(C.invYear[k]===undefined)invent(k);
-  clog(`<b>선물: ${nm}</b> — ${msg}`);toast(msg.length>46?msg.slice(0,44)+'…':msg);
+  clog(`<b>Gift: ${nm}</b> — ${msg}`);toast(msg.length>46?msg.slice(0,44)+'…':msg);
   renderGifts();renderInv();
 }
 function renderGifts(){
-  $('gifts').innerHTML=GIFTS.map(g=>{const gap=Math.round(g.idx-C.P);const tag=C.used[g.id]?'보냄':gap<=0?'이미 있는 수준':`${gap}단계 앞선 물건`;
+  $('gifts').innerHTML=GIFTS.map(g=>{const gap=Math.round(g.idx-C.P);const tag=C.used[g.id]?'Sent':gap<=0?'Already Known':`${gap} levels ahead`;
     return `<button class="gift" data-id="${g.id}" ${C.used[g.id]||C.ended?'disabled':''}><b>${g.name}</b><small>${g.desc}</small><small class="gap">${tag}</small></button>`}).join('');
 }
 function renderInv(){
   const cur=Math.floor(C.P);
-  $('inv').innerHTML=INV.map((v,k)=>{const done=C.invYear[k]!==undefined;return `<li class="${done?'done':k===cur+1?'next':''}"><span>${v[0]}</span><span>${done?fmtYear(C.invYear[k]):k===cur+1?'연구 중':v[1]>2026?'미래':'?'}</span></li>`}).join('');
+  $('inv').innerHTML=INV.map((v,k)=>{const done=C.invYear[k]!==undefined;return `<li class="${done?'done':k===cur+1?'next':''}"><span>${v[0]}</span><span>${done?fmtYear(C.invYear[k]):k===cur+1?'Researching':v[1]>2026?'Future':'?'}</span></li>`}).join('');
   if(mode==='civ'){const el=$('inv').children[Math.min(NI-1,cur+1)];if(el)$('inv').scrollTop=Math.max(0,el.offsetTop-$('inv').offsetTop-120)}
 }
 function endCiv(){
   C.ended=true;const d=Math.round(INV[NI-1][1]-C.year);
-  $('endTxt').innerHTML=`${fmtYear(C.year)}에 은하 문명이 되었어요.<br>${d>=0?`예상 역사(3500년)보다 <b>${d.toLocaleString()}년 빨라요</b>`:`예상 역사(3500년)보다 ${(-d).toLocaleString()}년 늦어요`}<br>보낸 선물 ${C.gifts}개`;
+  $('endTxt').innerHTML=`Became a galactic civilization in ${fmtYear(C.year)}.<br>${d>=0?`Compared with the expected timeline (AD 3500): <b>${d.toLocaleString()} years sooner</b>`:`${(-d).toLocaleString()} years behind the expected timeline (AD 3500)`}<br>Gifts sent: ${C.gifts}`;
   $('endp').hidden=false;renderGifts();
 }
 function civUI(){
   const i=Math.floor(C.P),d=Math.round(natYear(C.P)-C.year);
   $('age').firstChild.nodeValue=fmtYear(C.year);
-  $('stageTxt').innerHTML=`${eraOf(i)}${Math.abs(d)>=10?`<span class="diff">실제 역사보다 ${Math.abs(d).toLocaleString()}년 ${d>0?'빠름':'늦음'}</span>`:''}`;
+  $('stageTxt').innerHTML=`${eraOf(i)}${Math.abs(d)>=10?`<span class="diff">vs. real history: ${Math.abs(d).toLocaleString()} years ${d>0?'earlier':'later'}</span>`:''}`;
   $('cP').textContent=fmtPop(C.pop);$('cT').textContent=`${i+1} / ${NI}`;
   $('cE').textContent=Math.round(C.env);$('cEm').style.width=C.env+'%';$('cEm').style.background=C.env>60?'var(--good)':C.env>30?'var(--warn)':'var(--accent)';
   $('cPe').textContent=Math.round(C.peace);$('cPm').style.width=C.peace+'%';$('cPm').style.background=C.peace>50?'var(--good)':C.peace>25?'var(--warn)':'var(--accent)';
@@ -678,29 +678,29 @@ function drawCivExtras(px,py,pr,t,base){
     if(k>=1){flash=Math.max(flash,0.35);a.done=1}}
   C.anim=C.anim.filter(a=>!a.done);
 }
-// ================= 마을 (위에서 보기 · 실제 시간 · 신 모드) =================
+// ================= Village (top view · real time · god mode) =================
 const scene={on:false,k:0,dir:0,size:'village',tier:-1,idx:-1,ww:1400,wh:1050,camX:700,camY:525,z:1.7,blds:[],trees:[],fields:[],roads:[],rail:null,people:[],animals:[],veh:[],objs:[],creatures:[],smoke:[],fx:[],gcan:null,night:false,clock:36000,tool:'hand',item:null,grab:null,drag:null,levT:0,sel:null,cp:{x:0,y:0},prevSpeed:1,caveCD:0,decals:[],drops:[],pour:null,place:null,yaw:0,pitch:55,yawT:null,pitchT:null,follow:null,orbit:null};
 const tierOf=i=>i<3?0:i<6?1:i<10?2:i<14?3:i<17?4:i<20?5:i<26?6:i<31?7:8;
-const SNAME={village:['원시 부족 캠프','농사짓는 작은 마을','고대 마을','중세 시골 마을','근대 마을','공장 마을','현대 소도시','미래 마을','우주 정착촌'],
- city:['큰 부족 터전','큰 농경 마을','고대 왕국 수도','중세 성곽 도시','근대 대도시','산업 대도시','현대 대도시','미래 메가시티','우주 항구 도시']};
+const SNAME={village:['Primitive Tribe Camp','Small farming village','Ancient village','Medieval country village','Early modern village','Factory town','Modern small town','Future village','Space settlement'],
+ city:['Big tribal camp','Big farming village','Ancient royal capital','Medieval walled city','Early modern big city','Industrial big city','Modern big city','Future megacity','Spaceport city']};
 const CLOTH=[['#7a5236','#5e3d27','#8a6a48'],['#c9b48a','#8a6d45','#a68a5b'],['#e8e0cc','#b04a3a','#d8c9a0'],['#6b4f3a','#3f5a7a','#7a2e2e'],['#2e3440','#5b4636','#3b4a6b'],['#4a5a6b','#6b5a45','#2f3a2f'],['#e05a4a','#3a7bd5','#f2c14e','#5ac18e','#9b59b6'],['#eef2f5','#9fd6e8','#cfe8d2'],['#dfe6f0','#ffb347','#8ec9ff']];
 const SKIN=['#f1c9a5','#d9a679','#b97c50','#8d5a3b','#f5d7bf'],HAIR=['#2a1d14','#4a3020','#111','#7a5a30','#c9a060'];
 const ACT=[
- [['hunt','사냥하러 가는 중','walk','spear','animal'],['gather','열매 따는 중','work','','bush'],['fire','모닥불 쬐는 중','sit','','fire'],['tool','돌도구 만드는 중','work','stone','fire'],['paint','동굴 벽에 그림 그리는 중','work','brush','wall',1],['bow','활쏘기 연습 중','stand','bow','any',2],['play','뛰어노는 중','run','','any']],
- [['farm','밭 가는 중','work','hoe','field'],['harvest','곡식 거두는 중','work','sickle','field'],['pot','토기 빚는 중','sit','pot','bld'],['herd','양 돌보는 중','walk','staff','animal'],['water','우물에서 물 긷는 중','work','jar','well'],['fire','모닥불 앞에서 쉬는 중','sit','','fire'],['play','뛰어노는 중','run','','any']],
- [['farm','밭 가는 중','work','hoe','field'],['market','시장에서 물건 파는 중','stand','','stall'],['write','점토판에 글 쓰는 중','sit','tablet','bld'],['smith','쇠를 두드리는 중','work','hammer','forge'],['build','신전 짓는 중','work','hammer','big'],['talk','철학 토론 중','talk','','any'],['water','물 나르는 중','walk','jar','any']],
- [['farm','밭 가는 중','work','hoe','field'],['market','시장에서 장사하는 중','stand','','stall'],['guard','성을 지키는 중','walk','spear','big'],['sack','방앗간에 밀 나르는 중','walk','sack','mill'],['print','인쇄기로 책 찍는 중','work','','bld',13],['read','책 읽는 중','stand','book','any',13],['talk','이야기 나누는 중','talk','','any']],
- [['read','책 읽는 중','stand','book','any'],['scope','망원경으로 하늘 보는 중','stand','scope','obs',14],['doctor','백신 놓아 주는 중','stand','','bld',16],['walk','산책하는 중','walk','','any'],['talk','신문 이야기 하는 중','talk','','any'],['build','벽돌집 짓는 중','work','hammer','bld']],
- [['factory','공장에서 일하는 중','work','hammer','factory'],['call','전화하는 중','stand','oldphone','bld',18],['news','신문 보는 중','stand','book','any'],['walk','출근하는 중','walk','case','any'],['build','건물 짓는 중','work','hammer','bld'],['talk','수다 떠는 중','talk','','any']],
- [['phone','스마트폰 보는 중','stand','phone','any',24],['laptop','노트북으로 일하는 중','sit','laptop','bld',20],['jog','조깅하는 중','run','','any'],['cafe','카페에서 수다 떠는 중','talk','','bld'],['walk','출근하는 중','walk','case','any'],['dog','강아지 산책시키는 중','walk','leash','any'],['game','게임하는 중','stand','phone','any',24]],
- [['holo','홀로그램 보는 중','stand','holo','any'],['solar','태양광 패널 닦는 중','work','','bld'],['garden','도시 농장 가꾸는 중','work','hoe','bld'],['wait','자율주행 버스 기다리는 중','stand','','any'],['talk','AI와 대화하는 중','talk','','any'],['jog','조깅하는 중','run','','any']],
- [['holo','홀로그램 회의 중','stand','holo','any'],['suit','우주복 입고 출근하는 중','walk','helmet','any'],['watch','우주선 구경하는 중','stand','','any'],['talk','외계 행성 이야기 하는 중','talk','','any'],['garden','돔 정원 가꾸는 중','work','hoe','bld']]
+ [['hunt','Going hunting','walk','spear','animal'],['gather','Picking berries','work','','bush'],['fire','Warming up by the campfire','sit','','fire'],['tool','Making stone tools','work','stone','fire'],['paint','Painting on the cave wall','work','brush','wall',1],['bow','Practicing archery','stand','bow','any',2],['play','Running around playing','run','','any']],
+ [['farm','Plowing the field','work','hoe','field'],['harvest','Harvesting grain','work','sickle','field'],['pot','Shaping clay pots','sit','pot','bld'],['herd','Tending sheep','walk','staff','animal'],['water','Drawing water from the well','work','jar','well'],['fire','Resting by the campfire','sit','','fire'],['play','Running around playing','run','','any']],
+ [['farm','Plowing the field','work','hoe','field'],['market','Selling goods at the market','stand','','stall'],['write','Writing on a clay tablet','sit','tablet','bld'],['smith','Hammering iron','work','hammer','forge'],['build','Building a temple','work','hammer','big'],['talk','Debating philosophy','talk','','any'],['water','Carrying water','walk','jar','any']],
+ [['farm','Plowing the field','work','hoe','field'],['market','Trading at the market','stand','','stall'],['guard','Guarding the castle','walk','spear','big'],['sack','Carrying wheat to the mill','walk','sack','mill'],['print','Printing books on a press','work','','bld',13],['read','Reading a book','stand','book','any',13],['talk','Chatting','talk','','any']],
+ [['read','Reading a book','stand','book','any'],['scope','Watching the sky through a telescope','stand','scope','obs',14],['doctor','Giving vaccines','stand','','bld',16],['walk','Taking a walk','walk','','any'],['talk','Talking about the news','talk','','any'],['build','Building a brick house','work','hammer','bld']],
+ [['factory','Working in a factory','work','hammer','factory'],['call','On the phone','stand','oldphone','bld',18],['news','Reading the newspaper','stand','book','any'],['walk','Heading to work','walk','case','any'],['build','Constructing a building','work','hammer','bld'],['talk','Chatting away','talk','','any']],
+ [['phone','Looking at a smartphone','stand','phone','any',24],['laptop','Working on a laptop','sit','laptop','bld',20],['jog','Jogging','run','','any'],['cafe','Chatting at a cafe','talk','','bld'],['walk','Heading to work','walk','case','any'],['dog','Walking the dog','walk','leash','any'],['game','Playing a game','stand','phone','any',24]],
+ [['holo','Watching a hologram','stand','holo','any'],['solar','Cleaning solar panels','work','','bld'],['garden','Tending a city farm','work','hoe','bld'],['wait','Waiting for a self-driving bus','stand','','any'],['talk','Talking with an AI','talk','','any'],['jog','Jogging','run','','any']],
+ [['holo','In a hologram meeting','stand','holo','any'],['suit','Heading to work in a spacesuit','walk','helmet','any'],['watch','Checking out spaceships','stand','','any'],['talk','Talking about alien planets','talk','','any'],['garden','Tending the dome garden','work','hoe','bld']]
 ];
-const ITEMS=[['fire','불',0],['spear','창',2],['seed','씨앗',3],['wheel','바퀴',5],['book','책',13],['scope','망원경',14],['radio','라디오',18],['car','자동차',19],['computer','컴퓨터',20],['rocket','로켓',21],['phone','스마트폰',24],['robot','로봇',25],['solar','태양광 패널',26]];
-const USE_OLD={fire:'캠프파이어 하는 중',spear:'옛날 창을 구경하는 중',seed:'텃밭 가꾸는 중',wheel:'수레바퀴 고치는 중',book:'책 읽는 중',scope:'별 구경하는 중',radio:'옛날 라디오 듣는 중',car:'자동차 타고 드라이브하는 중',computer:'컴퓨터로 일하는 중',rocket:'로켓 발사 구경하는 중'};
-const USE={fire:'불을 쬐는 중',spear:'창으로 사냥 연습 중',seed:'씨앗을 심는 중',wheel:'바퀴로 수레 만드는 중',book:'책 읽는 중',scope:'망원경으로 하늘 보는 중',radio:'라디오 듣고 춤추는 중',car:'자동차 운전해 보는 중',computer:'컴퓨터 하는 중',phone:'스마트폰 보는 중',robot:'로봇이랑 노는 중',solar:'태양광으로 전기 만드는 중',rocket:'로켓 발사 준비 중'};
-const joinKo=arr=>arr.length>1?`${arr[0]}${josa(arr[0],'과','와')} ${arr[1]}${josa(arr[1],'으로','로')}`:`${arr[0]}${josa(arr[0],'으로','로')}`;
-const josa=(nm,a,b)=>/[가-힣]$/.test(nm)&&((nm.charCodeAt(nm.length-1)-0xac00)%28)?a:b;
+const ITEMS=[['fire','Fire',0],['spear','Spear',2],['seed','Seed',3],['wheel','The Wheel',5],['book','Book',13],['scope','Telescope',14],['radio','Radio',18],['car','Car',19],['computer','Computer',20],['rocket','Rocket',21],['phone','Smartphone',24],['robot','Robot',25],['solar','Solar Panel',26]];
+const USE_OLD={fire:'Having a campfire',spear:'Looking at an old spear',seed:'Tending the vegetable garden',wheel:'Fixing a cart wheel',book:'Reading a book',scope:'Stargazing',radio:'Listening to an old radio',car:'Going for a drive',computer:'Working on a computer',rocket:'Watching a rocket launch'};
+const USE={fire:'Warming up by the fire',spear:'Practicing hunting with a spear',seed:'Planting seeds',wheel:'Building a cart with wheels',book:'Reading a book',scope:'Watching the sky through a telescope',radio:'Dancing to the radio',car:'Trying to drive a car',computer:'Using a computer',phone:'Looking at a smartphone',robot:'Playing with a robot',solar:'Making power from sunlight',rocket:'Getting a rocket ready to launch'};
+const joinKo=arr=>arr.length>1?`${arr[0]} and ${arr[1]}`:`${arr[0]}`;
+const josa=(nm,a,b)=>'';
 
 let seed=1;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
 
@@ -789,8 +789,8 @@ function assignWork(p){
   p.doing=false;p.t=6+Math.random()*10;p.obj=null;
   const objs=scene.objs.filter(o=>!o.gone);
   if(objs.length&&Math.random()<0.45&&!p.kid){
-    const o=objs[Math.floor(Math.random()*objs.length)],nm=o.name,j=josa(nm,'을','를');p.obj=o;
-    const A={worship:[`${nm}${j} 모시고 절하는 중`,'kneel'],study:[`${nm}${j} 연구하는 중`,'sit'],fight:[`"${nm}${josa(nm,'은','는')} 내 거야!"`,'run'],use:[useLabel(o),o.id==='radio'?'dance':o.id==='book'||o.id==='scope'||o.id==='phone'?'stand':o.id==='seed'||o.id==='wheel'?'work':'stand']}[o.kind];
+    const o=objs[Math.floor(Math.random()*objs.length)],nm=o.name,j=josa(nm,'','');p.obj=o;
+    const A={worship:[`Bowing down to ${nm}${j}`,'kneel'],study:[`Studying ${nm}${j}`,'sit'],fight:[`"${nm}${josa(nm,'Silver','​')} is mine!"`,'run'],use:[useLabel(o),o.id==='radio'?'dance':o.id==='book'||o.id==='scope'||o.id==='phone'?'stand':o.id==='seed'||o.id==='wheel'?'work':'stand']}[o.kind];
     p.act=['obj',A[0],A[1],o.id==='book'?'book':o.id==='phone'?'phone':'','obj'];
     [p.tx,p.ty]=nearPt(o,12,o.kind==='fight'?40:26);return;
   }
@@ -798,17 +798,17 @@ function assignWork(p){
   if(dc.length&&Math.random()<0.25){const d=dc[Math.floor(Math.random()*dc.length)];p.obj=d;p.act=['decal',decalLabel(d),d.ph==='gas'?'stand':'work','','decal'];[p.tx,p.ty]=nearPt(d,6,Math.max(14,d.r));return}
   const cr=scene.creatures.filter(c=>!c.grabbed);
   if(cr.length&&Math.random()<(p.kid?0.6:0.2)){const c=cr[Math.floor(Math.random()*cr.length)];p.obj=c;
-    p.act=['crea',['우와, 신기한 동물이다!','신이 보낸 동물이다!','그림 동물 쓰다듬는 중','그림 동물 따라가는 중'][Math.floor(Math.random()*4)],p.kid?'run':'stand','','crea'];[p.tx,p.ty]=nearPt(c,16,30);return}
+    p.act=['crea',['Wow, what a strange animal!','The gods sent this animal!','Petting the drawn animal','Following the drawn animal'][Math.floor(Math.random()*4)],p.kid?'run':'stand','','crea'];[p.tx,p.ty]=nearPt(c,16,30);return}
   let list=ACT[tier].filter(a=>(a[5]||0)<=i);
-  if(p.kid)list=list.filter(a=>a[2]==='run'||a[2]==='walk'||a[0]==='talk').concat([['play','뛰어노는 중','run','','any']]);
+  if(p.kid)list=list.filter(a=>a[2]==='run'||a[2]==='walk'||a[0]==='talk').concat([['play','Running around playing','run','','any']]);
   const a=list[Math.floor(Math.random()*list.length)];p.act=a;[p.tx,p.ty]=findTarget(a[4]);
   if(a[0]==='talk'){const q=scene.people.find(o=>o!==p&&o.act&&o.act[0]!=='talk'&&!o.kid&&!o.grabbed&&o.alt<1);if(q){q.act=a;q.tx=p.tx+9;q.ty=p.ty;q.doing=false;q.t=p.t;q.obj=null}}
 }
 function say(e,s,sec){e.say=s;e.sayT=sec||2.5}
 function breedTick(){
   const big=scene.size==='city',pcap=(big?100:46)+(scene.tier>=6?10:0);
-  // 사람: 어른 남녀가 가까이 있으면 아기
-  for(const p of scene.people){p.age=(p.age||60)+1;p.cd=(p.cd||0)-1;if(p.baby&&p.age>70){p.baby=false;say(p,'나 이제 많이 컸어!',2)}if(p.kid&&!p.baby&&p.age>160&&p.life){p.kid=false;say(p,'이제 어른이야!',2)}if(!p.baby&&!p.kid&&p.age>p.life&&!p.grabbed)dieOld(p)}
+  // People: a grown man and woman close together have a baby
+  for(const p of scene.people){p.age=(p.age||60)+1;p.cd=(p.cd||0)-1;if(p.baby&&p.age>70){p.baby=false;say(p,'I’ve grown up so much!',2)}if(p.kid&&!p.baby&&p.age>160&&p.life){p.kid=false;say(p,'I’m a grown-up now!',2)}if(!p.baby&&!p.kid&&p.age>p.life&&!p.grabbed)dieOld(p)}
   scene.people=scene.people.filter(p=>!p.gone);if(scene.sel&&scene.sel.gone)scene.sel=null;
   for(const a of scene.animals){if(a.kind==='bird'||a.dead)continue;a.life=a.life||700+Math.random()*800;if(a.age>a.life){a.dead=true;a.deadT=0}}
   if(scene.people.length<pcap&&C.peace>15){
@@ -816,8 +816,8 @@ function breedTick(){
       const q=scene.people.find(o=>o!==p&&!o.kid&&o.sex!==p.sex&&o.cd<=0&&o.alt===0&&!o.grabbed&&Math.hypot(o.x-p.x,o.y-p.y)<60);
       if(q&&Math.random()<0.5){const b=newPerson();Object.assign(b,{x:(p.x+q.x)/2,y:(p.y+q.y)/2+8,kid:true,baby:true,age:0,cd:999,skin:Math.random()<0.5?p.skin:q.skin,hair:Math.random()<0.5?p.hair:q.hair,cloth:CLOTH[scene.tier][Math.floor(Math.random()*CLOTH[scene.tier].length)]});
         b.mom=p.sex==='f'?p:q;b.family=[p.name,q.name];p.family.push(b.name);q.family.push(b.name);if(!p.family.includes(q.name))p.family.push(q.name);if(!q.family.includes(p.name))q.family.push(p.name);
-        scene.people.push(b);assign(b);p.cd=q.cd=60+Math.random()*40;scene.fx.push({x:b.x,y:b.y,t:0,kind:'heart'});say(b,'응애!',2.5);say(p,`우리 아기 ${b.name}${josa(b.name,'이','가')} 태어났어요!`,3);feel(p,'happy',6);feel(q,'happy',6);p.happy=Math.min(100,p.happy+20);q.happy=Math.min(100,q.happy+20);event('born',p.name);break}}}
-  // 동물: 같은 종끼리
+        scene.people.push(b);assign(b);p.cd=q.cd=60+Math.random()*40;scene.fx.push({x:b.x,y:b.y,t:0,kind:'heart'});say(b,'Waaah!',2.5);say(p,`Our baby ${b.name}${josa(b.name,'​','​')} is born!`,3);feel(p,'happy',6);feel(q,'happy',6);p.happy=Math.min(100,p.happy+20);q.happy=Math.min(100,q.happy+20);event('born',p.name);break}}}
+  // Animals: only with the same species
   const acap=big?60:36;
   for(const a of scene.animals){a.age=(a.age||60)+1;a.cd=(a.cd||0)-1;if(a.sc<1)a.sc=Math.min(1,a.sc+0.012)}
   if(scene.animals.length<acap)for(const a of scene.animals){if(a.kind==='bird'||a.dead||a.sc<1||a.cd>0||a.grabbed||a.alt>0)continue;
@@ -826,29 +826,29 @@ function breedTick(){
     else{let o=null,md=1e9;for(const q of scene.animals){if(q===a||q.kind!==a.kind||q.sc<1)continue;const d=Math.hypot(q.x-a.x,q.y-a.y);if(d<md){md=d;o=q}}if(o){a.ang=Math.atan2(o.y-a.y,o.x-a.x);a.still=false;a.t=2}}}
 }
 
-// ---- 신의 선물 (마을에 떨어뜨리기) ----
-const useLabel=o=>{const old=o.idx!=null&&o.idx-C.P<-6;return (old?USE_OLD[o.id]:null)||USE[o.id]||`${o.name}${josa(o.name,'을','를')} ${old?'쓰는':'써 보는'} 중`};
+// ---- Gifts from the gods (drop them on the village) ----
+const useLabel=o=>{const old=o.idx!=null&&o.idx-C.P<-6;return (old?USE_OLD[o.id]:null)||USE[o.id]||`${o.name}${josa(o.name,'','')} ${old?'in use':'being tried out'}`};
 function reactKind(idx){const gap=idx-C.P,r=Math.random();if(gap<=4)return 'use';if(gap<=12)return r<0.5?'study':r<0.8?'worship':'fight';return r<0.25?'study':r<0.8?'worship':'fight'}
 function godGift(id,nm,idx){
-  if(C.itemKind[id]){const k=reactKind(idx),j2=josa(nm,'을','를');toast(k==='use'?`사람들이 ${nm}${j2} 익숙하게 써요`:k==='worship'?`사람들이 ${nm}${j2} 신기한 보물로 모셔요`:k==='study'?`사람들이 ${nm}${j2} 연구하기 시작했어요`:`${nm}${j2} 두고 다툼이 났어요`);return k}
-  const gap=idx-C.P,fl=FLAVOR[id]||{},r=Math.random(),j=josa(nm,'을','를');let kind,msg;
-  if(gap<=0.5){kind='use';msg=`${nm}${j} 받았어요. 이미 익숙한 물건이라 바로 잘 써요.`}
-  else if(gap<=4){kind='use';const from=Math.floor(C.P);C.P=Math.max(C.P,idx+0.02);for(let k=from+1;k<=idx;k++)if(C.invYear[k]===undefined)invent(k);msg=`${nm}${j} 금방 이해했어요! ${INV[idx][0]}까지 단숨에 발명했어요.`}
+  if(C.itemKind[id]){const k=reactKind(idx),j2=josa(nm,'','');toast(k==='use'?`People use ${nm}${j2} with ease`:k==='worship'?`People worship ${nm}${j2} as a strange treasure`:k==='study'?`People started studying ${nm}${j2}`:`A fight broke out over ${nm}${j2}`);return k}
+  const gap=idx-C.P,fl=FLAVOR[id]||{},r=Math.random(),j=josa(nm,'','');let kind,msg;
+  if(gap<=0.5){kind='use';msg=`They got ${nm}${j}. They already know this thing, so they use it right away.`}
+  else if(gap<=4){kind='use';const from=Math.floor(C.P);C.P=Math.max(C.P,idx+0.02);for(let k=from+1;k<=idx;k++)if(C.invYear[k]===undefined)invent(k);msg=`They figured out ${nm}${j} fast! They jumped ahead and invented ${INV[idx][0]}.`}
   else if(gap<=12){
-    if(r<0.5){kind='study';C.P+=gap*0.45;C.perm+=0.25;msg=fl.partial||`${nm}${j} 분해하고 연구하면서 과학이 크게 발전했어요.`}
-    else if(r<0.8){kind='worship';C.peace=Math.min(100,C.peace+15);C.perm+=0.08;msg=fl.worship||`${nm}${j} 신기한 보물로 모시기 시작했어요.`}
-    else{kind='fight';C.peace-=25;C.pop*=0.95;msg=fl.fight||`${nm}${j} 서로 차지하려고 다툼이 벌어졌어요.`}
+    if(r<0.5){kind='study';C.P+=gap*0.45;C.perm+=0.25;msg=fl.partial||`By taking ${nm}${j} apart and studying it, science made a big leap.`}
+    else if(r<0.8){kind='worship';C.peace=Math.min(100,C.peace+15);C.perm+=0.08;msg=fl.worship||`They started worshipping ${nm}${j} as a strange treasure.`}
+    else{kind='fight';C.peace-=25;C.pop*=0.95;msg=fl.fight||`Fights broke out over who gets to keep ${nm}${j}.`}
   }else{
-    if(r<0.25){kind='study';C.P+=3;C.perm+=0.6;msg=fl.genius||`한 천재가 ${nm}${j} 살펴보다가 과학하는 방법을 깨달았어요!`}
-    else if(r<0.8){kind='worship';C.peace=Math.min(100,C.peace+12);C.perm+=0.05;msg=fl.worship||`하늘에서 떨어진 ${nm}${j} 신의 물건이라며 모시기 시작했어요.`}
-    else{kind='fight';C.peace-=25;C.pop*=0.92;msg=fl.fight||`${nm}${j} 갖겠다고 부족끼리 싸움이 났어요.`}
+    if(r<0.25){kind='study';C.P+=3;C.perm+=0.6;msg=fl.genius||`A genius examined ${nm}${j} and discovered how to do science!`}
+    else if(r<0.8){kind='worship';C.peace=Math.min(100,C.peace+12);C.perm+=0.05;msg=fl.worship||`They started worshipping ${nm}${j} that fell from the sky, calling it a thing of the gods.`}
+    else{kind='fight';C.peace-=25;C.pop*=0.92;msg=fl.fight||`Tribes went to war to own ${nm}${j}.`}
   }
   if(kind!=='fight'&&id==='solar')C.green=true;
   if(kind!=='fight'&&id==='book')C.perm+=0.2;
-  const cu=customItems.find(c=>c[0]===id);if(cu&&cu[4]&&kind!=='fight'){const ef=cu[4];if(ef==='sci')C.perm+=0.15;if(ef==='peace')C.peace+=15;if(ef==='env')C.env=Math.min(100,C.env+15);if(ef==='pop')C.pop*=1.1;msg+=` (${{sci:'과학이 발전했어요',peace:'사람들이 더 평화로워졌어요',env:'자연이 깨끗해졌어요',pop:'사람이 늘어났어요'}[ef]})`}
+  const cu=customItems.find(c=>c[0]===id);if(cu&&cu[4]&&kind!=='fight'){const ef=cu[4];if(ef==='sci')C.perm+=0.15;if(ef==='peace')C.peace+=15;if(ef==='env')C.env=Math.min(100,C.env+15);if(ef==='pop')C.pop*=1.1;msg+=` (${{sci:'Science advanced',peace:'People became more peaceful',env:'Nature got cleaner',pop:'The population grew'}[ef]})`}
   C.P=Math.min(NI-1,C.P);C.peace=clamp(C.peace,0,100);
   const i1=Math.floor(C.P);for(let k=1;k<=i1;k++)if(C.invYear[k]===undefined)invent(k);
-  C.itemKind[id]=kind;C.gifts++;clog(`<b>신의 선물: ${nm}</b> — ${msg}`);toast(msg.length>48?msg.slice(0,46)+'…':msg);renderInv();
+  C.itemKind[id]=kind;C.gifts++;clog(`<b>Gift from the gods: ${nm}</b> — ${msg}`);toast(msg.length>48?msg.slice(0,46)+'…':msg);renderInv();
   return kind;
 }
 function applyUse(o){if(o.kind!=='use')return;if(o.id==='car')o.drive=true;if(o.id==='rocket'&&o.launch==null&&!o.flying)o.launch=10;if(o.id==='robot')o.walk=true;if(o.id==='seed'&&o.grow==null&&o.idx-C.P>-6)o.grow=4}
@@ -857,15 +857,15 @@ function dropItem(it,x,y){
   event('gift',null,nm);
   const o={id,name:nm,kind,x,y,alt:120,vz:0,t:0,ang:0,img:it[3]||null,col:'#c99a6a',idx};scene.objs.push(o);
   scene.fx.push({x,y,t:0,kind:'ring'});
-  for(const p of scene.people)if(!p.grabbed&&Math.hypot(p.x-x,p.y-y)<350&&Math.random()<0.7){assign(p);if(p.obj!==o){p.obj=o;const nm2=o.name;p.act=['obj',kind==='use'?useLabel(o):kind==='worship'?`${nm2}${josa(nm2,'을','를')} 모시고 절하는 중`:kind==='study'?`${nm2}${josa(nm2,'을','를')} 연구하는 중`:`"${nm2}${josa(nm2,'은','는')} 내 거야!"`,kind==='worship'?'kneel':kind==='study'?'sit':kind==='fight'?'run':'stand','','obj'];[p.tx,p.ty]=nearPt(o,12,30)}say(p,['저게 뭐지?','하늘에서 뭐가 떨어졌다!','신의 선물이다!'][Math.floor(Math.random()*3)],2)}
+  for(const p of scene.people)if(!p.grabbed&&Math.hypot(p.x-x,p.y-y)<350&&Math.random()<0.7){assign(p);if(p.obj!==o){p.obj=o;const nm2=o.name;p.act=['obj',kind==='use'?useLabel(o):kind==='worship'?`${nm2}${josa(nm2,'','')}: worshipping it`:kind==='study'?`${nm2}${josa(nm2,'','')}: studying it`:`"${nm2}${josa(nm2,'Silver','​')} is mine!"`,kind==='worship'?'kneel':kind==='study'?'sit':kind==='fight'?'run':'stand','','obj'];[p.tx,p.ty]=nearPt(o,12,30)}say(p,['What is that?','Something fell from the sky!','A gift from the gods!'][Math.floor(Math.random()*3)],2)}
   applyUse(o);
 }
 
-// ---- 그림 동물 ----
+// ---- Drawn animals ----
 let SIDN=0;
 function spawnCreature(img,size,x,y,label,sid,baby){
   const s=size/Math.max(img.width,img.height);
-  const c={img,size,w:img.width*s,h:img.height*s,x,y,alt:baby?0:80,vz:baby?60:0,ang:Math.random()*6,v:18+Math.random()*14,t:0,dir:1,label:label||'그림 동물',hop:0,sid:sid||('d'+(++SIDN)),age:baby?0:40,cd:baby?30:4,baby:!!baby,sc:baby?0.45:1};
+  const c={img,size,w:img.width*s,h:img.height*s,x,y,alt:baby?0:80,vz:baby?60:0,ang:Math.random()*6,v:18+Math.random()*14,t:0,dir:1,label:label||'Drawn animal',hop:0,sid:sid||('d'+(++SIDN)),age:baby?0:40,cd:baby?30:4,baby:!!baby,sc:baby?0.45:1};
   scene.creatures.push(c);if(baby)return c;event('creature',null,c.label);
   scene.fx.push({x,y,t:0,kind:'spark'});
 }
@@ -882,14 +882,14 @@ function cavePainting(kind){
   return c;
 }
 
-// ---- 업데이트 ----
+// ---- Update ----
 function updateScene(dt){
   const i=Math.floor(C.P),tier=tierOf(i);
-  if(tier!==scene.tier){const was=scene.tier;genLayout();$('sceneName').textContent=SNAME[scene.size][tier];if(was>=0){toast(`시대가 바뀌었어요: ${SNAME[scene.size][tier]}`);scene.fx.push({x:scene.camX,y:scene.camY,t:0,kind:'flash'})}}
+  if(tier!==scene.tier){const was=scene.tier;genLayout();$('sceneName').textContent=SNAME[scene.size][tier];if(was>=0){toast(`A new era has begun: ${SNAME[scene.size][tier]}`);scene.fx.push({x:scene.camX,y:scene.camY,t:0,kind:'flash'})}}
   else if(i!==scene.idx){scene.idx=i;for(const p of scene.people)if(Math.random()<0.4&&!p.obj)assign(p)}
   scene.clock+=dt;scene.caveCD-=dt;
   scene.chk=(scene.chk||0)-dt;if(scene.chk<=0){scene.chk=1;
-    for(const o of scene.objs){if(o.kind!=='use'&&o.idx!=null&&o.idx-C.P<=4){o.kind='use';applyUse(o);toast(`사람들이 드디어 ${o.name}의 쓰임새를 알아냈어요!`);for(const p of scene.people)if(p.obj===o)assign(p)}}
+    for(const o of scene.objs){if(o.kind!=='use'&&o.idx!=null&&o.idx-C.P<=4){o.kind='use';applyUse(o);toast(`People finally figured out what ${o.name} is for!`);for(const p of scene.people)if(p.obj===o)assign(p)}}
     breedTick()}
   lifeTick(dt);
   const lev=scene.levT>0;if(lev)scene.levT-=dt;
@@ -897,7 +897,7 @@ function updateScene(dt){
     p.sayT-=dt;
     if(p.grabbed){p.ph+=dt*20;continue}
     if(lev){p.alt+=((20+Math.sin(scene.clock*2+p.ph)*8)-p.alt)*dt*3;p.ph+=dt*6;continue}
-    if(p.alt>0||p.vz){p.vz-=400*dt;p.alt+=p.vz*dt;if(p.alt<=0){p.alt=0;const hard=p.vz<-150;p.vz=0;if(hard){say(p,['아야! 신이시여!','휴, 살았다!','다시 날고 싶어!'][Math.floor(Math.random()*3)],3);for(const q of scene.people)if(q!==p&&Math.hypot(q.x-p.x,q.y-p.y)<120&&!q.grabbed)say(q,'사람이 하늘을 날았어!',2.5)}}continue}
+    if(p.alt>0||p.vz){p.vz-=400*dt;p.alt+=p.vz*dt;if(p.alt<=0){p.alt=0;const hard=p.vz<-150;p.vz=0;if(hard){say(p,['Ouch! Oh gods!','Phew, I’m safe!','I want to fly again!'][Math.floor(Math.random()*3)],3);for(const q of scene.people)if(q!==p&&Math.hypot(q.x-p.x,q.y-p.y)<120&&!q.grabbed)say(q,'A person flew through the sky!',2.5)}}continue}
     const pose=p.act[2],moving=pose==='walk'||pose==='run';
     if(p.obj&&p.obj.gone&&p.act[0]!=='hunt'){assign(p);continue}
     if(p.act[4]==='crea'&&p.obj){const c=p.obj;if(Math.hypot(p.tx-c.x,p.ty-c.y)>40)[p.tx,p.ty]=nearPt(c,14,26)}
@@ -932,8 +932,8 @@ function updateScene(dt){
     if(o.alt>0||o.vz){o.vz-=500*dt;o.alt+=o.vz*dt;if(o.alt<=0){o.alt=0;o.vz=0;scene.fx.push({x:o.x,y:o.y,t:0,kind:'dust'})}continue}
     if(o.drive){o.ang+=Math.sin(o.t*0.5)*dt*0.8;o.x+=Math.cos(o.ang)*40*dt;o.y+=Math.sin(o.ang)*40*dt;if(o.x<40||o.x>scene.ww-40||o.y<40||o.y>scene.wh-40)o.ang+=Math.PI*dt*3}
     if(o.walk){o.ang+=(Math.random()-.5)*dt*2;o.x+=Math.cos(o.ang)*12*dt;o.y+=Math.sin(o.ang)*12*dt;o.x=clamp(o.x,30,scene.ww-30);o.y=clamp(o.y,30,scene.wh-30)}
-    if(o.grow!=null){o.grow-=dt;if(o.grow<=0){o.grow=null;scene.fields.push({x:o.x,y:o.y+40,w:90,h:56,s:0.2});paintGround();toast('씨앗을 심어서 새 밭이 생겼어요!')}}
-    if(o.launch!=null){o.launch-=dt;if(o.launch<=0&&!o.flying){o.flying=true;o.vz=0;toast('로켓 발사! 사람들이 환호해요');for(const p of scene.people)if(Math.hypot(p.x-o.x,p.y-o.y)<300)say(p,'우와아! 발사다!',3)}}
+    if(o.grow!=null){o.grow-=dt;if(o.grow<=0){o.grow=null;scene.fields.push({x:o.x,y:o.y+40,w:90,h:56,s:0.2});paintGround();toast('Seeds were planted and a new field grew!')}}
+    if(o.launch!=null){o.launch-=dt;if(o.launch<=0&&!o.flying){o.flying=true;o.vz=0;toast('Rocket launch! People are cheering');for(const p of scene.people)if(Math.hypot(p.x-o.x,p.y-o.y)<300)say(p,'Woohoo! Liftoff!',3)}}
     if(o.flying){o.vz+=60*dt;o.alt+=o.vz*dt;for(let k=0;k<2;k++)scene.smoke.push({x:o.x+(Math.random()-.5)*8,y:o.y,h:o.alt,vh:0,r:6,l:2,vx:(Math.random()-.5)*20,vy:(Math.random()-.5)*20});if(o.alt>900)o.gone=true}
   }
   const CAP=90;
@@ -942,8 +942,8 @@ function updateScene(dt){
     if(c.cd<=0&&!c.baby&&!c.grabbed&&c.alt===0&&scene.creatures.length<CAP){const m=scene.creatures.find(o=>o!==c&&!o.baby&&o.cd<=0&&!o.grabbed&&o.alt===0&&Math.hypot(o.x-c.x,o.y-c.y)<Math.max(36,(c.w+o.w)*0.6));
       if(m){const same=m.sid===c.sid;if(same||Math.random()<0.25){const img=same?c.img:hybridImg(c.img,m.img),nm=same?c.label:(c.label.slice(0,Math.ceil(c.label.length/2))+m.label.slice(Math.floor(m.label.length/2))),sid=same?c.sid:'h'+(++SIDN);
         const nb=1+(Math.random()<0.3?1:0);for(let q=0;q<nb;q++)spawnCreature(img,(c.size+m.size)/2,(c.x+m.x)/2+(q?10:0),(c.y+m.y)/2+6,nm,sid,true);scene.fx.push({x:(c.x+m.x)/2,y:(c.y+m.y)/2,t:0,kind:'heart'});
-        if(!same){toast(`새로운 잡종이 태어났어요: ${nm}!`);clog(`<b>${c.label}</b>${josa(c.label,'과','와')} <b>${m.label}</b> 사이에서 잡종 <b>${nm}</b>${josa(nm,'이','가')} 태어났어요`)}else if(Math.random()<0.35)toast(`${c.label} 아기가 태어났어요!`);
-        for(const p of scene.people)if(Math.hypot(p.x-c.x,p.y-c.y)<150&&Math.random()<0.5)say(p,'아기가 태어났다!',2.5)}c.cd=m.cd=same?10+Math.random()*8:22}}
+        if(!same){toast(`A new hybrid was born: ${nm}!`);clog(`<b>${c.label}</b>${josa(c.label,' and',' and')} <b>${m.label}</b> had a hybrid baby, <b>${nm}</b>${josa(nm,'​','​')}!`)}else if(Math.random()<0.35)toast(`A ${c.label} baby was born!`);
+        for(const p of scene.people)if(Math.hypot(p.x-c.x,p.y-c.y)<150&&Math.random()<0.5)say(p,'A baby was born!',2.5)}c.cd=m.cd=same?10+Math.random()*8:22}}
     if(c.grabbed)continue;
     if(c.alt>0||c.vz){c.vz-=400*dt;c.alt+=c.vz*dt;if(c.alt<=0){c.alt=0;c.vz=0}}
     c.t-=dt;if(c.t<=0){c.t=1.5+Math.random()*3;c.ang+=(Math.random()-.5)*2.4;if(Math.random()<0.3&&c.alt===0)c.vz=110;
@@ -957,15 +957,15 @@ function updateScene(dt){
   pourTick(dt);
   for(const d of scene.drops){d.vh-=300*dt;d.h+=d.vh*dt}scene.drops=scene.drops.filter(d=>d.h>0);
   for(const d of scene.decals){d.life-=dt;if(d.fx&&d.fx.zap&&Math.random()<dt*3)scene.fx.push({x:d.x+(Math.random()-.5)*d.r,y:d.y+(Math.random()-.5)*d.r,t:0.8,kind:'zap'});if(d.life<=0){d.gone=true;if(d.fx&&d.fx.boom){scene.fx.push({x:d.x,y:d.y,t:0,kind:'pop'});const into=d.fx.into||[];
-      into.forEach((nm,k)=>{scene.decals.push({name:nm,x:d.x+(k?d.r*0.6:-d.r*0.3),y:d.y+(k?d.r*0.3:0),r:Math.max(8,d.r*0.7),col:TCOL[nm]||CATCOL['원소'],ph:phaseOf(nm),life:phaseOf(nm)==='gas'?20:1e9,seed:Math.random(),fx:{}});addInv(nm)});
-      const now=performance.now();if(!scene.lastPop||now-scene.lastPop>2500){scene.lastPop=now;toast(into.length?`${d.name.split(' ·')[0]}${josa(d.name.split(' ·')[0],'이','가')} 붕괴해서 ${joinKo(into)} 바뀌었어요`:'불안정한 원자가 펑! 하고 흩어졌어요');clog(`<b>${d.name}</b> 붕괴 → ${into.join(', ')||'흩어짐'}`)}
-      for(const p of scene.people)if(Math.hypot(p.x-d.x,p.y-d.y)<160)say(p,'펑! 다른 걸로 바뀌었다!',2)}}}scene.decals=scene.decals.filter(d=>!d.gone);
+      into.forEach((nm,k)=>{scene.decals.push({name:nm,x:d.x+(k?d.r*0.6:-d.r*0.3),y:d.y+(k?d.r*0.3:0),r:Math.max(8,d.r*0.7),col:TCOL[nm]||CATCOL['Elements'],ph:phaseOf(nm),life:phaseOf(nm)==='gas'?20:1e9,seed:Math.random(),fx:{}});addInv(nm)});
+      const now=performance.now();if(!scene.lastPop||now-scene.lastPop>2500){scene.lastPop=now;toast(into.length?`${d.name.split(' ·')[0]}${josa(d.name.split(' ·')[0],'​','​')} decayed, turning into ${joinKo(into)}`:'An unstable atom went pop and broke apart');clog(`<b>${d.name}</b> decays → ${into.join(', ')||'broke apart'}`)}
+      for(const p of scene.people)if(Math.hypot(p.x-d.x,p.y-d.y)<160)say(p,'Pop! It turned into something else!',2)}}}scene.decals=scene.decals.filter(d=>!d.gone);
   for(const f of scene.fx)f.t+=dt*(f.kind==='soul'?0.4:1);scene.fx=scene.fx.filter(f=>f.t<1.2);
   scene.objs=scene.objs.filter(o=>!o.gone);
   ambTick(dt);
 }
 
-// ---- 그리기 ----
+// ---- Drawing ----
 let X=ctx;
 const rect=(x,y,w,h,c)=>{X.fillStyle=c;X.fillRect(x,y,w,h)};
 const crect=(x,y,w,h,c)=>{X.fillStyle=c;X.fillRect(x-w/2,y-h/2,w,h)};
@@ -1085,7 +1085,7 @@ function drawPerson(p,t){
   circ(bx+fx*0.6*s,by+fy*0.6*s,3*s,p.hair);circ(bx+fx*1.8*s,by+fy*1.8*s,1.6*s,p.skin);
   if(p.act[3]==='helmet'){X.strokeStyle='rgba(200,235,255,.9)';X.lineWidth=1;X.beginPath();X.arc(bx,by,4.6*s,0,7);X.stroke()}
   if(pose==='dance'&&p.doing)p.ang+=0.05;
-  if(p.carry){circ(p.x,p.y,2.4,p.carry==='고기'?'#a0522d':p.carry==='열매'?'#c2303a':'#e0c060')}
+  if(p.carry){circ(p.x,p.y,2.4,p.carry==='Meat'?'#a0522d':p.carry==='Berries'?'#c2303a':'#e0c060')}
   drawTool(p.act[3],t,p,s);
 }
 function drawObj(o,t){
@@ -1109,7 +1109,7 @@ function drawObj(o,t){
   }
   X.restore();
 }
-// ---- 2.5D 카메라 ----
+// ---- 2.5D camera ----
 let PA=1,PB=0,PC=0,PD=1,PE=0,PF=0,SP=1,CP=0;
 function camSetup(){const z=scene.z,y=scene.yaw,p=scene.pitch*Math.PI/180;SP=Math.sin(p);CP=Math.cos(p);
   PA=z*Math.cos(y);PC=-z*Math.sin(y);PB=z*SP*Math.sin(y);PD=z*SP*Math.cos(y);PE=W/2-(PA*scene.camX+PC*scene.camY);PF=H/2-(PB*scene.camX+PD*scene.camY)}
@@ -1190,7 +1190,7 @@ function drawTree3(b){
   const c1=scene.tier>=6?'#4c9a52':'#3d7a3a',c2=scene.tier>=6?'#62b268':'#4f8f48';
   const [cx,cy]=proj(b.x,b.y,16+b.w*0.3);circ(cx,cy,r,c1);circ(cx-r*0.25,cy-r*0.25,r*0.55,c2);
 }
-// ---- 옆모습 사람/동물 ----
+// ---- Side-view people/animals ----
 function drawPersonSide(p,t,sx,sy,s,face){
   if(p.act&&p.act[0]==='sleep'&&p.doing&&p.alt<1){ctx.save();ctx.translate(sx,sy);ctx.scale(s*(p.kid?0.75:1),s*(p.kid?0.75:1));rect(-11,-5,15,5,p.cloth);line(4,-2,10,-2,'#3a3330',2.2);circ(-13,-4,3.4,p.skin);ctx.fillStyle=p.hair;ctx.beginPath();ctx.arc(-14,-4,3.5,Math.PI*0.5,Math.PI*1.5);ctx.fill();ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='bold 6px sans-serif';ctx.fillText('z',-10,-10-((t*6)%4));ctx.restore();return}
   const pose=p.alt>1?'fly':p.mv?(p.act[2]==='run'?'run':'walk'):p.doing?p.act[2]:'stand',tool=p.act[3],k=p.baby?0.45+Math.min(p.age,70)/70*0.27:p.kid?0.72:1,sw=Math.sin(p.ph),dk=scene.tier<=1?shade(p.skin.length===7?p.skin:'#d9a679',0.9):(p.pants||(p.pants=pick(['#2f3a5a','#4a3a2a','#2a2a2a','#5a4a3a','#3a4a3a'])));
@@ -1218,7 +1218,7 @@ function drawPersonSide(p,t,sx,sy,s,face){
     const sym={scared:['!','#ff5a4a'],surprised:['?','#ffd35a'],happy:['♪','#ffd35a'],sleepy:['z','#cfe'],hungry:['…','#fff']}[em];
     if(em==='sad'){ctx.fillStyle='#7fc8ff';ctx.beginPath();ctx.arc(2.6,hy+1.5+((t*3)%3),0.9,0,7);ctx.fill()}
     else if(sym&&(em!=='happy'||Math.sin(t*2+p.ph)>0.3)){ctx.save();ctx.scale(face,1);ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillStyle=sym[1];ctx.fillText(sym[0],0,hy-6.5);ctx.restore()}}
-  if(p.carry){const c=p.carry;if(c==='고기'){ctx.fillStyle='#a0522d';ctx.beginPath();ctx.ellipse(-1,hy-6,4,2.4,0.3,0,7);ctx.fill();line(2,hy-5,5,hy-4,'#f4efe2',1.4)}else if(c==='열매'){rect(-3,hy-8,6,3.5,'#a0784a');circ(-1,hy-8.5,1.1,'#c2303a');circ(1.5,hy-8.5,1.1,'#7b2a8a')}else{rect(-3,hy-9,6,5,'#e0c060')}}
+  if(p.carry){const c=p.carry;if(c==='Meat'){ctx.fillStyle='#a0522d';ctx.beginPath();ctx.ellipse(-1,hy-6,4,2.4,0.3,0,7);ctx.fill();line(2,hy-5,5,hy-4,'#f4efe2',1.4)}else if(c==='Berries'){rect(-3,hy-8,6,3.5,'#a0784a');circ(-1,hy-8.5,1.1,'#c2303a');circ(1.5,hy-8.5,1.1,'#7b2a8a')}else{rect(-3,hy-9,6,5,'#e0c060')}}
   let ax=5,ay=-4;
   if(pose==='walk'||pose==='run'){line(0,-7,-sw*4,-1,p.skin,1.8);ax=sw*4;ay=-1}
   else if(pose==='fly'){const f=Math.sin(t*20+p.ph);line(0,-7,-5,-12+f*3,p.skin,1.8);ax=5;ay=-12-f*3}
@@ -1262,7 +1262,7 @@ function drawScene(t){
   scene.camX=clamp(scene.camX,0,scene.ww);scene.camY=clamp(scene.camY,0,scene.wh);
   camSetup();
   scr();const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,scene.night?'#0b1030':'#7ec0ee');sky.addColorStop(1,scene.night?'#1a2240':'#cfe8f5');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
-  // 땅
+  // Ground
   setAff(0);ctx.fillStyle='#4f6f3a';ctx.fillRect(-1500,-1500,scene.ww+3000,scene.wh+3000);
   if(scene.gcan)ctx.drawImage(scene.gcan,0,0,scene.ww,scene.wh);
   for(const t of scene.trees){if(t.burnt)continue;if(TOPV())continue;ell(t.x+12,t.y+8,t.w*0.6,t.w*0.38,'rgba(18,30,12,.22)')}
@@ -1270,7 +1270,7 @@ function drawScene(t){
   for(const d of scene.decals){if(d.ph==='gas')continue;ctx.globalAlpha=d.ph==='liq'?0.8:0.95;ell(d.x,d.y,d.r,d.r*0.8,d.col);if(d.ph==='liq'){ctx.globalAlpha=0.35;ell(d.x-d.r*0.3,d.y-d.r*0.25,d.r*0.35,d.r*0.15,'#fff')}else{ctx.globalAlpha=0.25;ell(d.x+d.r*0.2,d.y+d.r*0.2,d.r*0.6,d.r*0.45,'#000');ctx.globalAlpha=1;ell(d.x-d.r*0.15,d.y-d.r*0.15,d.r*0.55,d.r*0.4,d.col)}
     if(d.fx&&d.fx.boom&&d.life<1e8){ctx.globalAlpha=0.9;ctx.strokeStyle='#ffd35a';ctx.lineWidth=2;ctx.beginPath();ctx.arc(d.x,d.y,d.r+5,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,d.life)/(d.fx.half||20));ctx.stroke();ctx.globalAlpha=1}
     if(d.fx&&d.fx.glow){ctx.globalAlpha=0.35+0.2*Math.sin(t*4);ell(d.x,d.y,d.r*1.4,d.r*1.1,'#e0b0ff')}
-    if(['금','은','다이아몬드','백금'].includes(d.name)&&Math.sin(t*5+d.seed*20)>0.7){ctx.globalAlpha=1;circ(d.x+(d.seed-.5)*d.r,d.y,2.5,'#fff')}ctx.globalAlpha=1}
+    if(['Gold','Silver','Diamond','Platinum'].includes(d.name)&&Math.sin(t*5+d.seed*20)>0.7){ctx.globalAlpha=1;circ(d.x+(d.seed-.5)*d.r,d.y,2.5,'#fff')}ctx.globalAlpha=1}
   drawPonds(t);drawCloudShadows();
   for(const p of scene.people)ell(p.x+1,p.y+1,5*(1-Math.min(p.alt,120)/200),3.5*(1-Math.min(p.alt,120)/200),'rgba(0,0,0,.25)');
   for(const a of scene.animals)if(a.kind!=='bird')ell(a.x+2,a.y+2,8*(a.kind==='mammoth'?2.2:1),5,SH);
@@ -1280,7 +1280,7 @@ function drawScene(t){
   for(const o of scene.objs)if((o.kind==='worship'||o.kind==='study')&&o.alt===0){const g=ctx.createRadialGradient(o.x,o.y,0,o.x,o.y,36);g.addColorStop(0,o.kind==='worship'?'rgba(255,230,140,.55)':'rgba(140,220,255,.45)');g.addColorStop(1,'rgba(255,230,140,0)');ctx.fillStyle=g;ctx.fillRect(o.x-36,o.y-36,72,72);if(o.kind==='worship'){circ(o.x,o.y,13,'#8a847a');circ(o.x,o.y,11,'#a29b90')}}
   for(const f of scene.fx){const k=f.t/1.2;if(f.kind==='ring'){ctx.strokeStyle=`rgba(255,240,180,${1-k})`;ctx.lineWidth=3;ctx.beginPath();ctx.arc(f.x,f.y,10+k*60,0,7);ctx.stroke()}else if(f.kind==='dust'){ctx.globalAlpha=1-k;circ(f.x,f.y,6+k*14,'#c8b48a');ctx.globalAlpha=1}}
   scr();
-  // 깊이 순서대로
+  // In depth order
   const L=[],top=TOPV();
   for(const b of scene.blds)if(b.ht&&!['pen','pad','fire','bush','well'].includes(b.type))L.push([depth(b.x,b.y)+(top?-1e5:Math.max(b.w,b.h)*0.3*scene.z*SP*0.5),0,b]);
   for(const b of scene.trees)L.push([depth(b.x,b.y)+(top?2e5:0),1,b]);
@@ -1313,7 +1313,7 @@ function drawScene(t){
     if(f.kind==='pop'){const [sx,sy]=proj(f.x,f.y,10);ctx.globalAlpha=1-k;for(let n=0;n<16;n++){const a=n*0.39;circ(sx+Math.cos(a)*k*70*z*0.5,sy+Math.sin(a)*k*70*z*0.5,4*(1-k)*z*0.6+1,n%2?'#ffd35a':'#c77dff')}ctx.globalAlpha=1}
     if(f.kind==='spark'){const [sx,sy]=proj(f.x,f.y,20);for(let n=0;n<12;n++){const a=n*0.52;circ(sx+Math.cos(a)*k*50*z*0.5,sy+Math.sin(a)*k*50*z*0.5,3*(1-k)*z*0.6+1,'#ffe58a')}}}
   drawAmbient(t);
-  // 원근 안개
+  // Distance fog
   if(SP<0.97){scr();const g=ctx.createLinearGradient(0,0,0,H*0.6);const c=scene.night?'20,26,60':'190,222,245';g.addColorStop(0,`rgba(${c},${Math.min(0.92,(1-SP)*1.4)})`);g.addColorStop(1,`rgba(${c},0)`);ctx.fillStyle=g;ctx.fillRect(0,0,W,H*0.6)}
   if(scene.night){
     scr();ctx.fillStyle='rgba(8,12,40,.6)';ctx.fillRect(0,0,W,H);ctx.globalCompositeOperation='lighter';
@@ -1326,28 +1326,28 @@ function drawScene(t){
     ctx.globalCompositeOperation='source-over';
   }
   grade();
-  // 라벨
+  // Labels
   scr();ctx.font='700 12px "Noto Sans KR",sans-serif';ctx.textAlign='center';ctx.textBaseline='alphabetic';
   const label=(sx,sy,txt,hl)=>{if(sx<-60||sx>W+60||sy<0||sy>H)return;const tw=ctx.measureText(txt).width+12;
     ctx.fillStyle=hl===2?'rgba(255,120,100,.95)':hl?'rgba(255,195,107,.95)':'rgba(255,255,255,.9)';ctx.beginPath();ctx.roundRect(sx-tw/2,sy-24,tw,18,8);ctx.fill();ctx.beginPath();ctx.moveTo(sx-4,sy-6);ctx.lineTo(sx+4,sy-6);ctx.lineTo(sx,sy-1);ctx.fill();ctx.fillStyle='#1b1630';ctx.fillText(txt,sx,sy-11)};
   for(const p of scene.people){
     let txt=null,hl=0;const [sx,sy0]=proj(p.x,p.y,p.alt+(top?6:24)),sy=sy0-(top?6*z:0);
-    if(p.grabbed){txt='으악! 내려 주세요!';hl=2}else if(scene.levT>0&&p.sayT<=0&&Math.sin(p.ph*3)>0.6)txt='몸이 둥둥 떠요!';
+    if(p.grabbed){txt='Aaah! Put me down!';hl=2}else if(scene.levT>0&&p.sayT<=0&&Math.sin(p.ph*3)>0.6)txt='I’m floating!';
     else if(p.sayT>0){txt=`${p.name}: ${p.say}`;hl=p.emo==='scared'?2:0}else if(p===scene.sel){txt=`${p.name} · ${p.act[1]}`;hl=1}
     else if(z>=3.2&&Math.hypot(sx-W/2,sy-H/2)<Math.min(W,H)*0.22)txt=`${p.name} · ${p.act[1]}`;
     if(txt)label(sx,sy,txt,hl);
     if(p===scene.follow){ctx.strokeStyle='#ffc36b';ctx.lineWidth=2;const [fx,fy]=proj(p.x,p.y,0);ctx.beginPath();ctx.ellipse(fx,fy,10*z*0.5+4,(10*z*0.5+4)*SP,0,0,7);ctx.stroke()}
   }
-  for(const c of scene.creatures){const [sx,sy]=proj(c.x,c.y,c.alt);if(c.grabbed||z>=2.3)label(sx,sy-c.h*z+6,c.grabbed?'붕~ 날아간다!':c.label,c.grabbed?2:0)}
-  // 나침반
+  for(const c of scene.creatures){const [sx,sy]=proj(c.x,c.y,c.alt);if(c.grabbed||z>=2.3)label(sx,sy-c.h*z+6,c.grabbed?'Whoosh, away I go!':c.label,c.grabbed?2:0)}
+  // Compass
   const cx0=W-34,cy0=H*0.5-130;ctx.fillStyle='rgba(10,8,24,.7)';ctx.beginPath();ctx.arc(cx0,cy0,20,0,7);ctx.fill();
   const na=Math.atan2(PB*0-PD*1,PA*0-PC*1);ctx.save();ctx.translate(cx0,cy0);ctx.rotate(Math.atan2(-PD,-PC)+Math.PI/2);ctx.fillStyle='#ff7b6b';ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(5,0);ctx.lineTo(-5,0);ctx.fill();ctx.fillStyle='#eee';ctx.beginPath();ctx.moveTo(0,14);ctx.lineTo(5,0);ctx.lineTo(-5,0);ctx.fill();ctx.restore();
 }
 
-// ---- 화면 전환 & 입력 ----
+// ---- Screen switching & input ----
 function enterZoom(x,y){scene.on=true;scene.dir=1;scene.cp={x,y};if(scene.tier!==tierOf(Math.floor(C.P)))genLayout();scene.camX=scene.ww/2;scene.camY=scene.wh/2;scene.sel=null;scene.follow=null;scene.z=2.2;
   scene.prevSpeed=speed||1;setSpeed(0);document.body.classList.add('zoomed');$('zoomui').hidden=false;$('zhint').hidden=true;$('sceneName').textContent=SNAME[scene.size][scene.tier];syncPitch();
-  setTimeout(()=>{if(scene.on)toast('마을 안에서는 시간이 실제 속도로 흘러요. 1초 = 1초')},900)}
+  setTimeout(()=>{if(scene.on)toast('Inside the village, time runs at real speed. 1 second = 1 second')},900)}
 function exitZoom(){scene.dir=-1;scene.sel=null;scene.grab=null;scene.follow=null;setTool('hand');$('zoomui').hidden=true;$('pad').hidden=true;document.body.classList.remove('zoomed');setSpeed(scene.prevSpeed||1)}
 function zoomBy(f,cx,cy){camSetup();const before=cx!=null?unproj(cx,cy):null;scene.z=clamp(scene.z*f,0.6,5);if(before){camSetup();const after=unproj(cx,cy);scene.camX+=before[0]-after[0];scene.camY+=before[1]-after[1]}}
 function rotateBy(da){scene.yawT=(scene.yawT==null?scene.yaw:scene.yawT)+da}
@@ -1372,7 +1372,7 @@ cv.addEventListener('pointerdown',e=>{if(mode!=='civ')return;const b=cv.getBound
   const hit=hitEntity(x,y);
   if(hit){scene.grab={e:hit,t0:performance.now(),moved:false,sx:x,sy:y};hit.grabbed=true;hit.vz=0;return}
   const cave=scene.blds.find(b=>b.type==='cave'&&Math.abs(b.x-wx)<b.w/2&&Math.abs(b.y-wy)<b.h/2);
-  if(cave&&scene.idx>=1&&scene.caveCD<=0){scene.caveCD=4;['deer','bison','horse'].forEach((k,n)=>spawnCreature(cavePainting(k),34,cave.x-30+n*30,cave.y+cave.h/2+10,'벽화에서 나온 동물'));toast('동굴 벽화 속 동물들이 살아났어요!');clog('신의 힘으로 <b>동굴 벽화 속 동물들이 살아났어요</b>');for(const p of scene.people)if(Math.hypot(p.x-cave.x,p.y-cave.y)<300)say(p,'그림이 살아서 움직여!',3);return}
+  if(cave&&scene.idx>=1&&scene.caveCD<=0){scene.caveCD=4;['deer','bison','horse'].forEach((k,n)=>spawnCreature(cavePainting(k),34,cave.x-30+n*30,cave.y+cave.h/2+10,'Animal from the cave painting'));toast('The animals in the cave painting came to life!');clog('By the power of the gods, <b>the animals in the cave painting came to life</b>');for(const p of scene.people)if(Math.hypot(p.x-cave.x,p.y-cave.y)<300)say(p,'The painting is alive and moving!',3);return}
   scene.drag={x,y,w:[wx,wy],moved:false}});
 cv.addEventListener('pointermove',e=>{const b=cv.getBoundingClientRect(),x=e.clientX-b.left,y=e.clientY-b.top;
   if(scene.pour){camSetup();const [wx,wy]=unproj(x,y);scene.pour.x=clamp(wx,5,scene.ww-5);scene.pour.y=clamp(wy,5,scene.wh-5);return}
@@ -1384,7 +1384,7 @@ cv.addEventListener('pointerup',()=>{
   if(scene.orbit){scene.orbit=null;return}
   if(scene.grab){const g=scene.grab,e=g.e;e.grabbed=false;
     if(!g.moved&&performance.now()-g.t0<350){e.alt=0;if(scene.people.includes(e))scene.sel=e}
-    else{e.vz=0;if(scene.people.includes(e)){say(e,'으아아악!',1.2);event('fly',e.name);feel(e,'scared',4)}}
+    else{e.vz=0;if(scene.people.includes(e)){say(e,'Aaaaah!',1.2);event('fly',e.name);feel(e,'scared',4)}}
     scene.grab=null;return}
   const d=scene.drag;scene.drag=null;if(d&&!d.moved)scene.sel=null});
 cv.addEventListener('wheel',e=>{if(!scene.on)return;e.preventDefault();const b=cv.getBoundingClientRect();if(e.shiftKey){rotateBy(e.deltaY>0?0.2:-0.2);return}zoomBy(e.deltaY<0?1.15:1/1.15,e.clientX-b.left,e.clientY-b.top)},{passive:false});
@@ -1401,20 +1401,20 @@ $('vrr').addEventListener('click',()=>rotateBy(Math.PI/4));
 $('vpitch').addEventListener('input',e=>{scene.pitch=+e.target.value});
 $('vpre').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const p=+b.dataset.p;scene.pitchT=p});
 $('zsize').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;scene.size=b.dataset.v;document.querySelectorAll('#zsize button').forEach(x=>x.classList.toggle('on',x===b));genLayout();scene.camX=scene.ww/2;scene.camY=scene.wh/2;scene.follow=null;$('sceneName').textContent=SNAME[scene.size][scene.tier]});
-$('tray').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.lab){lab.mode='put';openLab('mix');return}scene.item=ITEMS.concat(customItems)[+b.dataset.n];document.querySelectorAll('#tray button').forEach(x=>x.classList.toggle('on',x===b));toast(`마을에서 ${scene.item[1]}${josa(scene.item[1],'을','를')} 떨어뜨릴 곳을 누르세요`)});
+$('tray').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.lab){lab.mode='put';openLab('mix');return}scene.item=ITEMS.concat(customItems)[+b.dataset.n];document.querySelectorAll('#tray button').forEach(x=>x.classList.toggle('on',x===b));toast(`Tap a spot in the village to drop ${scene.item[1]}${josa(scene.item[1],'','')}`)});
 $('godbar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.t;
-  if(t==='hand'||t==='gift'||t==='eye'){setTool(t);if(t==='eye')toast('화면을 끌면 시점이 돌아가요. 좌우: 회전, 위아래: 기울기')}
+  if(t==='hand'||t==='gift'||t==='eye'){setTool(t);if(t==='eye')toast('Drag the screen to turn the view. Left/right: rotate, up/down: tilt')}
   else if(t==='draw'){setTool('hand');openPad()}
   else if(t==='lab'){setTool('hand');openLab()}
-  else if(t==='follow'){if(scene.follow){scene.follow=null;b.textContent='따라가기';return}if(!scene.sel){toast('먼저 사람을 짧게 눌러서 골라 주세요');return}scene.follow=scene.sel;b.textContent='그만 따라가기';toast('이 사람을 따라가요')}
-  else if(t==='lev'){scene.levT=6;for(const p of scene.people)p.grabbed=false;toast('모든 사람이 하늘로 떠올라요!');clog('신의 힘으로 <b>마을 사람들이 공중에 떠올랐어요</b>')}
-  else if(t==='night'){scene.night=!scene.night;b.textContent=scene.night?'낮으로':'밤으로'}});
+  else if(t==='follow'){if(scene.follow){scene.follow=null;b.textContent='Follow';return}if(!scene.sel){toast('First tap a person briefly to pick them');return}scene.follow=scene.sel;b.textContent='Stop following';toast('Follow this person')}
+  else if(t==='lev'){scene.levT=6;for(const p of scene.people)p.grabbed=false;toast('Everyone is floating up into the sky!');clog('By the power of the gods, <b>the villagers floated up into the air</b>')}
+  else if(t==='night'){scene.night=!scene.night;b.textContent=scene.night?'Daytime':'Go to Night'}});
 function viewTick(dt){
   if(scene.yawT!=null){const d=scene.yawT-scene.yaw;scene.yaw+=d*Math.min(1,dt*8);if(Math.abs(d)<0.002){scene.yaw=scene.yawT;scene.yawT=null}}
   if(scene.pitchT!=null){const d=scene.pitchT-scene.pitch;scene.pitch+=d*Math.min(1,dt*6);if(Math.abs(d)<0.3){scene.pitch=scene.pitchT;scene.pitchT=null}syncPitch()}
 }
 
-// 그림판
+// Drawing pad
 const pc2=$('padc'),pg=pc2.getContext('2d');let pdraw=null,pcol='#3a2a1a',pw=6;
 function openPad(){pg.clearRect(0,0,pc2.width,pc2.height);$('pad').hidden=false}
 pc2.addEventListener('pointerdown',e=>{e.preventDefault();pc2.setPointerCapture(e.pointerId);const b=pc2.getBoundingClientRect(),sx=pc2.width/b.width;pdraw={x:(e.clientX-b.left)*sx,y:(e.clientY-b.top)*sx};pg.fillStyle=pcol;pg.beginPath();pg.arc(pdraw.x,pdraw.y,pw/2,0,7);pg.fill()});
@@ -1426,23 +1426,23 @@ $('pcancel').addEventListener('click',()=>$('pad').hidden=true);
 $('plive').addEventListener('click',()=>{
   const d=pg.getImageData(0,0,pc2.width,pc2.height).data;let x0=1e9,y0=1e9,x1=-1,y1=-1;
   for(let y=0;y<pc2.height;y+=2)for(let x=0;x<pc2.width;x+=2)if(d[(y*pc2.width+x)*4+3]>20){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
-  if(x1<0){toast('먼저 동물을 그려 주세요!');return}
+  if(x1<0){toast('Draw an animal first!');return}
   x0=Math.max(0,x0-6);y0=Math.max(0,y0-6);x1=Math.min(pc2.width,x1+6);y1=Math.min(pc2.height,y1+6);
   const c=document.createElement('canvas');c.width=x1-x0;c.height=y1-y0;c.getContext('2d').drawImage(pc2,x0,y0,c.width,c.height,0,0,c.width,c.height);
-  const size=+$('psize').value,inv=$('pmode').value==='inv',name=($('pname').value||'').trim()||(inv?'나의 발명품':'그림 동물');
-  if(inv){const it=customItem(name,+$('plvl').value,c,$('peff').value);addInv(name);$('pad').hidden=true;$('pname').value='';setTool('gift');scene.item=it;renderTray();document.querySelectorAll('#tray button').forEach(x=>x.classList.toggle('on',x.textContent===name));toast(`발명품 「${name}」 완성! 마을에 떨어뜨릴 곳을 누르세요`);clog(`신이 새 발명품 <b>${name}</b>${josa(name,'을','를')} 만들었어요`);return}
+  const size=+$('psize').value,inv=$('pmode').value==='inv',name=($('pname').value||'').trim()||(inv?'My Invention':'Drawn animal');
+  if(inv){const it=customItem(name,+$('plvl').value,c,$('peff').value);addInv(name);$('pad').hidden=true;$('pname').value='';setTool('gift');scene.item=it;renderTray();document.querySelectorAll('#tray button').forEach(x=>x.classList.toggle('on',x.textContent===name));toast(`Invention 「${name}」 is done! Tap where to drop it in the village`);clog(`The gods made a new invention: <b>${name}</b>${josa(name,'','')}!`);return}
   const sidN='d'+(++SIDN);spawnCreature(c,size,scene.camX-18,scene.camY,name,sidN);spawnCreature(c,size,scene.camX+18,scene.camY+6,name,sidN);$('pad').hidden=true;$('pname').value='';
-  toast(`${name} 한 쌍이 살아났어요! 가까이 있으면 새끼를 낳아요`);clog(`신이 그린 <b>${name}</b>${josa(name,'이','가')} 살아났어요`);
-  for(const p of scene.people)if(Math.hypot(p.x-scene.camX,p.y-scene.camY)<300)say(p,['우와! 저게 뭐야?','신이 동물을 만드셨다!','귀엽다!'][Math.floor(Math.random()*3)],3);
+  toast(`A pair of ${name} came to life! If they stay close, they will have babies`);clog(`The gods drew <b>${name}</b>${josa(name,'​','​')}, and it came to life`);
+  for(const p of scene.people)if(Math.hypot(p.x-scene.camX,p.y-scene.camY)<300)say(p,['Whoa! What is that?','The gods made an animal!','So cute!'][Math.floor(Math.random()*3)],3);
 });
 
-// ================= 살아 있는 마을 =================
-const NAMES=[['우가','부가','아카','오로','타나','미루','코토','루바','나무','하나','다라','소로','키키','모모','바루','라라','쿠마','토바'],
- ['돌쇠','복순','갑돌','순이','마당쇠','꽃님','칠복','덕이','만석','은실','철이','분이','개똥','삼월','봉구','옥분'],
- ['철수','영희','민수','지영','현우','수진','동현','하나','준호','미영','성민','서연','태호','유진','도윤','지우'],
- ['아린','로하','제나','유노','시온','레아','카이','노아','루미','하루','이든','세라']];
+// ================= Living village =================
+const NAMES=[['Uga','Buga','Aka','Oro','Tana','Miru','Koto','Ruba','Tree','Hana','Dara','Soro','Kiki','Momo','Baru','Lala','Kuma','Toba'],
+ ['Dolsoe','Boksun','Gapdol','Suni','Madangsoe','Kkotnim','Chilbok','Deogi','Manseok','Eunsil','Cheori','Buni','Gaettong','Samwol','Bonggu','Okbun'],
+ ['Cheolsu','Younghee','Minsu','Jiyoung','Hyunwoo','Sujin','Donghyun','Hana','Junho','Miyoung','Sungmin','Seoyeon','Taeho','Yujin','Doyun','Jiwoo'],
+ ['Arin','Roha','Jena','Yuno','Sion','Rhea','Kai','Noah','Lumi','Haru','Eden','Sera']];
 const nameSet=t=>NAMES[t<=1?0:t<=4?1:t<=6?2:3];
-const TRAITS=['용감한','겁 많은','수다쟁이','부지런한','게으른','호기심 많은','다정한','욕심 많은'];
+const TRAITS=['Brave','Timid','Chatty','Hardworking','Lazy','Curious','Kind','Greedy'];
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function lifeInit(p,tier){
   p.name=p.name||pick(nameSet(Math.max(0,tier)));p.trait=p.trait||pick(TRAITS);
@@ -1450,121 +1450,121 @@ function lifeInit(p,tier){
   p.happy=p.happy??60;p.fear=0;p.emo='calm';p.emoT=0;p.lines=p.lines||[];p.thought=p.thought||'';p.life=p.life||900+Math.random()*700;
   p.chatT=4+Math.random()*12;p.family=p.family||[];
 }
-// ---- 말 ----
+// ---- Speech ----
 const LINES={
- hungry:['배고파…','뭐 좀 먹고 싶다','배에서 꼬르륵 소리가 나','오늘은 아직 아무것도 못 먹었어','고기 생각이 나네'],
- nofood:['먹을 게 하나도 없어…','식량이 다 떨어졌어!','누가 사냥 좀 나가 줘','이러다 다 굶겠어'],
- eat:['음, 맛있다!','배부르다~','역시 밥이 최고야','고마워요, 사냥꾼들!','이제 힘이 난다'],
- sleepy:['하암, 졸려…','눈꺼풀이 무거워','오늘 너무 일했나 봐'],
- lonely:['누구랑 얘기하고 싶다','다들 어디 갔지?','심심해…'],
- happy:['오늘 기분 좋다!','날씨 참 좋네','랄랄라~','세상이 아름다워'],
- sad:['기운이 없어…','왜 이렇게 우울하지','아무것도 하기 싫어'],
- work:['열심히 하자!','조금만 더 하면 돼','휴, 힘들다','이거 끝나면 쉬어야지'],
- lazy:['일하기 싫다…','조금만 쉬었다 할래','누가 대신 해 줬으면'],
- hunt:['사냥하러 가자!','오늘은 큰 놈을 잡을 거야','조용히… 다가가자','저기 있다!'],
- hunted:['잡았다!','오늘 저녁은 고기다!','사냥 성공!','다들 배불리 먹겠다'],
- miss:['놓쳤다! 너무 빨라','헉헉, 도망갔어','다음엔 꼭 잡을 거야'],
- scared:['으악!','살려 줘!','무서워!','도망쳐!'],
- brave:['겁먹지 마! 내가 지킬게','저리 가!','걱정 마, 별거 아니야'],
- curious:['저게 뭐지?','신기하다…','가까이 가 볼까?','처음 보는 거야'],
- baby:['응애!','엄마~','까르르'],
- grieve:['{n}… 보고 싶을 거야','{n}, 잘 가…','{n}가 떠나다니 믿을 수 없어'],
- born:['아기가 태어났대!','{n}네 집에 아기가 생겼어','축하해!'],
- wolf:['늑대다! 조심해!','늑대가 양을 노려!','아이들 숨겨!'],
- fire:['불이야!','물 가져와!','나무가 타고 있어!']
+ hungry:['I’m hungry…','I want something to eat','My stomach is growling','I haven’t eaten anything today','I’m craving some meat'],
+ nofood:['There’s nothing to eat…','We’re out of food!','Someone please go hunting','We’ll all starve at this rate'],
+ eat:['Mmm, tasty!','I’m full~','Food is the best','Thank you, hunters!','Now I’ve got my strength back'],
+ sleepy:['Yawn, I’m sleepy…','My eyelids are heavy','I think I worked too hard today'],
+ lonely:['I want to talk to someone','Where did everyone go?','I’m bored…'],
+ happy:['I feel great today!','What lovely weather','La la la~','The world is beautiful'],
+ sad:['I have no energy…','Why do I feel so down?','I don’t feel like doing anything'],
+ work:['Let’s work hard!','Just a little more','Phew, this is tough','I’ll rest once this is done'],
+ lazy:['I don’t want to work…','I’ll take a little break first','I wish someone would do this for me'],
+ hunt:['Let’s go hunting!','Today I’ll catch a big one','Quietly… let’s sneak up','There it is!'],
+ hunted:['Got it!','Meat for dinner tonight!','The hunt was a success!','Everyone will eat well'],
+ miss:['Missed it! Too fast','Huff, puff, it got away','Next time I’ll catch it for sure'],
+ scared:['Aaah!','Help me!','I’m scared!','Run!'],
+ brave:['Don’t be scared! I’ll protect you','Go away!','Don’t worry, it’s nothing'],
+ curious:['What is that?','Amazing…','Should I get closer?','I’ve never seen this before'],
+ baby:['Waaah!','Mama~','Giggle giggle'],
+ grieve:['{n}… I’ll miss you','{n}, goodbye…','I can’t believe {n} is gone'],
+ born:['A baby was born!','{n}’s family has a new baby','Congratulations!'],
+ wolf:['A wolf! Look out!','The wolf is after the sheep!','Hide the kids!'],
+ fire:['Fire!','Get water!','The trees are burning!']
 };
 const ACTLINES={
- gather:['이 열매 정말 달다','저쪽 덤불에 더 많아','빨간 건 먹어도 돼','바구니 금방 차겠다'],tool:['돌을 이렇게 깨면…','더 날카롭게!','이 돌 좋은데?','손 다칠 뻔했다'],fire:['불이 따뜻하다','나무 더 넣자','불 꺼지면 큰일이야','불 보고 있으면 마음이 편해'],
- paint:['사슴을 그려야지','내가 잡은 매머드를 남길 거야','손바닥 도장 쾅!'],bow:['과녁 맞혔다!','조금만 더 위로…','활 쏘는 거 재밌다'],play:['나 잡아 봐라!','같이 놀자!','까르르','술래는 너야!'],
- farm:['올해는 비가 많이 왔으면','흙이 부드럽네','씨앗을 잘 심어야지','허리가 아프다'],harvest:['곡식이 잘 익었네','올겨울은 배부르겠다'],pot:['동그랗게 동그랗게…','이번 그릇은 잘 나왔다'],herd:['양들아 이리 와!','한 마리 어디 갔지?','풀 많은 데로 가자'],water:['물이 시원하다','물동이가 무거워'],
- market:['싱싱한 물건 있어요!','싸게 드릴게요','오늘 장사 잘 된다'],write:['이 글자는 어떻게 쓰더라','기록을 남겨야 해'],smith:['쾅! 쾅!','쇠가 빨갛게 달았다','좋은 칼이 나오겠어'],build:['벽돌 하나 더!','거의 다 지었다','튼튼하게 지어야지'],talk:['그래서 어떻게 됐어?','정말이야?','하하하'],
- guard:['오늘도 별일 없구나','성문을 지켜야 해'],sack:['밀가루가 무거워','방앗간까지 조금만 더'],print:['책이 한 장씩 나온다','글자를 거꾸로 놓아야 해'],read:['이 책 재밌다','한 장만 더 읽어야지','이런 생각도 있구나'],
- scope:['저 별은 왜 움직일까?','달에 산이 있어!'],doctor:['따끔해도 참아요','이제 병에 안 걸릴 거예요'],walk:['오늘 바람 좋다','어디 갈까?'],factory:['기계 소리가 시끄럽다','오늘 할당량 끝내야 해','점심시간 언제야'],call:['여보세요? 잘 들려?','멀리서도 목소리가 들리네'],news:['오늘 신문 봤어?','세상이 빠르게 변하네'],
- phone:['이거 봐, 웃기다','배터리 얼마 안 남았네','메시지 왔다'],laptop:['마감이 내일인데…','저장 눌러야지'],jog:['헉헉, 3킬로 남았다','오늘 기록 좋다'],cafe:['커피 맛있다','주말에 뭐 해?'],dog:['멍멍이 산책 가자','그만 당겨!'],game:['한 판만 더!','이겼다!'],
- holo:['홀로그램 화질 좋다','회의가 길어지네'],solar:['패널이 반짝반짝','오늘 햇빛 좋아서 전기 많이 만들겠다'],garden:['토마토가 자랐어','도시에서도 농사짓는다'],wait:['버스 언제 오지?','자율주행이라 편해'],suit:['헬멧 꽉 조였고…','오늘은 화성 근무야'],watch:['저 우주선은 어디로 갈까?','나도 우주에 가 보고 싶다'],
- obj:['이게 대체 뭐지?','신기하다…','신께 감사드려요'],decal:['이게 뭘까?','만져 봐도 될까?'],crea:['우와, 귀엽다!','이름이 뭘까?','이리 와 봐'],firefight:['물! 물 가져와!','조금만 더 하면 꺼져!'],eat:['음, 맛있다','배부르다~'],bring:['오늘 수확 좋다!','다들 기다려!']};
+ gather:['These berries are so sweet','There are more in that bush','The red ones are safe to eat','The basket will fill up fast'],tool:['If I chip the stone like this…','Sharper!','This stone looks good','I almost hurt my hand'],fire:['The fire is warm','Let’s add more wood','If the fire goes out, we’re in trouble','Watching the fire is so calming'],
+ paint:['I’ll paint a deer','I’ll record the mammoth I caught','Handprint, stamp!'],bow:['Hit the target!','A little higher…','Archery is fun'],play:['Catch me if you can!','Let’s play together!','Giggle giggle','You’re it!'],
+ farm:['I hope it rains a lot this year','The soil is soft','I need to plant these seeds well','My back hurts'],harvest:['The grain is ripe','We’ll eat well this winter'],pot:['Round and round…','This bowl came out great'],herd:['Here, sheep!','Where did one go?','Let’s go where there’s more grass'],water:['The water is cool','This water jar is heavy'],
+ market:['Fresh goods here!','I’ll give you a good price','Business is good today'],write:['How do I write this letter again?','We must keep records'],smith:['Clang! Clang!','The iron is glowing red','This will make a fine blade'],build:['One more brick!','Almost done building','I’ll build it strong'],talk:['So what happened?','Really?','Hahaha'],
+ guard:['All quiet today','I must guard the gate'],sack:['This flour is heavy','Almost at the mill'],print:['Books come out one page at a time','The letters have to go in backward'],read:['This book is fun','Just one more page','So there’s an idea like this too'],
+ scope:['Why does that star move?','There are mountains on the Moon!'],doctor:['It stings, but hang in there','Now you won’t catch the disease'],walk:['Nice wind today','Where should we go?'],factory:['The machines are so loud','I have to hit today’s quota','When is lunch?'],call:['Hello? Can you hear me?','I can hear a voice from far away'],news:['Did you see today’s paper?','The world is changing fast'],
+ phone:['Look at this, it’s funny','My battery’s almost dead','Got a message'],laptop:['The deadline is tomorrow…','Better hit save'],jog:['Huff, puff, 3 km to go','Good time today'],cafe:['This coffee is great','What are you doing this weekend?'],dog:['Let’s go for a walk, doggy','Stop pulling!'],game:['One more round!','I won!'],
+ holo:['This hologram looks so sharp','This meeting is dragging on'],solar:['The panels are sparkling','Lots of sun today, so we’ll make lots of power'],garden:['The tomatoes grew','We farm even in the city'],wait:['When’s the bus coming?','Self-driving is so easy'],suit:['Helmet strapped tight…','I’m working on Mars today'],watch:['Where is that spaceship going?','I want to go to space too'],
+ obj:['What on earth is this?','Amazing…','Thank you, gods'],decal:['What is this?','Can I touch it?'],crea:['Wow, so cute!','I wonder what it’s called','Come here'],firefight:['Water! Get water!','A little more and it’s out!'],eat:['Mmm, tasty','I’m full~'],bring:['Great harvest today!','Wait, everyone!']};
 function sayLine(p,cat,vars){
-  let arr=LINES[cat]||[cat];if(p.trait==='게으른'&&cat==='work')arr=LINES.lazy;
+  let arr=LINES[cat]||[cat];if(p.trait==='Lazy'&&cat==='work')arr=LINES.lazy;
   let c=arr.filter(s=>!p.lines.includes(s));if(!c.length)c=arr;let s=pick(c);
   p.lines.push(s);if(p.lines.length>5)p.lines.shift();
   if(vars)for(const k in vars)s=s.replace('{'+k+'}',vars[k]);
-  if(scene.tier===0&&Math.random()<0.12)s=pick(['우가! ','부가… '])+s;
+  if(scene.tier===0&&Math.random()<0.12)s=pick(['Ooga! ','Booga… '])+s;
   return s;
 }
 function speakAct(p){const a=p.act&&p.act[0];const arr=ACTLINES[a];if(!arr){return speak(p,'work')}let c=arr.filter(x=>!p.lines.includes(x));if(!c.length)c=arr;const s=pick(c);p.lines.push(s);if(p.lines.length>5)p.lines.shift();say(p,s,3);p.thought=s;return s}
 function speak(p,cat,vars,sec){const s=sayLine(p,cat,vars);say(p,s,sec||3);p.thought=s;return s}
 function feel(p,emo,sec){p.emo=emo;p.emoT=sec||3}
 const evlog=[];function event(type,who,extra){evlog.unshift({type,who,extra,t:scene.clock});if(evlog.length>12)evlog.pop()}
-// ---- 대화 ----
+// ---- Conversations ----
 const dialogs=[];
 function makeDialog(a,b){
   const others=scene.people.filter(o=>o!==a&&o!==b&&!o.baby),o=others.length?pick(others):null,ev=evlog.find(e=>scene.clock-e.t<240);
   const topics=[];
-  if(o)topics.push([`${o.name}${josa(o.name,'은','는')} 요즘 뭐 해?`,`${o.act?o.act[1].replace(' 중',''):'몰라'}${o.act?' 하더라':''}. ${pick(['열심히 살아','좀 이상해','대단해','재밌는 애야'])}`]);
-  if(o&&o.trait)topics.push([`${o.name} 진짜 ${o.trait.replace(' 많은',' 많아').replace('한','해').replace('은','어')}`,pick(['맞아, 나도 그렇게 생각해','에이, 그 정도는 아니야','하하, 그건 그래'])]);
-  topics.push([pick(['오늘 뭐 먹었어?','배 안 고파?']),a.hunger>60||b.hunger>60?'아직… 배고파 죽겠어':pick(['고기 먹었어, 맛있더라','배불러','조금 먹었어'])]);
-  if(scene.tier<=1)topics.push(['내일은 어디로 사냥 갈까?',pick(['강 건너 숲에 사슴이 많대','매머드는 무서워…','같이 가자!'])]);
-  if(scene.tier>=6)topics.push([pick(['새로 나온 거 봤어?','요즘 일 바빠?']),pick(['응, 완전 신기하더라','바빠 죽겠어','주말엔 쉬고 싶다'])]);
-  if(scene.night)topics.push(['별이 참 예쁘다',pick(['그러게, 저 별엔 누가 살까?','이제 자러 가야겠다'])]);
-  if(ev){const m={gift:[`아까 하늘에서 ${ev.extra} 떨어진 거 봤어?`,pick(['봤어! 신이 주신 거야','무서웠어','저거 어떻게 쓰는 걸까?'])],born:[`${ev.who}네 아기 봤어?`,pick(['응! 엄청 귀여워','아직 못 봤어'])],death:[`${ev.who}가 떠났대…`,pick(['너무 슬퍼','좋은 사람이었는데'])],fly:[`${ev.who}가 하늘을 날았대!`,pick(['신이 들어 올리신 거야!','말도 안 돼'])],creature:[`처음 보는 동물 봤어? ${ev.extra}래`,pick(['귀엽더라','무서웠어','신이 만드셨대'])],boom:['아까 펑 하고 터진 거 뭐야?',pick(['몰라, 무서워','신비한 돌이 쪼개졌대'])],hunt:[`${ev.who}가 ${ev.extra}${josa(ev.extra,'을','를')} 잡았대!`,pick(['대단하다!','오늘은 잔치다!'])]}[ev.type];if(m)topics.push(m,m)}
-  if(a.trait==='다정한')topics.push([`${b.name}, 오늘 좋아 보인다`,pick(['고마워! 너도','헤헤, 그래?'])]);
-  if(a.happy<35)topics.push(['나 요즘 좀 힘들어…',pick(['힘내! 내가 있잖아','무슨 일 있어?','같이 맛있는 거 먹자'])]);
+  if(o)topics.push([`${o.name}${josa(o.name,'Silver','​')} — what are they up to lately?`,`${o.act?o.act[1].replace(' now',''):'No idea'}${o.act?' lately':''}. ${pick(['Works hard','A bit odd','Amazing','Fun to be around'])}`]);
+  if(o&&o.trait)topics.push([`${o.name} is really ${o.trait.toLowerCase()}`,pick(['Right, I think so too','Nah, not that much','Haha, that’s true'])]);
+  topics.push([pick(['What did you eat today?','Aren’t you hungry?']),a.hunger>60||b.hunger>60?'Not yet… I’m starving':pick(['I had meat, it was good','I’m full','I ate a little'])]);
+  if(scene.tier<=1)topics.push(['Where should we hunt tomorrow?',pick(['They say there are lots of deer in the woods across the river','Mammoths are scary…','Let’s go together!'])]);
+  if(scene.tier>=6)topics.push([pick(['Did you see the new thing?','Busy with work lately?']),pick(['Yeah, it was so cool','I’m super busy','I want to rest this weekend'])]);
+  if(scene.night)topics.push(['The stars are so pretty',pick(['I know, who could live on that star?','Time to go to bed'])]);
+  if(ev){const m={gift:[`Did you see ${ev.extra} fall from the sky earlier?`,pick(['I saw it! The gods gave it to us','It was scary','How do you use that thing?'])],born:[`Did you see ${ev.who}’s baby?`,pick(['Yes! So cute','Not yet'])],death:[`I heard ${ev.who} passed away…`,pick(['It’s so sad','They were a good person'])],fly:[`I heard ${ev.who} flew in the sky!`,pick(['The gods lifted them up!','No way'])],creature:[`Did you see the new animal? It’s called ${ev.extra}`,pick(['It was cute','It was scary','They say the gods made it'])],boom:['What was that bang earlier?',pick(['I don’t know, it was scary','They say a mysterious rock split open'])],hunt:[`I heard ${ev.who} caught ${ev.extra}${josa(ev.extra,'','')}!`,pick(['Amazing!','Time for a feast!'])]}[ev.type];if(m)topics.push(m,m)}
+  if(a.trait==='Kind')topics.push([`${b.name}, you look good today`,pick(['Thanks! You too','Hehe, really?'])]);
+  if(a.happy<35)topics.push(['I’ve been having a hard time lately…',pick(['Cheer up! I’m here for you','Is something wrong?','Let’s go eat something yummy'])]);
   const t=pick(topics);dialogs.push({a,b,lines:[[a,t[0]],[b,t[1]]],i:0,t:0.3});
 }
-// ---- 판단: 다음에 뭘 할까 ----
+// ---- Decide what to do next ----
 function hearth(){return scene.blds.find(b=>b.type==='fire'&&!b.out)||scene.blds.find(b=>b.tag==='bld')||{x:scene.ww/2,y:scene.wh/2,w:20,h:20}}
 function foodNeeded(){return scene.tier<4}
 function setAct(p,a,tx,ty,t){p.act=a;p.tx=tx;p.ty=ty;p.t=t||8+Math.random()*8;p.doing=false;p.arrived=false;p.obj=p.obj||null}
 function assign(p){
   if(!p.name)lifeInit(p,scene.tier);
   p.obj=null;p.prey=null;p.arrived=false;
-  if(p.baby){setAct(p,['play','엄마 옆에서 노는 중','walk','','any'],...nearPt(p.mom&&!p.mom.gone?p.mom:p,4,14),6);return}
+  if(p.baby){setAct(p,['play','Playing next to Mom','walk','','any'],...nearPt(p.mom&&!p.mom.gone?p.mom:p,4,14),6);return}
   const tier=scene.tier;
-  if(p.carry){const h=hearth();setAct(p,['bring',`${p.carry} 들고 돌아가는 중`,'stand','','home'],...nearPt(h,10,18),30);return}
-  if(scene.night&&!p.sleepOK){const h=p.home||hearth();setAct(p,['sleep','자는 중','sleep','','home'],...nearPt(h,4,Math.max(h.w,h.h)/2+4),40);return}
+  if(p.carry){const h=hearth();setAct(p,['bring',`Heading back with ${p.carry}`,'stand','','home'],...nearPt(h,10,18),30);return}
+  if(scene.night&&!p.sleepOK){const h=p.home||hearth();setAct(p,['sleep','Sleeping','sleep','','home'],...nearPt(h,4,Math.max(h.w,h.h)/2+4),40);return}
   if(p.hunger>65){
-    if(!foodNeeded()){const s=scene.blds.find(b=>b.type==='shop'||b.type==='stall')||p.home||hearth();setAct(p,['eat',tier>=6?'식당에서 밥 먹는 중':'시장에서 음식 사 먹는 중','sit','','home'],...nearPt(s,s.w/2+6,s.w/2+14),10);return}
-    if(scene.food>=8){const h=hearth();setAct(p,['eat',tier===0?'모닥불에서 고기 먹는 중':'밥 먹는 중','sit','','home'],...nearPt(h,10,22),8);return}
+    if(!foodNeeded()){const s=scene.blds.find(b=>b.type==='shop'||b.type==='stall')||p.home||hearth();setAct(p,['eat',tier>=6?'Eating at the diner':'Buying food at the market','sit','','home'],...nearPt(s,s.w/2+6,s.w/2+14),10);return}
+    if(scene.food>=8){const h=hearth();setAct(p,['eat',tier===0?'Eating meat by the campfire':'Eating','sit','','home'],...nearPt(h,10,22),8);return}
     if(Math.random()<0.6&&!p.kid)return goGetFood(p,true);
     speak(p,'nofood');feel(p,'sad',4);
   }
-  if(p.energy<18){setAct(p,['nap','꾸벅꾸벅 조는 중','sleep','','any'],p.x,p.y,12);return}
+  if(p.energy<18){setAct(p,['nap','Nodding off','sleep','','any'],p.x,p.y,12);return}
   if(p.social<30&&!p.kid){const fr=scene.people.find(o=>o!==p&&!o.baby&&o.act&&o.act[0]!=='sleep'&&(p.family.includes(o.name)||Math.random()<0.3));
-    if(fr){const mx=(p.x+fr.x)/2,my=(p.y+fr.y)/2;setAct(p,['talk',`${fr.name}${josa(fr.name,'과','와')} 수다 떠는 중`,'talk','','any'],mx-7,my,10);fr.obj=null;setAct(fr,['talk',`${p.name}${josa(p.name,'과','와')} 수다 떠는 중`,'talk','','any'],mx+7,my,10);p.partner=fr;fr.partner=p;return}
+    if(fr){const mx=(p.x+fr.x)/2,my=(p.y+fr.y)/2;setAct(p,['talk',`${fr.name}${josa(fr.name,' and',' and')} (chatting)`,'talk','','any'],mx-7,my,10);fr.obj=null;setAct(fr,['talk',`${p.name}${josa(p.name,' and',' and')} (chatting)`,'talk','','any'],mx+7,my,10);p.partner=fr;fr.partner=p;return}
     if(Math.random()<0.4)speak(p,'lonely')}
-  if(foodNeeded()&&scene.food<30&&!p.kid&&Math.random()<(p.trait==='부지런한'?0.7:p.trait==='게으른'?0.15:0.4))return goGetFood(p,false);
+  if(foodNeeded()&&scene.food<30&&!p.kid&&Math.random()<(p.trait==='Hardworking'?0.7:p.trait==='Lazy'?0.15:0.4))return goGetFood(p,false);
   assignWork(p);
-  if(p.act&&p.act[0]==='hunt'){const hunters=scene.people.filter(q=>q.act&&q.act[0]==='hunt').length;if(p.kid||scene.food>=60||hunters>5){const alt=ACT[Math.max(0,scene.tier)].filter(a=>a[0]!=='hunt'&&(a[5]||0)<=Math.floor(C.P)&&(!p.kid||a[2]==='run'||a[0]==='talk'));const a=pick(alt.length?alt:[['play','뛰어노는 중','run','','any']]);p.act=a;[p.tx,p.ty]=findTarget(a[4]);p.doing=false;p.arrived=false}else return goGetFood(p,false,true)}
-  if(p.act&&p.act[0]==='talk'&&p.act[4]==='any'){const q=scene.people.find(o=>o!==p&&!o.baby&&!o.partner&&Math.hypot(o.x-p.x,o.y-p.y)<300);if(q){p.partner=q;q.partner=p;q.obj=null;setAct(q,['talk',`${p.name}${josa(p.name,'과','와')} 이야기하는 중`,'talk','','any'],p.tx+9,p.ty,p.t)}}
-  if(Math.random()<(p.trait==='수다쟁이'?0.3:0.1))p.trait==='게으른'&&Math.random()<0.5?speak(p,'lazy'):speakAct(p);
+  if(p.act&&p.act[0]==='hunt'){const hunters=scene.people.filter(q=>q.act&&q.act[0]==='hunt').length;if(p.kid||scene.food>=60||hunters>5){const alt=ACT[Math.max(0,scene.tier)].filter(a=>a[0]!=='hunt'&&(a[5]||0)<=Math.floor(C.P)&&(!p.kid||a[2]==='run'||a[0]==='talk'));const a=pick(alt.length?alt:[['play','Running around playing','run','','any']]);p.act=a;[p.tx,p.ty]=findTarget(a[4]);p.doing=false;p.arrived=false}else return goGetFood(p,false,true)}
+  if(p.act&&p.act[0]==='talk'&&p.act[4]==='any'){const q=scene.people.find(o=>o!==p&&!o.baby&&!o.partner&&Math.hypot(o.x-p.x,o.y-p.y)<300);if(q){p.partner=q;q.partner=p;q.obj=null;setAct(q,['talk',`${p.name}${josa(p.name,' and',' and')} (talking)`,'talk','','any'],p.tx+9,p.ty,p.t)}}
+  if(Math.random()<(p.trait==='Chatty'?0.3:0.1))p.trait==='Lazy'&&Math.random()<0.5?speak(p,'lazy'):speakAct(p);
 }
 function goGetFood(p,urgent,huntOnly){
   const tier=scene.tier;
   const wild=scene.animals.filter(a=>!a.dead&&(['deer','mammoth'].includes(a.kind)||(tier>=1&&['sheep','cow'].includes(a.kind)&&(scene.food<15||urgent))));
   const bush=scene.blds.filter(b=>b.type==='bush'&&(b.berries??5)>0);
   const field=scene.fields.filter(f=>(f.grow??1)>=1);
-  if(!huntOnly&&tier>=1&&field.length&&Math.random()<0.7){const f=pick(field);p.obj=f;setAct(p,['harvest','곡식 거두는 중','work','sickle','field'],f.x+(Math.random()-.5)*f.w*0.6,f.y+(Math.random()-.5)*f.h*0.6,6);return}
-  if(!huntOnly&&bush.length&&(Math.random()<0.45||!wild.length)){const b=pick(bush);p.obj=b;setAct(p,['gather','열매 따는 중','work','','bush'],...nearPt(b,8,14),5);return}
+  if(!huntOnly&&tier>=1&&field.length&&Math.random()<0.7){const f=pick(field);p.obj=f;setAct(p,['harvest','Harvesting grain','work','sickle','field'],f.x+(Math.random()-.5)*f.w*0.6,f.y+(Math.random()-.5)*f.h*0.6,6);return}
+  if(!huntOnly&&bush.length&&(Math.random()<0.45||!wild.length)){const b=pick(bush);p.obj=b;setAct(p,['gather','Picking berries','work','','bush'],...nearPt(b,8,14),5);return}
   const nh=scene.people.filter(q=>q.act&&q.act[0]==='hunt').length;
   if(wild.length&&(nh<6||urgent)){let best=null,bd=1e9;for(const a of wild){const d=Math.hypot(a.x-p.x,a.y-p.y)*(a.kind==='mammoth'?1.6:1);if(d<bd){bd=d;best=a}}
-    p.prey=best;setAct(p,['hunt',`${best.kind==='mammoth'?'매머드':best.kind==='deer'?'사슴':best.kind==='sheep'?'양':'소'} 사냥하는 중`,'run','spear','animal'],best.x,best.y,40);
+    p.prey=best;setAct(p,['hunt',`${best.kind==='mammoth'?'Mammoth':best.kind==='deer'?'Deer':best.kind==='sheep'?'Sheep':'Cow'} hunt`,'run','spear','animal'],best.x,best.y,40);
     if(Math.random()<0.5)speak(p,'hunt');
-    if(best.kind==='mammoth'){for(const q of scene.people){if(q!==p&&!q.kid&&!q.carry&&q.trait!=='겁 많은'&&Math.hypot(q.x-p.x,q.y-p.y)<300&&Math.random()<0.6){q.prey=best;q.obj=null;setAct(q,['hunt','매머드 사냥 돕는 중','run','spear','animal'],best.x,best.y,40)}}}
+    if(best.kind==='mammoth'){for(const q of scene.people){if(q!==p&&!q.kid&&!q.carry&&q.trait!=='Timid'&&Math.hypot(q.x-p.x,q.y-p.y)<300&&Math.random()<0.6){q.prey=best;q.obj=null;setAct(q,['hunt','Helping hunt a mammoth','run','spear','animal'],best.x,best.y,40)}}}
     return}
   assignWork(p);
 }
 function onArrive(p){
   const a=p.act[0];
   if(a==='eat'){if(foodNeeded()){if(scene.food>=8){scene.food-=8;p.hunger=Math.max(0,p.hunger-65);speak(p,'eat');feel(p,'happy',4);p.happy=Math.min(100,p.happy+10)}else{speak(p,'nofood');feel(p,'sad',4)}}else{p.hunger=Math.max(0,p.hunger-65);if(Math.random()<0.5)speak(p,'eat');feel(p,'happy',3)}}
-  else if(a==='gather'&&p.obj){const b=p.obj;if((b.berries??5)>0){b.berries=(b.berries??5)-1;p.carry='열매';if(Math.random()<0.4)say(p,pick(['열매 땄다!','달콤해 보여','바구니가 가득!']),2)}p.t=Math.min(p.t,3)}
-  else if(a==='harvest'&&p.obj){p.obj.grow=0;p.carry='곡식';if(Math.random()<0.4)say(p,pick(['올해 농사 잘됐다!','곡식이 잘 익었어','허리가 아프다…']),2.5);p.t=Math.min(p.t,4)}
-  else if(a==='bring'){const v={'고기':0,'열매':6,'곡식':20}[p.carry]??10;scene.food+=p.carryVal||v;if(Math.random()<0.5)say(p,pick(['다녀왔어!','먹을 거 가져왔어!','오늘 수확이야']),2.5);
-    for(const q of scene.people)if(q!==p&&q.hunger>40&&Math.hypot(q.x-p.x,q.y-p.y)<150&&Math.random()<0.4){say(q,pick(['와! 먹을 거다!','고마워!','최고야!']),2);feel(q,'happy',3)}
+  else if(a==='gather'&&p.obj){const b=p.obj;if((b.berries??5)>0){b.berries=(b.berries??5)-1;p.carry='Berries';if(Math.random()<0.4)say(p,pick(['Picked berries!','They look sweet','The basket is full!']),2)}p.t=Math.min(p.t,3)}
+  else if(a==='harvest'&&p.obj){p.obj.grow=0;p.carry='Grain';if(Math.random()<0.4)say(p,pick(['Great harvest this year!','The grain is ripe','My back hurts…']),2.5);p.t=Math.min(p.t,4)}
+  else if(a==='bring'){const v={'Meat':0,'Berries':6,'Grain':20}[p.carry]??10;scene.food+=p.carryVal||v;if(Math.random()<0.5)say(p,pick(['I’m back!','I brought food!','Today’s harvest']),2.5);
+    for(const q of scene.people)if(q!==p&&q.hunger>40&&Math.hypot(q.x-p.x,q.y-p.y)<150&&Math.random()<0.4){say(q,pick(['Wow! Food!','Thank you!','You’re the best!']),2);feel(q,'happy',3)}
     p.carry=null;p.carryVal=0;feel(p,'happy',4);p.happy=Math.min(100,p.happy+8);p.t=0.5}
   else if(a==='sleep'||a==='nap'){feel(p,'sleepy',99)}
   else if(a==='talk'&&p.partner&&!p.dlg&&p.partner.arrived!==undefined){if(!dialogs.some(d=>d.a===p||d.b===p)){makeDialog(p,p.partner);p.dlg=true}}
 }
-// ---- 매 프레임 ----
+// ---- Every frame ----
 function lifeTick(dt){
   const tier=scene.tier;
   if(scene.food==null)scene.food=40;
@@ -1573,109 +1573,109 @@ function lifeTick(dt){
     if(p.grabbed){p.fear=1;feel(p,'scared',1);continue}
     const sleeping=p.act&&(p.act[0]==='sleep'||p.act[0]==='nap')&&p.doing;
     p.hunger=Math.min(100,p.hunger+dt*(p.kid?0.2:0.28));p.energy=clamp(p.energy+(sleeping?dt*3:-dt*0.12),0,100);p.social=clamp(p.social+(p.act&&p.act[0]==='talk'&&p.doing?dt*4:-dt*0.15),0,100);
-    const target=60-(p.hunger>70?25:0)-(p.energy<20?10:0)-(p.social<25?10:0)+(p.trait==='다정한'?5:0);p.happy+=(target-p.happy)*dt*0.02;
+    const target=60-(p.hunger>70?25:0)-(p.energy<20?10:0)-(p.social<25?10:0)+(p.trait==='Kind'?5:0);p.happy+=(target-p.happy)*dt*0.02;
     if(sleeping&&!scene.night&&p.act[0]==='sleep'&&p.energy>90){assign(p)}
     if(!sleeping&&scene.night&&p.act&&p.act[0]!=='sleep'&&!p.carry&&!p.baby&&Math.random()<dt*0.2)assign(p);
     p.emoT-=dt;if(p.emoT<=0){p.emo=sleeping?'sleepy':p.hunger>70?'hungry':p.happy>72?'happy':p.happy<35?'sad':'calm'}
     if(p.fear>0){p.fear-=dt*0.25}
-    // 사냥 추적
+    // Hunt chase
     if(p.act&&p.act[0]==='hunt'){const a=p.prey;if(!a||a.dead||a.gone){if(!p.carry)assign(p)}else{p.tx=a.x;p.ty=a.y;const d=Math.hypot(a.x-p.x,a.y-p.y);
       if(d<70){a.flee=Math.max(a.flee,2);a.ang=Math.atan2(a.y-p.y,a.x-p.x)}
       if(d<12){if(a.kind==='mammoth'){const n=scene.people.filter(q=>q.prey===a&&Math.hypot(q.x-a.x,q.y-a.y)<45).length;
-          if(n<3){a.flee=0;a.charge=2;a.ang=Math.atan2(p.y-a.y,p.x-a.x);p.fear=1.2;p.fearFrom=a;speak(p,'scared');feel(p,'scared',3);say(p,'으악! 매머드가 화났다!',2.5);p.prey=null;for(const q of scene.people)if(q.prey===a){q.prey=null;q.fear=1;q.fearFrom=a}}
+          if(n<3){a.flee=0;a.charge=2;a.ang=Math.atan2(p.y-a.y,p.x-a.x);p.fear=1.2;p.fearFrom=a;speak(p,'scared');feel(p,'scared',3);say(p,'Aaah! The mammoth is angry!',2.5);p.prey=null;for(const q of scene.people)if(q.prey===a){q.prey=null;q.fear=1;q.fearFrom=a}}
           else killPrey(a,scene.people.filter(q=>q.prey===a))}
         else killPrey(a,[p])}}
       p.t=Math.max(p.t,1)}
-    // 공포: 도망
-    if(p.fear>0.3&&p.fearFrom&&!p.grabbed&&p.alt===0){const f=p.fearFrom,ang=Math.atan2(p.y-f.y,p.x-f.x);p.tx=clamp(p.x+Math.cos(ang)*120,20,scene.ww-20);p.ty=clamp(p.y+Math.sin(ang)*120,20,scene.wh-20);if(p.act[2]!=='run')p.act=['flee','도망치는 중','run','','any'];p.doing=false;p.t=Math.max(p.t,2)}
-    // 혼잣말
-    p.chatT-=dt;if(p.chatT<=0){p.chatT=(p.trait==='수다쟁이'?7:14)+Math.random()*14;
+    // Fear: run away
+    if(p.fear>0.3&&p.fearFrom&&!p.grabbed&&p.alt===0){const f=p.fearFrom,ang=Math.atan2(p.y-f.y,p.x-f.x);p.tx=clamp(p.x+Math.cos(ang)*120,20,scene.ww-20);p.ty=clamp(p.y+Math.sin(ang)*120,20,scene.wh-20);if(p.act[2]!=='run')p.act=['flee','Running away','run','','any'];p.doing=false;p.t=Math.max(p.t,2)}
+    // Talking to self
+    p.chatT-=dt;if(p.chatT<=0){p.chatT=(p.trait==='Chatty'?7:14)+Math.random()*14;
       if(!sleeping&&p.sayT<=0&&!dialogs.some(d=>d.a===p||d.b===p)){
         if(p.baby)speak(p,'baby',null,2);else if(p.hunger>70)speak(p,foodNeeded()&&scene.food<8?'nofood':'hungry');else if(p.energy<20)speak(p,'sleepy');else if(p.happy>75)speak(p,'happy');else if(p.happy<35)speak(p,'sad');else if(p.social<30)speak(p,'lonely');else{const q=!p.kid&&!p.baby&&Math.random()<0.45?scene.people.find(o=>o!==p&&!o.baby&&o.sayT<=0&&!dialogs.some(d=>d.a===o||d.b===o)&&Math.hypot(o.x-p.x,o.y-p.y)<60):null;if(q){makeDialog(p,q);p.social=Math.min(100,p.social+15);q.social=Math.min(100,q.social+15)}else if(p.act)p.act[0]==='hunt'?speak(p,'hunt'):speakAct(p)}}}
     if(sleeping&&p.sayT<=0&&Math.random()<dt*0.3)say(p,'Zzz…',2);
   }
-  // 대화 진행
+  // Conversation in progress
   for(const d of dialogs){d.t-=dt;if(d.t<=0&&d.i<d.lines.length){const [who,txt]=d.lines[d.i];if(!who.gone){say(who,txt,2.8);who.thought=txt;feel(who,pick(['happy','calm','surprised']),2.5)}d.i++;d.t=2.4}}
   for(let k=dialogs.length-1;k>=0;k--){const d=dialogs[k];if(d.i>=d.lines.length&&d.t<=0){d.a.dlg=false;d.b.dlg=false;d.a.partner=null;d.b.partner=null;dialogs.splice(k,1)}}
-  // 늑대
+  // Wolves
   for(const w of scene.animals){if(w.kind!=='wolf'||w.dead)continue;
     w.hunger=(w.hunger||0)+dt;const near=scene.people.filter(q=>!q.grabbed&&Math.hypot(q.x-w.x,q.y-w.y)<90);
-    if(near.length>=2||near.some(q=>q.trait==='용감한')){w.flee=2;const q=near[0];w.ang=Math.atan2(w.y-q.y,w.x-q.x);const br=near.find(q=>q.trait==='용감한');if(br&&br.sayT<=0)speak(br,'brave')}
+    if(near.length>=2||near.some(q=>q.trait==='Brave')){w.flee=2;const q=near[0];w.ang=Math.atan2(w.y-q.y,w.x-q.x);const br=near.find(q=>q.trait==='Brave');if(br&&br.sayT<=0)speak(br,'brave')}
     else if(near.length===1){const q=near[0];if(q.fear<=0.3){q.fear=1;q.fearFrom=w;speak(q,'wolf');feel(q,'scared',3)}}
     if(w.hunger>40&&!w.flee){let best=null,bd=320;for(const a of scene.animals){if(a===w||a.dead||!['sheep','deer','cow'].includes(a.kind)||a.sc<1)continue;const d=Math.hypot(a.x-w.x,a.y-w.y);if(d<bd){bd=d;best=a}}
       if(best){w.ang=Math.atan2(best.y-w.y,best.x-w.x);w.hunt=true;best.flee=Math.max(best.flee,1.5);best.ang=Math.atan2(best.y-w.y,best.x-w.x);if(bd<10){best.dead=true;best.deadT=0;best.eaten=true;w.hunger=0;w.hunt=false;w.still=true;w.t=5;event('wolf',null,best.kind)}}}}
-  // 동물 무리 이동
+  // Animal herds move
   scene.migT=(scene.migT||0)+dt;if(scene.migT>30){scene.migT=0;const kinds=tier===0?['deer']:tier<=3?['sheep','cow']:[];
     for(const k of kinds){const n=scene.animals.filter(a=>a.kind===k&&!a.dead).length;if(n<4){const side=Math.random()<0.5,x=side?20:scene.ww-20,y=60+Math.random()*(scene.wh-120);
       for(let q=0;q<3;q++)scene.animals.push({kind:k,x:x+(Math.random()-.5)*30,y:y+(Math.random()-.5)*30,ang:side?0:Math.PI,v:10+Math.random()*8,t:3,flee:0,still:false,alt:0,sc:1,cd:20,age:100,life:700+Math.random()*800});
-      toast(k==='deer'?'사슴 무리가 마을 근처로 찾아왔어요':'근처 들판에서 가축 무리가 들어왔어요')}}}
-  // 식량 자원 회복
+      toast(k==='deer'?'A herd of deer came near the village':'A herd of livestock wandered in from the nearby fields')}}}
+  // Food supply recovers
   scene.regen=(scene.regen||0)+dt;if(scene.regen>20){scene.regen=0;for(const b of scene.blds)if(b.type==='bush')b.berries=Math.min(6,(b.berries??5)+1);for(const f of scene.fields)f.grow=Math.min(1,(f.grow??1)+0.25)}
   elementTick(dt);
 }
 function killPrey(a,hunters){
-  a.dead=true;a.deadT=0;const val={mammoth:120,deer:30,sheep:20,cow:35}[a.kind]||15,nm={mammoth:'매머드',deer:'사슴',sheep:'양',cow:'소'}[a.kind]||'동물';
+  a.dead=true;a.deadT=0;const val={mammoth:120,deer:30,sheep:20,cow:35}[a.kind]||15,nm={mammoth:'Mammoth',deer:'Deer',sheep:'Sheep',cow:'Cow'}[a.kind]||'Animals';
   const h=hunters[0];event('hunt',h.name,nm);
-  hunters.forEach((q,k)=>{q.prey=null;q.carry='고기';q.carryVal=Math.round(val/hunters.length);speak(q,'hunted');feel(q,'happy',4);q.happy=Math.min(100,q.happy+15);assign(q)});
-  if(a.kind==='mammoth')toast(`사냥꾼들이 힘을 합쳐 매머드를 잡았어요! (${hunters.map(q=>q.name).join(', ')})`);
+  hunters.forEach((q,k)=>{q.prey=null;q.carry='Meat';q.carryVal=Math.round(val/hunters.length);speak(q,'hunted');feel(q,'happy',4);q.happy=Math.min(100,q.happy+15);assign(q)});
+  if(a.kind==='mammoth')toast(`The hunters teamed up and caught a mammoth! (${hunters.map(q=>q.name).join(', ')})`);
 }
-// ---- 원소 반응 ----
+// ---- Element reactions ----
 function elementTick(dt){
   scene.rx=(scene.rx||0)-dt;if(scene.rx>0)return;scene.rx=0.5;
   const D=scene.decals;
   for(const d of D){if(d.gone)continue;
-    if(d.name==='물'||d.name==='소금물'){d.r-=0.5*(scene.night?0.3:1)*0.06;if(d.r<4){d.gone=true}}
-    if(d.ph==='gas'){d.x+=1.2;if(d.name==='헬륨'||d.name==='수소')d.life-=1.5}
-    if(d.name==='염소')for(const p of scene.people)if(Math.hypot(p.x-d.x,p.y-d.y)<d.r+20&&p.fear<=0.3){p.fear=1;p.fearFrom=d;say(p,pick(['콜록콜록! 숨쉬기 힘들어','이상한 냄새! 피해!']),2.5);feel(p,'scared',3)}
-    if(d.name==='철'){const w=D.find(o=>!o.gone&&(o.name==='물'||o.name==='소금물')&&Math.hypot(o.x-d.x,o.y-d.y)<o.r+d.r);if(w){d.rust=(d.rust||0)+0.5;if(d.rust>20){d.name='녹';d.col=TCOL['녹'];addInv('녹');toast('물에 닿은 철이 녹슬었어요')}}}
+    if(d.name==='Water'||d.name==='Salt water'){d.r-=0.5*(scene.night?0.3:1)*0.06;if(d.r<4){d.gone=true}}
+    if(d.ph==='gas'){d.x+=1.2;if(d.name==='Helium'||d.name==='Hydrogen')d.life-=1.5}
+    if(d.name==='Chlorine')for(const p of scene.people)if(Math.hypot(p.x-d.x,p.y-d.y)<d.r+20&&p.fear<=0.3){p.fear=1;p.fearFrom=d;say(p,pick(['Cough cough! It’s hard to breathe','What a weird smell! Get away!']),2.5);feel(p,'scared',3)}
+    if(d.name==='Iron'){const w=D.find(o=>!o.gone&&(o.name==='Water'||o.name==='Salt water')&&Math.hypot(o.x-d.x,o.y-d.y)<o.r+d.r);if(w){d.rust=(d.rust||0)+0.5;if(d.rust>20){d.name='Rust';d.col=TCOL['Rust'];addInv('Rust');toast('The iron touched water and rusted')}}}
   }
   for(const a of D)for(const b of D){if(a===b||a.gone||b.gone)continue;if(Math.hypot(a.x-b.x,a.y-b.y)>a.r+b.r)continue;
     const pair=n=>(a.name===n[0]&&b.name===n[1]);
-    if(pair(['나트륨','물'])||pair(['칼륨','물'])){a.gone=true;b.r*=0.7;scene.fx.push({x:a.x,y:a.y,t:0,kind:'pop'});D.push({name:'수소',x:a.x,y:a.y,r:20,col:TCOL['수소'],ph:'gas',life:10,seed:Math.random(),fx:{}});toast(`${a.name}${josa(a.name,'이','가')} 물과 만나 치익! 펑! 반응했어요`);for(const p of scene.people)if(Math.hypot(p.x-a.x,p.y-a.y)<150){p.fear=1;p.fearFrom=a;say(p,'으악! 물이 폭발했다!',2.5)}event('boom')}
-    else if(pair(['소금','물'])){a.r-=3;if(a.r<4){a.gone=true;b.name='소금물';b.col='#7ab8d8';toast('소금이 물에 녹아서 소금물이 됐어요')}}
+    if(pair(['Sodium','Water'])||pair(['Potassium','Water'])){a.gone=true;b.r*=0.7;scene.fx.push({x:a.x,y:a.y,t:0,kind:'pop'});D.push({name:'Hydrogen',x:a.x,y:a.y,r:20,col:TCOL['Hydrogen'],ph:'gas',life:10,seed:Math.random(),fx:{}});toast(`${a.name}${josa(a.name,'​','​')} hit the water. Fizz! Pop! It reacted`);for(const p of scene.people)if(Math.hypot(p.x-a.x,p.y-a.y)<150){p.fear=1;p.fearFrom=a;say(p,'Aaah! The water exploded!',2.5)}event('boom')}
+    else if(pair(['Salt','Water'])){a.r-=3;if(a.r<4){a.gone=true;b.name='Salt water';b.col='#7ab8d8';toast('The salt dissolved in water and made salt water')}}
   }
   const fires=scene.objs.filter(o=>o.id==='fire'&&!o.gone&&o.alt===0).concat(scene.blds.filter(b=>b.type==='fire'&&!b.out)).concat(scene.trees.filter(t=>t.burn>0));
   for(const d of D){if(d.gone||d.ph!=='gas')continue;const f=fires.find(f=>Math.hypot(f.x-d.x,f.y-d.y)<d.r+20);if(!f)continue;
-    if(['수소','메테인'].includes(d.name)){d.gone=true;scene.fx.push({x:d.x,y:d.y,t:0,kind:'pop'});toast(`${d.name}${josa(d.name,'이','가')} 불을 만나 펑! 터졌어요`);for(const p of scene.people)if(Math.hypot(p.x-d.x,p.y-d.y)<160){p.fear=1;p.fearFrom=d;speak(p,'scared')}event('boom')}
-    else if(d.name==='산소'){d.gone=true;if(f.life!=null)f.life+=60;f.big=3;toast('산소를 만나 불이 확 커졌어요!')}
-    else if(d.name==='이산화탄소'&&f.id==='fire'){f.gone=true;toast('이산화탄소가 불을 덮어서 꺼졌어요')}}
-  // 불: 꺼짐 / 번짐
-  for(const o of scene.objs)if(o.id==='fire'&&!o.gone){o.life=(o.life??150)-0.5;if(o.life<=0){o.gone=true;toast('불이 다 타서 꺼졌어요')}
+    if(['Hydrogen','Methane'].includes(d.name)){d.gone=true;scene.fx.push({x:d.x,y:d.y,t:0,kind:'pop'});toast(`${d.name}${josa(d.name,'​','​')} met the fire. Boom! It blew up`);for(const p of scene.people)if(Math.hypot(p.x-d.x,p.y-d.y)<160){p.fear=1;p.fearFrom=d;speak(p,'scared')}event('boom')}
+    else if(d.name==='Oxygen'){d.gone=true;if(f.life!=null)f.life+=60;f.big=3;toast('It met oxygen and the fire flared up!')}
+    else if(d.name==='Carbon dioxide'&&f.id==='fire'){f.gone=true;toast('Carbon dioxide smothered the fire and put it out')}}
+  // Fire: goes out / spreads
+  for(const o of scene.objs)if(o.id==='fire'&&!o.gone){o.life=(o.life??150)-0.5;if(o.life<=0){o.gone=true;toast('The fire burned out')}
     for(const t of scene.trees)if(!t.burnt&&!(t.burn>0)&&Math.hypot(t.x-o.x,t.y-o.y)<30){t.burn=25;fireAlarm(t)}}
-  for(const t of scene.trees)if(t.burn>0){t.burn-=0.5;const w=D.find(d=>!d.gone&&(d.name==='물'||d.name==='소금물')&&Math.hypot(d.x-t.x,d.y-t.y)<d.r+16);
+  for(const t of scene.trees)if(t.burn>0){t.burn-=0.5;const w=D.find(d=>!d.gone&&(d.name==='Water'||d.name==='Salt water')&&Math.hypot(d.x-t.x,d.y-t.y)<d.r+16);
     const helpers=scene.people.filter(p=>p.act&&p.act[0]==='firefight'&&Math.hypot(p.x-t.x,p.y-t.y)<30).length;
-    if(w||helpers>=2){t.burn=0;toast(w?'물로 불을 껐어요!':'사람들이 힘을 합쳐 불을 껐어요!')}
+    if(w||helpers>=2){t.burn=0;toast(w?'Put out the fire with water!':'Everyone worked together to put out the fire!')}
     else{if(Math.random()<0.08)for(const u of scene.trees)if(!u.burnt&&!(u.burn>0)&&Math.hypot(u.x-t.x,u.y-t.y)<38){u.burn=25;break}
       if(t.burn<=0){t.burnt=true}}}
 }
 function fireAlarm(t){
   for(const p of scene.people){const d=Math.hypot(p.x-t.x,p.y-t.y);if(d>350||p.baby)continue;
-    if(p.trait==='용감한'||p.trait==='부지런한'||Math.random()<0.4){p.obj=null;setAct(p,['firefight','불 끄는 중','work','','any'],...nearPt(t,12,20),25);speak(p,'fire')}
+    if(p.trait==='Brave'||p.trait==='Hardworking'||Math.random()<0.4){p.obj=null;setAct(p,['firefight','Fighting the fire','work','','any'],...nearPt(t,12,20),25);speak(p,'fire')}
     else{p.fear=1;p.fearFrom=t;speak(p,'scared');feel(p,'scared',4)}}
 }
-// ---- 죽음 ----
+// ---- Death ----
 function dieOld(p){
   p.gone=true;event('death',p.name);scene.fx.push({x:p.x,y:p.y,t:0,kind:'soul'});
   let toasted=false;
   for(const q of scene.people){if(q===p||q.baby)continue;const fam=q.family.includes(p.name)||p.family.includes(q.name);
     if(fam||Math.hypot(q.x-p.x,q.y-p.y)<200){q.happy=Math.max(0,q.happy-(fam?35:12));feel(q,'sad',fam?12:5);if(fam||Math.random()<0.4){speak(q,'grieve',{n:p.name},4)}}}
-  if(!toasted){toast(`${p.name}${josa(p.name,'이','가')} 나이가 들어 하늘나라로 떠났어요`);clog(`<b>${p.name}</b>${josa(p.name,'이','가')} 나이가 들어 세상을 떠났어요`)}
+  if(!toasted){toast(`${p.name}${josa(p.name,'​','​')} grew old and went up to the sky`);clog(`<b>${p.name}</b>${josa(p.name,'​','​')} grew old and passed away`)}
 }
-// ---- 사람 정보 카드 ----
+// ---- Person info card ----
 function infoCard(){
   const el=$('pinfo');if(!el)return;const p=scene.sel;
   if(!p||p.gone||!scene.on){el.hidden=true;return}
-  el.hidden=false;const stage=p.baby?'아기':p.kid?'어린이':p.age>p.life*0.8?'노인':'어른';
-  const emoK={happy:'기쁨',sad:'슬픔',scared:'무서움',surprised:'놀람',calm:'평온',sleepy:'졸림',hungry:'배고픔'}[p.emo]||'평온';
+  el.hidden=false;const stage=p.baby?'Baby':p.kid?'Child':p.age>p.life*0.8?'Elder':'Adult';
+  const emoK={happy:'Joy',sad:'Sadness',scared:'Fear',surprised:'Surprise',calm:'Calm',sleepy:'Sleepy',hungry:'Hungry'}[p.emo]||'Calm';
   const bar=(l,v,c)=>`<div class="nb"><span>${l}</span><i><b style="width:${Math.round(v)}%;background:${c}"></b></i></div>`;
-  el.innerHTML=`<div class="pn"><b>${p.name}</b><small>${p.trait} ${stage}${p.sex?(p.sex==='m'?' · 남':' · 여'):''}</small></div>
-   <div class="pm">기분: <b>${emoK}</b></div><div class="pm">하는 일: ${p.act?p.act[1]:'-'}</div>
-   ${bar('배부름',100-p.hunger,'#5ac18e')}${bar('기운',p.energy,'#f2c14e')}${bar('행복',p.happy,'#ff7b6b')}${bar('친구',p.social,'#4a8fe0')}
-   ${p.family.length?`<div class="pm">가족: ${p.family.slice(0,4).join(', ')}</div>`:''}${p.thought?`<div class="pt">“${p.thought}”</div>`:''}
-   ${foodNeeded()?`<div class="pm small">마을 식량: ${Math.round(scene.food)}</div>`:''}`;
+  el.innerHTML=`<div class="pn"><b>${p.name}</b><small>${p.trait} ${stage}${p.sex?(p.sex==='m'?' · M':' · F'):''}</small></div>
+   <div class="pm">Mood: <b>${emoK}</b></div><div class="pm">Doing: ${p.act?p.act[1]:'-'}</div>
+   ${bar('Fullness',100-p.hunger,'#5ac18e')}${bar('Energy',p.energy,'#f2c14e')}${bar('Happiness',p.happy,'#ff7b6b')}${bar('Friends',p.social,'#4a8fe0')}
+   ${p.family.length?`<div class="pm">Family: ${p.family.slice(0,4).join(', ')}</div>`:''}${p.thought?`<div class="pt">“${p.thought}”</div>`:''}
+   ${foodNeeded()?`<div class="pm small">Village food: ${Math.round(scene.food)}</div>`:''}`;
 }
 
-// ================= 화질 향상 =================
+// ================= Graphics upgrade =================
 function hull(pts){pts=pts.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);const lo=[],up=[];
   for(const p of pts){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p)}
   for(let i=pts.length-1;i>=0;i--){const p=pts[i];while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p)}
@@ -1688,7 +1688,7 @@ function castShadow(b){
   const tip=b.type==='tent'||b.type==='spire'?[[b.x+ox,b.y+oy]]:fp.map(p=>[p[0]+ox,p[1]+oy]);
   const h=hull(fp.concat(tip));ctx.fillStyle='rgba(18,30,12,.26)';ctx.beginPath();h.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fill();
 }
-// 지형을 더 풍성하게
+// Make the terrain richer
 function richGround(c,ww,wh,tier,seed0){
   let sd=seed0;const r2=()=>(sd=(sd*16807)%2147483647)/2147483647;
   const greens=tier>=6?['#6fa05c','#7db36a','#5f9050','#8cc078']:['#5d8a3c','#6c9a45','#4f7a33','#7ca852','#86b25a'];
@@ -1709,7 +1709,7 @@ function paintPond(c,b){
   for(let k=0;k<4;k++){const x=(r2()-.5)*b.w*0.6,y=(r2()-.5)*b.h*0.5;c.fillStyle='#4f9a4a';c.beginPath();c.arc(x,y,4,0.3,Math.PI*2-0.3);c.lineTo(x,y);c.fill()}
   c.restore();
 }
-// 구름 그림자·나비·반딧불·새
+// Cloud shadows, butterflies, fireflies, birds
 const amb={clouds:[],flies:[],flock:null};
 function ambTick(dt){
   if(!amb.clouds.length)for(let k=0;k<5;k++)amb.clouds.push({x:Math.random()*scene.ww,y:Math.random()*scene.wh,r:120+Math.random()*160,v:6+Math.random()*6});
@@ -1736,7 +1736,7 @@ function grade(){
   scr();if(!scene.night){const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'rgba(255,220,150,.08)');g.addColorStop(1,'rgba(80,120,200,.06)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H)}
   const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.45,W/2,H/2,Math.max(W,H)*0.75);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.28)');ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
 }
-// 미니맵
+// Minimap
 function drawMinimap(){
   const mc=$('mini');if(!mc||!scene.on)return;const g=mc.getContext('2d'),MW=mc.width,MH=mc.height,sx=MW/scene.ww,sy=MH/scene.wh;
   g.clearRect(0,0,MW,MH);if(scene.gcan)g.drawImage(scene.gcan,0,0,MW,MH);
@@ -1747,36 +1747,36 @@ function drawMinimap(){
   camSetup();const cs=[[0,0],[W,0],[W,H],[0,H]].map(([x,y])=>unproj(x,y));g.strokeStyle='#fff';g.lineWidth=1.5;g.beginPath();cs.forEach(([x,y],i)=>{const px=clamp(x,-scene.ww,scene.ww*2)*sx,py=clamp(y,-scene.wh,scene.wh*2)*sy;i?g.lineTo(px,py):g.moveTo(px,py)});g.closePath();g.stroke();
 }
 
-// ================= 창조 연구소 =================
-const EL_KO='수소 헬륨 리튬 베릴륨 붕소 탄소 질소 산소 플루오린 네온 나트륨 마그네슘 알루미늄 규소 인 황 염소 아르곤 칼륨 칼슘 스칸듐 타이타늄 바나듐 크로뮴 망가니즈 철 코발트 니켈 구리 아연 갈륨 저마늄 비소 셀레늄 브로민 크립톤 루비듐 스트론튬 이트륨 지르코늄 나이오븀 몰리브데넘 테크네튬 루테늄 로듐 팔라듐 은 카드뮴 인듐 주석 안티모니 텔루륨 아이오딘 제논 세슘 바륨 란타넘 세륨 프라세오디뮴 네오디뮴 프로메튬 사마륨 유로퓸 가돌리늄 터븀 디스프로슘 홀뮴 어븀 툴륨 이터븀 루테튬 하프늄 탄탈럼 텅스텐 레늄 오스뮴 이리듐 백금 금 수은 탈륨 납 비스무트 폴로늄 아스타틴 라돈 프랑슘 라듐 악티늄 토륨 프로트악티늄 우라늄'.split(' ');
+// ================= Creation Lab =================
+const EL_KO=['Hydrogen','Helium','Lithium','Beryllium','Boron','Carbon','Nitrogen','Oxygen','Fluorine','Neon','Sodium','Magnesium','Aluminum','Silicon','Phosphorus','Sulfur','Chlorine','Argon','Potassium','Calcium','Scandium','Titanium','Vanadium','Chromium','Manganese','Iron','Cobalt','Nickel','Copper','Zinc','Gallium','Germanium','Arsenic','Selenium','Bromine','Krypton','Rubidium','Strontium','Yttrium','Zirconium','Niobium','Molybdenum','Technetium','Ruthenium','Rhodium','Palladium','Silver','Cadmium','Indium','Tin','Antimony','Tellurium','Iodine','Xenon','Cesium','Barium','Lanthanum','Cerium','Praseodymium','Neodymium','Promethium','Samarium','Europium','Gadolinium','Terbium','Dysprosium','Holmium','Erbium','Thulium','Ytterbium','Lutetium','Hafnium','Tantalum','Tungsten','Rhenium','Osmium','Iridium','Platinum','Gold','Mercury','Thallium','Lead','Bismuth','Polonium','Astatine','Radon','Francium','Radium','Actinium','Thorium','Protactinium','Uranium'];
 const EL_SY='H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U'.split(' ');
-const CATCOL={'창조 물질':'#c77dff',입자:'#9aa3ad',원소:'#3fb8a8',분자:'#4a8fe0',에너지:'#f2c14e',물질:'#b07a44',물건:'#ff7b6b',생명:'#5ac18e'};
-// 이름: [분류, 설명, 마을에서의 기술단계(없으면 못 보냄), 기존 아이템 id 또는 생명 모양]
+const CATCOL={'Creation Matter':'#c77dff','Particles':'#9aa3ad','Elements':'#3fb8a8','Molecules':'#4a8fe0','Energy':'#f2c14e','Materials':'#b07a44','Objects':'#ff7b6b','Life':'#5ac18e'};
+// name: [category, description, village tech stage needed (cannot send without it), existing item id or life shape]
 const THING={
- '양성자':['입자','원자핵 속의 + 알갱이'],'중성자':['입자','원자핵 속의 전기 없는 알갱이'],'전자':['입자','원자 주위를 도는 - 알갱이'],
- '물':['분자','수소 2개 + 산소 1개. 생명의 바다'],'이산화탄소':['분자','식물이 먹고 산소를 내놓아요'],'메테인':['분자','불에 잘 타는 기체'],'암모니아':['분자','질소와 수소로 된 톡 쏘는 기체'],'공기':['분자','질소와 산소가 섞인 것'],'소금':['분자','나트륨 + 염소. 짭짤해요'],'모래':['분자','규소 + 산소. 유리의 재료'],'녹':['분자','철이 산소를 만나면 생겨요'],'석회석':['분자','조개껍데기와 같은 돌'],
- '불':['에너지','타오르는 에너지',0,'fire'],'번개':['에너지','하늘의 전기',0,'bolt'],'핵분열 에너지':['에너지','우라늄이 쪼개지며 나오는 엄청난 힘',28],'별의 불꽃':['에너지','수소가 합쳐지며 빛나는 별의 힘',32],
- '진흙':['물질','모래 + 물',0],'벽돌':['물질','진흙을 구워 만든 돌',4],'유리':['물질','모래를 녹여 만든 투명한 것',8],'강철':['물질','철 + 탄소. 아주 단단해요',15],'청동':['물질','구리 + 주석',7],'시멘트':['물질','석회석을 구운 가루',9],'콘크리트':['물질','건물을 짓는 돌',18],'플라스틱':['물질','가볍고 튼튼한 재료',20],'다이아몬드':['물질','탄소가 꽉 뭉친 보석',6],'돌':['물질','단단한 돌멩이',0],'종이':['물질','글을 쓸 수 있는 얇은 판',10],'숯':['물질','나무를 태운 검은 덩어리',0],
- '돌도구':['물건','돌을 깨서 만든 도구',0],'집':['물건','벽돌로 지은 집',4],'청동 칼':['물건','반짝이는 청동 칼',7],'바퀴':['물건','굴러가는 동그라미',5,'wheel'],'책':['물건','지식이 담긴 종이 묶음',13,'book'],'망원경':['물건','멀리 보는 도구',14,'scope'],'엔진':['물건','불의 힘으로 움직이는 기계',15],'전구':['물건','전기로 빛나는 유리',17],'전선':['물건','전기가 흐르는 줄',17],'라디오':['물건','멀리서 오는 소리',18,'radio'],'자동차':['물건','엔진 달린 수레',19,'car'],'비행기':['물건','하늘을 나는 기계',19],'컴퓨터 칩':['물건','생각하는 작은 돌',20],'컴퓨터':['물건','계산하는 기계',20,'computer'],'로켓':['물건','우주로 가는 탈것',21,'rocket'],'스마트폰':['물건','손안의 컴퓨터',24,'phone'],'로봇':['물건','스스로 움직이는 기계',25,'robot'],'태양광 패널':['물건','햇빛으로 전기를',26,'solar'],'우주선':['물건','다른 별로 가는 배',31],'왕관':['물건','다이아몬드와 금으로 만든 보물',6],'씨앗':['물건','심으면 밭이 돼요',3,'seed'],
- '아미노산':['생명','생명을 이루는 작은 조각'],'단백질':['생명','아미노산이 줄줄이 이어진 것'],'DNA':['생명','생명의 설계도'],'세포':['생명','가장 작은 생명',0,'cell'],'다세포 생물':['생명','세포가 모여 만든 생물',0,'multi'],'식물':['생명','햇빛으로 사는 생물',0,'plant'],'나무':['생명','크게 자란 식물',0,'tree'],'곤충':['생명','다리 6개 생물',0,'bug'],'나비':['생명','하늘하늘 날개',0,'butterfly'],'물고기':['생명','물속 생물',0,'fish'],'고래':['생명','엄청 큰 바다 생물',0,'whale'],'개구리':['생명','물과 땅을 오가요',0,'frog'],'도마뱀':['생명','비늘 달린 생물',0,'lizard'],'공룡':['생명','거대한 도마뱀',0,'dino'],'새':['생명','하늘을 나는 생물',0,'bird2'],'드래곤':['생명','불을 뿜는 전설의 생물',0,'dragon'],'불사조':['생명','불에서 다시 태어나는 새',0,'phoenix'],'원숭이':['생명','나무를 타는 똑똑한 동물',0,'monkey'],'사람':['생명','새로운 마을 사람',0,'human'],'사이보그':['생명','기계와 합쳐진 사람',0,'cyborg']
+ 'Protons':['Particles','The + bit inside an atom’s nucleus'],'Neutrons':['Particles','The bit with no charge inside an atom’s nucleus'],'Electrons':['Particles','The - bit that moves around an atom'],
+ 'Water':['Molecules','2 hydrogen + 1 oxygen. The sea of life'],'Carbon dioxide':['Molecules','Plants take it in and give off oxygen'],'Methane':['Molecules','A gas that burns easily'],'Ammonia':['Molecules','A sharp-smelling gas made of nitrogen and hydrogen'],'Air':['Molecules','A mix of nitrogen and oxygen'],'Salt':['Molecules','Sodium + chlorine. Salty!'],'Sand':['Molecules','Silicon + oxygen. What glass is made from'],'Rust':['Molecules','Forms when iron meets oxygen'],'Limestone':['Molecules','The same stuff as seashells'],
+ 'Fire':['Energy','Burning energy',0,'fire'],'Lightning':['Energy','Electricity from the sky',0,'bolt'],'Fission Energy':['Energy','The huge power released when uranium splits',28],'Starfire':['Energy','The power of shining stars, made when hydrogen fuses',32],
+ 'Mud':['Materials','Sand + water',0],'Brick':['Materials','Stone made by baking mud',4],'Glass':['Materials','A clear material made by melting sand',8],'Steel':['Materials','Iron + carbon. Very strong',15],'Bronze':['Materials','Copper + tin',7],'Cement':['Materials','Powder made by baking limestone',9],'Concrete':['Materials','Stone for building',18],'Plastic':['Materials','A light, tough material',20],'Diamond':['Materials','A gem of tightly packed carbon',6],'Stone':['Materials','A hard rock',0],'Paper':['Materials','A thin sheet you can write on',10],'Charcoal':['Materials','Black lumps of burned wood',0],
+ 'Stone Tools':['Objects','Tools made by chipping stone',0],'House':['Objects','A house built of bricks',4],'Bronze Sword':['Objects','A shiny bronze sword',7],'The Wheel':['Objects','A circle that rolls',5,'wheel'],'Book':['Objects','A bundle of pages full of knowledge',13,'book'],'Telescope':['Objects','A tool for seeing far away',14,'scope'],'Engine':['Objects','A machine powered by fire',15],'Light Bulb':['Objects','Glass that glows with electricity',17],'Wire':['Objects','A cord that carries electricity',17],'Radio':['Objects','Sound from far away',18,'radio'],'Car':['Objects','A cart with an engine',19,'car'],'Airplane':['Objects','A flying machine',19],'Computer Chip':['Objects','A tiny thinking stone',20],'Computer':['Objects','A calculating machine',20,'computer'],'Rocket':['Objects','A ride to space',21,'rocket'],'Smartphone':['Objects','A computer in your hand',24,'phone'],'Robot':['Objects','A machine that moves on its own',25,'robot'],'Solar Panel':['Objects','Electricity from sunlight',26,'solar'],'Spaceship':['Objects','A ship that travels to other stars',31],'Crown':['Objects','A treasure of diamonds and gold',6],'Seed':['Objects','Plant it to start a field',3,'seed'],
+ 'Amino Acid':['Life','A tiny building block of life'],'Protein':['Life','A long chain of amino acids'],'DNA':['Life','The blueprint of life'],'Cell':['Life','The smallest living thing',0,'cell'],'Multicellular Life':['Life','A living thing made of many cells',0,'multi'],'Plants':['Life','A living thing that lives on sunlight',0,'plant'],'Tree':['Life','A plant that grew big',0,'tree'],'Insect':['Life','A creature with 6 legs',0,'bug'],'Butterfly':['Life','Fluttering wings',0,'butterfly'],'Fish':['Life','A creature that lives in water',0,'fish'],'Whale':['Life','A huge sea creature',0,'whale'],'Frog':['Life','Lives in water and on land',0,'frog'],'Lizard':['Life','A creature with scales',0,'lizard'],'Dinosaur':['Life','A giant lizard',0,'dino'],'Bird':['Life','A creature that flies',0,'bird2'],'Dragon':['Life','A legendary fire-breathing creature',0,'dragon'],'Phoenix':['Life','A bird reborn from fire',0,'phoenix'],'Monkey':['Life','A clever tree-climbing animal',0,'monkey'],'Human':['Life','A new villager',0,'human'],'Cyborg':['Life','A person merged with a machine',0,'cyborg']
 };
 const RECIPES=[
- ['양성자','전자','수소'],['수소','수소','헬륨'],['헬륨','헬륨','탄소'],['탄소','헬륨','산소'],['양성자','중성자','수소'],['수소','헬륨','별의 불꽃'],
- ['수소','산소','물'],['탄소','산소','이산화탄소'],['탄소','수소','메테인'],['질소','수소','암모니아'],['질소','산소','공기'],['나트륨','염소','소금'],['규소','산소','모래'],['철','산소','녹'],['칼슘','이산화탄소','석회석'],['탄소','탄소','다이아몬드'],
- ['메테인','산소','불'],['공기','불','번개'],['우라늄','중성자','핵분열 에너지'],
- ['모래','물','진흙'],['진흙','불','벽돌'],['모래','불','유리'],['철','탄소','강철'],['구리','주석','청동'],['석회석','불','시멘트'],['시멘트','모래','콘크리트'],['메테인','번개','플라스틱'],['모래','모래','돌'],['나무','물','종이'],['나무','불','숯'],
- ['돌','돌','돌도구'],['벽돌','벽돌','집'],['청동','불','청동 칼'],['돌','나무','바퀴'],['종이','종이','책'],['유리','유리','망원경'],['강철','불','엔진'],['유리','번개','전구'],['구리','번개','전선'],['전선','전구','라디오'],['엔진','바퀴','자동차'],['강철','공기','비행기'],['규소','번개','컴퓨터 칩'],['컴퓨터 칩','플라스틱','컴퓨터'],['비행기','불','로켓'],['컴퓨터 칩','유리','스마트폰'],['컴퓨터 칩','강철','로봇'],['규소','유리','태양광 패널'],['로켓','핵분열 에너지','우주선'],['다이아몬드','금','왕관'],['식물','물','씨앗'],
- ['암모니아','메테인','아미노산'],['아미노산','아미노산','단백질'],['인','아미노산','DNA'],['DNA','단백질','세포'],['세포','세포','다세포 생물'],['다세포 생물','물','물고기'],['다세포 생물','진흙','식물'],['식물','식물','나무'],['다세포 생물','공기','곤충'],['곤충','식물','나비'],['물고기','물고기','고래'],['물고기','진흙','개구리'],['개구리','모래','도마뱀'],['도마뱀','도마뱀','공룡'],['도마뱀','공기','새'],['도마뱀','불','드래곤'],['새','드래곤','불사조'],['다세포 생물','나무','원숭이'],['원숭이','불','사람'],['사람','로봇','사이보그']
+ ['Protons','Electrons','Hydrogen'],['Hydrogen','Hydrogen','Helium'],['Helium','Helium','Carbon'],['Carbon','Helium','Oxygen'],['Protons','Neutrons','Hydrogen'],['Hydrogen','Helium','Starfire'],
+ ['Hydrogen','Oxygen','Water'],['Carbon','Oxygen','Carbon dioxide'],['Carbon','Hydrogen','Methane'],['Nitrogen','Hydrogen','Ammonia'],['Nitrogen','Oxygen','Air'],['Sodium','Chlorine','Salt'],['Silicon','Oxygen','Sand'],['Iron','Oxygen','Rust'],['Calcium','Carbon dioxide','Limestone'],['Carbon','Carbon','Diamond'],
+ ['Methane','Oxygen','Fire'],['Air','Fire','Lightning'],['Uranium','Neutrons','Fission Energy'],
+ ['Sand','Water','Mud'],['Mud','Fire','Brick'],['Sand','Fire','Glass'],['Iron','Carbon','Steel'],['Copper','Tin','Bronze'],['Limestone','Fire','Cement'],['Cement','Sand','Concrete'],['Methane','Lightning','Plastic'],['Sand','Sand','Stone'],['Tree','Water','Paper'],['Tree','Fire','Charcoal'],
+ ['Stone','Stone','Stone Tools'],['Brick','Brick','House'],['Bronze','Fire','Bronze Sword'],['Stone','Tree','The Wheel'],['Paper','Paper','Book'],['Glass','Glass','Telescope'],['Steel','Fire','Engine'],['Glass','Lightning','Light Bulb'],['Copper','Lightning','Wire'],['Wire','Light Bulb','Radio'],['Engine','The Wheel','Car'],['Steel','Air','Airplane'],['Silicon','Lightning','Computer Chip'],['Computer Chip','Plastic','Computer'],['Airplane','Fire','Rocket'],['Computer Chip','Glass','Smartphone'],['Computer Chip','Steel','Robot'],['Silicon','Glass','Solar Panel'],['Rocket','Fission Energy','Spaceship'],['Diamond','Gold','Crown'],['Plants','Water','Seed'],
+ ['Ammonia','Methane','Amino Acid'],['Amino Acid','Amino Acid','Protein'],['Phosphorus','Amino Acid','DNA'],['DNA','Protein','Cell'],['Cell','Cell','Multicellular Life'],['Multicellular Life','Water','Fish'],['Multicellular Life','Mud','Plants'],['Plants','Plants','Tree'],['Multicellular Life','Air','Insect'],['Insect','Plants','Butterfly'],['Fish','Fish','Whale'],['Fish','Mud','Frog'],['Frog','Sand','Lizard'],['Lizard','Lizard','Dinosaur'],['Lizard','Air','Bird'],['Lizard','Fire','Dragon'],['Bird','Dragon','Phoenix'],['Multicellular Life','Tree','Monkey'],['Monkey','Fire','Human'],['Human','Robot','Cyborg']
 ];
 const RMAP={};for(const [a,b,r] of RECIPES)RMAP[[a,b].sort().join('+')]=r;
 const LABX=store.get('labx',{});
-const thingOf=n=>LABX[n]||THING[n]||(EL_KO.includes(n)?['원소',`원자 번호 ${EL_KO.indexOf(n)+1}번 (${EL_SY[EL_KO.indexOf(n)]})`]:['물건','직접 만든 발명품']);
-const lab={inv:store.get('lab',['양성자','중성자','전자']),a:null,b:null,z:1,last:null};
+const thingOf=n=>LABX[n]||THING[n]||(EL_KO.includes(n)?['Elements',`Atomic number ${EL_KO.indexOf(n)+1} (${EL_SY[EL_KO.indexOf(n)]})`]:['Objects','My own invention']);
+const lab={inv:store.get('lab',['Protons','Neutrons','Electrons']),a:null,b:null,z:1,last:null};
 const saveLab=()=>store.set('lab',lab.inv);
 function addInv(n){if(!lab.inv.includes(n)){lab.inv.push(n);saveLab();return true}return false}
 const DISC_TOTAL=Object.keys(THING).length+5;
 
-// 생명체 모양 그리기
+// Draw the creature shapes
 function lifeSprite(kind){
   const c=document.createElement('canvas');c.width=90;c.height=70;const g=c.getContext('2d');
   const E=(x,y,rx,ry,col,a)=>{g.fillStyle=col;g.beginPath();g.ellipse(x,y,rx,ry,a||0,0,7);g.fill()},Cc=(x,y,r,col)=>E(x,y,r,r,col),Ln=(x1,y1,x2,y2,col,w)=>{g.strokeStyle=col;g.lineWidth=w;g.lineCap='round';g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke()},eye=(x,y)=>{Cc(x,y,4,'#fff');Cc(x+1,y,2,'#111')};
@@ -1806,42 +1806,42 @@ function hybridImg(a,b){const h=60,wa=a.width*h/a.height,wb=b.width*h/b.height,c
 
 function makeAtom(p,n,e){
   p=Math.max(0,Math.round(p));n=Math.max(0,Math.round(n));e=Math.max(0,Math.round(e));
-  if(!p&&!n&&!e){toast('알갱이를 하나 이상 넣어 주세요');return null}
+  if(!p&&!n&&!e){toast('Add at least one particle');return null}
   const ch=p-e,n0=p<=1?0:p<=20?p:Math.round(p*1.45),stable=p===0?false:Math.abs(n-n0)<=Math.max(2,Math.round(p*0.3))&&p<=92;
-  let base=p>=1&&p<=92?EL_KO[p-1]:p===0?(n>0?'중성자':'전자'):`신비원소-${p}`;
-  let name,cat,ph='pile',col,fx={},desc=`양성자 ${p.toLocaleString()} · 중성자 ${n.toLocaleString()} · 전자 ${e.toLocaleString()}. 전하 ${ch>0?'+':''}${ch.toLocaleString()}.`;
+  let base=p>=1&&p<=92?EL_KO[p-1]:p===0?(n>0?'Neutrons':'Electrons'):`Mystery Element-${p}`;
+  let name,cat,ph='pile',col,fx={},desc=`Protons ${p.toLocaleString()} · Neutrons ${n.toLocaleString()} · Electrons ${e.toLocaleString()}. Charge ${ch>0?'+':''}${ch.toLocaleString()}.`;
   if(p>=1&&p<=92&&ch===0&&stable&&n===n0){addInv(base);return base}
-  if(p>=1&&p<=92&&ch===0&&stable){name=p===1&&n===1?'중수소':p===1&&n===2?'삼중수소':`${base}-${p+n}`;cat='원소';desc+=` ${base}의 동위원소예요. 무게만 조금 달라요.`;col=CATCOL['원소']}
+  if(p>=1&&p<=92&&ch===0&&stable){name=p===1&&n===1?'Deuterium':p===1&&n===2?'Tritium':`${base}-${p+n}`;cat='Elements';desc+=` An isotope of ${base}. Only its weight is a little different.`;col=CATCOL['Elements']}
   else{
-    cat='창조 물질';
-    if(p===0&&n===0){name=e>=1000?`초거대 전자 구름 (${e.toLocaleString()}개)`:`전자 구름 (${e}개)`;ph='gas';fx.zap=true;col='#8fe3ff';desc+=' 원자핵이 없는 전자만의 구름. 찌릿찌릿 전기가 튀어요.'}
-    else if(p===0){name=e?`전자 섞인 중성자 덩어리 ${n}`:`중성자 덩어리 ${n}`;col='#c9ced6';fx.boom=n<1000;if(fx.boom){fx.half=15;fx.into=['수소']}desc+=n>=1000?' 중성자별처럼 엄청 무겁고 단단해요.':' 혼자서는 오래 못 버티고 금방 흩어져요.';if(n>=1000)fx.glow=true}
+    cat='Creation Matter';
+    if(p===0&&n===0){name=e>=1000?`Giant Electron Cloud (${e.toLocaleString()})`:`Electron Cloud (${e})`;ph='gas';fx.zap=true;col='#8fe3ff';desc+=' A cloud of electrons with no nucleus. It crackles with sparks.'}
+    else if(p===0){name=e?`Neutron Clump with Electrons ${n}`:`Neutron Clump ${n}`;col='#c9ced6';fx.boom=n<1000;if(fx.boom){fx.half=15;fx.into=['Hydrogen']}desc+=n>=1000?' Super heavy and dense, like a neutron star.':' It can’t hold together alone and quickly falls apart.';if(n>=1000)fx.glow=true}
     else{
-      const tag=Math.abs(ch)>=1000?(ch<0?'초음전하 ':'초양전하 '):Math.abs(ch)>=20?(ch<0?'강한 음전하 ':'강한 양전하 '):'';
-      name=`${tag}${base}${ch?` (전하 ${ch>0?'+':''}${ch.toLocaleString()})`:''}${!stable?' · 불안정':''}`;
+      const tag=Math.abs(ch)>=1000?(ch<0?'Ultra-Negative ':'Ultra-Positive '):Math.abs(ch)>=20?(ch<0?'Strongly Negative ':'Strongly Positive '):'';
+      name=`${tag}${base}${ch?` (charge ${ch>0?'+':''}${ch.toLocaleString()})`:''}${!stable?' · Unstable':''}`;
       col=ch<0?'#7fb8ff':ch>0?'#ff9a8a':'#c77dff';
-      if(Math.abs(ch)>=5){fx.zap=true;ph='gas';desc+=ch<0?' 전자가 너무 많아서 번개처럼 지지직거려요.':' 전자가 모자라서 주변 전자를 마구 끌어당겨요.'}
-      else if(ch)desc+=` ${ch<0?'음이온':'양이온'}이에요. 다른 원소와 잘 붙어요.`;
+      if(Math.abs(ch)>=5){fx.zap=true;ph='gas';desc+=ch<0?' It has so many electrons that it crackles like lightning.':' It’s missing electrons, so it pulls in electrons from all around.'}
+      else if(ch)desc+=` ${ch<0?'It’s a negative ion':'It’s a positive ion'}. It bonds easily with other elements.`;
       if(!stable){fx.boom=true;const sev=(p>92?(p-92)/20:0)+Math.max(0,Math.abs(n-n0)-Math.max(2,Math.round(p*0.3)))/Math.max(1,p);fx.half=Math.round(clamp(90/(1+sev*8),5,90));
         if(p>92){const a=Math.min(92,Math.round(p*0.56)),b=Math.min(92,Math.max(1,p-a));fx.into=[EL_KO[a-1],EL_KO[b-1]]}else fx.into=[EL_KO[p-1]];
-        desc+=` 원자핵이 불안정해서 약 ${fx.half}초 뒤에 쪼개져 ${joinKo(fx.into)} 바뀌어요. 진짜 우라늄 같은 방사성 원소도 이렇게 붕괴해요.`}
+        desc+=` Its nucleus is unstable, so in about ${fx.half} seconds it splits and turns into ${joinKo(fx.into)}. Real radioactive elements like uranium decay this way too.`}
       if(p>92){fx.glow=true;col='#d9a8ff'}
     }
   }
   if(!LABX[name]){LABX[name]=[cat,desc,ph,col,fx];store.set('labx',LABX)}
   addInv(name);return name;
 }
-// 붓기 / 넣기
-const GAS=new Set('수소 헬륨 질소 산소 플루오린 네온 염소 아르곤 크립톤 제논 라돈 공기 이산화탄소 메테인 암모니아'.split(' '));
-const LIQ=new Set(['물','수은','브로민','단백질','아미노산','DNA']);
-const TCOL={물:'#4aa3e0',소금:'#f4f4f0',모래:'#e0c890',진흙:'#7a5a36',녹:'#a0522d',석회석:'#d8d2c0',다이아몬드:'#bfefff',금:'#ffd34d',은:'#d0d4dc',철:'#7a7f88',구리:'#c87533',수은:'#c9ccd2',브로민:'#8a2a1a',탄소:'#333',황:'#e8d84a',단백질:'#e8c0a0',아미노산:'#a8e090',DNA:'#7fd0a0',유리:'#cfeaf5',시멘트:'#b8b4ac',콘크리트:'#a8a4a0',돌:'#8a857d',숯:'#2a2a2a',플라스틱:'#e85a8a',벽돌:'#a5523d',종이:'#f4efe2',강철:'#9aa3ad',청동:'#b08040',염소:'#c8e870',산소:'#bfe6ff',수소:'#e8f4ff',헬륨:'#ffe8f4',메테인:'#d8e8c8',이산화탄소:'#cfcfcf',암모니아:'#e8f0b8',공기:'#e8f2ff'};
+// Pour / place
+const GAS=new Set(['Hydrogen','Helium','Nitrogen','Oxygen','Fluorine','Neon','Chlorine','Argon','Krypton','Xenon','Radon','Air','Carbon dioxide','Methane','Ammonia']);
+const LIQ=new Set(['Water','Mercury','Bromine','Protein','Amino Acid','DNA']);
+const TCOL={'Water':'#4aa3e0','Salt':'#f4f4f0','Sand':'#e0c890','Mud':'#7a5a36','Rust':'#a0522d','Limestone':'#d8d2c0','Diamond':'#bfefff','Gold':'#ffd34d','Silver':'#d0d4dc','Iron':'#7a7f88','Copper':'#c87533','Mercury':'#c9ccd2','Bromine':'#8a2a1a','Carbon':'#333','Sulfur':'#e8d84a','Protein':'#e8c0a0','Amino Acid':'#a8e090',DNA:'#7fd0a0','Glass':'#cfeaf5','Cement':'#b8b4ac','Concrete':'#a8a4a0','Stone':'#8a857d','Charcoal':'#2a2a2a','Plastic':'#e85a8a','Brick':'#a5523d','Paper':'#f4efe2','Steel':'#9aa3ad','Bronze':'#b08040','Chlorine':'#c8e870','Oxygen':'#bfe6ff','Hydrogen':'#e8f4ff','Helium':'#ffe8f4','Methane':'#d8e8c8','Carbon dioxide':'#cfcfcf','Ammonia':'#e8f0b8','Air':'#e8f2ff'};
 const phaseOf=n=>GAS.has(n)?'gas':LIQ.has(n)?'liq':'pile';
-const pourable=n=>{const c=thingOf(n)[0];return c==='창조 물질'||c==='입자'||c==='원소'||c==='분자'||c==='물질'&&!THING[n]?.[3]||c==='생명'&&!THING[n]?.[3]};
+const pourable=n=>{const c=thingOf(n)[0];return c==='Creation Matter'||c==='Particles'||c==='Elements'||c==='Molecules'||c==='Materials'&&!THING[n]?.[3]||c==='Life'&&!THING[n]?.[3]};
 function decalLabel(d){const n=d.name,ph=d.ph,fx=LABX[n]&&LABX[n][4]||{};
-  if(fx.boom)return '불안정한 물질에서 도망가는 중';if(fx.zap)return '찌릿찌릿한 전기 구경하는 중';if(fx.glow)return '빛나는 신비 물질 연구하는 중';if(LABX[n])return '처음 보는 물질 연구하는 중';
-  if(n==='물')return '시원한 물 마시는 중';if(['금','은','다이아몬드','백금'].includes(n))return `${n} 줍는 중 (부자다!)`;if(n==='소금')return '소금 맛보는 중 (짭짤해!)';
-  if(n==='모래')return '모래 놀이 하는 중';if(n==='진흙')return '진흙 놀이 하는 중';if(n==='헬륨')return '헬륨 마시고 목소리가 이상해진 중';if(n==='산소')return '상쾌하게 숨 쉬는 중';
-  if(ph==='gas')return `${n} 냄새 맡아 보는 중`;if(thingOf(n)[0]==='입자')return `반짝이는 ${n} 구경하는 중`;return `${n}${josa(n,'을','를')} 살펴보는 중`}
+  if(fx.boom)return 'Running from an unstable substance';if(fx.zap)return 'Watching the crackling electricity';if(fx.glow)return 'Studying a glowing mystery substance';if(LABX[n])return 'Studying a brand-new substance';
+  if(n==='Water')return 'Drinking cool water';if(['Gold','Silver','Diamond','Platinum'].includes(n))return `Picking up ${n} (We’re rich!)`;if(n==='Salt')return 'Tasting salt (So salty!)';
+  if(n==='Sand')return 'Playing in the sand';if(n==='Mud')return 'Playing in the mud';if(n==='Helium')return 'Talking funny after breathing helium';if(n==='Oxygen')return 'Taking a fresh breath';
+  if(ph==='gas')return `Sniffing the ${n}`;if(thingOf(n)[0]==='Particles')return `Admiring the sparkly ${n}`;return `${n}${josa(n,'','')}: taking a close look`}
 function startPour(n,x,y){const lx=LABX[n];scene.pour={name:n,x,y,t:0,ph:lx?lx[2]:phaseOf(n),col:lx?lx[3]:(TCOL[n]||CATCOL[thingOf(n)[0]]||'#ccc'),fx:lx?lx[4]:{}};}
 function pourTick(dt){
   const P=scene.pour;if(!P)return;P.t+=dt;
@@ -1850,59 +1850,59 @@ function pourTick(dt){
     const bm=P.fx&&P.fx.boom;let d=scene.decals.find(q=>q.name===P.name&&Math.hypot(q.x-P.x,q.y-P.y)<(bm?70:18));
     if(d){d.r=Math.min(P.ph==='gas'?90:60,d.r+1.6);if(!bm)d.life=P.ph==='gas'?20:1e9}
     else{d={name:P.name,x:P.x,y:P.y,r:8,col:P.col,ph:P.ph,life:bm?(P.fx.half||20):P.ph==='gas'?20:1e9,seed:Math.random(),fx:P.fx||{}};scene.decals.push(d);
-      for(const p of scene.people)if(!p.grabbed&&Math.hypot(p.x-P.x,p.y-P.y)<200&&Math.random()<0.5){p.obj=d;p.act=['decal',decalLabel(d),p.kid&&(P.name==='모래'||P.name==='진흙')?'work':d.ph==='gas'?'stand':'work','','decal'];[p.tx,p.ty]=nearPt(d,8,22);p.doing=false;p.t=8+Math.random()*6;
-        say(p,{물:'물이다!',금:'금이다!!',소금:'하얀 가루다',헬륨:'히히, 목소리가!'}[P.name]||(d.ph==='gas'?'이상한 냄새가 나!':'하늘에서 뭐가 쏟아져!'),2)}}
-    if(P.name==='물')for(const o of scene.objs)if(o.id==='fire'&&Math.hypot(o.x-P.x,o.y-P.y)<40&&!o.gone){o.gone=true;toast('물을 부어서 불이 꺼졌어요!')}
-    if(P.name==='물')for(const b of scene.blds)if(b.type==='fire'&&Math.hypot(b.x-P.x,b.y-P.y)<40&&!b.out){b.out=true;toast('모닥불이 꺼졌어요! 사람들이 아쉬워해요')}
+      for(const p of scene.people)if(!p.grabbed&&Math.hypot(p.x-P.x,p.y-P.y)<200&&Math.random()<0.5){p.obj=d;p.act=['decal',decalLabel(d),p.kid&&(P.name==='Sand'||P.name==='Mud')?'work':d.ph==='gas'?'stand':'work','','decal'];[p.tx,p.ty]=nearPt(d,8,22);p.doing=false;p.t=8+Math.random()*6;
+        say(p,{'Water':'Water!','Gold':'Gold!!','Salt':'White powder!','Helium':'Hee hee, my voice!'}[P.name]||(d.ph==='gas'?'Something smells weird!':'Stuff is pouring from the sky!'),2)}}
+    if(P.name==='Water')for(const o of scene.objs)if(o.id==='fire'&&Math.hypot(o.x-P.x,o.y-P.y)<40&&!o.gone){o.gone=true;toast('The water put out the fire!')}
+    if(P.name==='Water')for(const b of scene.blds)if(b.type==='fire'&&Math.hypot(b.x-P.x,b.y-P.y)<40&&!b.out){b.out=true;toast('The campfire went out! People are disappointed')}
   }
 }
 function placeThing(n,x,y){const [cat,,lvl,ref]=thingOf(n);
-  if(cat==='생명'&&ref)return sendToVillage(n,x,y);
-  if(cat==='물건'||cat==='에너지'||(cat==='물질'&&ref))return sendToVillage(n,x,y);
+  if(cat==='Life'&&ref)return sendToVillage(n,x,y);
+  if(cat==='Objects'||cat==='Energy'||(cat==='Materials'&&ref))return sendToVillage(n,x,y);
   startPour(n,x,y);
 }
 function armPlace(n){$('lab').hidden=true;setTool('place');scene.place=n;const ph=pourable(n)?phaseOf(n):null;
-  toast(ph?`${n}${josa(n,'을','를')} 부을 곳을 누르고 있으세요. 끌면서 부을 수도 있어요`:`${n}${josa(n,'을','를')} 넣을 곳을 누르세요`);$('placeTag').textContent=`넣는 중: ${n}`;$('placeTag').hidden=false}
-// 연구소 UI
+  toast(ph?`${n}${josa(n,'','')}: press and hold where you want to pour it. You can drag to pour, too`:`${n}${josa(n,'','')}: tap where you want to put it`);$('placeTag').textContent=`Placing: ${n}`;$('placeTag').hidden=false}
+// Lab UI
 function openLab(tab){$('lab').hidden=false;labTab(tab||'mix');renderLabInv();drawAtom()}
 function labTab(t){document.querySelectorAll('#labtabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));$('tab-atom').hidden=t!=='atom';$('tab-mix').hidden=t!=='mix'}
 function chip(n){const [cat]=thingOf(n);return `<button class="chip" data-n="${n}" style="--c:${CATCOL[cat]||'#999'}">${n}</button>`}
 function renderLabInv(){
   document.querySelectorAll('#labmode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(lab.mode||'mix')));$('slots').style.display=lab.mode==='put'?'none':'';
-  const f=$('labf').value;const list=lab.inv.filter(n=>f==='전체'||thingOf(n)[0]===f);
-  $('labinv').innerHTML=list.map(chip).join('')||'<p class="hint">아직 없어요</p>';
-  $('slotA').innerHTML=lab.a?chip(lab.a):'첫 번째';$('slotB').innerHTML=lab.b?chip(lab.b):'두 번째';
-  $('labcount').textContent=`발견 ${lab.inv.length}개`;
+  const f=$('labf').value;const list=lab.inv.filter(n=>f==='All'||thingOf(n)[0]===f);
+  $('labinv').innerHTML=list.map(chip).join('')||'<p class="hint">None yet</p>';
+  $('slotA').innerHTML=lab.a?chip(lab.a):'First';$('slotB').innerHTML=lab.b?chip(lab.b):'Second';
+  $('labcount').textContent=`${lab.inv.length} found`;
 }
 function showResult(n,isNew){
   const [cat,desc]=thingOf(n);lab.last=n;const ph=pourable(n);
-  $('labres').innerHTML=`<div class="res" style="--c:${CATCOL[cat]}"><b>${isNew?'새로운 발견! ':''}${n}</b><small>${cat} · ${desc}</small><button class="play" id="labsend">${ph?'마을에 붓기':'마을에 넣기'}</button></div>`;
+  $('labres').innerHTML=`<div class="res" style="--c:${CATCOL[cat]}"><b>${isNew?'New discovery! ':''}${n}</b><small>${cat} · ${desc}</small><button class="play" id="labsend">${ph?'Pour on village':'Place in village'}</button></div>`;
 }
 function combine(){
-  if(!lab.a||!lab.b){toast('재료 두 개를 골라 주세요');return}
+  if(!lab.a||!lab.b){toast('Pick two ingredients');return}
   const r=RMAP[[lab.a,lab.b].sort().join('+')];
-  if(!r){$('labres').innerHTML='<div class="res fail"><b>아무 일도 일어나지 않았어요</b><small>다른 조합을 해 보세요. 막히면 힌트를 눌러요</small></div>';return}
-  const isNew=addInv(r);showResult(r,isNew);if(isNew){toast(`새로운 발견: ${r}!`);clog(`창조 연구소에서 <b>${r}</b>${josa(r,'을','를')} 만들었어요`)}
+  if(!r){$('labres').innerHTML='<div class="res fail"><b>Nothing happened</b><small>Try a different mix. Stuck? Tap Hint</small></div>';return}
+  const isNew=addInv(r);showResult(r,isNew);if(isNew){toast(`New discovery: ${r}!`);clog(`At the Creation Lab: <b>${r}</b>${josa(r,'','')}!`)}
   lab.a=lab.b=null;renderLabInv();
 }
 function hint(){
   const opts=RECIPES.filter(([a,b,r])=>lab.inv.includes(a)&&lab.inv.includes(b)&&!lab.inv.includes(r));
-  if(opts.length){const [a,b]=opts[Math.floor(Math.random()*opts.length)];$('labres').innerHTML=`<div class="res"><b>힌트</b><small>${a} + ${b} 를 섞어 보세요</small></div>`}
-  else $('labres').innerHTML='<div class="res"><b>힌트</b><small>원자 만들기 탭에서 새 원소를 만들어 보세요 (예: 1번 수소, 6번 탄소, 8번 산소, 7번 질소, 14번 규소, 26번 철)</small></div>';
+  if(opts.length){const [a,b]=opts[Math.floor(Math.random()*opts.length)];$('labres').innerHTML=`<div class="res"><b>Hint</b><small>Try mixing ${a} + ${b}</small></div>`}
+  else $('labres').innerHTML='<div class="res"><b>Hint</b><small>Make a new element in the Build Atoms tab (e.g. 1 Hydrogen, 6 Carbon, 8 Oxygen, 7 Nitrogen, 14 Silicon, 26 Iron)</small></div>';
 }
 function sendToVillage(n,px,py){
   const [cat,desc,lvl,ref]=thingOf(n);$('lab').hidden=true;
   const cx=px!=null?px:scene.camX+(Math.random()-.5)*40,cy=py!=null?py:scene.camY+(Math.random()-.5)*40;
-  if(cat==='생명'){
-    if(ref==='human'){const p=newPerson();p.x=cx;p.y=cy;p.alt=80;p.cloth=CLOTH[scene.tier][0];scene.people.push(p);assign(p);say(p,'여기가 어디지?',3);toast('새로운 사람이 태어났어요!');return}
-    {const img=lifeSprite(ref),sz={whale:90,dino:80,dragon:70,tree:60,cell:26,bug:22,butterfly:26}[ref]||40;spawnCreature(img,sz,cx-16,cy,n,'life_'+ref);spawnCreature(img,sz,cx+16,cy+6,n,'life_'+ref)}toast(`${n} 한 쌍이 마을에 나타났어요!`);return}
-  if(ref==='bolt'){scene.fx.push({x:cx,y:cy,t:0,kind:'bolt'});for(const p of scene.people)if(Math.hypot(p.x-cx,p.y-cy)<300)say(p,'하늘에서 번개가!',2.5);toast('번개가 내리쳤어요!');return}
+  if(cat==='Life'){
+    if(ref==='human'){const p=newPerson();p.x=cx;p.y=cy;p.alt=80;p.cloth=CLOTH[scene.tier][0];scene.people.push(p);assign(p);say(p,'Where am I?',3);toast('A new person was born!');return}
+    {const img=lifeSprite(ref),sz={whale:90,dino:80,dragon:70,tree:60,cell:26,bug:22,butterfly:26}[ref]||40;spawnCreature(img,sz,cx-16,cy,n,'life_'+ref);spawnCreature(img,sz,cx+16,cy+6,n,'life_'+ref)}toast(`A pair of ${n} appeared in the village!`);return}
+  if(ref==='bolt'){scene.fx.push({x:cx,y:cy,t:0,kind:'bolt'});for(const p of scene.people)if(Math.hypot(p.x-cx,p.y-cy)<300)say(p,'Lightning from the sky!',2.5);toast('Lightning struck!');return}
   const it=ITEMS.find(i=>i[0]===ref)||customItem(n,lvl||0,null);
   dropItem(it,cx,cy);
 }
 const customItems=[];
 function customItem(name,lvl,img,effect){let it=customItems.find(c=>c[1]===name);if(!it){it=['c_'+name,name,lvl,img,effect];customItems.push(it);renderTray()}return it}
-function renderTray(){const all=ITEMS.concat(customItems);$('tray').innerHTML='<button data-lab="1" class="cust">내 창조물 고르기</button>'+all.map((it,n)=>`<button data-n="${n}"${n>=ITEMS.length?' class="cust"':''}>${it[1]}</button>`).join('')}
+function renderTray(){const all=ITEMS.concat(customItems);$('tray').innerHTML='<button data-lab="1" class="cust">Pick my creation</button>'+all.map((it,n)=>`<button data-n="${n}"${n>=ITEMS.length?' class="cust"':''}>${it[1]}</button>`).join('')}
 function drawAtom(){
   const c=$('atomc');if(!c||$('lab').hidden||$('tab-atom').hidden)return;const g=c.getContext('2d'),Z=Math.max(0,+$('ap').value||0),N=Math.max(0,+$('an').value||0),EE=Math.max(0,+$('ae').value||0),t=performance.now()/1000,W2=c.width,H2=c.height;
   g.clearRect(0,0,W2,H2);const cx=W2/2,cy=H2/2;
@@ -1912,7 +1912,7 @@ function drawAtom(){
   if(EE>118){for(let k=0;k<Math.min(EE-118,400);k++){const a=k*2.399+t*0.3,r=60+((k*37)%40)+Math.sin(t*2+k)*3;g.fillStyle='rgba(143,227,255,.55)';g.fillRect(cx+Math.cos(a)*r,cy+Math.sin(a)*r,2,2)}}
   const tot=Math.min(Z+N,60),rad=Math.sqrt(tot)*2.6;let sd=Z*7;const rr=()=>(sd=(sd*16807)%2147483647)/2147483647;
   const pr=Z+N?Math.round(tot*Z/(Z+N)):0;for(let k=0;k<tot;k++){const a=rr()*6.28,d=Math.sqrt(rr())*rad;g.fillStyle=k<pr?'#ff6b5a':'#c9ced6';g.beginPath();g.arc(cx+Math.cos(a)*d,cy+Math.sin(a)*d,3.4,0,7);g.fill()}
-  const ch=Z-EE,nm=Z>=1&&Z<=92?`${EL_KO[Z-1]} (${EL_SY[Z-1]})`:Z>92?`신비원소-${Z}`:'원자핵 없음';$('pzinfo').innerHTML=`<b>${nm}</b><small>양성자 ${Z.toLocaleString()} · 중성자 ${N.toLocaleString()} · 전자 ${EE.toLocaleString()} · 전하 ${ch>0?'+':''}${ch.toLocaleString()}</small>`;
+  const ch=Z-EE,nm=Z>=1&&Z<=92?`${EL_KO[Z-1]} (${EL_SY[Z-1]})`:Z>92?`Mystery Element-${Z}`:'No nucleus';$('pzinfo').innerHTML=`<b>${nm}</b><small>Protons ${Z.toLocaleString()} · Neutrons ${N.toLocaleString()} · Electrons ${EE.toLocaleString()} · Charge ${ch>0?'+':''}${ch.toLocaleString()}</small>`;
   requestAnimationFrame(drawAtom);
 }
 $('labtabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){labTab(b.dataset.tab);if(b.dataset.tab==='atom')requestAnimationFrame(drawAtom)}});
@@ -1920,37 +1920,37 @@ $('atomctl').addEventListener('click',e=>{const b=e.target.closest('button');if(
   if(b.dataset.pre){const [p,n,e2]=b.dataset.pre.split(',');$('ap').value=p;$('an').value=n;$('ae').value=e2}});
 $('ap').addEventListener('input',()=>{if($('autoe').checked){const p=+$('ap').value||0;$('ae').value=p;$('an').value=p<=1?0:p<=20?p:Math.round(p*1.45)}});
 $('pmake').addEventListener('click',()=>{const before=lab.inv.length,n=makeAtom(+$('ap').value,+$('an').value,+$('ae').value);if(!n)return;const isNew=lab.inv.length>before;
-  toast(isNew?`새로 만들었어요: ${n}!`:`${n}${josa(n,'은','는')} 이미 있어요`);if(isNew)clog(`창조 연구소에서 <b>${n}</b>${josa(n,'을','를')} 만들었어요`);renderLabInv();showResult(n,isNew);labTab('mix')});
+  toast(isNew?`Newly made: ${n}!`:`${n}${josa(n,'Silver','​')} already exists`);if(isNew)clog(`At the Creation Lab: <b>${n}</b>${josa(n,'','')}!`);renderLabInv();showResult(n,isNew);labTab('mix')});
 $('labinv').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const n=b.dataset.n;if(lab.mode==='put'){armPlace(n);return}if(!lab.a)lab.a=n;else if(!lab.b)lab.b=n;else{lab.a=lab.b;lab.b=n}renderLabInv()});
 $('slots').addEventListener('click',e=>{const s=e.target.closest('.slot');if(!s)return;if(s.id==='slotA')lab.a=null;else lab.b=null;renderLabInv()});
 $('labmix').addEventListener('click',combine);$('labhint').addEventListener('click',hint);$('labf').addEventListener('change',renderLabInv);
 $('labres').addEventListener('click',e=>{if(e.target.id==='labsend'&&lab.last)armPlace(lab.last)});
 $('labclose').addEventListener('click',()=>$('lab').hidden=true);
-$('labmode').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;lab.mode=b.dataset.m;renderLabInv();if(lab.mode==='put')$('labres').innerHTML='<div class="res"><b>넣기 모드</b><small>마을에 넣거나 부을 것을 고르세요</small></div>'});
+$('labmode').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;lab.mode=b.dataset.m;renderLabInv();if(lab.mode==='put')$('labres').innerHTML='<div class="res"><b>Place Mode</b><small>Choose something to place or pour in the village</small></div>'});
 renderTray();
 $('pmode').addEventListener('change',e=>{const inv=e.target.value==='inv';$('pinvrow').hidden=!inv;$('psize').style.display=inv?'none':''});
 
-// ================= 통치 =================
-const POLS=[['sci','과학 연구','발명이 빨라져요'],['eco','경제·식량','인구가 늘어요'],['peace','외교·평화','전쟁이 줄어요'],['env','환경 보호','자연이 덜 망가져요']];
+// ================= Ruling =================
+const POLS=[['sci','Science Research','Faster inventions'],['eco','Economy & Food','Population grows'],['peace','Diplomacy & Peace','Fewer wars'],['env','Environment','Less harm to nature']];
 const DECREES=[
- ['fest','축제 열기','평화 +20',()=>{C.peace=Math.min(100,C.peace+20);return '온 나라가 축제를 즐겼어요. 사람들이 행복해해요'}],
- ['school','학교 세우기','발명 속도 영구 상승',()=>{C.perm+=0.06;return Math.floor(C.P)<6?'어른이 아이에게 사냥과 불 다루는 법을 가르치는 모임을 만들었어요':'새 학교가 문을 열었어요. 배우는 사람이 늘어요'}],
- ['tree','나무 심기','환경 +12',()=>{C.env=Math.min(100,C.env+12);return '온 나라에 나무를 심었어요'}],
- ['explore','탐험대 보내기','성공하면 대발견',()=>{if(Math.random()<0.6){C.P=Math.min(NI-1,C.P+0.35);return '탐험대가 새로운 땅에서 놀라운 지식을 가져왔어요!'}C.pop*=0.98;return '탐험대가 길을 잃고 돌아오지 못했어요'}],
- ['army','군대 훈련','한동안 전쟁 피해 절반',()=>{C.guard=30;return '군대를 훈련시켰어요. 전쟁이 나도 피해가 줄어요'}]
+ ['fest','Hold a Festival','Peace +20',()=>{C.peace=Math.min(100,C.peace+20);return 'The whole nation enjoyed a festival. People are happy'}],
+ ['school','Build a School','Inventions faster for good',()=>{C.perm+=0.06;return Math.floor(C.P)<6?'Adults started a group to teach kids how to hunt and handle fire':'A new school opened. More people are learning'}],
+ ['tree','Plant Trees','Environment +12',()=>{C.env=Math.min(100,C.env+12);return 'Trees were planted all over the nation'}],
+ ['explore','Send Explorers','Big discovery if it works',()=>{if(Math.random()<0.6){C.P=Math.min(NI-1,C.P+0.35);return 'The explorers brought back amazing knowledge from a new land!'}C.pop*=0.98;return 'The explorers got lost and never came back'}],
+ ['army','Train the Army','Half war damage for a while',()=>{C.guard=30;return 'The army is trained. War will hurt less'}]
 ];
 const DILEMMAS=[
- [0,5,'사냥터 다툼','옆 부족과 큰 사냥터를 두고 다투고 있어요.',['나눠 쓰자고 제안한다',()=>{C.peace+=15;return '두 부족이 친구가 되었어요'}],['힘으로 차지한다',()=>{C.pop*=1.08;C.peace-=20;return '사냥터를 차지했지만 원한이 생겼어요'}]],
- [3,9,'흉년','가뭄으로 식량이 부족해요.',['창고 식량을 나눠 준다',()=>{C.peace+=10;C.pop*=0.97;return '모두 조금씩 배고프지만 함께 버텼어요'}],['다른 마을을 약탈한다',()=>{C.peace-=25;return '식량은 얻었지만 이웃 마을이 화가 났어요'}]],
- [6,13,'이상한 학자','한 학자가 "땅은 둥글다"고 주장해요. 사람들이 비웃어요.',['학자를 지원한다',()=>{C.perm+=0.1;C.peace-=4;return '학자의 연구 덕분에 과학이 한 걸음 앞서 나갔어요'}],['조용히 시킨다',()=>{C.peace+=4;return '조용해졌지만 아까운 생각이 묻혔어요'}]],
- [8,16,'전염병','이웃 나라에서 병이 퍼지고 있어요.',['국경을 막고 손을 씻게 한다',()=>{C.pop*=0.98;C.peace-=4;return '병이 거의 들어오지 못했어요'}],['그냥 둔다',()=>{C.pop*=0.85;return '병이 퍼져서 많은 사람이 아팠어요'}]],
- [15,22,'공장 건설','공장을 많이 지으면 빨리 발전하지만 공기가 나빠져요.',['공장을 많이 짓는다',()=>{C.P=Math.min(NI-1,C.P+0.5);C.env-=15;return '굴뚝 연기가 하늘을 덮었지만 발전이 빨라졌어요'}],['천천히 짓는다',()=>{C.env+=5;return '조금 느리지만 맑은 하늘을 지켰어요'}]],
- [17,25,'군비 경쟁','이웃 나라가 무기를 크게 늘리고 있어요.',['우리도 무기를 늘린다',()=>{C.peace-=10;C.guard=30;return '서로 겁을 주며 긴장이 높아졌어요'}],['대화를 시도한다',()=>{if(Math.random()<0.7){C.peace+=18;return '대화가 통했어요! 평화 조약을 맺었어요'}C.peace-=10;return '대화가 실패했어요'}]],
- [20,28,'우주 프로그램','우주 개발에는 엄청난 돈이 들어요.',['과감하게 투자한다',()=>{C.P=Math.min(NI-1,C.P+0.6);C.peace-=5;return '로켓 기술이 빠르게 발전해요'}],['지구 문제부터 해결한다',()=>{C.env+=10;C.peace+=5;return '병원과 공원이 늘었어요'}]],
- [23,30,'AI에게 맡길까','인공지능에게 일을 얼마나 맡길까요?',['많이 맡긴다',()=>{C.perm+=0.15;C.peace-=8;return '발전은 빨라졌지만 일자리를 잃은 사람들이 불안해해요'}],['조심스럽게 맡긴다',()=>{C.peace+=8;C.perm+=0.04;return '사람과 AI가 함께 일하는 규칙을 만들었어요'}]],
- [24,33,'기후 협약','모든 나라가 탄소를 줄이자고 약속하재요.',['참여한다',()=>{C.env+=20;return '하늘이 점점 맑아지고 있어요'}],['거절한다',()=>{C.P=Math.min(NI-1,C.P+0.3);C.env-=15;return '조금 빨라졌지만 지구가 더워져요'}]],
- [28,33,'외계 신호','먼 우주에서 규칙적인 신호가 왔어요!',['답장을 보낸다',()=>{if(Math.random()<0.6){C.perm+=0.3;return '외계 문명이 과학 지식을 보내 줬어요!'}C.peace-=15;return '알 수 없는 답이 와서 사람들이 겁에 질렸어요'}],['조용히 숨는다',()=>{C.peace+=5;return '아무 일도 일어나지 않았어요'}]],
- [0,33,'천재 아이','놀라운 재능을 가진 아이가 태어났어요.',['최고의 스승을 붙여 준다',()=>{C.boost=1.6;C.boostT=8;return '아이가 자라 위대한 발명가가 되었어요'}],['평범하게 키운다',()=>{C.peace+=5;return '아이는 행복한 어른이 되었어요'}]]
+ [0,5,'Hunting Ground Fight','We’re fighting the next tribe over a big hunting ground.',['Offer to share it',()=>{C.peace+=15;return 'The two tribes became friends'}],['Take it by force',()=>{C.pop*=1.08;C.peace-=20;return 'We got the hunting ground, but made enemies'}]],
+ [3,9,'Bad Harvest','A drought has left us short of food.',['Share food from storage',()=>{C.peace+=10;C.pop*=0.97;return 'Everyone’s a bit hungry, but we got through it together'}],['Raid another village',()=>{C.peace-=25;return 'We got food, but the neighbors are angry'}]],
+ [6,13,'Strange Scholar','A scholar claims "the world is round". People laugh at the idea.',['Support the scholar',()=>{C.perm+=0.1;C.peace-=4;return 'Thanks to the scholar’s work, science took a step forward'}],['Silence them',()=>{C.peace+=4;return 'It got quiet, but a great idea was buried'}]],
+ [8,16,'Epidemic','A disease is spreading in a neighboring country.',['Close the border, wash hands',()=>{C.pop*=0.98;C.peace-=4;return 'The disease barely got in'}],['Do nothing',()=>{C.pop*=0.85;return 'The disease spread and many people got sick'}]],
+ [15,22,'Build Factories','Lots of factories mean fast progress, but dirty air.',['Build lots of factories',()=>{C.P=Math.min(NI-1,C.P+0.5);C.env-=15;return 'Smoke covered the sky, but progress sped up'}],['Build slowly',()=>{C.env+=5;return 'A bit slower, but we kept the sky clear'}]],
+ [17,25,'Arms Race','A neighboring country is building up a lot of weapons.',['Build more weapons too',()=>{C.peace-=10;C.guard=30;return 'Both sides scared each other and tension rose'}],['Try talking',()=>{if(Math.random()<0.7){C.peace+=18;return 'Talks worked! We signed a peace treaty'}C.peace-=10;return 'Talks failed'}]],
+ [20,28,'Space Program','Space exploration costs a huge amount of money.',['Invest boldly',()=>{C.P=Math.min(NI-1,C.P+0.6);C.peace-=5;return 'Rocket technology is advancing fast'}],['Fix problems at home first',()=>{C.env+=10;C.peace+=5;return 'More hospitals and parks were built'}]],
+ [23,30,'Hand It to AI?','How much work should we give to AI?',['Give it a lot',()=>{C.perm+=0.15;C.peace-=8;return 'Progress sped up, but people who lost jobs are worried'}],['Give it carefully',()=>{C.peace+=8;C.perm+=0.04;return 'We made rules for people and AI to work together'}]],
+ [24,33,'Climate Pact','Every nation is being asked to promise to cut carbon.',['Join',()=>{C.env+=20;return 'The sky is slowly getting clearer'}],['Refuse',()=>{C.P=Math.min(NI-1,C.P+0.3);C.env-=15;return 'A bit faster, but the planet is heating up'}]],
+ [28,33,'Alien Signal','A regular signal came from deep space!',['Send a reply',()=>{if(Math.random()<0.6){C.perm+=0.3;return 'The aliens sent us science knowledge!'}C.peace-=15;return 'A strange answer came back and people panicked'}],['Hide quietly',()=>{C.peace+=5;return 'Nothing happened'}]],
+ [0,33,'Genius Child','A child with amazing talent was born.',['Give the best teacher',()=>{C.boost=1.6;C.boostT=8;return 'The child grew up to be a great inventor'}],['Raise normally',()=>{C.peace+=5;return 'The child grew up to be a happy adult'}]]
 ];
 function shares(){const p=C.pol,s=p.sci+p.eco+p.peace+p.env||1;return {sci:p.sci/s,eco:p.eco/s,peace:p.peace/s,env:p.env/s}}
 function renderGov(){
@@ -1959,7 +1959,7 @@ function renderGov(){
   renderDecrees();
 }
 function renderDecrees(){
-  $('decrees').innerHTML=DECREES.map(([k,n,h])=>{const cd=Math.ceil(C.cd[k]||0);return `<button class="gift" data-k="${k}" ${cd>0||C.ended?'disabled':''}><b>${n}</b><small>${h}</small><small class="gap">${cd>0?cd+'초 뒤 다시':'지금 가능'}</small></button>`}).join('');
+  $('decrees').innerHTML=DECREES.map(([k,n,h])=>{const cd=Math.ceil(C.cd[k]||0);return `<button class="gift" data-k="${k}" ${cd>0||C.ended?'disabled':''}><b>${n}</b><small>${h}</small><small class="gap">${cd>0?cd+'s left':'Ready now'}</small></button>`}).join('');
 }
 function showDilemma(){
   const i=Math.floor(C.P),list=DILEMMAS.filter(d=>i>=d[0]&&i<=d[1]&&!C.seen.has(d[2]));if(!list.length)return;
@@ -1967,20 +1967,20 @@ function showDilemma(){
   $('dlgT').textContent=d[2];$('dlgX').textContent=d[3];$('dlgA').textContent=d[4][0];$('dlgB').textContent=d[5][0];$('dlg').hidden=false;
 }
 function chooseDilemma(n){const d=C.dlg;if(!d)return;const r=(n?d[5]:d[4])[1]();C.peace=clamp(C.peace,0,100);C.env=clamp(C.env,0,100);
-  clog(`<b>결정: ${d[2]}</b> — ${(n?d[5]:d[4])[0]} → ${r}`);toast(r);C.dlg=null;$('dlg').hidden=true;setSpeed(C.prevSpeed);renderDecrees()}
+  clog(`<b>Decision: ${d[2]}</b> — ${(n?d[5]:d[4])[0]} → ${r}`);toast(r);C.dlg=null;$('dlg').hidden=true;setSpeed(C.prevSpeed);renderDecrees()}
 $('pols').addEventListener('input',e=>{const k=e.target.dataset.k;if(!k)return;C.pol[k]=+e.target.value;const sh=shares();
   document.querySelectorAll('#pols label span').forEach((s,n)=>s.textContent=Math.round(sh[POLS[n][0]]*100)+'%')});
 $('decrees').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;const d=DECREES.find(x=>x[0]===b.dataset.k);
-  const r=d[3]();C.cd[d[0]]=25;clog(`<b>명령: ${d[1]}</b> — ${r}`);toast(r);renderDecrees()});
+  const r=d[3]();C.cd[d[0]]=25;clog(`<b>Order: ${d[1]}</b> — ${r}`);toast(r);renderDecrees()});
 $('dlgA').addEventListener('click',()=>chooseDilemma(0));$('dlgB').addEventListener('click',()=>chooseDilemma(1));
 
-function setFS(on){document.body.classList.toggle('fs',on);$('fsbtn').textContent=on?'전체 화면 끄기':'전체 화면';
+function setFS(on){document.body.classList.toggle('fs',on);$('fsbtn').textContent=on?'Exit Full Screen':'Full Screen';
   try{if(on&&!document.fullscreenElement&&$('fig').requestFullscreen)$('fig').requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}}
 $('fsbtn').addEventListener('click',()=>setFS(!document.body.classList.contains('fs')));
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&document.body.classList.contains('fs'))setFS(false)});
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('fs'))setFS(false)});
 $('civBtn').disabled=!got.has('earth');
-$('civBtn').title='먼저 문명이 탄생한 행성을 만들어 보세요';
+$('civBtn').title='First make a planet where a civilization was born';
 $('civBtn').addEventListener('click',startCiv);
 $('toCiv').addEventListener('click',startCiv);
 $('back').addEventListener('click',backToBuild);
