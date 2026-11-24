@@ -382,6 +382,7 @@ function needCoinsDialog(g, why) {
   const d = h('dialog', { class: 'confirm' }, h('p', {}, h('b', { text: cap ? 'That’s all for today! ⏰' : why === 'out' ? 'Your game time ran out! ⏱' : 'You need game time to play this ⏱' })),
     h('p', { text: cap ? 'You’ve used today’s game time that your parent set. The learning games are still open, and the time starts again tomorrow.'
       : `Learning mode is on. ${g.title} uses game minutes first, then ${per} Word League coins per minute. Earn a game minute with each 10-question round in Math Space War (8 or more right, at your grade), or earn coins in Word League.` }),
+    h('p', {}, h('a', { href: '../learning.html', target: '_blank', rel: 'noopener' }, 'How learning mode works')),
     h('div', { class: 'si-actions' }, h('button', { class: 'btn ghost', onclick: () => d.close() }, 'OK'),
       h('button', { class: 'btn ghost', onclick: () => { d.close(); location.hash = '#/game/math-space-war'; } }, 'Math Space War'),
       h('button', { class: 'btn primary', onclick: () => { d.close(); location.hash = '#/game/ssat-word-league'; } }, 'Word League')));
