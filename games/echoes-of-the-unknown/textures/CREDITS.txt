@@ -1,0 +1,2 @@
+PBR textures: ambientCG.com (CC0 1.0) — Grass004, Ground037, Ground054, Ground103, Rock058, Rock063, Rock064, Bricks097, Plaster001, Wood092, Wood094.
+HDRI: Poly Haven "Rooitou Park" (CC0 1.0), via pmndrs/drei-assets — downsampled to 256x128 half-float JSON (hdri/day.json).

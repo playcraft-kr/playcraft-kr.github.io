@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><script src="../guard.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>탑 쌓기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 가볍고 손맛 있는 아케이드, 짬 시간용
+   IDEA: 노을에서 밤하늘로 올라가는 탑 — 높이 쌓을수록 하늘색이 바뀜
+   PICTURE: 게임 화면 자체가 그림, 휴대폰 화면 같은 세로 케이스
+   COLOUR and TYPE: 깊은 남색 바탕, 블록은 층마다 색이 흐름; Black Han Sans 점수, Gothic A1 본문
+   LAYOUT: 작은 제목 아래 세로 게임판 하나, 점수는 판 위에 크게 */
+:root{color-scheme:light dark;--bg:light-dark(#e9ecf5,#0c0f1d);--ink:light-dark(#141a2e,#eef1fb);--sub:light-dark(#4a5373,#9aa3c4);--case:light-dark(#1b2140,#05070f)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Gothic A1",system-ui,sans-serif;overflow-x:clip;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 12px 28px}
+h1{font:400 32px/1.05 "Black Han Sans",sans-serif;margin:0 0 4px;letter-spacing:.5px}
+.sub{color:var(--sub);margin:0 0 14px;font-size:15px;text-align:center}
+.case{position:relative;width:min(420px,100%);aspect-ratio:9/15;max-height:78vh;border-radius:28px;background:var(--case);padding:10px;box-shadow:0 18px 40px rgba(10,14,40,.35),inset 0 0 0 2px rgba(255,255,255,.06)}
+.screen{position:relative;width:100%;height:100%;border-radius:20px;overflow:hidden;touch-action:manipulation;cursor:pointer;user-select:none;-webkit-user-select:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hud{position:absolute;top:18px;left:0;right:0;text-align:center;pointer-events:none;color:#fff}
+.score{font:400 64px/1 "Black Han Sans",sans-serif;text-shadow:0 3px 0 rgba(0,0,0,.25)}
+.combo{font-weight:700;font-size:15px;height:22px;opacity:0;transition:opacity .2s;color:#fff6c2}
+.combo.on{opacity:1}
+.best{position:absolute;top:14px;right:16px;color:rgba(255,255,255,.8);font-size:13px;font-weight:700;pointer-events:none}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;text-align:center;padding:24px;background:rgba(6,8,22,.45);transition:opacity .25s}
+.overlay.hide{opacity:0;pointer-events:none}
+.overlay h2{font:400 40px/1.05 "Black Han Sans",sans-serif;margin:0}
+.overlay p{margin:0;font-size:16px;max-width:26ch;color:#dfe4ff}
+.btn{margin-top:8px;font:700 17px "Gothic A1",sans-serif;min-height:48px;padding:0 28px;border:0;border-radius:999px;background:#ffd166;color:#1b1430;cursor:pointer;box-shadow:0 4px 0 #c9962e}
+.btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #c9962e}
+.tips{color:var(--sub);font-size:13px;margin-top:14px;text-align:center;max-width:420px}
+@media (prefers-reduced-motion:reduce){.combo,.overlay{transition:none}}
+</style>
+</head>
+<body>
+<h1>탑 쌓기</h1>
+<p class="sub">움직이는 블록을 타이밍 맞춰 내려놓으세요. 삐져나온 부분은 잘려 나갑니다.</p>
+<div class="case">
+  <div class="screen" id="screen">
+    <canvas id="cv"></canvas>
+    <div class="best" id="best">최고 0</div>
+    <div class="hud"><div class="score" id="score">0</div><div class="combo" id="combo">퍼펙트!</div></div>
+    <div class="overlay" id="ov">
+      <h2 id="ovTitle">탑 쌓기</h2>
+      <p id="ovText">화면을 탭하거나 스페이스바를 눌러 블록을 떨어뜨리세요. 딱 맞추면 퍼펙트, 3연속이면 블록이 다시 넓어져요.</p>
+      <button class="btn" id="startBtn" type="button">시작</button>
+    </div>
+  </div>
+</div>
+<p class="tips">한 판 1~2분. 점수가 오를수록 블록이 빨라지고 하늘이 밤으로 바뀝니다.</p>
+<script>
+{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),screen=document.getElementById('screen');
+const scoreEl=document.getElementById('score'),bestEl=document.getElementById('best'),comboEl=document.getElementById('combo');
+const ov=document.getElementById('ov'),ovTitle=document.getElementById('ovTitle'),ovText=document.getElementById('ovText'),startBtn=document.getElementById('startBtn');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let W=0,H=0,dpr=1,BH=28,BASEW=200;
+let stack=[],cur=null,debris=[],ripples=[],state='ready',score=0,combo=0,camY=0,camT=0,hue0=0,best=0,shake=0;
+try{best=+localStorage.getItem('stackBest')||0}catch(e){}
+bestEl.textContent='최고 '+best;
+
+function size(){
+  const r=screen.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);
+  W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+  BH=Math.max(22,Math.round(H/26));BASEW=Math.round(W*0.56);
+}
+const ro=new ResizeObserver(()=>{const old=W;size();if(old&&stack.length){const k=W/old;stack.forEach(b=>{b.x*=k;b.w*=k});if(cur){cur.x*=k;cur.w*=k}}});
+ro.observe(screen);size();
+
+let ac=null,endAt=0;
+function beep(f,d,type){
+  try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(),g=ac.createGain();o.type=type||'triangle';o.frequency.value=f;
+    g.gain.setValueAtTime(.12,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);
+    o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}
+}
+
+function reset(){
+  hue0=Math.floor(Math.random()*360);
+  stack=[{x:(W-BASEW)/2,w:BASEW}];score=0;combo=0;camY=0;camT=0;debris=[];ripples=[];
+  scoreEl.textContent='0';spawn();
+}
+function speed(){return (W/1.9)*(1+Math.min(score,60)*0.025)}
+function spawn(){
+  const top=stack[stack.length-1],fromLeft=stack.length%2===0;
+  cur={x:fromLeft?-top.w:W,w:top.w,dir:fromLeft?1:-1};
+}
+function color(i,l){return `hsl(${(hue0+i*7)%360} 70% ${l}%)`}
+
+function drop(){
+  if(state==='ready'||state==='over'){if(performance.now()-endAt>700)start();return}
+  const top=stack[stack.length-1];
+  const L=Math.max(cur.x,top.x),R=Math.min(cur.x+cur.w,top.x+top.w);
+  if(R-L<=0){
+    debris.push({x:cur.x,w:cur.w,i:stack.length,y:0,vy:0,vx:cur.dir*60,r:0,vr:cur.dir*2});
+    cur=null;end();return;
+  }
+  const diff=Math.abs(cur.x-top.x);
+  if(diff<Math.max(4,W*0.012)){
+    combo++;let nx=top.x,nw=top.w;
+    if(combo>=3&&nw<BASEW){const g=Math.min(BASEW-nw,W*0.04);nx-=g/2;nw+=g}
+    stack.push({x:nx,w:nw});ripples.push({x:nx,w:nw,i:stack.length-1,t:0});
+    beep(520+Math.min(combo,12)*60,.18,'sine');
+    comboEl.textContent=combo>=2?`퍼펙트 ×${combo}`:'퍼펙트!';comboEl.classList.add('on');
+    score+=1+(combo>=3?1:0);
+  }else{
+    combo=0;comboEl.classList.remove('on');
+    if(cur.x<L)debris.push({x:cur.x,w:L-cur.x,i:stack.length,y:0,vy:0,vx:-40,r:0,vr:-1.5});
+    if(cur.x+cur.w>R)debris.push({x:R,w:cur.x+cur.w-R,i:stack.length,y:0,vy:0,vx:40,r:0,vr:1.5});
+    stack.push({x:L,w:R-L});beep(260+Math.min(score,40)*6,.1);score++;
+  }
+  scoreEl.textContent=score;
+  const visible=Math.floor(H*0.55/BH);camT=Math.max(0,(stack.length-visible)*BH);
+  spawn();
+}
+function start(){
+  try{if(ac&&ac.state==='suspended')ac.resume()}catch(e){}
+  reset();state='play';ov.classList.add('hide');startBtn.blur();
+}
+function end(){
+  state='over';endAt=performance.now();comboEl.classList.remove('on');shake=reduce?0:10;beep(140,.4,'sawtooth');
+  const isBest=score>best;
+  if(isBest){best=score;try{localStorage.setItem('stackBest',best)}catch(e){}bestEl.textContent='최고 '+best}
+  setTimeout(()=>{
+    ovTitle.textContent=isBest&&score>0?'신기록!':'무너졌다';
+    ovText.textContent=`${score}층까지 쌓았어요. 최고 기록은 ${best}층.`;
+    startBtn.textContent='다시 하기';ov.classList.remove('hide');
+  },650);
+}
+
+function yOf(i){return H-BH*2.2-(i+1)*BH+camY}
+function block(x,y,w,i,alpha){
+  ctx.globalAlpha=alpha==null?1:alpha;
+  ctx.fillStyle=color(i,56);ctx.fillRect(x,y,w,BH);
+  ctx.fillStyle=color(i,72);ctx.fillRect(x,y,w,Math.max(4,BH*0.2));
+  ctx.fillStyle='rgba(0,0,0,.14)';ctx.fillRect(x,y+BH-3,w,3);
+  ctx.globalAlpha=1;
+}
+function sky(){
+  const t=Math.min(score/50,1);
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,`hsl(${230-t*10} ${45+t*10}% ${46-t*34}%)`);
+  g.addColorStop(1,`hsl(${20+t*230} ${70-t*30}% ${64-t*42}%)`);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  if(t>0.25){ctx.fillStyle=`rgba(255,255,255,${(t-.25)*0.9})`;
+    for(let k=0;k<40;k++){const sx=(k*97.3)%W,sy=((k*53.7)%(H*0.6)+camY*0.15)%(H*0.6);ctx.fillRect(sx,sy,1.6,1.6)}}
+  const gy=H-BH*2.2+camY;
+  if(gy<H){ctx.fillStyle='rgba(10,12,30,.55)';ctx.fillRect(0,gy,W,H-gy)}
+}
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min((now-last)/1000,0.05);last=now;
+  if(state==='play'&&cur){
+    cur.x+=cur.dir*speed()*dt;
+    const top=stack[stack.length-1];
+    if(cur.dir>0&&cur.x>W-cur.w*0.15){cur.x=W-cur.w*0.15;cur.dir=-1}
+    if(cur.dir<0&&cur.x<-cur.w*0.85){cur.x=-cur.w*0.85;cur.dir=1}
+    if(top&&cur.w<=0)end();
+  }
+  camY+=(camT-camY)*Math.min(1,dt*6);
+  debris.forEach(d=>{d.vy+=1400*dt;d.y+=d.vy*dt;d.x+=d.vx*dt;d.r+=d.vr*dt});
+  debris=debris.filter(d=>d.y<H*1.5);
+  ripples.forEach(r=>r.t+=dt);ripples=ripples.filter(r=>r.t<.5);
+  if(shake>0)shake=Math.max(0,shake-dt*30);
+
+  ctx.save();
+  if(shake)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+  sky();
+  for(let i=0;i<stack.length;i++){const y=yOf(i);if(y>H||y<-BH)continue;const b=stack[i];block(b.x,y,b.w,i)}
+  ripples.forEach(r=>{const p=r.t/.5,y=yOf(r.i),e=p*16;ctx.strokeStyle=`rgba(255,255,255,${1-p})`;ctx.lineWidth=2;ctx.strokeRect(r.x-e,y-e,r.w+e*2,BH+e*2)});
+  debris.forEach(d=>{const y=yOf(d.i)+d.y;ctx.save();ctx.translate(d.x+d.w/2,y+BH/2);ctx.rotate(d.r);block(-d.w/2,-BH/2,d.w,d.i,.95);ctx.restore()});
+  if(cur&&state==='play'){const y=yOf(stack.length);block(cur.x,y,cur.w,stack.length);
+    ctx.fillStyle='rgba(255,255,255,.08)';const t=stack[stack.length-1];ctx.fillRect(t.x,y,t.w,BH)}
+  if(state==='ready'&&!stack.length){reset();cur=null}
+  ctx.restore();
+  requestAnimationFrame(frame);
+}
+reset();cur=null;requestAnimationFrame(frame);
+
+screen.addEventListener('pointerdown',e=>{if(e.target===startBtn)return;e.preventDefault();drop()});
+startBtn.addEventListener('click',e=>{e.stopPropagation();start()});
+addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='Enter'){e.preventDefault();if(document.activeElement===startBtn&&state!=='play'){start();return}drop()}});
+}
+</script>
+</body>
+</html>

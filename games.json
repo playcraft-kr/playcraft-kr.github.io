@@ -1,5 +1,165 @@
 [
  {
+  "slug": "tower-stack",
+  "title": "Tower Stack",
+  "desc": "Drop each sliding block right on top of the last. Anything that hangs over gets sliced off. Line it up perfectly three times and the block grows back.",
+  "emoji": "🏗️",
+  "cats": [
+   "Action",
+   "Puzzle"
+  ],
+  "lang": "Korean",
+  "controls": [
+   [
+    "Tap / Space",
+    "Drop the block"
+   ]
+  ],
+  "tip": "A perfect drop keeps the full width. The sky turns to night as your tower climbs.",
+  "mobile": true,
+  "version": 1,
+  "added": "2026-11-23",
+  "notes": "New on PlayCraft",
+  "author": "hugo",
+  "cover": "img/cover-tower-stack.webp",
+  "wide": "img/wide-tower-stack.webp"
+ },
+ {
+  "slug": "merge-2048",
+  "title": "Merge 2048",
+  "desc": "Slide the number tiles. Two of the same merge into one. Can you build the 2048 tile?",
+  "emoji": "🔢",
+  "cats": [
+   "Puzzle"
+  ],
+  "lang": "Korean",
+  "controls": [
+   [
+    "Arrow keys / WASD",
+    "Slide the tiles"
+   ],
+   [
+    "Swipe",
+    "Slide on a phone"
+   ],
+   [
+    "Ctrl + Z",
+    "Undo (up to 10)"
+   ]
+  ],
+  "tip": "Keep your biggest tile in one corner.",
+  "mobile": true,
+  "version": 1,
+  "added": "2026-11-23",
+  "notes": "New on PlayCraft",
+  "author": "hugo",
+  "cover": "img/cover-merge-2048.webp",
+  "wide": "img/wide-merge-2048.webp"
+ },
+ {
+  "slug": "five-cuts",
+  "title": "Five Cuts",
+  "desc": "A knife slides under a loaf of bread. Cut five times: the bigger piece falls and the smaller piece stays. Miss the bread and it is over.",
+  "emoji": "🍞",
+  "cats": [
+   "Action"
+  ],
+  "lang": "Korean",
+  "controls": [
+   [
+    "Tap / Space",
+    "Cut"
+   ]
+  ],
+  "tip": "Aim for the middle of what is left.",
+  "mobile": true,
+  "version": 1,
+  "added": "2026-11-23",
+  "notes": "New on PlayCraft",
+  "author": "hugo",
+  "cover": "img/cover-five-cuts.webp",
+  "wide": "img/wide-five-cuts.webp"
+ },
+ {
+  "slug": "planet-maker",
+  "title": "Planet Maker",
+  "desc": "Pick a star, set the distance, size, air and water, then run 5 billion years. Will life appear? Then guide a civilization from the Stone Age to the stars.",
+  "emoji": "🪐",
+  "cats": [
+   "Space",
+   "Puzzle"
+  ],
+  "lang": "Korean",
+  "controls": [
+   [
+    "Click / Tap",
+    "Set the sliders and buttons"
+   ],
+   [
+    "Run",
+    "Watch 5 billion years go by"
+   ]
+  ],
+  "tip": "Keep the average temperature between 5 and 35 °C for the best chance of life.",
+  "mobile": true,
+  "version": 1,
+  "added": "2026-11-23",
+  "notes": "New on PlayCraft",
+  "author": "hugo",
+  "cover": "img/cover-planet-maker.webp",
+  "wide": "img/wide-planet-maker.webp"
+ },
+ {
+  "slug": "echoes-of-the-unknown",
+  "title": "Echoes of the Unknown",
+  "desc": "Explore a 3D world that remembers what its people forgot. Fight, gather, take on quests and wake the ancient stones to travel.",
+  "emoji": "🧭",
+  "cats": [
+   "Adventure",
+   "3D",
+   "Action"
+  ],
+  "lang": "English & Korean",
+  "controls": [
+   [
+    "WASD",
+    "Move"
+   ],
+   [
+    "Drag mouse",
+    "Look around"
+   ],
+   [
+    "Click / F",
+    "Attack"
+   ],
+   [
+    "Right-click / R",
+    "Block"
+   ],
+   [
+    "V",
+    "Dodge"
+   ],
+   [
+    "E",
+    "Talk / use"
+   ],
+   [
+    "I · M · J · K",
+    "Bag · map · quests · skills"
+   ]
+  ],
+  "tip": "Wake the stones you find: they let you warp back later.",
+  "mobile": false,
+  "version": 1,
+  "added": "2026-11-23",
+  "notes": "New on PlayCraft",
+  "author": "hugo",
+  "cover": "img/cover-echoes-of-the-unknown.webp",
+  "wide": "img/wide-echoes-of-the-unknown.webp"
+ },
+ {
   "slug": "ssat-word-league",
   "title": "Word League",
   "desc": "Learn hard English vocabulary by winning soccer league matches or conquering a fantasy map. 30 questions a match, scored like a real entrance test. For SSAT® prep · not affiliated with SSAT or The Enrollment Management Association.",

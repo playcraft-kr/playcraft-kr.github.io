@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><script src="../guard.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>빵 다섯 번 자르기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 짧고 긴장감 있는 원터치 챌린지
+   IDEA: 어두운 무대 위 조명 받은 둥근 빵 한 덩이와 칼 한 자루
+   PICTURE: 게임판이 그림: 스포트라이트 아래 빵, 아래에서 좌우로 오가는 칼
+   COLOUR and TYPE: 거의 검정 무대, 구운 갈색 빵, 강철 칼날과 주황 손잡이, 실패는 토마토 빨강; Black Han Sans, Gothic A1
+   LAYOUT: 작은 제목, 세로형 게임판, 아래 짧은 규칙 */
+:root{color-scheme:light dark;--bg:light-dark(#f2ece4,#120e0b);--ink:light-dark(#22180f,#f6eee3);--sub:light-dark(#6b5643,#bba68f);--case:light-dark(#2a1f16,#050403)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Gothic A1",system-ui,sans-serif;overflow-x:clip;display:flex;flex-direction:column;align-items:center;padding:20px 12px 28px}
+h1{font:400 32px/1.05 "Black Han Sans",sans-serif;margin:0 0 4px}
+.sub{color:var(--sub);margin:0 0 14px;font-size:15px;text-align:center;max-width:44ch}
+.case{position:relative;width:min(420px,100%);aspect-ratio:9/16;max-height:80vh;border-radius:28px;background:var(--case);padding:10px;box-shadow:0 18px 40px rgba(30,15,5,.35)}
+.screen{position:relative;width:100%;height:100%;border-radius:20px;overflow:hidden;touch-action:manipulation;cursor:pointer;user-select:none;-webkit-user-select:none;background:#050505}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.count{position:absolute;top:14%;left:9%;color:#fff;font:400 30px/1 "Black Han Sans",sans-serif;pointer-events:none}
+.count small{display:block;font:700 13px "Gothic A1",sans-serif;opacity:.7;margin-top:6px}
+.best{position:absolute;top:14px;right:16px;color:rgba(255,255,255,.75);font-size:13px;font-weight:700;pointer-events:none}
+.msg{position:absolute;left:0;right:0;top:7%;text-align:center;font:400 40px/1.1 "Black Han Sans",sans-serif;pointer-events:none;opacity:0;transform:scale(.8);transition:opacity .15s,transform .2s}
+.msg.on{opacity:1;transform:none}
+.msg.win{color:#ffcf5a;text-shadow:0 0 18px rgba(255,190,60,.6)}.msg.lose{color:#ff5b4a}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;text-align:center;padding:24px;background:rgba(0,0,0,.6);transition:opacity .25s}
+.overlay.hide{opacity:0;pointer-events:none}
+.overlay h2{font:400 36px/1.05 "Black Han Sans",sans-serif;margin:0}
+.overlay p{margin:0;font-size:16px;max-width:28ch;color:#eee2d2}
+.btn{margin-top:8px;font:700 17px "Gothic A1",sans-serif;min-height:48px;padding:0 28px;border:0;border-radius:999px;background:#ff8a3d;color:#1f0d02;cursor:pointer;box-shadow:0 4px 0 #b4561a}
+.btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #b4561a}
+.tips{color:var(--sub);font-size:13px;margin-top:14px;text-align:center;max-width:420px}
+@media (prefers-reduced-motion:reduce){.msg,.overlay{transition:none}}
+</style>
+</head>
+<body>
+<h1>빵 다섯 번 자르기</h1>
+<p class="sub">칼이 빵 아래를 오갑니다. 자르면 큰 쪽은 떨어지고 작은 쪽만 남아요. 5번 다 맞히면 성공!</p>
+<div class="case">
+  <div class="screen" id="screen">
+    <canvas id="cv"></canvas>
+    <div class="count" id="count">0 컷<small id="width">남은 빵 100%</small></div>
+    <div class="best" id="best">연속 0 · 최고 0</div>
+    <div class="msg" id="msg"></div>
+    <div class="overlay" id="ov">
+      <h2 id="ovT">빵 다섯 번 자르기</h2>
+      <p id="ovP">화면을 탭하거나 스페이스바를 누르면 칼이 위로 올라가 빵을 잘라요. 빵을 빗나가면 실패. 요령은 남은 빵의 한가운데!</p>
+      <button class="btn" id="go" type="button">시작</button>
+    </div>
+  </div>
+</div>
+<p class="tips">성공할 때마다 다음 빵은 칼이 조금 더 빨라져요.</p>
+<script>
+{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),screen=document.getElementById('screen');
+const countEl=document.getElementById('count'),bestEl=document.getElementById('best'),msg=document.getElementById('msg');
+const ov=document.getElementById('ov'),ovT=document.getElementById('ovT'),ovP=document.getElementById('ovP'),go=document.getElementById('go');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const CUTS=5;
+let W=0,H=0,dpr=1,bx=0,bw=0,by=0,bh=0,loaf=null;
+let a=0,b=1,n=0,kx=0.5,kdir=1,state='ready',streak=0,best=0,thrust=0,cutAt=null,falling=[],confetti=[],shake=0,endAt=0,flash=0;
+try{best=+localStorage.getItem('bread5Best')||0}catch(e){}
+
+function size(){
+  const r=screen.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;
+  cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+  bw=W*0.6;bh=bw*0.5;bx=(W-bw)/2;by=H*0.36;makeLoaf();
+}
+function makeLoaf(){
+  const c=document.createElement('canvas');c.width=Math.ceil(bw*dpr);c.height=Math.ceil(bh*dpr);const g=c.getContext('2d');g.scale(dpr,dpr);
+  const path=()=>{g.beginPath();g.moveTo(bw*0.06,bh*0.92);g.bezierCurveTo(-bw*0.04,bh*0.45,bw*0.18,bh*0.02,bw*0.5,bh*0.02);g.bezierCurveTo(bw*0.82,bh*0.02,bw*1.04,bh*0.45,bw*0.94,bh*0.92);g.quadraticCurveTo(bw*0.5,bh*1.02,bw*0.06,bh*0.92);g.closePath()};
+  path();const lg=g.createLinearGradient(0,0,0,bh);lg.addColorStop(0,'#f0b45e');lg.addColorStop(.5,'#d98a36');lg.addColorStop(.85,'#a85a1a');lg.addColorStop(1,'#6e3a10');g.fillStyle=lg;g.fill();
+  g.save();path();g.clip();
+  const rg=g.createRadialGradient(bw*0.35,bh*0.2,2,bw*0.35,bh*0.2,bw*0.45);rg.addColorStop(0,'rgba(255,236,190,.55)');rg.addColorStop(1,'rgba(255,236,190,0)');g.fillStyle=rg;g.fillRect(0,0,bw,bh);
+  g.strokeStyle='rgba(255,226,170,.65)';g.lineWidth=Math.max(2,bw*0.012);g.lineCap='round';
+  [[.28,.3,.42,.12],[.45,.36,.6,.14],[.62,.34,.75,.2]].forEach(([x1,y1,x2,y2])=>{g.beginPath();g.moveTo(bw*x1,bh*y1);g.quadraticCurveTo(bw*(x1+x2)/2,bh*(Math.min(y1,y2)-.06),bw*x2,bh*y2);g.stroke()});
+  g.fillStyle='rgba(255,255,255,.45)';for(let i=0;i<90;i++){g.fillRect((i*67.3)%bw,(i*29.9)%(bh*0.45),1.3,1.3)}
+  g.restore();loaf=c;
+}
+const ro=new ResizeObserver(size);ro.observe(screen);size();
+
+let ac=null;
+function sound(f,d,type,vol){try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=type||'square';o.frequency.setValueAtTime(f,ac.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(40,f*0.4),ac.currentTime+d);g.gain.setValueAtTime(vol||.08,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+function say(t,cls){msg.textContent=t;msg.className='msg on '+cls}
+function hud(){countEl.firstChild.nodeValue=n+' 컷';document.getElementById('width').textContent=`남은 빵 ${Math.round((b-a)*1000)/10}%`;bestEl.textContent=`연속 ${streak} · 최고 ${best}`}
+function speed(){return 0.42*(1+n*0.03)*(1+Math.min(streak,12)*0.07)}
+
+function start(){
+  try{if(ac&&ac.state==='suspended')ac.resume()}catch(e){}
+  a=0;b=1;n=0;falling=[];confetti=[];kx=Math.random()<.5?0:1;kdir=kx?-1:1;thrust=0;state='play';
+  msg.className='msg';ov.classList.add('hide');go.blur();hud();
+}
+// knife x in screen fraction -> bread fraction
+const toBread=x=>(x*W-bx)/bw;
+function tap(){
+  if(state!=='play'){if(performance.now()-endAt>600)start();return}
+  if(thrust>0)return;
+  thrust=1;const x=toBread(kx);cutAt=x;
+  if(x<=a||x>=b){lose();return}
+  // larger side falls, smaller side stays
+  const left=x-a,right=b-x;
+  if(left>=right){falling.push({a,b:x,y:0,vy:-60,vx:-50,r:0,vr:-0.6,alpha:1});a=x}
+  else{falling.push({a:x,b,y:0,vy:-60,vx:50,r:0,vr:0.6,alpha:1});b=x}
+  n++;flash=1;sound(220+n*40,.12,'square',.08);hud();
+  if(n>=CUTS)win();
+}
+function lose(){
+  state='over';endAt=performance.now();shake=reduce?0:9;sound(110,.45,'sawtooth',.1);say('빗나갔어요','lose');
+  const s=streak;streak=0;hud();
+  setTimeout(()=>{ovT.textContent='아깝다!';ovP.textContent=`${n}번 자르고 빗나갔어요. 이번 연속 성공 ${s}회, 최고 ${best}회.`;go.textContent='다시 하기';ov.classList.remove('hide')},1000);
+}
+function win(){
+  state='over';endAt=performance.now();streak++;if(streak>best){best=streak;try{localStorage.setItem('bread5Best',best)}catch(e){}}
+  hud();say('성공!','win');sound(660,.2,'triangle',.1);setTimeout(()=>sound(990,.3,'triangle',.1),130);
+  if(!reduce)for(let i=0;i<90;i++)confetti.push({x:Math.random()*W,y:-Math.random()*H*0.4,vy:80+Math.random()*160,vx:(Math.random()-.5)*60,r:Math.random()*6,vr:(Math.random()-.5)*8,c:['#ffcf5a','#ff7a59','#7ad8ff','#b78cff','#7cf0a0'][i%5],s:4+Math.random()*5});
+  const remain=Math.round((b-a)*1000)/10;
+  setTimeout(()=>{ovT.textContent=`성공! 연속 ${streak}회`;ovP.textContent=`남은 빵 조각은 원래의 ${remain}%. 다음 빵은 칼이 조금 더 빨라요.`;go.textContent='다음 빵';ov.classList.remove('hide')},1400);
+}
+
+function drawPiece(pa,pb,ox,oy,rot,alpha,dark){
+  const sx=pa*bw,sw=(pb-pa)*bw;if(sw<=0.3)return;
+  ctx.save();ctx.globalAlpha=alpha;
+  const cx=bx+sx+sw/2+ox,cy=by+bh/2+oy;ctx.translate(cx,cy);ctx.rotate(rot);
+  ctx.drawImage(loaf,sx*dpr,0,sw*dpr,bh*dpr,-sw/2,-bh/2,sw,bh);
+  // crumb faces on cut sides
+  ctx.fillStyle='#f6e2b8';const fw=Math.min(3,sw*0.25);
+  if(pa>0.001)ctx.fillRect(-sw/2,-bh*0.28,fw,bh*0.62);
+  if(pb<0.999)ctx.fillRect(sw/2-fw,-bh*0.28,fw,bh*0.62);
+  if(dark){ctx.fillStyle=`rgba(0,0,0,${dark})`;ctx.fillRect(-sw/2,-bh/2,sw,bh)}
+  ctx.restore();
+}
+function drawKnife(){
+  const x=kx*W,base=by+bh+H*0.06;
+  const up=thrust>0?Math.sin((1-thrust)*Math.PI)*(bh+H*0.08):0;
+  const tip=base-up,bladeL=H*0.13,handleL=H*0.085;
+  if(state==='play'&&thrust===0){ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(x,tip-4);ctx.lineTo(x,by-H*0.08);ctx.stroke();ctx.setLineDash([])}
+  ctx.save();
+  const kg=ctx.createLinearGradient(x-8,0,x+8,0);kg.addColorStop(0,'#8e98a4');kg.addColorStop(.45,'#f1f4f8');kg.addColorStop(1,'#6f7986');
+  ctx.fillStyle=kg;ctx.beginPath();ctx.moveTo(x,tip);ctx.quadraticCurveTo(x+9,tip+bladeL*0.35,x+8,tip+bladeL);ctx.lineTo(x-6,tip+bladeL);ctx.lineTo(x-6,tip+bladeL*0.3);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#3a3f46';ctx.fillRect(x-7,tip+bladeL,16,4);
+  const hg=ctx.createLinearGradient(x-7,0,x+9,0);hg.addColorStop(0,'#c94a12');hg.addColorStop(.5,'#ff7a2e');hg.addColorStop(1,'#a83a0c');
+  ctx.fillStyle=hg;ctx.beginPath();ctx.roundRect?ctx.roundRect(x-6,tip+bladeL+4,14,handleL,5):ctx.rect(x-6,tip+bladeL+4,14,handleL);ctx.fill();
+  ctx.fillStyle='rgba(255,230,200,.8)';ctx.beginPath();ctx.arc(x+1,tip+bladeL+4+handleL*0.3,1.8,0,Math.PI*2);ctx.arc(x+1,tip+bladeL+4+handleL*0.7,1.8,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min((now-last)/1000,0.05);last=now;
+  if(state==='play'&&thrust===0){kx+=kdir*speed()*dt;if(kx>0.96){kx=0.96;kdir=-1}if(kx<0.04){kx=0.04;kdir=1}}
+  if(thrust>0)thrust=Math.max(0,thrust-dt*(reduce?20:6));
+  falling.forEach(f=>{f.vy+=900*dt;f.y+=f.vy*dt;f.x=(f.x||0)+f.vx*dt;f.r+=f.vr*dt;f.alpha=Math.max(0,f.alpha-dt*0.9)});
+  falling=falling.filter(f=>f.alpha>0&&f.y<H);
+  confetti.forEach(c=>{c.y+=c.vy*dt;c.x+=c.vx*dt;c.r+=c.vr*dt});confetti=confetti.filter(c=>c.y<H+20);
+  if(shake>0)shake=Math.max(0,shake-dt*30);if(flash>0)flash=Math.max(0,flash-dt*5);
+
+  ctx.save();if(shake)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+  ctx.fillStyle='#050505';ctx.fillRect(-20,-20,W+40,H+40);
+  const sp=ctx.createRadialGradient(W/2,by+bh*0.5,10,W/2,by+bh*0.5,W*0.75);sp.addColorStop(0,'rgba(255,200,140,.12)');sp.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=sp;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(255,180,110,.08)';ctx.beginPath();ctx.ellipse(bx+(a+b)/2*bw,by+bh*0.97,(b-a)*bw*0.55+4,bh*0.07,0,0,Math.PI*2);ctx.fill();
+  falling.forEach(f=>drawPiece(f.a,f.b,f.x||0,f.y,f.r,f.alpha,0.45));
+  drawPiece(a,b,0,0,0,1,0);
+  if(flash>0&&cutAt!=null&&cutAt>0&&cutAt<1){ctx.fillStyle=`rgba(255,255,255,${flash*0.8})`;ctx.fillRect(bx+cutAt*bw-1,by-6,2,bh+12)}
+  drawKnife();
+  confetti.forEach(c=>{ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.r);ctx.fillStyle=c.c;ctx.fillRect(-c.s/2,-c.s/4,c.s,c.s/2);ctx.restore()});
+  ctx.restore();
+  requestAnimationFrame(frame);
+}
+hud();requestAnimationFrame(frame);
+
+screen.addEventListener('pointerdown',e=>{if(e.target===go)return;e.preventDefault();tap()});
+go.addEventListener('click',e=>{e.stopPropagation();start()});
+addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='Enter'){e.preventDefault();if(e.repeat)return;tap()}});
+}
+</script>
+</body>
+</html>

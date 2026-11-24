@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="../guard.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Echoes of the Unknown</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='26' fill='%231a2a3a' stroke='%23e8c27a' stroke-width='4'/><path d='M32 14 L40 32 L32 50 L24 32Z' fill='%239ff7ff'/></svg>" />
+  <script type="module" crossorigin src="./assets/index-BbizS3wZ.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CAmjgZWj.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="loading">
+    <div class="load-inner">
+      <div class="load-title">ECHOES<span>of the</span>UNKNOWN</div>
+      <div class="load-bar"><div id="loadFill"></div></div>
+      <div id="loadText">Waking the world…</div>
+      <div id="loadTip"></div>
+    </div>
+  </div>
+
+  <div id="menu" class="hidden">
+    <div class="menu-title">ECHOES<span>of the</span>UNKNOWN</div>
+    <div class="menu-sub">A world remembers what its people forgot.</div>
+    <div class="menu-buttons">
+      <button id="btnContinue" class="mbtn">Continue</button>
+      <button id="btnNew" class="mbtn">New Game</button>
+      <button id="btnSettingsMenu" class="mbtn">Settings</button>
+      <button id="btnControls" class="mbtn">Controls</button>
+    </div>
+    <div id="menuSave" class="menu-save"></div>
+    <div class="menu-foot">Click and drag to look around · WASD to move · E to interact</div>
+  </div>
+
+  <div id="hud" class="hidden">
+    <div id="topLeft">
+      <div id="regionName">Greenhaven</div>
+      <div id="clock"></div>
+    </div>
+    <div id="compass"><div id="compassStrip"></div><div class="compass-needle"></div></div>
+    <div id="tracker"></div>
+    <div id="toasts"></div>
+    <div id="banner"><div class="b-small"></div><div class="b-big"></div><div class="b-sub"></div></div>
+    <div id="bars">
+      <div class="lvl"><span id="lvl">Lv 1</span><div class="xpbar"><div id="xpFill"></div></div><span id="coins">20</span></div>
+      <div class="bar hp"><div id="hpFill"></div></div>
+      <div class="bar st"><div id="stFill"></div></div>
+      <div class="bar ex hidden" id="exBar"><div id="exFill"></div><span id="exLabel">Cold</span></div>
+      <div class="bar br hidden" id="brBar"><div id="brFill"></div><span>Breath</span></div>
+      <div id="buffs"></div>
+    </div>
+    <svg id="staminaRing" viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" class="ring-bg"/><circle cx="20" cy="20" r="15" class="ring-fg" id="ringFg"/></svg>
+    <div id="prompt" class="hidden"><kbd>E</kbd><span id="promptText"></span></div>
+    <div id="hint" class="hidden"></div>
+    <div id="keys"><kbd>LMB/F</kbd> 공격 <kbd>RMB/R</kbd> 방어 <kbd>V</kbd> 회피 <kbd>I</kbd> 가방 <kbd>M</kbd> 지도 <kbd>J</kbd> 퀘스트 <kbd>K</kbd> 스킬 <kbd>Esc</kbd> 메뉴</div>
+    <div id="fps" class="hidden"></div>
+    <div id="vignette"></div>
+    <div id="underwater"></div>
+    <div id="damage"></div>
+  </div>
+
+  <div id="dialogue" class="hidden">
+    <div class="dl-name"><span id="dlName"></span><em id="dlTitle"></em></div>
+    <div id="dlText"></div>
+    <div id="dlOptions"></div>
+  </div>
+
+  <div id="panel" class="hidden">
+    <div class="panel-frame">
+      <div class="panel-tabs" id="panelTabs"></div>
+      <button class="panel-close" id="panelClose">✕</button>
+      <div class="panel-body" id="panelBody"></div>
+    </div>
+  </div>
+
+  <div id="reader" class="hidden">
+    <div class="reader-page">
+      <div id="readerTitle"></div>
+      <div id="readerText"></div>
+      <button class="mbtn small" id="readerClose">Close</button>
+    </div>
+  </div>
+
+  <div id="confirm" class="hidden">
+    <div class="confirm-box"><div id="confirmText"></div><div class="confirm-btns"><button class="mbtn small" id="confirmYes">Yes</button><button class="mbtn small" id="confirmNo">No</button></div></div>
+  </div>
+
+  <div id="flash"></div>
+  <div id="powerbar" class="hidden"></div>
+  <div id="lockon" class="hidden"></div>
+  <div id="bossbar" class="hidden"><div class="bb-name"></div><div class="bb-track"><div class="bb-fill"></div></div></div>
+  <div id="warp" class="hidden"><div class="warp-card"><h2>❖ 워프 · Warp</h2><div class="warp-sub">깨어난 비석 사이를 이동합니다</div><div class="warp-list"></div><button class="mbtn small warp-close">닫기 · Close</button></div></div>
+  <div id="clear"><div class="c-rays"></div><div class="c-small"></div><div class="c-big"></div><div class="c-sub"></div><div class="c-spark"></div></div>
+  <div id="cine" class="hidden"><div id="cineGrain"></div><div class="cine-vig"></div><div id="cineCard"></div>
+    <div class="cine-bar top"></div><div class="cine-bar bottom"></div>
+    <div id="cineTitle"></div>
+    <div id="cineText"></div>
+    <button id="cineSkip">건너뛰기 ▸▸ <kbd>Esc</kbd></button>
+  </div>
+  <div id="howto" class="hidden"><div class="howto-card"><div id="howtoBody"></div><button class="mbtn" id="howtoGo">모험 시작</button></div></div>
+  <div id="waypoint" class="hidden"><span class="wp-icon">❖</span><span id="wpDist"></span><div id="wpLabel"></div></div>
+  <div id="lockhint" class="hidden"></div>
+  <div id="finale" class="hidden"><div id="finaleText"></div><div id="finaleNext">Click to continue</div></div>
+  <div id="fade"></div>
+
+</body>
+</html>
