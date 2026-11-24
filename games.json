@@ -362,9 +362,10 @@
    "Action"
   ],
   "lang": "English",
-  "version": 4,
+  "version": 5,
+  "updated": "2026-11-24",
   "added": "2026-11-21",
-  "notes": "Online play waits for a parent’s OK on under-13 accounts",
+  "notes": "Clearer message when online play is waiting for a parent",
   "cover": "img/cover-black-hole.webp",
   "wide": "img/wide-black-hole.webp",
   "controls": [

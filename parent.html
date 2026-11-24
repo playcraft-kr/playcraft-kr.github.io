@@ -54,9 +54,9 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
     const first = !r.approved;
     say(`
       <p class="kid">${esc(r.username)} <span class="muted">(nickname ${esc(r.nickname)}, age ${esc(r.age)})</span></p>
-      <p>${first ? 'Your child made this PlayCraft account and asked for your OK.' : 'Your child asked you to check their PlayCraft settings.'}</p>
+      <p>${first ? 'Your child made this PlayCraft account and asked for your approval.' : 'Your child asked you to check their PlayCraft settings.'}</p>
       <p class="muted"><b>What we keep:</b> the ID, nickname and age your child typed, which games they played and for how long, and their game progress. We don’t ask for real names, we show no ads and we sell nothing. Your e-mail is used only for this. <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>
-      ${first ? `<p class="muted"><b>Already on:</b> playing every game alone. <b>Turns on with your OK:</b> your child’s ID on leaderboards, online play with other players, and sending in games they made (shown with their ID).</p>` : ''}
+      ${first ? `<p class="muted"><b>Already on:</b> playing every game alone. <b>Turns on when you approve:</b> your child’s ID on leaderboards, online play with other players, and sending in games they made (shown with their ID).</p>` : ''}
       <hr style="border:0;border-top:1px solid var(--line)">
       <p><b>Learning mode</b> (optional): the other games cost game time that your child earns in two learning games. In <b>Math Space War</b>, each finished 10-question round at their school grade with 8 or more right gives 1 minute (up to 30 minutes a day). In <b>Word League</b>, 10 coins buy 1 minute (its own coins and rewards don't change). Every new player starts with 100 Word League coins, so about 10 minutes of other games on day one. Only your PIN can turn it off again. <a href="learning.html" target="_blank" rel="noopener">How learning mode works</a></p>
       <label class="opt"><input type="radio" name="lm" value="keep" ${r.learn_mode ? '' : 'checked'}> <span>${r.learn_mode ? 'Turn learning mode off' : 'No learning mode'}</span></label>
@@ -68,8 +68,8 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       </div>
       <p class="msg" id="m"></p>
       <div class="btns">
-        <button class="yes" id="yes">${first ? 'Yes, I’m the parent and I say OK' : 'Save'}</button>
-        ${first ? '<button class="no" id="no">No, keep it limited</button>' : ''}
+        <button class="yes" id="yes">${first ? 'I’m the parent. Approve' : 'Save'}</button>
+        ${first ? '<button class="no" id="no">Not now (keep it limited)</button>' : ''}
       </div>`);
     const pinRow = document.getElementById('pinRow'), limRow = document.getElementById('limRow'), m = document.getElementById('m');
     const sync = () => { const on = document.querySelector('input[name=lm]:checked').value === 'on'; pinRow.style.display = on ? 'block' : 'none'; limRow.style.display = on ? 'block' : 'none'; };
@@ -85,7 +85,7 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       }
       const { data: res, error: e2 } = await sb.rpc('parent_decide', { p_token: token, p_approve: true, p_learn: learn, p_pin: on ? pin : null });
       if (e2 || res !== 'ok') { m.className = 'msg err'; m.textContent = res === 'expired' ? 'This link has run out.' : 'That didn’t work. Please try again.'; return; }
-      say(`<p class="msg ok">Thank you! ${first ? esc(r.username) + ' now has every feature.' : 'Saved.'} ${on ? 'Learning mode is on with your PIN.' : (r.learn_mode ? 'Learning mode is off.' : '')}</p><p class="muted">We sent you an e-mail to confirm. You can close this page.</p>`);
+      say(`<p class="msg ok">Thank you! ${first ? esc(r.username) + '’s account is approved.' : 'Saved.'} ${on ? 'Learning mode is on with your PIN.' : (r.learn_mode ? 'Learning mode is off.' : '')}</p><p class="muted">We sent you a confirmation e-mail. You can close this page.</p>`);
     };
     const no = document.getElementById('no');
     if (no) no.onclick = async () => {

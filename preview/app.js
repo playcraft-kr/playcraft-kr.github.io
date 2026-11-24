@@ -304,7 +304,7 @@ const learnOn = () => !!(signedIn() && ACC.profile && ACC.profile.learn_mode);
 const needsCoins = g => learnOn() && g && !LEARN_GAMES.has(g.slug);
 
 async function askParent(reason) {
-  const em = await askText(reason || 'Type your parent’s e-mail. We’ll send them a link to say OK (and to choose learning mode).', '', 'Send');
+  const em = await askText(reason || 'Type your parent’s e-mail. We’ll send them a link to approve your account (and to choose learning mode).', '', 'Send');
   if (em === null) return;
   let r; try { r = await ACC.requestParentConsent(em); } catch { return toast('Couldn’t send. Try again.'); }
   toast(r.ok ? (r.mailed ? 'Sent! Ask your parent to check their e-mail.' : 'Saved! A PlayCraft grown-up will pass the message to your parent.')
@@ -575,7 +575,7 @@ $('#su-form').addEventListener('submit', async e => {
   if (nick.length < 2) return say('Please choose a nickname with at least 2 characters.');
   if (!age) return say('Please choose your age.');
   const parentEmail = $('#su-parent').value.trim();
-  if (age < 13 && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(parentEmail)) return say('Because you’re under 13, please type your parent’s e-mail so they can say OK.');
+  if (age < 13 && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(parentEmail)) return say('Because you’re under 13, please type your parent’s e-mail so they can approve your account.');
   if (!pwOk(pw)) return say('Your password needs at least 8 characters with a letter, a number and a special character.');
   if (pw !== $('#su-pw2').value) return say('The two passwords don’t match. Type them again.');
   if (pw.toLowerCase().includes(id)) return say('Your password can’t contain your ID.');
