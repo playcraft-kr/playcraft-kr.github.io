@@ -754,7 +754,7 @@ if (ACC) ACC.onChange(async () => {
   } else await refreshAccountData();
   if (!signedIn()) mergedOnce = false;
   $('#req-btn').hidden = !(signedIn() && ACC.profile && ACC.profile.is_admin);
-  if (GAMES.length) { if (current) syncSave(); if (!$('#v-home').hidden) renderHome(); if (!$('#v-my').hidden) openMy(); if (!$('#v-admin').hidden) openAdmin(); }
+  if (GAMES.length) { if (current) { syncSave(); if (!$('#v-game').hidden) renderComments(); } if (!$('#v-home').hidden) renderHome(); if (!$('#v-my').hidden) openMy(); if (!$('#v-admin').hidden) openAdmin(); }
 });
 renderAccount();
 
