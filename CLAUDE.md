@@ -32,3 +32,6 @@ No key (for example a cloud window)? Ask the user to paste the open requests fro
 - No real names of children or family in files, commit messages or game text. Use account names (hugo, luke) only.
 - No patient or personal data.
 - No real brands, leagues, clubs, players or test names as game content; no text copied from textbooks or prep books. Write definitions and examples fresh. Never invent meanings.
+
+## 5. Study Arcade starter decks
+- `games/study-arcade/decks.js` is made by `python3 ~/projects/seonjun-games/tools/study_decks/build.py` (Mac Studio): every Word League word, and Math Space War questions by grade. After Word League's words change, re-run it and push `decks.js` with the change (no key? tell the user it needs re-running).

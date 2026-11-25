@@ -13,12 +13,19 @@ const timeout=(ms,v)=>new Promise(r=>setTimeout(()=>r(v),ms));
 const ck=c=>c.t+'\t'+c.d;
 
 /* ---------- starter decks ---------- */
-const W=[["abate","to become less strong"],["benevolent","kind and wanting to help others"],["candid","honest and direct"],["diligent","hardworking and careful"],["eloquent","able to speak or write well"],["frugal","careful not to waste money"],["gregarious","enjoys being with other people"],["hinder","to get in the way of; make harder"],["impartial","fair; not taking sides"],["jubilant","full of joy"],["lethargic","tired, slow, and low on energy"],["meticulous","very careful about small details"],["novice","a beginner"],["obscure","not well known, or hard to understand"],["prudent","wise and careful about the future"],["reluctant","not wanting to do something"],["scrutinize","to look at very closely"],["tenacious","does not give up easily"],["ubiquitous","found everywhere"],["vindicate","to show someone was right or not guilty"],["wary","careful because something might be dangerous"],["zealous","very eager and enthusiastic"],["adversary","an opponent or enemy"],["brevity","shortness; using few words"],["concur","to agree"],["deplete","to use up"],["elated","extremely happy"],["futile","useless; it will not work"],["haughty","proud and acting better than others"],["inevitable","sure to happen; cannot be avoided"],["mundane","ordinary and dull"],["ominous","seems to warn that something bad will happen"],["pragmatic","practical; focused on what really works"],["resilient","able to bounce back after something hard"],["sparse","thinly spread; only a little here and there"],["trivial","small and not important"],["verbose","using more words than needed"],["amiable","friendly and pleasant"],["arduous","very hard and tiring"],["placid","calm and peaceful"]];
-const MQ=[["Solve x² − 5x + 6 = 0","x = 2 or x = 3","x = −2 or x = −3;x = 1 or x = 6;x = −1 or x = 6"],["Factor x² − 9","(x + 3)(x − 3)","(x − 3)²;(x + 3)²;(x + 9)(x − 1)"],["Simplify √12","2√3","3√2;4√3;6√2"],["√2 × √8","4","√10;16;2√2"],["sin 30°","1/2","√3/2;√2/2;1"],["cos 30°","√3/2","1/2;√2/2;√3"],["tan 45°","1","0;√3;1/2"],["tan 60°","√3","√3/3;1;√3/2"],["Quadratic formula for ax² + bx + c = 0","x = (−b ± √(b² − 4ac)) / 2a","x = (b ± √(b² − 4ac)) / 2a;x = (−b ± √(b² + 4ac)) / 2a;x = (−b ± √(b² − 4ac)) / a"],["Vertex of y = (x − 2)² + 3","(2, 3)","(−2, 3);(2, −3);(3, 2)"],["Move y = x² 3 units to the right","y = (x − 3)²","y = (x + 3)²;y = x² + 3;y = x² − 3"],["Expand (a + b)²","a² + 2ab + b²","a² + b²;a² + ab + b²;a² − 2ab + b²"],["Expand (a + b)(a − b)","a² − b²","a² + b²;(a − b)²;a² − 2ab + b²"],["Right triangle: hypotenuse 10, one leg 6. The other leg?","8","4;7;√136"],["Angle between a circle's tangent and the radius to where it touches","90°","45°;60°;180°"],["An inscribed angle is how big compared with the central angle on the same arc?","Half as big","Twice as big;The same;One third as big"],["When does a quadratic have exactly one (double) root?","b² − 4ac = 0","b² − 4ac > 0;b² − 4ac < 0;a = 0"],["Median of 3, 7, 1, 9, 5","5","7;3;25"],["Mode of 2, 4, 4, 5, 7","4","5;2;4.4"],["Standard deviation when the variance is 16","4","8;16;256"]];
 const CAP=[["France","Paris"],["Japan","Tokyo"],["Canada","Ottawa"],["Australia","Canberra"],["Brazil","Brasília"],["Egypt","Cairo"],["Germany","Berlin"],["Italy","Rome"],["Spain","Madrid"],["United Kingdom","London"],["China","Beijing"],["India","New Delhi"],["Russia","Moscow"],["Mexico","Mexico City"],["Argentina","Buenos Aires"],["Türkiye (Turkey)","Ankara"],["Thailand","Bangkok"],["Vietnam","Hanoi"],["Kenya","Nairobi"],["New Zealand","Wellington"],["Switzerland","Bern"],["Netherlands","Amsterdam"],["Saudi Arabia","Riyadh"],["Indonesia","Jakarta"]];
+/* Starter decks: words = every Word League word, math = Math Space War questions (decks.js, made by tools/study_decks/build.py). */
+const SA=window.SA_DECKS||{words:[],math:[]};
+let MGRADE=null,MCARDS=null;   // school grade: the parent's choice on PlayCraft, else age − 5
+const gradeName=g=>g>=12?'Grade 12':'Grade '+g;
+function mathGrade(){if(MGRADE)return MGRADE;try{const a=PCA&&PCA.profile&&+PCA.profile.age;if(a)return Math.max(1,Math.min(12,a-5))}catch(e){}return 1}
+// Only questions at the player's grade or harder, nearest grades first (up to two grades higher; more only if there are too few).
+function mathCards(){if(MCARDS)return MCARDS;const g=mathGrade();let pool=SA.math.filter(q=>q.lv>=g&&q.lv<=g+2);if(pool.length<40)pool=SA.math.filter(q=>q.lv>=g);
+  pool=pool.slice();for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  return MCARDS=pool.slice(0,40).map(q=>({t:q.q,d:q.a,w:q.w.slice()}))}
 const SAMPLES=[
-  {id:'s-words',sample:true,title:'Big Words 40',desc:'English word ↔ meaning',cards:W.map(([t,d])=>({t,d,w:[]}))},
-  {id:'s-math',sample:true,title:'Math Review 20',desc:'Quadratics, roots, trig, graphs, circles, stats',cards:MQ.map(([t,d,w])=>({t,d,w:w.split(';')}))},
+  {id:'s-words',sample:true,title:`Word League Words (${SA.words.length})`,desc:'Every word in Word League ↔ its meaning',cards:SA.words.map(([t,d])=>({t,d,w:[]}))},
+  {id:'s-math',sample:true,get title(){return `Math Review · ${gradeName(mathGrade())} and up`},get desc(){return 'Math Space War questions at your grade or harder'},get cards(){return mathCards()}},
   {id:'s-cap',sample:true,title:'World Capitals 24',desc:'Country ↔ capital city',cards:CAP.map(([t,d])=>({t,d,w:[]}))},
 ];
 
@@ -116,6 +123,7 @@ async function initCloud(){
   const me=myId();LK=me?':'+me:'';loadLocal();setMascot();renderCoin();route(true);
   if(!me){setSync('local');return}
   try{
+    PCA.learnWallet&&PCA.learnWallet().then(w=>{if(w&&w.math_grade&&w.math_grade!==MGRADE){MGRADE=w.math_grade;MCARDS=null;route(true)}}).catch(()=>{});
     const sv=await Promise.race([PCA.loadSave(SLUG),timeout(10000,'slow')]);
     if(sv==='slow'){setSync('local');return}
     const c=sv&&sv.data;Cloud.on=true;
