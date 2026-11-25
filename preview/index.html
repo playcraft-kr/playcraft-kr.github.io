@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261124220007">
+<link rel="stylesheet" href="app.css?v=20261125071241">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -112,11 +112,15 @@
     <p class="lead" id="my-lead">Games you saved with ♥ and games you played lately. They’re kept on this device only. <a href="#" id="my-signin">Sign in</a> to keep them everywhere.</p>
     <div class="warn-box" id="my-waiting" hidden>👪 You can play every game. Leaderboards, online play and sending in games turn on after your parent approves. <span id="my-parent-line"></span> <button class="btn ghost tiny" id="my-parent-btn" type="button">Send to my parent again</button></div>
     <div class="warn-box" id="my-paused" hidden>⏸ Your account is paused by an admin, so new plays aren’t being saved right now.</div>
-    <div class="stats" id="my-stats" hidden></div>
     <h2 class="sub">Saved</h2>
     <div class="grid" id="grid-saved"></div>
     <h2 class="sub">Played lately</h2>
     <div class="grid" id="grid-played"></div>
+    <div class="empty" id="my-empty" hidden>
+      <img src="../img/mascot-0.webp" alt="">
+      <div><h2>Nothing here yet</h2><p>Tap ♥ Save on any game page and it will wait for you here.</p><a class="btn primary" href="#/">Find a game</a></div>
+    </div>
+    <div class="stats" id="my-stats" hidden></div>
     <section class="panel" id="my-subs" hidden>
       <div class="shelf-head"><h2>Games you sent in</h2><a class="more" href="#/submit">+ Submit a game</a></div>
       <ul class="sub-list" id="sub-list"></ul>
@@ -126,13 +130,10 @@
       <dl class="acct-facts"><div><dt>ID</dt><dd id="ma-id"></dd></div><div><dt>Nickname</dt><dd id="ma-nick"></dd></div><div><dt>Age</dt><dd id="ma-age"></dd></div></dl>
       <div class="learn-acct" id="ma-learn"><b>Learning mode:</b> <span id="ma-learn-state">…</span> <span id="ma-coins"></span> <button class="btn ghost tiny" id="ma-learn-btn" hidden></button> <button class="btn ghost tiny" id="ma-limits-btn" hidden>Daily limit (parent PIN)</button> <a href="../learning.html" target="_blank" rel="noopener">How it works</a></div>
       <div class="learn-acct" id="ma-recovery" hidden><b>Recovery email:</b> <span id="ma-recovery-state">…</span> <button class="btn ghost tiny" id="ma-recovery-add" hidden>Add</button> <button class="btn ghost tiny" id="ma-recovery-code" hidden>Enter code</button> <button class="btn ghost tiny" id="ma-recovery-del" hidden>Remove</button></div>
+      <details class="danger-zone"><summary>Delete my account</summary>
       <p class="note">Want to leave PlayCraft? Deleting your account removes your ID, nickname, age, saved games and play records for good.</p>
-      <button class="btn danger" id="ma-delete">Delete my account</button>
+      <button class="btn danger" id="ma-delete">Delete my account</button></details>
     </section>
-    <div class="empty" id="my-empty" hidden>
-      <img src="../img/mascot-0.webp" alt="">
-      <div><h2>Nothing here yet</h2><p>Tap ♥ Save on any game page and it will wait for you here.</p><a class="btn primary" href="#/">Find a game</a></div>
-    </div>
   </section>
 
   <!-- ABOUT -->
@@ -141,8 +142,8 @@
     <div class="about">
       <img src="../img/mascot-0.webp" alt="Bolt, the PlayCraft robot">
       <div>
-        <p>PlayCraft is a home for original browser games made by young creators. Tap a game and it starts right away. There’s nothing to download. Make a free account to play, and your progress follows you to any computer.</p>
-        <p>If you make a free account, we keep only your ID, nickname, age, saved games and play time, so they follow you to any computer. Read the <a href="../privacy.html">Privacy Policy</a>.</p>
+        <p>PlayCraft is a home for original browser games made by young creators. There’s nothing to download. Make a free account, tap a game, and it starts right away. Your progress follows you to any computer.</p>
+        <p>With a free account we keep your ID, nickname, age, saved games and play time, so they follow you to any computer. Other players see only your nickname. For players under 13 we also keep a parent’s email. Read the <a href="../privacy.html">Privacy Policy</a>.</p>
         <p>Every game here was reviewed by an admin first. There’s no chat and no ads.</p>
         <h2 class="sub">Stay safe</h2>
         <ul class="safe">
@@ -286,13 +287,6 @@
     </section>
 
     <div class="game-cols">
-      <section class="panel ideas">
-        <img src="../img/mascot-0.webp" alt="">
-        <div>
-          <h2>💡 Upgrade ideas</h2>
-          <p><span class="chip soon">Coming soon</span> Soon you’ll be able to sign in and suggest how to make this game more fun. If your idea gets picked, it goes into the next version and your nickname shows up in the credits.</p>
-        </div>
-      </section>
       <section class="panel">
         <h2>📜 Version history</h2>
         <ul class="versions" id="versions"></ul>
@@ -305,7 +299,7 @@
 <footer class="foot">
   <div class="foot-in">
     <div class="foot-brand"><img src="../img/mascot-0.webp" alt="" width="40" height="40"><div><strong>PlayCraft</strong><span>Make it. Play it. Make it better.</span></div></div>
-    <nav aria-label="Footer"><a href="#/">Games</a><a href="#/categories">Categories</a><a href="#/about">About</a><a href="../terms.html">Terms of Use</a><a href="../privacy.html">Privacy</a><a href="../learning.html">Learning mode</a></nav>
+    <nav aria-label="Footer"><a href="#/">Games</a><a href="#/categories">Categories</a><a href="#/about">About</a><a href="../terms.html">Terms of Use</a><a href="../privacy.html">Privacy</a><a href="../learning.html">For parents</a></nav>
     <p class="legal">© 2026 PlayCraft. All rights reserved. Games are original works — play them here, but please don’t copy, re-upload or sell them. See the <a href="../terms.html">Terms of Use</a> and <a href="../privacy.html">Privacy Policy</a>.</p>
   </div>
 </footer>
@@ -351,9 +345,9 @@
         <p class="hint">Only used to get back into your account if you forget your password. We’ll send a code to check it. Without one, a forgotten password can’t be recovered.</p>
       </div>
       <div class="learn-box" id="su-parent-row" hidden>
-        <label for="su-parent">Your parent’s e-mail</label>
+        <label for="su-parent">Your parent’s email</label>
         <input id="su-parent" type="email" autocomplete="off" maxlength="200" placeholder="parent@example.com">
-        <p class="hint">You can play right away. We e-mail your parent so they can approve leaderboards and online play, and choose learning mode. (We keep only your ID, nickname, age and play records. <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>)</p>
+        <p class="hint">You can play right away. We email your parent so they can approve leaderboards and online play, and choose learning mode. (We keep your ID, nickname, age, play records and your parent’s email. <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>)</p>
       </div>
       <label for="su-pw">Password</label>
       <div class="pw-field"><input id="su-pw" type="password" autocomplete="new-password" maxlength="72"><button type="button" class="eye" data-for="su-pw" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="open" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="open" cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></div>
@@ -379,7 +373,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261124220007"></script>
-<script src="app.js?v=20261124220007"></script>
+<script src="account.js?v=20261125071241"></script>
+<script src="app.js?v=20261125071241"></script>
 </body>
 </html>

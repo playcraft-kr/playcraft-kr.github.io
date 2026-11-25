@@ -55,6 +55,7 @@ const Account = {
     return { profiles: p.data || [], userStats: us.data || [], gameStats: gs.data || [], totals: tot.data || {} };
   },
   async adminSetBlocked(id, value) { const { error } = await sb.rpc('admin_set_blocked', { target: id, value }); if (error) throw error; },
+  async publicNicknames(names) { const { data, error } = await sb.rpc('public_nicknames', { p_usernames: names }); if (error) throw error; return Object.fromEntries((data || []).map(r => [r.username, r.nickname])); },
   // ---- ideas & hearts under each game (SQL 018) ----
   async comments(slug) { const { data, error } = await sb.rpc('game_comments_list', { p_slug: slug }); if (error) throw error; return data || []; },
   async addComment(slug, body) { const { data, error } = await sb.rpc('add_comment', { p_slug: slug, p_body: body }); if (error) throw error; return data; },

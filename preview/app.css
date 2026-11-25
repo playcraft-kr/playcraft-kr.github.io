@@ -181,7 +181,8 @@ h2.sub{font-size:24px;margin:26px 0 14px}
 .start-note{font-size:14px;color:#cfc9f5!important}
 .stage.full{position:fixed;inset:0;z-index:80;border-radius:0;aspect-ratio:auto;box-shadow:none}
 .big-bar{position:absolute;top:0;left:0;right:0;height:52px;z-index:2;display:flex;align-items:center;gap:14px;padding:0 max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px));background:var(--night);color:#fff}
-.big-bar strong{font-family:var(--f-display);font-weight:600;font-size:18px;white-space:nowrap}
+.big-bar strong{font-family:var(--f-display);font-weight:600;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+.big-bar .btn{flex:none}
 .big-bar .hint{flex:1;font-size:14px;color:#bdb6ec;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .btn.small{min-height:38px;padding:0 16px;font-size:15px;box-shadow:0 3px 0 var(--sun-d)}
 .stage.full{padding-top:env(safe-area-inset-top,0px)}
@@ -414,7 +415,7 @@ a.chip.hero-chip:hover{background:rgba(255,255,255,.26)}
 .shelf-new{background:linear-gradient(120deg,rgba(255,79,139,.10),rgba(255,179,71,.12) 50%,rgba(74,222,128,.10));border-radius:24px;padding:16px 18px 6px}
 .shelf-new .shelf-head h2 .nw-t{background:linear-gradient(90deg,#ff4f8b,#ff8a3d);-webkit-background-clip:text;background-clip:text;color:transparent}
 .eyebrow.fresh{background:linear-gradient(90deg,#ff4f8b,#ffb347);color:#fff!important;padding:4px 12px;border-radius:999px;display:inline-block;align-self:flex-start;width:max-content}
-.card .art:has(.badge.new) .badge.lang,.card .art:has(.badge.upd) .badge.lang{top:auto;bottom:10px}
+
 @media (prefers-reduced-motion: reduce){.badge.new{animation:none}}
 
 /* admin: play time by day + review history */
@@ -484,3 +485,7 @@ textarea.ask-input{width:100%;box-sizing:border-box;font:inherit;border:2px soli
 .cmt-empty{color:var(--ink-2);font-weight:700}
 .cmt.picked.added{border-color:#18a874;background:linear-gradient(180deg,#e6f8f0,#fff);box-shadow:0 4px 0 #9fdcc4}
 .cmt-badge.done{background:#18a874;color:#fff}
+#list-title,#empty-title{overflow-wrap:anywhere}
+#my-stats{grid-template-columns:repeat(auto-fit,minmax(100px,1fr))}
+.danger-zone{margin-top:14px}
+.danger-zone summary{cursor:pointer;color:var(--ink-2);font-weight:800}

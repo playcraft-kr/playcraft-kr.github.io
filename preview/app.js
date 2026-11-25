@@ -55,7 +55,7 @@ const toast = m => { const t = $('#toast'); t.textContent = m; t.hidden = false;
 /* ---------- art & credit helpers ---------- */
 const coverOf = g => g.community ? g.coverUrl : ROOT + g.cover;
 const wideOf = g => g.community ? g.coverUrl : ROOT + g.wide;
-const madeBy = g => g.author ? `Made by ${g.author}` : 'PlayCraft Original';
+const madeBy = g => (g.authorName || g.author) ? `Made by ${g.authorName || g.author}` : 'PlayCraft Original';
 const EMO = { Action: '💥', Fighting: '🥊', '3D': '🧊', Space: '🪐', Adventure: '🗺️', Sports: '⚽', Puzzle: '🧩', Racing: '🏎️' };
 function artNode(g, cls) {
   const u = coverOf(g);
@@ -67,22 +67,30 @@ function genBg(s) { let n = 0; for (const c of s) n = (n * 31 + c.charCodeAt(0))
 /* ---------- cards ---------- */
 /* new & updated: NEW for 2 weeks after a game is added (not the launch-day games), UPDATED for 1 week after "updated" */
 const dayOf = d => d ? Date.parse(d + 'T12:00') : 0;
-function newness(g) {
+// NEW only for the 4 most recently added games (within 2 weeks, not launch day), so the badge still means something.
+let NEW_SET = null;
+function newSet() {
+  if (NEW_SET) return NEW_SET;
   const launch = Math.min(...GAMES.map(x => dayOf(x.added))), now = Date.now();
-  if (dayOf(g.added) > launch && now - dayOf(g.added) < 2 * WEEK) return 'new';
-  if (g.updated && now - dayOf(g.updated) < WEEK) return 'upd';
+  NEW_SET = new Set(MAIN().filter(g => dayOf(g.added) > launch && now - dayOf(g.added) < 2 * WEEK).sort((a, b) => dayOf(b.added) - dayOf(a.added)).slice(0, 4).map(g => g.slug));
+  return NEW_SET;
+}
+function newness(g) {
+  if (newSet().has(g.slug)) return 'new';
+  if (g.updated && Date.now() - dayOf(g.updated) < WEEK) return 'upd';
   return '';
 }
 const freshAt = g => Math.max(dayOf(g.added), dayOf(g.updated));
-const freshList = () => MAIN().filter(newness).sort((a, b) => (newness(a) === 'new' ? 0 : 1) - (newness(b) === 'new' ? 0 : 1) || freshAt(b) - freshAt(a));
+// "New & updated" row: at most 5, newest first.
+const freshList = () => MAIN().filter(newness).sort((a, b) => freshAt(b) - freshAt(a)).slice(0, 5);
 function card(g, opt) {
-  const nw = newness(g);
+  const nw0 = newness(g), nw = nw0 === 'upd' && !(opt && opt.notes) ? '' : nw0;
   return h('a', { class: 'card' + (nw ? ' is-' + nw : ''), href: '#/game/' + g.slug, 'aria-label': `${g.title}. ${g.desc}` },
     h('div', { class: 'art' },
       artNode(g),
       g.multiplayer ? h('span', { class: 'mp-badge' }, '👥 Online') : null,
       nw === 'new' ? h('span', { class: 'badge new' }, '🆕 NEW') : nw === 'upd' ? h('span', { class: 'badge upd' }, `✨ UPDATED · v${g.version}`) : null,
-      g.lang !== 'English' ? h('span', { class: 'badge lang', title: `In-game text is in ${g.lang}` }, g.lang === 'Korean' ? 'KR' : /English/.test(g.lang) && /Korean/.test(g.lang) ? 'EN · KR' : g.lang) : null),
+      g.lang !== 'English' ? h('span', { class: 'badge lang', title: `In-game text is in ${g.lang}` }, g.lang === 'Korean' ? '한국어' : /English/.test(g.lang) && /Korean/.test(g.lang) ? 'EN · 한국어' : g.lang) : null),
     h('span', { class: 't', text: g.title }),
     h('span', { class: 'by', text: madeBy(g) }),
     h('span', { class: 's', text: g.cats.slice(0, 2).join(' · ') }),
@@ -194,6 +202,8 @@ function route() {
   const [p0, ...rest] = dec.split('/');
   const arg = rest.join('/');
   if (p0 !== 'game') stopGame();
+  if (p0 !== 'search') q.value = '';
+  menu.hidden = true;
   document.title = 'PlayCraft — Free Original Browser Games';
   if (p0 === 'game' && bySlug(arg)) return openGame(bySlug(arg));
   if (p0 === 'categories') { show('categories', 'categories'); return; }
@@ -236,7 +246,7 @@ function openMy(fromRefresh) {
   if (signedIn() && ACC.profile) { $('#ma-id').textContent = ACC.profile.username; $('#ma-nick').textContent = ACC.profile.nickname; $('#ma-age').textContent = ACC.profile.age ? (ACC.profile.age >= 18 ? '18+' : String(ACC.profile.age)) : '—'; }
   $('#my-paused').hidden = !(signedIn() && ACC.profile && ACC.profile.blocked);
   $('#my-waiting').hidden = !(signedIn() && ACC.profile && ACC.profile.approved === false);
-  if (!$('#my-waiting').hidden) ACC.myParentConsent().then(c => { $('#my-parent-line').textContent = c ? (c.status === 'declined' ? `Your parent (${c.email_hint}) said not yet.` : c.expired ? `The message to ${c.email_hint} ran out.` : `We sent a message to ${c.email_hint}.`) : 'We haven’t e-mailed your parent yet.'; }).catch(() => {});
+  if (!$('#my-waiting').hidden) ACC.myParentConsent().then(c => { $('#my-parent-line').textContent = c ? (c.status === 'declined' ? `Your parent (${c.email_hint}) said not yet.` : c.expired ? `The message to ${c.email_hint} ran out.` : `We sent a message to ${c.email_hint}.`) : 'We haven’t emailed your parent yet.'; $('#my-parent-btn').textContent = c ? 'Send to my parent again' : 'Ask my parent'; }).catch(() => {});
   if (signedIn()) { renderLearnAcct(); renderRecovery(); }
   const st = $('#my-stats'), on = signedIn() && cloudStats;
   $('#my-lead').hidden = signedIn();
@@ -247,7 +257,7 @@ function openMy(fromRefresh) {
       h('div', { class: 'stat' }, h('b', { text: fmtTime(cloudStats.totalSeconds) }), h('span', { text: 'Total play time' })),
       h('div', { class: 'stat' }, h('b', { text: String(cloudStats.totalPlays) }), h('span', { text: cloudStats.totalPlays === 1 ? 'Game played' : 'Games played' })),
       h('div', { class: 'stat' }, h('b', { text: String(cloudStats.games.length) }), h('span', { text: 'Different games tried' })),
-      fav && bySlug(fav.slug) ? h('div', { class: 'stat' }, h('b', { text: bySlug(fav.slug).title }), h('span', { text: 'Your most played' })) : null);
+      ...(fav && bySlug(fav.slug) ? [h('div', { class: 'stat' }, h('b', { text: bySlug(fav.slug).title }), h('span', { text: 'Your most played' }))] : []));
     // add per-game records under each played card
     [...$('#grid-played').children].forEach((el, k) => { const r = cloudStats.games.find(x => x.slug === played[k].slug); if (r) el.append(h('span', { class: 'rec', text: `${r.plays}× · ${fmtTime(r.seconds)} · last ${new Date(r.last).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` })); });
   }
@@ -284,10 +294,10 @@ async function renderComments() {
       tools.append(h('button', { class: 'linkish', onclick: async () => { await ACC.adminCommentStatus(c.id, c.status === 'pending' ? 'shown' : 'hidden').catch(() => {}); renderComments(); } }, c.status === 'pending' ? 'Show' : 'Hide'));
     }
     return h('li', { class: 'cmt' + (c.picked_version ? ((+g.version || 1) >= c.picked_version ? ' picked added' : ' picked') : '') + (c.status === 'pending' ? ' pending' : '') },
-      c.picked_version ? ((+g.version || 1) >= c.picked_version ? h('div', { class: 'cmt-badge done', text: `✅ Added in version ${c.picked_version}! Thanks, ${c.username}` }) : h('div', { class: 'cmt-badge', text: `⭐ Picked! Coming in version ${c.picked_version}` })) : null,
+      c.picked_version ? ((+g.version || 1) >= c.picked_version ? h('div', { class: 'cmt-badge done', text: `✅ Added in version ${c.picked_version}! Thanks, ${c.nickname}` }) : h('div', { class: 'cmt-badge', text: `⭐ Picked! Coming in version ${c.picked_version}` })) : null,
       c.status === 'pending' ? h('div', { class: 'cmt-wait', text: c.mine ? '⏳ Waiting for a grown-up to check it. Only you can see it for now.' : '⏳ Waiting for your check' }) : null,
       h('p', { class: 'cmt-body', text: c.body }),
-      h('div', { class: 'cmt-meta' }, h('span', { class: 'cmt-who', text: c.username }), heart, tools));
+      h('div', { class: 'cmt-meta' }, h('span', { class: 'cmt-who', text: isAdm && c.username ? `${c.nickname} (${c.username})` : c.nickname }), heart, tools));
   }));
 }
 $('#cmt-body').addEventListener('input', () => { $('#cmt-count').textContent = `${$('#cmt-body').value.length} / 300`; });
@@ -356,11 +366,11 @@ const learnOn = () => !!(signedIn() && ACC.profile && ACC.profile.learn_mode);
 const needsCoins = g => learnOn() && g && !LEARN_GAMES.has(g.slug);
 
 async function askParent(reason) {
-  const em = await askText(reason || 'Type your parent’s e-mail. We’ll send them a link to approve your account (and to choose learning mode).', '', 'Send');
+  const em = await askText(reason || 'Type your parent’s email. We’ll send them a link to approve your account (and to choose learning mode).', '', 'Send');
   if (em === null) return;
   let r; try { r = await ACC.requestParentConsent(em); } catch { return toast('Couldn’t send. Try again.'); }
-  toast(r.ok ? (r.mailed ? 'Sent! Ask your parent to check their e-mail.' : 'Saved! A PlayCraft grown-up will pass the message to your parent.')
-    : r.why === 'email' ? 'That e-mail doesn’t look right.' : r.why === 'wait' ? 'Please wait 2 minutes before sending again.' : r.why === 'limit' ? 'You’ve sent 5 today. Try again tomorrow.' : 'Couldn’t send.');
+  toast(r.ok ? (r.mailed ? 'Sent! Ask your parent to check their email.' : 'Saved! A PlayCraft grown-up will pass the message to your parent.')
+    : r.why === 'email' ? 'That email doesn’t look right.' : r.why === 'wait' ? 'Please wait 2 minutes before sending again.' : r.why === 'limit' ? 'You’ve sent 5 today. Try again tomorrow.' : 'Couldn’t send.');
   if (!$('#v-my').hidden) openMy(true);
 }
 $('#my-parent-btn').addEventListener('click', () => askParent());
@@ -423,11 +433,11 @@ async function renderLearnAcct() {
   let ls; try { ls = await ACC.learnStatus(); } catch { st.textContent = '—'; return; }
   st.textContent = ls.learn_mode ? 'On' : 'Off';
   coinEl.textContent = '';
-  if (ls.learn_mode) walletText(true).then(t => { coinEl.textContent = '· ' + t; }).catch(() => {});
+  if (ls.learn_mode) walletText(true).then(t => { coinEl.textContent = t; }).catch(() => {});
   const lb = $('#ma-limits-btn'); if (lb) lb.hidden = true;
   btn.hidden = false;
   if (ACC.profile && ACC.profile.age && ACC.profile.age < 13) {
-    btn.textContent = 'Ask my parent to change it'; btn.onclick = () => askParent('Type your parent’s e-mail. We’ll send them a link where they can turn learning mode on or off.');
+    btn.textContent = 'Ask my parent to change it'; btn.onclick = () => askParent('Type your parent’s email. We’ll send them a link where they can turn learning mode on or off.');
   } else if (!ls.has_pin && !ls.learn_mode) {
     btn.textContent = 'Turn on (parent)';
     btn.onclick = async () => { const pin = await askText('Parent: choose a 4-number PIN. You’ll need it to turn learning mode off later.', '', 'Turn on'); if (pin === null) return;
@@ -466,6 +476,11 @@ const capText = c => c == null ? 'no daily limit' : `${c} min a day`;
 async function walletText(long) {
   const [w, c] = await Promise.all([ACC.learnWallet().catch(() => null), ACC.walletCoins().catch(() => 0)]);
   const per = ACC.WL_PER_MIN, gm = w ? w.math_min : 0;
+  if (long) {
+    const mins = gm + Math.floor(c / per);
+    return `You have ${plural(mins, 'minute')} of game time (${plural(gm, 'minute')} from Math Space War + ${plural(c, 'Word League coin')}). ` +
+      (w ? (w.play_cap == null ? `Today: ${plural(w.play_today, 'minute')} played.` : `Today: ${w.play_today} of ${w.play_cap} minutes used.`) : '');
+  }
   const parts = [`⏱ ${gm} game min`, `🪙 ${c} coin${c === 1 ? '' : 's'}${long ? ` (${per} coins = 1 min)` : ''}`];
   if (w) parts.push(w.play_cap == null ? `today ${w.play_today} min` : `today ${w.play_today} / ${w.play_cap} min`);
   return parts.join(' · ');
@@ -525,8 +540,13 @@ async function secondTick() {
   }
   drawLeft();
 }
+let starting = false;
 async function playGame() {
-  if (!current) return;
+  if (!current || starting) return;
+  starting = true;
+  try { await playGameInner(); } finally { starting = false; }
+}
+async function playGameInner() {
   if (!signedIn()) {
     pendingPlay = current.slug; openSignIn(false);
     $('#si-form .si-lead').textContent = `Sign in to play ${current.title}. New here? Make a free account — it only takes a minute.`;
@@ -550,6 +570,7 @@ async function playGame() {
   } else f = h('iframe', { src: `${ROOT}games/${current.slug}/?v=${encodeURIComponent(current.version || 1)}`, allow: 'autoplay; fullscreen; gamepad', title: current.title });
   $('#start').hidden = true; st.append(f); fitFrame(); playing = true; markPlayed(current.slug); beginSession(current.slug);
   setTimeout(() => f.focus(), 400);
+  if (SMALL()) setFull(true);   // phones: open the game full screen, like other game sites
 }
 // Games are designed for a full desktop window. When the player box is smaller than 1280×720,
 // render the game at that size and scale it down so nothing gets cut off.
@@ -589,7 +610,7 @@ function setFull(on) {
 }
 $('#play-btn').addEventListener('click', playGame);
 $('#restart-btn').addEventListener('click', () => { if (playing) playGame(); else playGame(); });
-$('#full-btn').addEventListener('click', () => { if (!playing) playGame(); setFull(true); });
+$('#full-btn').addEventListener('click', async () => { if (!playing) await playGame(); if (playing) setFull(true); });
 $('#save-btn').addEventListener('click', () => { if (!current) return; const on = toggleSave(current.slug); syncSave(); toast(on ? 'Saved to My Games ♥' : 'Removed from My Games'); });
 $('#share-btn').addEventListener('click', async () => {
   const url = location.href;
@@ -697,7 +718,7 @@ $('#su-form').addEventListener('submit', async e => {
   if (nick.length < 2) return say('Please choose a nickname with at least 2 characters.');
   if (!age) return say('Please choose your age.');
   const parentEmail = $('#su-parent').value.trim();
-  if (age < 13 && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(parentEmail)) return say('Because you’re under 13, please type your parent’s e-mail so they can approve your account.');
+  if (age < 13 && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(parentEmail)) return say('Because you’re under 13, please type your parent’s email so they can approve your account.');
   if (pw.length < 8) return say('Your password needs at least 8 characters.');
   if (pwCommon(pw)) return say('That password is too easy to guess. Try three words, like tiger-pizza-moon.');
   if (pwHasName(pw, id)) return say('Your password can’t contain your ID or “playcraft”.');
@@ -713,7 +734,7 @@ $('#su-form').addEventListener('submit', async e => {
       if (age < 13) { try { await ACC.requestParentConsent(parentEmail); } catch { toast('Account made. Open My Games to send the message to your parent again.'); } }
       dlg.close(); $('#su-form').reset(); $('#su-parent-row').hidden = true; $('#su-recovery-row').hidden = true;
       if (recEmail) setTimeout(() => addRecovery(pw, recEmail), 400); document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok')); $('#su-pw2-hint').textContent = '';
-      toast(age < 13 ? `Welcome, ${nick}! 🎉 You can play now. We sent your parent an e-mail so they can turn on leaderboards and online play.` : `Welcome to PlayCraft, ${nick}! 🎉`);
+      toast(age < 13 ? `Welcome, ${nick}! 🎉 You can play now. We sent your parent an email so they can turn on leaderboards and online play.` : `Welcome to PlayCraft, ${nick}! 🎉`);
     }
   } catch (x) {
     const m = (x && x.message || '').toLowerCase();
@@ -732,6 +753,7 @@ $('#acct-btn').addEventListener('click', e => {
 });
 document.addEventListener('click', e => { if (!e.target.closest('.acct')) menu.hidden = true; });
 menu.addEventListener('click', () => (menu.hidden = true));
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { menu.hidden = true; $('#acct-btn').focus(); } });
 $('#signout-btn').addEventListener('click', async () => { endSession(); await ACC.signOut(); toast('Signed out.'); });
 $('#my-signin').addEventListener('click', e => { e.preventDefault(); openSignIn(false); });
 function renderAccount() {
@@ -754,7 +776,7 @@ if (ACC) ACC.onChange(async () => {
   } else await refreshAccountData();
   if (!signedIn()) mergedOnce = false;
   $('#req-btn').hidden = !(signedIn() && ACC.profile && ACC.profile.is_admin);
-  if (GAMES.length) { if (current) { syncSave(); if (!$('#v-game').hidden) renderComments(); } if (!$('#v-home').hidden) renderHome(); if (!$('#v-my').hidden) openMy(); if (!$('#v-admin').hidden) openAdmin(); }
+  if (GAMES.length) { if (current) { syncSave(); if (!$('#v-game').hidden) renderComments(); } if (!$('#v-home').hidden) renderHome(); if (!$('#v-my').hidden) openMy(); if (!$('#v-admin').hidden) openAdmin(); if (!$('#v-submit').hidden) openSubmit(); }
 });
 renderAccount();
 
@@ -780,10 +802,10 @@ async function renderWaiting(profiles) {
   if (!w.length) return;
   const reqs = await ACC.adminParentConsents().catch(() => []), by = Object.fromEntries(reqs.map(r => [r.user_id, r]));
   const ready = reqs.length ? reqs[0].mail_ready : null;
-  const head = ready === false ? [h('li', { class: 'note', text: '✉️ The e-mail service isn’t set up yet, so nothing is sent automatically. Copy each parent link below and send it to the parent yourself.' })] : [];
+  const head = ready === false ? [h('li', { class: 'note', text: '✉️ The email service isn’t set up yet, so nothing is sent automatically. Copy each parent link below and send it to the parent yourself.' })] : [];
   $('#adm-wait').replaceChildren(...head, ...w.map(p => {
     const r = by[p.id];
-    const info = r ? `parent ${r.parent_email} · ${r.status === 'declined' ? 'parent said not yet' : 'waiting for parent'} · sent ${r.sends}× · last ${d(r.last_sent)} · link until ${d(r.expires_at)}` : 'no parent e-mail yet';
+    const info = r ? `parent ${r.parent_email} · ${r.status === 'declined' ? 'parent said not yet' : 'waiting for parent'} · sent ${r.sends}× · last ${d(r.last_sent)} · link until ${d(r.expires_at)}` : 'no parent email yet';
     return h('li', {},
       h('span', { class: 'pill wait', text: 'Needs parent OK' }),
       h('span', { class: 't' }, `${p.username} · ${p.nickname}`, h('small', { text: `age ${p.age ?? '—'} · signed up ${d(p.created_at)} · ${info}` })),
@@ -976,7 +998,7 @@ async function renderMySubs() {
     h('span', { class: 'pill ' + label[g.status][0], text: label[g.status][1] }),
     g.status === 'approved' ? h('a', { class: 'btn ghost tiny', href: '#/game/' + g.slug }, 'Play') : null,
     g.status === 'pending' ? h('button', { class: 'btn ghost tiny', onclick: async () => { if (await ask(`Take back “${g.title}”? It will be removed from the review list.`)) { await ACC.withdrawGame(g).catch(() => toast('Couldn’t remove it.')); renderMySubs(); } } }, 'Take back') : null))
-    : [h('li', {}, h('span', { class: 't', text: 'You haven’t sent a game yet.' }), h('a', { class: 'btn primary tiny', href: '#/submit' }, 'Submit one'))]));
+    : [h('li', {}, h('span', { class: 't', text: 'You haven’t sent a game yet.' }), (ACC.limited ? null : h('a', { class: 'btn primary tiny', href: '#/submit' }, 'Submit one')))]));
 }
 async function renderReview() {
   const list = await ACC.adminPendingGames().catch(() => []);
@@ -1109,6 +1131,8 @@ async function previewGame(g) {
 fetch(ROOT + 'games.json', { cache: 'no-cache' }).then(r => r.json()).then(list => {
   GAMES = list;
   return (ACC ? ACC.approvedGames().catch(() => []) : Promise.resolve([])).then(extra => {
+    let nick = {};
+    if (extra.length && ACC.publicNicknames) ACC.publicNicknames([...new Set(extra.map(c => c.creator_username))]).then(m => { nick = m; GAMES.forEach(g => { if (g.community && nick[g.author]) g.authorName = nick[g.author]; }); }).catch(() => {});
     for (const c of extra) GAMES.push({ slug: c.slug, title: c.title, desc: c.description || '', cats: [c.category], community: true, author: c.creator_username,
       coverUrl: ACC.publicUrl(c.cover_path), fileUrl: ACC.publicUrl(c.file_path), multiplayer: c.multiplayer, controls: [], tip: '', lang: 'English',
       version: 1, added: (c.reviewed_at || c.created_at).slice(0, 10), notes: 'First release', mobile: false });

@@ -23,7 +23,8 @@ No key (for example a cloud window)? Ask the user to paste the open requests fro
 - Check `git log -3 -- games/<slug>` right before you push; if someone else pushed in between, merge their change, do not overwrite it.
 
 ## 3. Publishing
-- Bump the game's `version` in `games.json`, set `"updated": "YYYY-MM-DD"` and a short `notes`.
+- Bump the game's `version` in `games.json`, set `"updated": "YYYY-MM-DD"` and a short `notes`. `notes` is shown to kids on the home page ("What's new"): one short, friendly sentence a kid understands (no word lists, dates or technical details).
+- Players see **nicknames**, never sign-in IDs: leaderboards use `data.nick` (the server adds it to every `rank` row), ideas show `nickname`.
 - After changing `preview/app.css|app.js|account.js`, run `./stamp.sh`.
 - `git add` files by name (not `-A`; there is an untracked workflow file).
 

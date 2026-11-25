@@ -17,13 +17,14 @@
   ],
   "tip": "A perfect drop keeps the full width. The sky turns to night as your tower climbs.",
   "mobile": true,
-  "version": 3,
+  "version": 4,
   "added": "2026-11-23",
-  "notes": "Leaderboard for everyone on PlayCraft, plus your last games",
+  "notes": "The leaderboard now shows nicknames.",
   "author": "hugo",
   "cover": "img/cover-tower-stack.webp",
   "wide": "img/wide-tower-stack.webp",
-  "updated": "2026-11-23"
+  "updated": "2026-11-25",
+  "authorName": "Hugo"
  },
  {
   "slug": "merge-2048",
@@ -52,11 +53,12 @@
   "mobile": true,
   "version": 2,
   "added": "2026-11-23",
-  "notes": "All game text now in English",
+  "notes": "Now fully in English!",
   "author": "hugo",
   "cover": "img/cover-merge-2048.webp",
   "wide": "img/wide-merge-2048.webp",
-  "updated": "2026-11-23"
+  "updated": "2026-11-23",
+  "authorName": "Hugo"
  },
  {
   "slug": "five-cuts",
@@ -75,13 +77,14 @@
   ],
   "tip": "Aim for the middle of what is left.",
   "mobile": true,
-  "version": 3,
+  "version": 4,
   "added": "2026-11-23",
-  "notes": "Leaderboard for everyone on PlayCraft, plus your last games",
+  "notes": "The leaderboard now shows nicknames.",
   "author": "hugo",
   "cover": "img/cover-five-cuts.webp",
   "wide": "img/wide-five-cuts.webp",
-  "updated": "2026-11-23"
+  "updated": "2026-11-25",
+  "authorName": "Hugo"
  },
  {
   "slug": "planet-maker",
@@ -107,11 +110,12 @@
   "mobile": true,
   "version": 2,
   "added": "2026-11-23",
-  "notes": "All game text now in English",
+  "notes": "Now fully in English!",
   "author": "hugo",
   "cover": "img/cover-planet-maker.webp",
   "wide": "img/wide-planet-maker.webp",
-  "updated": "2026-11-23"
+  "updated": "2026-11-23",
+  "authorName": "Hugo"
  },
  {
   "slug": "echoes-of-the-unknown",
@@ -158,11 +162,12 @@
   "mobile": false,
   "version": 2,
   "added": "2026-11-23",
-  "notes": "Story, quests and controls now in English",
+  "notes": "The whole story is now in English.",
   "author": "hugo",
   "cover": "img/cover-echoes-of-the-unknown.webp",
   "wide": "img/wide-echoes-of-the-unknown.webp",
-  "updated": "2026-11-23"
+  "updated": "2026-11-23",
+  "authorName": "Hugo"
  },
  {
   "slug": "ssat-word-league",
@@ -178,7 +183,7 @@
   "version": 25,
   "added": "2026-11-22",
   "updated": "2026-11-24",
-  "notes": "Added 5 reading words missed on Nov 24 (2 new: ford, pediatric). They come first in training.",
+  "notes": "New words to practice in training!",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
@@ -197,7 +202,8 @@
   ],
   "tip": "Sign in and your progress follows your account. Words you keep missing come back until they become Legend cards.",
   "mobile": true,
-  "author": "hugo"
+  "author": "hugo",
+  "authorName": "Hugo"
  },
  {
   "slug": "legend-arena-en",
@@ -212,7 +218,7 @@
   "lang": "English",
   "version": 4,
   "added": "2026-11-21",
-  "notes": "Champion Arena unlocked for players who beat World 3",
+  "notes": "Beat World 3 to unlock the Champion Arena!",
   "cover": "img/cover-legend-arena.webp",
   "wide": "img/wide-legend-arena.webp",
   "controls": [
@@ -240,7 +246,8 @@
   "tip": "Each fighting type levels up on its own. Try them all!",
   "mobile": false,
   "author": "hugo",
-  "updated": "2026-11-22"
+  "updated": "2026-11-22",
+  "authorName": "Hugo"
  },
  {
   "slug": "boxing",
@@ -255,7 +262,7 @@
   "lang": "English",
   "version": 1,
   "added": "2026-11-21",
-  "notes": "First release",
+  "notes": "Ready to play!",
   "cover": "img/cover-boxing.webp",
   "wide": "img/wide-boxing.webp",
   "controls": [
@@ -290,7 +297,8 @@
   ],
   "tip": "Dodge right before a hit for a PERFECT, then punch back for double damage.",
   "mobile": true,
-  "author": "hugo"
+  "author": "hugo",
+  "authorName": "Hugo"
  },
  {
   "slug": "ashen-fortress",
@@ -305,7 +313,7 @@
   "lang": "English",
   "version": 2,
   "added": "2026-11-21",
-  "notes": "Big update: survive Wave 3 to open the gate — village shops, quests, endless road, cave raids and new bosses",
+  "notes": "Survive Wave 3 to open the gate: shops, quests, caves and new bosses!",
   "cover": "img/cover-ashen-fortress.webp",
   "wide": "img/wide-ashen-fortress.webp",
   "controls": [
@@ -349,7 +357,8 @@
   "tip": "Rolling makes you invincible for a moment. Use it to escape crowds.",
   "mobile": false,
   "author": "hugo",
-  "updated": "2026-11-22"
+  "updated": "2026-11-22",
+  "authorName": "Hugo"
  },
  {
   "slug": "black-hole",
@@ -362,10 +371,10 @@
    "Action"
   ],
   "lang": "English",
-  "version": 5,
-  "updated": "2026-11-24",
+  "version": 6,
+  "updated": "2026-11-25",
   "added": "2026-11-21",
-  "notes": "Clearer message when online play is waiting for a parent",
+  "notes": "The leaderboard now shows nicknames.",
   "cover": "img/cover-black-hole.webp",
   "wide": "img/wide-black-hole.webp",
   "controls": [
@@ -398,7 +407,7 @@
   "mobile": true,
   "multiplayer": true,
   "author": "hugo",
-  "updated": "2026-11-23"
+  "authorName": "Hugo"
  },
  {
   "slug": "event-horizon",
@@ -410,9 +419,9 @@
    "Action"
   ],
   "lang": "English",
-  "version": 2,
+  "version": 3,
   "added": "2026-11-21",
-  "notes": "Leaderboard: see the top pilots when your run ends (sign in to join)",
+  "notes": "The leaderboard now shows nicknames.",
   "cover": "img/cover-event-horizon.webp",
   "wide": "img/wide-event-horizon.webp",
   "controls": [
@@ -440,7 +449,8 @@
   "tip": "Drop off 3 or more pods at once to refill your dash and fix your hull. Gold pods are big Arks!",
   "mobile": true,
   "author": "hugo",
-  "updated": "2026-11-22"
+  "updated": "2026-11-25",
+  "authorName": "Hugo"
  },
  {
   "slug": "math-space-war",
@@ -456,7 +466,7 @@
   "version": 5,
   "updated": "2026-11-24",
   "added": "2026-11-22",
-  "notes": "Learning mode: a finished 10-question round at your grade with 8+ right gives 1 minute of PlayCraft game time",
+  "notes": "In learning mode, finish 10 questions at your grade to earn game time.",
   "cover": "img/cover-math-space-war.webp",
   "wide": "img/wide-math-space-war.webp",
   "controls": [
@@ -480,6 +490,7 @@
   "tip": "Signed in to PlayCraft? You start right away and your progress saves to your account. Wrong answers go to the Mistakes tab — fix them for bonus coins.",
   "mobile": true,
   "author": "hugo",
-  "multiplayer": true
+  "multiplayer": true,
+  "authorName": "Hugo"
  }
 ]

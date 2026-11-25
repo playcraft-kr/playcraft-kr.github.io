@@ -208,8 +208,8 @@ async function pcRecord(sc){if(!PCA)return;await pcReady();const me=myName();if(
     await PCA.kvSet('tower-stack','rank',me,{s:Math.max(+c.s||0,sc),g:(+c.g||0)+1,t:Date.now()})}catch(e){}
   showBoard()}
 async function showBoard(){if(!lbEl||!PCA)return;const me=myName();
-  let rows=[];try{rows=(await PCA.kvList('tower-stack','rank',300)).map(r=>({n:(r.data&&r.data.n)||r.doc_id,s:+r.data.s||0,g:+r.data.g||0})).sort((a,b)=>b.s-a.s||a.g-b.g)}catch(e){}
-  const myI=rows.findIndex(r=>r.n===me),row=(r,i)=>`<div class="r${r.n===me?' me':''}"><span>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'.'}</span><span>${esc(String(r.n).slice(0,14))}</span><span>${r.s}</span></div>`;
+  let rows=[];try{rows=(await PCA.kvList('tower-stack','rank',300)).map(r=>({n:(r.data&&r.data.n)||r.doc_id,nk:(r.data&&(r.data.nick||r.data.n))||r.doc_id,s:+r.data.s||0,g:+r.data.g||0})).sort((a,b)=>b.s-a.s||a.g-b.g)}catch(e){}
+  const myI=rows.findIndex(r=>r.n===me),row=(r,i)=>`<div class="r${r.n===me?' me':''}"><span>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'.'}</span><span>${esc(String(r.nk).slice(0,14))}</span><span>${r.s}</span></div>`;
   let h='<h3>🏆 Top builders</h3>'+(rows.length?rows.slice(0,10).map(row).join(''):'<div class="m">No scores yet. Be the first!</div>');
   if(myI>=10)h+='<div class="m">…</div>'+row(rows[myI],myI);
   if(me&&recent.length)h+='<h3>🕒 My recent games</h3>'+recent.slice(0,5).map(x=>`<div class="r"><span></span><span>${ago(x.t)}</span><span>${x.s}</span></div>`).join('');
