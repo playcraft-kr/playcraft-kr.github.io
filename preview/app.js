@@ -320,6 +320,25 @@ async function renderPendingComments() {
       h('button', { class: 'btn ghost tiny', onclick: async () => { await ACC.adminCommentStatus(c.id, 'hidden').catch(() => {}); renderPendingComments(); } }, 'Hide'),
       h('button', { class: 'btn primary tiny', onclick: async () => { await ACC.adminCommentStatus(c.id, 'shown').catch(() => {}); renderPendingComments(); } }, 'Show')))));
 }
+/* ---------- under-13 accounts waiting for a parent: make it obvious what's locked and how to unlock ---------- */
+const isWaiting = () => signedIn() && ACC.profile && ACC.profile.approved === false;
+function lockBand() { const b = $('#lock-band'); if (b) b.hidden = !isWaiting(); }
+$('#lock-band-btn').addEventListener('click', () => askParent());
+async function waitingPopup() {
+  if (!isWaiting()) return;
+  try { if (sessionStorage.getItem('pc.lockpop') === ACC.profile.username) return; sessionStorage.setItem('pc.lockpop', ACC.profile.username); } catch {}
+  let c = null; try { c = await ACC.myParentConsent(); } catch {}
+  const status = !c ? 'We haven’t emailed your parent yet.' : c.status === 'declined' ? `Your parent (${c.email_hint}) said not yet.` : c.expired ? `The email to ${c.email_hint} ran out. Send a new one.` : `We emailed ${c.email_hint}. Waiting for their OK.`;
+  const d = h('dialog', { class: 'confirm gt-dialog' },
+    h('div', { class: 'gt-big', text: '👪' }),
+    h('h3', { text: 'Ask your parent to unlock more' }),
+    h('p', { class: 'gt-sub', text: 'You can already play every game.\nTo battle friends 1:1 and put your name on the rankings, your parent needs to say OK by email.' }),
+    h('ul', { class: 'lock-list' }, h('li', { text: '🥊 1:1 battles with other players' }), h('li', { text: '🏆 Your name on the rankings' }), h('li', { text: '🎮 Sharing games you make' })),
+    h('p', { class: 'gt-sub', text: status }),
+    h('div', { class: 'gt-foot' }, h('button', { class: 'btn ghost', onclick: () => d.close() }, 'Later'),
+      h('button', { class: 'btn primary', onclick: () => { d.close(); askParent(); } }, c ? 'Send to my parent again' : 'Ask my parent')));
+  d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
+}
 function openGame(g) {
   if (current !== g) stopGame();
   current = g; document.title = `${g.title} · PlayCraft`; playLabel(); renderComments();
@@ -337,6 +356,7 @@ function openGame(g) {
   const cu = coverOf(g); $('#g-cover').hidden = !cu; if (cu) $('#g-cover').src = cu;
   $('#g-name').textContent = g.title;
   $('#req-btn').hidden = !(signedIn() && ACC.profile && ACC.profile.is_admin);
+  lockBand();
   showCoins();
   $('#g-meta').textContent = `${madeBy(g)} · v${g.version} · ${g.cats.join(', ')}${g.multiplayer ? ' · 👥 Online' : ''}`;
   const alt = GAMES.find(x => x.variantOf === g.slug) || bySlug(g.variantOf);
@@ -783,7 +803,7 @@ function renderAccount() {
 }
 let mergedOnce = false;
 if (ACC) ACC.onChange(async () => {
-  renderAccount(); playLabel();
+  renderAccount(); playLabel(); lockBand(); waitingPopup();
   if (!signedIn() && playing) stopGame();
   if (signedIn() && pendingPlay && current && current.slug === pendingPlay && !$('#v-game').hidden) { if (dlg.open) dlg.close(); playGame(); }
   if (signedIn() && !mergedOnce) { // bring games saved on this device into the account, once
