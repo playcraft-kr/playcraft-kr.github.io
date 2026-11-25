@@ -25,7 +25,7 @@
   ],
   "tip": "Turn on “Show cards I often miss more often” to practice the tricky ones.",
   "mobile": true,
-  "version": 6,
+  "version": 7,
   "updated": "2026-11-25",
   "added": "2026-11-25",
   "notes": "Gold Rush has a new shop with a Gold Mine that digs gold for you!",
@@ -265,10 +265,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 31,
+  "version": 32,
   "added": "2026-11-22",
   "updated": "2026-11-25",
-  "notes": "Only a parent with the PlayCraft PIN can change rewards now.",
+  "notes": "New: a word list your parent can open for you, with hide-and-peek practice!",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [

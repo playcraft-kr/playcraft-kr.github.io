@@ -205,6 +205,24 @@ function renderDecks(){
   $('#sampleDecks').innerHTML=SAMPLES.filter(f).map(deckCard).join('');
 }
 function weakList(d,n){const m=R.miss[d.id]||{};return d.cards.map(c=>({c,n:m[ck(c)]||0})).filter(x=>x.n>0).sort((a,b)=>b.n-a.n).slice(0,n)}
+/* The Word League Words deck holds every Word League word with its meaning, so its card list and "Copy and edit"
+   open only with the parent PIN (15 minutes, or until this tab is left). Playing games with it needs no PIN. */
+const LOCKED_DECKS=new Set(['s-words']);let PIN_UNTIL=0;
+const pinOpen=()=>Date.now()<PIN_UNTIL;
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&PIN_UNTIL){PIN_UNTIL=0;if(CUR&&LOCKED_DECKS.has(CUR.id)&&!$('#vDeck').classList.contains('hide'))openDeck(CUR.id)}});
+function askPin(onOk){
+  const old=document.getElementById('pinOv');if(old)old.remove();
+  const ov=document.createElement('div');ov.id='pinOv';ov.style.cssText='position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:16px';
+  ov.innerHTML=`<div class="card" style="max-width:420px;width:100%"><h2 style="margin-top:0">Parent PIN</h2><p class="hint">This deck has every Word League word and its meaning, so the list opens only with the parent PIN. It locks again after 15 minutes or when you leave this tab.</p>
+    <form class="row" id="pinF2"><input type="password" inputmode="numeric" maxlength="4" id="pinIn" placeholder="4 numbers" autocomplete="off" style="width:140px;font-size:18px;padding:8px"><button class="btn sm">Open</button><button type="button" class="btn ghost sm" id="pinNo">Cancel</button></form><p class="err" id="pinErr"></p></div>`;
+  document.body.appendChild(ov);const close=()=>ov.remove();
+  ov.querySelector('#pinNo').onclick=close;ov.querySelector('#pinIn').focus();
+  ov.querySelector('#pinF2').onsubmit=async e=>{e.preventDefault();const out=ov.querySelector('#pinErr');
+    if(!PCA||!PCA.checkParentPin){out.textContent='This opens only inside PlayCraft.';return}
+    let r='err';try{r=await PCA.checkParentPin(ov.querySelector('#pinIn').value.trim())}catch(x){}
+    if(r==='ok'){PIN_UNTIL=Date.now()+15*60*1000;close();onOk();return}
+    out.textContent=r==='wrong'?'Wrong PIN.':r==='locked'?'Too many wrong tries. Locked for 15 minutes.':r==='nopin'?'No parent PIN yet. In PlayCraft, open My Games → Your account and press “Ask my parent”.':'Couldn’t check right now. Try again.'};
+}
 function openDeck(id){
   const d=findDeck(id);if(!d)return go('decks');CUR=d;SET.deck=d.id;
   $('#dTitle').textContent=d.title;$('#dMeta').textContent=`${d.cards.length} cards${d.desc?' · '+d.desc:''}${d.sample?' · Starter deck':''}`;
@@ -213,10 +231,13 @@ function openDeck(id){
   const wk=weakList(d,5);
   $('#dWeak').innerHTML=wk.length?`<h2>Cards you often miss</h2><ul class="wl">${wk.map(x=>`<li><span>${esc(x.c.t)} → <em>${esc(x.c.d)}</em></span><small>missed ${x.n}×</small></li>`).join('')}</ul><div class="row" style="margin-top:10px"><button class="btn ghost sm" id="dWeakGo">Flashcards with these cards</button></div>`:'';
   if(wk.length)$('#dWeakGo').onclick=()=>start('flash',d,{dir:'f',weak:false},wk.map(x=>x.c));
-  $('#dCards').innerHTML=d.cards.map((c,i)=>`<tr><td class="n">${i+1}</td><td>${esc(c.t)}</td><td>${esc(c.d)}</td></tr>`).join('');
+  const locked=LOCKED_DECKS.has(d.id)&&!pinOpen();$('#dEdit').classList.toggle('hide',locked);
+  $('#dCards').innerHTML=locked?`<tr><td colspan="3" style="padding:14px"><p class="hint" style="margin:0 0 8px">The card list is hidden so the answers stay a surprise. You can still play every game with this deck.</p><button class="btn ghost sm" id="dUnlock">📖 See all cards (parent PIN)</button></td></tr>`
+    :d.cards.map((c,i)=>`<tr><td class="n">${i+1}</td><td>${esc(c.t)}</td><td>${esc(c.d)}</td></tr>`).join('');
+  if(locked)$('#dUnlock').onclick=()=>askPin(()=>openDeck(d.id));
   show('vDeck','decks');
 }
-$('#dEdit').addEventListener('click',()=>{const d=CUR;if(d.sample)openEditor({id:newId(),title:d.title+' (my copy)',desc:d.desc,cards:JSON.parse(JSON.stringify(d.cards))});else openEditor(d)});
+$('#dEdit').addEventListener('click',()=>{const d=CUR;if(LOCKED_DECKS.has(d.id)&&!pinOpen())return askPin(()=>openDeck(d.id));if(d.sample)openEditor({id:newId(),title:d.title+' (my copy)',desc:d.desc,cards:JSON.parse(JSON.stringify(d.cards))});else openEditor(d)});
 $('#deckSearch').addEventListener('input',renderDecks);
 $('#openImport').addEventListener('click',()=>{$('#importBox').classList.remove('hide');$('#impName').focus()});
 $('#closeImport').addEventListener('click',()=>$('#importBox').classList.add('hide'));
