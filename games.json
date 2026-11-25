@@ -265,10 +265,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 26,
+  "version": 27,
   "added": "2026-11-22",
   "updated": "2026-11-25",
-  "notes": "More new player cards joined your club to train with!",
+  "notes": "Only a parent with the PlayCraft PIN can change rewards now.",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
