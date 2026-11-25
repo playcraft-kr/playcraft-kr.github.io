@@ -38,6 +38,7 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
   const sb = window.supabase.createClient('https://mglfvwxlleevbvglijzl.supabase.co', 'sb_publishable_0jKAyNY2GzWyIU63M_eD3g_PkVubQ6X', { auth: { persistSession: false } });
   const box = document.getElementById('box');
   const token = (location.hash.match(/t=([0-9a-f]{20,})/) || [])[1] || '';
+  history.replaceState(null, '', location.pathname);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const say = (html) => { box.innerHTML = html; };
   const CAPS = [[30, '30 minutes'], [60, '1 hour'], [90, '1 hour 30 minutes'], [120, '2 hours'], [180, '3 hours'], ['', 'No daily limit']];
@@ -77,7 +78,20 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       <div class="btns">
         <button class="yes" id="yes">${first ? 'I’m the parent. Approve' : 'Save'}</button>
         ${first ? '<button class="no" id="no">Not now (keep it limited)</button>' : ''}
-      </div>`);
+      </div>
+      <details style="margin-top:18px"><summary class="muted">Use a different parent email</summary>
+        <p class="muted">Links for settings, the parent PIN and passwords will go to the new email. We tell both addresses.</p>
+        <label>New parent email<br><input id="newEm" type="email" autocomplete="email" style="font:inherit;padding:8px;border:2px solid var(--line);border-radius:12px;width:100%;max-width:320px"></label>
+        <div class="btns"><button class="no" id="chEm">Change the email</button></div>
+        <p class="msg" id="emMsg"></p>
+      </details>`);
+    document.getElementById('chEm').onclick = async () => {
+      const em = document.getElementById('newEm').value.trim(), out = document.getElementById('emMsg');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { out.className = 'msg err'; out.textContent = 'That email doesn’t look right.'; return; }
+      const { data: res, error } = await sb.rpc('parent_change_email', { p_token: token, p_email: em });
+      out.className = 'msg ' + (res === 'ok' ? 'ok' : 'err');
+      out.textContent = res === 'ok' ? 'Done. From now on, links go to the new email.' : res === 'same' ? 'That’s your child’s own email. Please use a parent’s email.' : res === 'expired' ? 'This link has run out.' : 'That didn’t work. Please try again.';
+    };
     const pinRow = document.getElementById('pinRow'), limRow = document.getElementById('limRow'), m = document.getElementById('m');
     const sync = () => { const on = document.querySelector('input[name=lm]:checked').value === 'on'; document.getElementById('pinLbl').textContent = on ? 'Parent PIN (4 numbers, keep it from your child). Needed for learning mode, and it also opens the Word League reward settings.' : 'Parent PIN (optional, 4 numbers). It opens the Word League reward settings, so only you can change rewards.'; limRow.style.display = on ? 'block' : 'none'; };
     document.querySelectorAll('input[name=lm]').forEach(i => i.addEventListener('change', sync)); sync();

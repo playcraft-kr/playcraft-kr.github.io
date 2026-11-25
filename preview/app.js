@@ -366,8 +366,15 @@ const learnOn = () => !!(signedIn() && ACC.profile && ACC.profile.learn_mode);
 const needsCoins = g => learnOn() && g && !LEARN_GAMES.has(g.slug);
 
 async function askParent(reason) {
-  const em = await askText(reason || 'Type your parent’s email. We’ll send them a link to approve your account (and to choose learning mode).', '', 'Send');
-  if (em === null) return;
+  // Once a parent has approved, the link always goes back to that parent; only the parent can change their email (on their page).
+  let cur = null; try { cur = await ACC.myParentConsent(); } catch {}
+  let em = '';
+  if (cur && cur.status === 'approved') {
+    if (!(await ask(`We’ll email a link to your parent (${cur.email_hint}). They can change settings and the parent PIN there. Send it?`))) return;
+  } else {
+    em = await askText(reason || 'Type your parent’s email. We’ll send them a link to approve your account (and to choose learning mode).', '', 'Send');
+    if (em === null) return;
+  }
   let r; try { r = await ACC.requestParentConsent(em); } catch { return toast('Couldn’t send. Try again.'); }
   toast(r.ok ? (r.mailed ? 'Sent! Ask your parent to check their email.' : 'Saved! A PlayCraft grown-up will pass the message to your parent.')
     : r.why === 'same' ? 'That’s your own recovery email. Please type your parent’s email.' : r.why === 'email' ? 'That email doesn’t look right.' : r.why === 'wait' ? 'Please wait 2 minutes before sending again.' : r.why === 'limit' ? 'You’ve sent 5 today. Try again tomorrow.' : 'Couldn’t send.');
