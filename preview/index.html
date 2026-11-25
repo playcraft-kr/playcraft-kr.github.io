@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261124131802">
+<link rel="stylesheet" href="app.css?v=20261124204105">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -186,6 +186,7 @@
     <div id="adm-body" hidden>
       <div class="stats" id="adm-stats"></div>
       <section class="panel" id="adm-wait-wrap" hidden><h2>👪 Under-13 accounts waiting for a parent’s OK <span class="count" id="adm-wait-count"></span></h2><p class="note">They can already play. Leaderboards, online play and sending in games stay off until you approve them, after checking with their parent.</p><ul class="sub-list" id="adm-wait"></ul></section>
+      <section class="panel" id="adm-cmt-wrap" hidden><h2>💬 Ideas waiting for a check <span class="count" id="adm-cmt-count"></span></h2><p class="note">Ideas from players under 13 show only after you check them. Hide anything with personal details or unkind words.</p><ul class="sub-list" id="adm-cmt"></ul></section>
       <div class="adm-cols">
         <section class="panel"><h2>Most played games</h2><ul class="bars" id="adm-games"></ul></section>
         <section class="panel"><h2>Ages</h2><ul class="bars" id="adm-ages"></ul></section>
@@ -267,6 +268,17 @@
         <button class="btn ghost" id="req-btn" hidden>📝 Request a change</button>
       </div>
     </div>
+
+    <section class="panel cmt-panel" id="cmt-panel" aria-labelledby="cmt-h">
+      <h2 id="cmt-h">💬 Ideas for this game</h2>
+      <p class="note">Got an idea to make this game better or more fun? Write it here, and give a ❤️ to ideas you like.<br>Ideas we pick move to the top and get added in the next version.</p>
+      <form id="cmt-form" class="cmt-form">
+        <textarea id="cmt-body" maxlength="300" rows="2" placeholder="My idea: …" aria-label="Your idea"></textarea>
+        <div class="cmt-row"><span class="hint">Don’t write your real name, email, phone number or links. <span id="cmt-count">0 / 300</span></span><button type="submit" class="btn primary" id="cmt-go">Post</button></div>
+      </form>
+      <div id="cmt-gate" class="note" hidden></div>
+      <ul class="cmt-list" id="cmt-list"></ul>
+    </section>
 
     <section class="shelf">
       <div class="shelf-head"><h2>Play next</h2></div>
@@ -367,7 +379,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261124131802"></script>
-<script src="app.js?v=20261124131802"></script>
+<script src="account.js?v=20261124204105"></script>
+<script src="app.js?v=20261124204105"></script>
 </body>
 </html>

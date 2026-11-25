@@ -258,9 +258,61 @@ function openMy(fromRefresh) {
 
 /* ---------- game page ---------- */
 let current = null, playing = false;
+/* ---------- ideas & hearts under each game ---------- */
+const nextVersion = g => (+(g && g.version) || 1) + 1;
+async function renderComments() {
+  const g = current, list = $('#cmt-list'), form = $('#cmt-form'), gate = $('#cmt-gate');
+  if (!g || !list) return;
+  const isAdm = signedIn() && ACC.profile && ACC.profile.is_admin;
+  form.hidden = true; gate.hidden = true;
+  if (!signedIn()) { gate.hidden = false; gate.replaceChildren('Sign in to write an idea or give a ❤️. ', h('a', { href: '#', onclick: e => { e.preventDefault(); openSignIn(false); } }, 'Sign in')); }
+  else if (ACC.limited) { gate.hidden = false; gate.textContent = 'Writing ideas opens after your parent approves your account. You can still give ❤️ to ideas you like.'; }
+  else form.hidden = false;
+  let rows = []; try { rows = await ACC.comments(g.slug); } catch { list.replaceChildren(h('li', { class: 'note', text: 'Couldn’t load ideas right now.' })); return; }
+  if (current !== g) return;
+  if (!rows.length) { list.replaceChildren(h('li', { class: 'cmt-empty', text: 'No ideas yet. Be the first!' })); return; }
+  list.replaceChildren(...rows.map(c => {
+    const heart = h('button', { class: 'cmt-heart' + (c.my_heart ? ' on' : ''), 'aria-pressed': String(!!c.my_heart), title: 'Give a heart',
+      onclick: async () => { if (!signedIn()) return openSignIn(false); let n; try { n = await ACC.toggleHeart(c.id); } catch { return; } if (n < 0) return toast('Hearts are only for ideas others can see.'); renderComments(); } },
+      (c.my_heart ? '❤️ ' : '🤍 ') + c.hearts);
+    const tools = h('span', { class: 'cmt-tools' });
+    if (c.mine) tools.append(h('button', { class: 'linkish', onclick: async () => { if (!(await ask('Delete your idea?'))) return; try { await ACC.deleteComment(c.id); renderComments(); } catch { toast('Couldn’t delete it.'); } } }, 'Delete'));
+    if (isAdm) {
+      tools.append(c.picked_version
+        ? h('button', { class: 'linkish', onclick: async () => { await ACC.adminPickComment(c.id, null).catch(() => {}); renderComments(); } }, 'Unpick')
+        : h('button', { class: 'linkish', onclick: async () => { if (!(await ask(`Pick this idea for version ${nextVersion(g)}? It moves to the top and is added to the game requests.`))) return; try { await ACC.adminPickComment(c.id, nextVersion(g)); toast('Picked! It’s in the game requests too.'); } catch { toast('Couldn’t pick it.'); } renderComments(); } }, `⭐ Pick for v${nextVersion(g)}`));
+      tools.append(h('button', { class: 'linkish', onclick: async () => { await ACC.adminCommentStatus(c.id, c.status === 'pending' ? 'shown' : 'hidden').catch(() => {}); renderComments(); } }, c.status === 'pending' ? 'Show' : 'Hide'));
+    }
+    return h('li', { class: 'cmt' + (c.picked_version ? ' picked' : '') + (c.status === 'pending' ? ' pending' : '') },
+      c.picked_version ? h('div', { class: 'cmt-badge', text: `⭐ Picked! Coming in version ${c.picked_version}` }) : null,
+      c.status === 'pending' ? h('div', { class: 'cmt-wait', text: c.mine ? '⏳ Waiting for a grown-up to check it. Only you can see it for now.' : '⏳ Waiting for your check' }) : null,
+      h('p', { class: 'cmt-body', text: c.body }),
+      h('div', { class: 'cmt-meta' }, h('span', { class: 'cmt-who', text: c.username }), heart, tools));
+  }));
+}
+$('#cmt-body').addEventListener('input', () => { $('#cmt-count').textContent = `${$('#cmt-body').value.length} / 300`; });
+$('#cmt-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const body = $('#cmt-body').value.trim(); if (!body || !current) return;
+  const go = $('#cmt-go'); go.disabled = true;
+  let r; try { r = await ACC.addComment(current.slug, body); } catch { r = 'error'; }
+  go.disabled = false;
+  if (r === 'shown' || r === 'pending') { $('#cmt-body').value = ''; $('#cmt-count').textContent = '0 / 300'; toast(r === 'shown' ? 'Thanks for your idea! 💡' : 'Thanks! A grown-up will check your idea, then everyone can see it.'); renderComments(); return; }
+  toast(r === 'contact' ? 'Please take out emails, phone numbers and links.' : r === 'wait' ? 'That’s a lot of ideas! Wait a little and try again.' : r === 'long' ? 'Please keep it under 300 characters.'
+    : r === 'limited' ? 'Writing ideas opens after your parent approves your account.' : r === 'signin' ? 'Please sign in first.' : 'Couldn’t post. Try again.');
+});
+async function renderPendingComments() {
+  const wrap = $('#adm-cmt-wrap'); let rows = [];
+  try { rows = await ACC.adminPendingComments(); } catch { wrap.hidden = true; return; }
+  wrap.hidden = !rows.length; $('#adm-cmt-count').textContent = rows.length || '';
+  $('#adm-cmt').replaceChildren(...rows.map(c => h('li', {}, h('div', {}, h('b', { text: c.username }), ' on ', h('a', { href: '#/game/' + c.slug, text: c.slug }), h('p', { class: 'cmt-body', text: c.body })),
+    h('div', { class: 'si-actions' },
+      h('button', { class: 'btn ghost tiny', onclick: async () => { await ACC.adminCommentStatus(c.id, 'hidden').catch(() => {}); renderPendingComments(); } }, 'Hide'),
+      h('button', { class: 'btn primary tiny', onclick: async () => { await ACC.adminCommentStatus(c.id, 'shown').catch(() => {}); renderPendingComments(); } }, 'Show')))));
+}
 function openGame(g) {
   if (current !== g) stopGame();
-  current = g; document.title = `${g.title} · PlayCraft`; playLabel();
+  current = g; document.title = `${g.title} · PlayCraft`; playLabel(); renderComments();
   $('#crumbs').replaceChildren(h('a', { href: '#/', text: 'Home' }), h('span', { 'aria-hidden': 'true', text: '›' }), h('a', { href: '#/cat/' + encodeURIComponent(g.cats[0]), text: g.cats[0] }), h('span', { 'aria-hidden': 'true', text: '›' }), h('span', { 'aria-current': 'page', text: g.title }));
   const wb = wideOf(g); $('#start-bg').hidden = !wb; if (wb) $('#start-bg').src = wb;
   $('#start').style.cssText = wb ? '' : genBg(g.slug);
@@ -713,7 +765,7 @@ async function openAdmin() {
   const isAdm = signedIn() && ACC.profile && ACC.profile.is_admin;
   $('#adm-denied').hidden = !!isAdm; $('#adm-body').hidden = !isAdm;
   if (!isAdm) return;
-  renderReview(); renderDaily(); renderRequests();
+  renderReview(); renderDaily(); renderRequests(); renderPendingComments();
   try { admData = await ACC.adminData(); } catch { toast('Couldn’t load admin data. Try Refresh.'); return; }
   renderAdmin();
 }

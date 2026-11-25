@@ -55,6 +55,14 @@ const Account = {
     return { profiles: p.data || [], userStats: us.data || [], gameStats: gs.data || [], totals: tot.data || {} };
   },
   async adminSetBlocked(id, value) { const { error } = await sb.rpc('admin_set_blocked', { target: id, value }); if (error) throw error; },
+  // ---- ideas & hearts under each game (SQL 018) ----
+  async comments(slug) { const { data, error } = await sb.rpc('game_comments_list', { p_slug: slug }); if (error) throw error; return data || []; },
+  async addComment(slug, body) { const { data, error } = await sb.rpc('add_comment', { p_slug: slug, p_body: body }); if (error) throw error; return data; },
+  async deleteComment(id) { const { error } = await sb.rpc('delete_my_comment', { p_id: id }); if (error) throw error; },
+  async toggleHeart(id) { const { data, error } = await sb.rpc('toggle_heart', { p_id: id }); if (error) throw error; return data; },
+  async adminCommentStatus(id, status) { const { error } = await sb.rpc('admin_comment_status', { p_id: id, p_status: status }); if (error) throw error; },
+  async adminPickComment(id, version) { const { error } = await sb.rpc('admin_pick_comment', { p_id: id, p_version: version }); if (error) throw error; },
+  async adminPendingComments() { const { data, error } = await sb.rpc('admin_pending_comments'); if (error) throw error; return data || []; },
   // ---- password recovery (SQL 017) ----
   async requestPasswordReset(id) { const { error } = await sb.rpc('request_password_reset', { p_username: String(id || '').trim().toLowerCase() }); if (error) throw error; },
   async sendUsernames(email) { const { error } = await sb.rpc('send_usernames', { p_email: email }); if (error) throw error; },
