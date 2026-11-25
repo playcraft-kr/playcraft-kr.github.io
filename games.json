@@ -346,9 +346,11 @@
    "Sports"
   ],
   "lang": "English",
-  "version": 1,
+  "version": 2,
+  "multiplayer": true,
+  "updated": "2026-11-25",
   "added": "2026-11-21",
-  "notes": "Ready to play!",
+  "notes": "Box a friend online 1:1 and race for the fastest KO!",
   "cover": "img/cover-boxing.webp",
   "wide": "img/wide-boxing.webp",
   "controls": [
