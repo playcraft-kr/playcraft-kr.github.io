@@ -1,5 +1,39 @@
 [
  {
+  "slug": "study-arcade",
+  "title": "Study Arcade",
+  "desc": "Make your own flashcard deck, then study it with 13 arcade games: shoot the right answer, defend your castle, beat the boss and more!",
+  "emoji": "🕹️",
+  "cats": [
+   "Puzzle",
+   "Action"
+  ],
+  "lang": "English",
+  "controls": [
+   [
+    "Click / Tap",
+    "Pick an answer"
+   ],
+   [
+    "1–4",
+    "Answer keys"
+   ],
+   [
+    "Arrow keys",
+    "Move in action games"
+   ]
+  ],
+  "tip": "Turn on “Show cards I often miss more often” to practice the tricky ones.",
+  "mobile": true,
+  "version": 1,
+  "added": "2026-11-25",
+  "notes": "A brand-new study arcade: 13 games that work with any deck you make!",
+  "author": "hugo",
+  "authorName": "Hugo",
+  "cover": "img/cover-study-arcade.webp",
+  "wide": "img/wide-study-arcade.webp"
+ },
+ {
   "slug": "evergreen",
   "title": "Evergreen",
   "desc": "Build a cozy village in the forest! Chop trees, gather stones and flowers, open cafés and cabins, and welcome happy visitors. Unlock the lake, meadow, mountains and an old woodland full of secrets.",
