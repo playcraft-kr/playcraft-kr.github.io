@@ -123,6 +123,7 @@ async function initCloud(){
   const me=myId();LK=me?':'+me:'';loadLocal();setMascot();renderCoin();route(true);
   if(!me){setSync('local');return}
   try{
+    refreshGameTime();
     PCA.learnWallet&&PCA.learnWallet().then(w=>{if(w&&w.math_grade&&w.math_grade!==MGRADE){MGRADE=w.math_grade;MCARDS=null;route(true)}}).catch(()=>{});
     const sv=await Promise.race([PCA.loadSave(SLUG),timeout(10000,'slow')]);
     if(sv==='slow'){setSync('local');return}
@@ -455,6 +456,11 @@ document.addEventListener('keydown',e=>{if(!G||!G.key||$('#vPlay').classList.con
 
 /* PlayCraft learning mode: a finished round on a starter deck earns PlayCraft game time (shared daily limit with Math Space War).
    Every 10 questions with 80%+ right = 1 minute. Not for your own decks, Flashcards or Yes or No; "Count it as right" doesn't count. */
+// Learning mode: show the PlayCraft game time next to the coins, so nobody mixes them up (coins stay in Study Arcade).
+function showGameTime(min,cap){const c=$('#gtChip'),box=$('#gtInfo');if(!c)return;if(min==null){c.hidden=true;if(box)box.hidden=true;return}$('#gtN').textContent=fmt(min);c.hidden=false;if(box){box.hidden=false;$('#gtHave').textContent=fmt(min);if(cap!=null)$('#gtCap').textContent=cap}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshGameTime()});
+function refreshGameTime(){try{if(!PCA||!PCA.learnWallet||!PCA.profile||!PCA.profile.learn_mode)return showGameTime(null);
+  PCA.learnWallet().then(w=>showGameTime(w?w.math_min:null,w&&w.math_cap)).catch(()=>{})}catch(e){}}
 function pcLearn(r,deck,k){try{
   if(!PCA||!PCA.learnRound||!PCA.profile||!PCA.profile.learn_mode||!r.total)return;
   const box=document.createElement('div');box.className='pcl';
@@ -466,6 +472,7 @@ function pcLearn(r,deck,k){try{
   const lvOf=deck.id==='s-math'?(()=>{const g=mathGrade();return ()=>g})():()=>99;
   const levels=Array.from({length:Math.min(good,n)},()=>lvOf());
   PCA.learnRound(SLUG,n,levels).then(x=>{if(!x||x.why==='off'||x.why==='signin')return;
+    if(x.math_min!=null)showGameTime(x.math_min,x.math_cap);
     if(x.ok)say(`+${x.got} minute${x.got>1?'s':''} of PlayCraft game time! (today ${x.math_today} of ${x.math_cap})`,true);
     else if(x.why==='score')say(`Get 8 out of 10 right (80%) to earn PlayCraft game time. This round: ${Math.round(good/n*100)}%.`);
     else if(x.why==='fast')say('Game time comes at most once a minute. Keep going!');
