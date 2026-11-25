@@ -70,11 +70,11 @@ I.ox=c=>{
   const {$}=c,sec=+c.opts.sec||60,next=c.dealer(),t0=Date.now();let score=0,streak=0,best=0,tot=0,wr=[],cur=null,over=false,lock=false,tm;
   c.stage.innerHTML=`<div class="qcard" id="oxc"><div class="qtag">Do these go together?</div><p class="q" id="oxq"></p><div class="oxeq">‖</div><p class="q oxa" id="oxa"></p><div class="fb" id="fb" aria-live="polite"></div></div>
   <div class="oxb"><button class="ob o" id="bO"><span>✓</span>Yes (←)</button><button class="ob x" id="bX"><span>✗</span>No (→)</button></div>`;
-  function ask(){const q=c.makeQ(next()),others=q.opts.filter(x=>x!==q.a),truth=!others.length||Math.random()<.5;cur={q,truth};lock=false;$('#oxq').textContent=q.q;$('#oxa').textContent=truth?q.a:others[c.rnd(others.length)]}
+  function ask(){const q=c.makeQ(next()),others=q.opts.filter(x=>x!==q.a),truth=!others.length||Math.random()<.5;cur={q,truth};lock=false;$('#fb').innerHTML='';$('#oxq').textContent=q.q;$('#oxa').textContent=truth?q.a:others[c.rnd(others.length)]}
   function pick(yes){if(lock||over)return;lock=true;tot++;const ok=yes===cur.truth,el=$('#oxc');
     if(ok){score++;streak++;best=Math.max(best,streak);$('#fb').innerHTML=`<span class="okc">${streak>2?`Correct! ${streak} in a row`:'Correct!'}</span>`}
-    else{streak=0;wr.push(cur.q.card);$('#fb').innerHTML=`<span class="noc">Nope! It goes with: ${c.esc(cur.q.a)}</span>`}
-    if(ok){c.hit(cur.q.card);c.fx.good(el);c.fx.combo(streak)}else c.fx.bad();el.classList.remove('good','badc');void el.offsetWidth;el.classList.add(ok?'good':'badc');stats();setTimeout(()=>{if(!over)ask()},ok?280:1100)}
+    else{streak=0;wr.push(cur.q.card);$('#fb').innerHTML=`<span class="noc">${cur.truth?'Nope, they do go together!':'Nope, they don’t go together.'}<br><b>${c.esc(cur.q.q)}</b> → ${c.esc(cur.q.a)}</span>`}
+    if(ok){c.hit(cur.q.card);c.fx.good(el);c.fx.combo(streak)}else c.fx.bad();el.classList.remove('good','badc');void el.offsetWidth;el.classList.add(ok?'good':'badc');stats();setTimeout(()=>{if(!over)ask()},ok?280:2200)}
   let ls=99;function stats(){const left=Math.max(0,sec-(Date.now()-t0)/1000);if(left<=5&&Math.ceil(left)<ls&&left>0){ls=Math.ceil(left);c.fx.sfx('tick')}c.setStats(`<span>Time left <b>${Math.ceil(left)}s</b></span><span>Right <b>${score}</b></span><span>Streak <b>${streak}</b></span>`);if(left<=0)end()}
   $('#bO').onclick=()=>pick(true);$('#bX').onclick=()=>pick(false);
   function end(){if(over)return;over=true;clearInterval(tm);c.finish({title:`${score} right!`,stats:[['Right',score],['Accuracy',acc(score,tot)],['Best streak',best],['Answered',tot]],wrongs:wr,rec:tot?{key:'ox',val:score}:null,right:score,total:tot,score:score+' right'})}
