@@ -436,13 +436,11 @@ async function renderLearnAcct() {
   if (ls.learn_mode) walletText(true).then(t => { coinEl.textContent = t; }).catch(() => {});
   const lb = $('#ma-limits-btn'); if (lb) lb.hidden = true;
   btn.hidden = false;
-  if (ACC.profile && ACC.profile.age && ACC.profile.age < 13) {
-    btn.textContent = 'Ask my parent to change it'; btn.onclick = () => askParent('Type your parent’s email. We’ll send them a link where they can turn learning mode on or off.');
-  } else if (!ls.has_pin && !ls.learn_mode) {
-    btn.textContent = 'Turn on (parent)';
-    btn.onclick = async () => { const pin = await askText('Parent: choose a 4-number PIN. You’ll need it to turn learning mode off later.', '', 'Turn on'); if (pin === null) return;
-      if (!/^[0-9]{4}$/.test(pin)) return toast('The PIN must be 4 numbers.'); try { await ACC.setupLearnMode(true, pin); toast('Learning mode is on.'); renderLearnAcct(); } catch (x) { toast(x.message || 'Couldn’t turn it on.'); } };
-  } else if (!ls.has_pin) { btn.hidden = true; st.textContent += ' (set by the admin)'; }
+  // The parent PIN is only ever set from the parent's email link, so a child can't make one.
+  if (!ls.has_pin || (ACC.profile && ACC.profile.age && ACC.profile.age < 13)) {
+    btn.textContent = ls.has_pin ? 'Ask my parent to change it' : 'Ask my parent to set it up';
+    btn.onclick = () => askParent('Type your parent’s email. We’ll send them a link where they can set the parent PIN and turn learning mode on or off.');
+  }
   else {
     if (lb && ls.learn_mode) { lb.hidden = false; lb.onclick = changeLimits; }
     btn.textContent = ls.learn_mode ? 'Turn off (parent PIN)' : 'Turn on (parent PIN)';
