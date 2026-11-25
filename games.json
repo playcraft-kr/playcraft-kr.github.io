@@ -25,10 +25,10 @@
   ],
   "tip": "Turn on “Show cards I often miss more often” to practice the tricky ones.",
   "mobile": true,
-  "version": 5,
+  "version": 6,
   "updated": "2026-11-25",
   "added": "2026-11-25",
-  "notes": "Yes or No now shows clearly which word you missed.",
+  "notes": "Gold Rush has a new shop with a Gold Mine that digs gold for you!",
   "author": "hugo",
   "authorName": "Hugo",
   "cover": "img/cover-study-arcade.webp",
@@ -265,7 +265,7 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 30,
+  "version": 31,
   "added": "2026-11-22",
   "updated": "2026-11-25",
   "notes": "Only a parent with the PlayCraft PIN can change rewards now.",
@@ -301,7 +301,8 @@
    "Adventure"
   ],
   "lang": "English",
-  "version": 4,
+  "version": 5,
+  "updated": "2026-11-25",
   "added": "2026-11-21",
   "notes": "Beat World 3 to unlock the Champion Arena!",
   "cover": "img/cover-legend-arena.webp",
@@ -387,7 +388,7 @@
  },
  {
   "slug": "ashen-fortress",
-  "title": "Ashen Keep",
+  "title": "Duskwall Keep",
   "desc": "Cut down the undead in a ruined arena at dusk. Survive Wave 3 to open the gate to a village, quests and an endless road.",
   "emoji": "🏰",
   "cats": [
@@ -396,9 +397,10 @@
    "Adventure"
   ],
   "lang": "English",
-  "version": 2,
+  "version": 3,
+  "updated": "2026-11-25",
   "added": "2026-11-21",
-  "notes": "Survive Wave 3 to open the gate: shops, quests, caves and new bosses!",
+  "notes": "The keep has a new name: Duskwall Keep!",
   "cover": "img/cover-ashen-fortress.webp",
   "wide": "img/wide-ashen-fortress.webp",
   "controls": [
@@ -548,7 +550,7 @@
    "Action"
   ],
   "lang": "English & Korean",
-  "version": 6,
+  "version": 7,
   "updated": "2026-11-25",
   "added": "2026-11-22",
   "notes": "Game time you earn here is now shared with Study Arcade.",

@@ -5,14 +5,14 @@ const acc=(r,t)=>(t?Math.round(r/t*100):0)+'%';
 
 /* ===== Gold Rush ===== */
 const UP={
-  mpq:{name:'Gold per Answer',desc:'Base gold for each right answer',vals:[10,50,200,800,3000,12000,50000,200000],cost:[0,100,800,4000,20000,100000,500000,2000000],f:v=>v.toLocaleString('en-US')+'G'},
-  str:{name:'Streak Bonus',desc:'Extra gold times your streak',vals:[0,10,40,150,600,2500,10000,40000],cost:[0,200,1500,7000,35000,150000,700000,3000000],f:v=>'+'+v.toLocaleString('en-US')+'G × streak'},
-  mul:{name:'Multiplier',desc:'Multiplies all the gold from an answer',vals:[1,1.5,2,3,5,8,12,20],cost:[0,500,3000,15000,80000,400000,1500000,6000000],f:v=>'×'+v},
-  ins:{name:'Oops Insurance',desc:'Lose less gold when you miss',vals:[0,25,50,75,90],cost:[0,300,2500,15000,90000],f:v=>v+'% protected'},
+  mpq:{name:'Pickaxe Level',desc:'Gold for each right answer',vals:[10,50,200,800,3000,12000,50000,200000],cost:[0,100,800,4000,20000,100000,500000,2000000],f:v=>v.toLocaleString('en-US')+'G'},
+  str:{name:'Hot Hand',desc:'Extra gold for every answer in your streak',vals:[0,10,40,150,600,2500,10000,40000],cost:[0,200,1500,7000,35000,150000,700000,3000000],f:v=>'+'+v.toLocaleString('en-US')+'G × streak'},
+  mul:{name:'Lucky Charm',desc:'Multiplies the gold from each answer',vals:[1,1.5,2,3,5,8,12,20],cost:[0,500,3000,15000,80000,400000,1500000,6000000],f:v=>'×'+v},
+  ins:{name:'Gold Mine',desc:'Digs gold for you every 5 seconds',vals:[0,20,100,500,2500,12000],cost:[0,400,3000,18000,100000,600000],f:v=>v?'+'+v.toLocaleString('en-US')+'G every 5s':'Not built yet'},
 };
 const POW={fifty:{name:'50/50',desc:'Removes 2 wrong answers',k:4},dbl:{name:'Double Time',desc:'Double gold for 30 seconds',k:20},shield:{name:'Shield',desc:'Your next wrong answer costs nothing',k:6}};
 I.gr=c=>{
-  const {$,fmt,mmss,shuf}=c,o=c.opts.mode||'g1000000',goal=o[0]==='g'?+o.slice(1):0,limit=o[0]==='t'?+o.slice(1):0,next=c.dealer();
+  const {$,fmt,mmss,shuf}=c,o=c.opts.mode||'g500000',goal=o[0]==='g'?+o.slice(1):0,limit=o[0]==='t'?+o.slice(1):0,next=c.dealer();
   const S={money:0,lv:{mpq:0,str:0,mul:0,ins:0},inv:{fifty:0,dbl:0,shield:0},streak:0,best:0,right:0,wrong:0,earned:0,dblUntil:0,shieldOn:0,start:Date.now(),wrongs:[],over:false};
   let cur=null,tm,shown=0;
   const mt=setInterval(()=>{const m=$('#money');if(!m)return;if(Math.abs(S.money-shown)<1)shown=S.money;else{shown+=(S.money-shown)*.22;m.classList.remove('bump');void m.offsetWidth;m.classList.add('bump')}m.innerHTML=fmt(shown)+'<small>G</small>'},50);
@@ -30,7 +30,7 @@ I.gr=c=>{
     bs.forEach((b,j)=>{if(cur.opts[j]===cur.a)b.classList.add('right');else if(j===i)b.classList.add('bad')});
     if(ok){const bonus=val('str')*S.streak;S.streak++;S.best=Math.max(S.best,S.streak);S.right++;
       const g=(val('mpq')+bonus)*val('mul')*(Date.now()<S.dblUntil?2:1);S.money+=g;S.earned+=g;c.floatTxt($('#qcard'),'+'+fmt(g)+'G','var(--gold)');c.hit(cur.card);c.fx.good(bs[i]);c.fx.coins(bs[i],$('#money'));c.fx.combo(S.streak);$('#fb').textContent=S.streak>1?`Correct! ${S.streak} in a row`:'Correct!'}
-    else{S.streak=0;S.wrong++;S.wrongs.push(cur.card);let loss=Math.round(val('mpq')*(1-val('ins')/100));
+    else{S.streak=0;S.wrong++;S.wrongs.push(cur.card);let loss=Math.round(val('mpq'));
       if(S.shieldOn){S.shieldOn--;loss=0;$('#fb').textContent='Your shield blocked it!'}else $('#fb').textContent='Answer: '+cur.a;
       loss=Math.min(loss,S.money);S.money-=loss;if(loss)c.floatTxt($('#qcard'),'−'+fmt(loss)+'G','var(--red)');c.fx.bad()}
     top();if(goal&&S.money>=goal)return end();
@@ -53,6 +53,7 @@ I.gr=c=>{
     if(b.dataset.u){const k=b.dataset.u,cs=UP[k].cost[S.lv[k]+1];if(cs!=null&&S.money>=cs){S.money-=cs;S.lv[k]++;c.fx.sfx('buy');c.fx.popup(UP[k].name+' UP!','small')}}
     if(b.dataset.b){const k=b.dataset.b,cs=pc(k);if(S.money>=cs){S.money-=cs;S.inv[k]++;pows();c.fx.sfx('buy')}}top();shop()};
   function tick(){if(S.over)return;const el=(Date.now()-S.start)/1000;
+    {const mine=val('ins');if(mine>0){const now=Date.now();if(!S.lastMine)S.lastMine=now;let dug=0;while(now-S.lastMine>=5000){S.lastMine+=5000;dug+=mine}if(dug){S.money+=dug;S.earned+=dug;top()}}else S.lastMine=Date.now()}
     if(limit){const left=Math.max(0,limit-el);$('#clock').innerHTML=`Left <b>${mmss(left)}</b>`;$('#prog').style.width=left/limit*100+'%';if(left<=0)end()}
     else $('#clock').innerHTML=`Time <b>${mmss(el)}</b>`;
     const d=S.dblUntil-Date.now();$('#dbl').classList.toggle('hide',d<=0);if(d>0)$('#dbl').textContent=`2× ${Math.ceil(d/1000)}s`}
