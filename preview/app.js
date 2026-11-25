@@ -283,8 +283,8 @@ async function renderComments() {
         : h('button', { class: 'linkish', onclick: async () => { if (!(await ask(`Pick this idea for version ${nextVersion(g)}? It moves to the top and is added to the game requests.`))) return; try { await ACC.adminPickComment(c.id, nextVersion(g)); toast('Picked! It’s in the game requests too.'); } catch { toast('Couldn’t pick it.'); } renderComments(); } }, `⭐ Pick for v${nextVersion(g)}`));
       tools.append(h('button', { class: 'linkish', onclick: async () => { await ACC.adminCommentStatus(c.id, c.status === 'pending' ? 'shown' : 'hidden').catch(() => {}); renderComments(); } }, c.status === 'pending' ? 'Show' : 'Hide'));
     }
-    return h('li', { class: 'cmt' + (c.picked_version ? ' picked' : '') + (c.status === 'pending' ? ' pending' : '') },
-      c.picked_version ? h('div', { class: 'cmt-badge', text: `⭐ Picked! Coming in version ${c.picked_version}` }) : null,
+    return h('li', { class: 'cmt' + (c.picked_version ? ((+g.version || 1) >= c.picked_version ? ' picked added' : ' picked') : '') + (c.status === 'pending' ? ' pending' : '') },
+      c.picked_version ? ((+g.version || 1) >= c.picked_version ? h('div', { class: 'cmt-badge done', text: `✅ Added in version ${c.picked_version}! Thanks, ${c.username}` }) : h('div', { class: 'cmt-badge', text: `⭐ Picked! Coming in version ${c.picked_version}` })) : null,
       c.status === 'pending' ? h('div', { class: 'cmt-wait', text: c.mine ? '⏳ Waiting for a grown-up to check it. Only you can see it for now.' : '⏳ Waiting for your check' }) : null,
       h('p', { class: 'cmt-body', text: c.body }),
       h('div', { class: 'cmt-meta' }, h('span', { class: 'cmt-who', text: c.username }), heart, tools));
