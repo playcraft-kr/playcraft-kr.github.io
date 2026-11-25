@@ -1,5 +1,55 @@
 [
  {
+  "slug": "evergreen",
+  "title": "Evergreen",
+  "desc": "Build a cozy village in the forest! Chop trees, gather stones and flowers, open cafés and cabins, and welcome happy visitors. Unlock the lake, meadow, mountains and an old woodland full of secrets.",
+  "emoji": "🌲",
+  "cats": [
+   "3D",
+   "Adventure"
+  ],
+  "lang": "English",
+  "controls": [
+   [
+    "WASD",
+    "Walk"
+   ],
+   [
+    "Mouse",
+    "Look around (click the world)"
+   ],
+   [
+    "Shift / Space",
+    "Run / Jump"
+   ],
+   [
+    "E",
+    "Chop, mine, fish, talk"
+   ],
+   [
+    "B",
+    "Build mode (R rotate, click to place)"
+   ],
+   [
+    "V / J / I / M",
+    "Village, journal, bag, map"
+   ],
+   [
+    "Esc",
+    "Menu and save"
+   ]
+  ],
+  "tip": "Lay Stone Path tiles so visitors can reach your shops, and press E at the water to go fishing.",
+  "mobile": false,
+  "version": 1,
+  "added": "2026-11-25",
+  "notes": "A brand-new cozy forest village to build. Your village saves by itself!",
+  "author": "hugo",
+  "authorName": "Hugo",
+  "cover": "img/cover-evergreen.webp",
+  "wide": "img/wide-evergreen.webp"
+ },
+ {
   "slug": "tower-stack",
   "title": "Tower Stack",
   "desc": "Drop each sliding block right on top of the last. Anything that hangs over gets sliced off. Line it up perfectly three times and the block grows back.",
