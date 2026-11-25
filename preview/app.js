@@ -370,7 +370,7 @@ async function askParent(reason) {
   if (em === null) return;
   let r; try { r = await ACC.requestParentConsent(em); } catch { return toast('Couldn’t send. Try again.'); }
   toast(r.ok ? (r.mailed ? 'Sent! Ask your parent to check their email.' : 'Saved! A PlayCraft grown-up will pass the message to your parent.')
-    : r.why === 'email' ? 'That email doesn’t look right.' : r.why === 'wait' ? 'Please wait 2 minutes before sending again.' : r.why === 'limit' ? 'You’ve sent 5 today. Try again tomorrow.' : 'Couldn’t send.');
+    : r.why === 'same' ? 'That’s your own recovery email. Please type your parent’s email.' : r.why === 'email' ? 'That email doesn’t look right.' : r.why === 'wait' ? 'Please wait 2 minutes before sending again.' : r.why === 'limit' ? 'You’ve sent 5 today. Try again tomorrow.' : 'Couldn’t send.');
   if (!$('#v-my').hidden) openMy(true);
 }
 $('#my-parent-btn').addEventListener('click', () => askParent());
@@ -432,7 +432,6 @@ async function renderRecovery() {
 async function forgotPin() {
   let r; try { r = await ACC.requestPinReset(); } catch { return toast('Couldn’t send. Try again.'); }
   if (r === 'parent') toast('We sent a link to your parent’s email to choose a new PIN.');
-  else if (r === 'self') toast('We sent a link to your recovery email to choose a new PIN.');
   else if (r === 'wait') toast('A link was just sent. Please wait an hour before asking again.');
   else askParent('There’s no email on this account yet. Type your parent’s email and we’ll send them a link to choose a new PIN.');
 }
