@@ -15,16 +15,16 @@ const ck=c=>c.t+'\t'+c.d;
 /* ---------- starter decks ---------- */
 const CAP=[["France","Paris"],["Japan","Tokyo"],["Canada","Ottawa"],["Australia","Canberra"],["Brazil","Brasília"],["Egypt","Cairo"],["Germany","Berlin"],["Italy","Rome"],["Spain","Madrid"],["United Kingdom","London"],["China","Beijing"],["India","New Delhi"],["Russia","Moscow"],["Mexico","Mexico City"],["Argentina","Buenos Aires"],["Türkiye (Turkey)","Ankara"],["Thailand","Bangkok"],["Vietnam","Hanoi"],["Kenya","Nairobi"],["New Zealand","Wellington"],["Switzerland","Bern"],["Netherlands","Amsterdam"],["Saudi Arabia","Riyadh"],["Indonesia","Jakarta"]];
 /* Starter decks: words = every Word League word, math = Math Space War questions (decks.js, made by tools/study_decks/build.py). */
-const SA=window.SA_DECKS||{words:[],math:[]};
+const SDK=window.SA_DECKS||{words:[],math:[]};
 let MGRADE=null,MCARDS=null;   // school grade: the parent's choice on PlayCraft, else age − 5
 const gradeName=g=>g>=12?'Grade 12':'Grade '+g;
 function mathGrade(){if(MGRADE)return MGRADE;try{const a=PCA&&PCA.profile&&+PCA.profile.age;if(a)return Math.max(1,Math.min(12,a-5))}catch(e){}return 1}
 // Only questions at the player's grade or harder, nearest grades first (up to two grades higher; more only if there are too few).
-function mathCards(){if(MCARDS)return MCARDS;const g=mathGrade();let pool=SA.math.filter(q=>q.lv>=g&&q.lv<=g+2);if(pool.length<40)pool=SA.math.filter(q=>q.lv>=g);
+function mathCards(){if(MCARDS)return MCARDS;const g=mathGrade();let pool=SDK.math.filter(q=>q.lv>=g&&q.lv<=g+2);if(pool.length<40)pool=SDK.math.filter(q=>q.lv>=g);
   pool=pool.slice();for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
   return MCARDS=pool.slice(0,40).map(q=>({t:q.q,d:q.a,w:q.w.slice()}))}
 const SAMPLES=[
-  {id:'s-words',sample:true,title:`Word League Words (${SA.words.length})`,desc:'Every word in Word League ↔ its meaning',cards:SA.words.map(([t,d])=>({t,d,w:[]}))},
+  {id:'s-words',sample:true,title:`Word League Words (${SDK.words.length})`,desc:'Every word in Word League ↔ its meaning',cards:SDK.words.map(([t,d])=>({t,d,w:[]}))},
   {id:'s-math',sample:true,get title(){return `Math Review · ${gradeName(mathGrade())} and up`},get desc(){return 'Math Space War questions at your grade or harder'},get cards(){return mathCards()}},
   {id:'s-cap',sample:true,title:'World Capitals 24',desc:'Country ↔ capital city',cards:CAP.map(([t,d])=>({t,d,w:[]}))},
 ];
@@ -437,7 +437,7 @@ function makeCtx(deck,opts,cards){
       return()=>{if(!bag.length)fill();if(bag.length>1&&bag[0]===lastC){const j=bag.findIndex(c=>c!==lastC);if(j>0)[bag[0],bag[j]]=[bag[j],bag[0]]}return lastC=bag.shift()}},
     drawAns,floatTxt,mkCanvas,wrapText,drawLines,rr,finish,fx,avatar:()=>mascotSVG(),hit:card=>{if(card)SESSION.hits.set(ck(card),card)}};
 }
-function start(k,deck,opts,cards){
+function start(k,deck,opts,cards){window.SA_OVR=0;
   stopGame();CUR=deck;LAST={k,deck,opts,cards};SESSION={hits:new Map()};
   $('#pTitle').textContent=`${GM[k].name} · ${deck.title}`;$('#stage').innerHTML='';$('#pStats').innerHTML='';show('vPlay');
   SFX.init();const tok=++CD;
@@ -453,6 +453,24 @@ $('#exitPlay').addEventListener('click',()=>{stopGame();openSetup(LAST.k,LAST.de
 $('#endPlay').addEventListener('click',()=>{if(G&&G.end)G.end()});
 document.addEventListener('keydown',e=>{if(!G||!G.key||$('#vPlay').classList.contains('hide')||(e.target.matches&&e.target.matches('input,textarea,select')))return;G.key(e)});
 
+/* PlayCraft learning mode: a finished round on a starter deck earns PlayCraft game time (shared daily limit with Math Space War).
+   Every 10 questions with 80%+ right = 1 minute. Not for your own decks, Flashcards or Yes or No; "Count it as right" doesn't count. */
+function pcLearn(r,deck,k){try{
+  if(!PCA||!PCA.learnRound||!PCA.profile||!PCA.profile.learn_mode||!r.total)return;
+  const box=document.createElement('div');box.className='pcl';
+  const say=(t,good)=>{box.textContent='🎮 '+t;box.classList.toggle('good',!!good);$('#rCoins').appendChild(box)};
+  if(!deck||!deck.sample)return say('Your own decks are for practice. Play a starter deck to earn PlayCraft game time.');
+  if(k==='flash'||k==='ox')return say(`${GM[k].name} doesn’t earn PlayCraft game time. Try a quiz or action game.`);
+  const n=r.total,good=Math.max(0,(r.right||0)-(window.SA_OVR||0));
+  if(n<10)return say('Answer at least 10 questions to earn PlayCraft game time.');
+  const lvOf=deck.id==='s-math'?(()=>{const g=mathGrade();return ()=>g})():()=>99;
+  const levels=Array.from({length:Math.min(good,n)},()=>lvOf());
+  PCA.learnRound(SLUG,n,levels).then(x=>{if(!x||x.why==='off'||x.why==='signin')return;
+    if(x.ok)say(`+${x.got} minute${x.got>1?'s':''} of PlayCraft game time! (today ${x.math_today} of ${x.math_cap})`,true);
+    else if(x.why==='score')say(`Get 8 out of 10 right (80%) to earn PlayCraft game time. This round: ${Math.round(good/n*100)}%.`);
+    else if(x.why==='fast')say('Game time comes at most once a minute. Keep going!');
+    else if(x.why==='cap')say(`You’ve earned today’s game time from learning games (${x.math_cap} min). You can keep practicing!`)}).catch(()=>{});
+}catch(e){}}
 /* ---------- results ---------- */
 function finish(r){
   stopGame();const deck=CUR,k=LAST.k,wr=r.wrongs||[];let note=r.sub||'';
@@ -485,6 +503,7 @@ function finish(r){
   }
   $('#rCoins').innerHTML=r.total?`<div class="coinbox"><div class="cbh"><span>Coins earned</span><b><i class="cico"></i> +${fmt(gain)}</b></div><ul>${lines.map(([l,v])=>`<li><span>${esc(l)}</span><b>${v>0?'+':''}${v?fmt(v):''}</b></li>`).join('')}</ul>${missionDone()?'<p class="hint">You finished a daily mission! Claim it on the Home page.</p>':''}</div>`:'';
   if(gain)setTimeout(()=>flyCoins($('#rCoins .cbh b'),gain),900);
+  pcLearn(r,deck,k);
   saveRec();pushRank();
   const pct=r.total?Math.min(1,(r.right||0)/r.total):0,stars=r.total?(pct>=.9?3:pct>=.7?2:pct>=.4?1:0):0,isRec=/New personal best/.test(note);
   $('#rStars').innerHTML=r.total?[0,1,2].map(i=>`<svg class="st ${i<stars?'on':''}" style="animation-delay:${.25+i*.28}s" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.8 5.7 21.4l1.5-7.1L1.8 9.4 9 8.6z"/></svg>`).join('')+`<span class="sr">${stars} stars</span>`:'';

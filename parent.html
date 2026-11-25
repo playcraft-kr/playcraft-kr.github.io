@@ -47,7 +47,7 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
     + Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}" ${cur === i + 1 ? 'selected' : ''}>Grade ${i + 1}</option>`).join('');
   if (!token) return say('<p class="msg err">This link is not complete. Please open the link from the e-mail again.</p>');
   Promise.all([sb.rpc('parent_consent_info', { p_token: token }), sb.rpc('parent_limits_info', { p_token: token })]).then(([{ data, error }, lim]) => {
-    const L = (lim && lim.data && lim.data[0]) || { play_cap: 60, math_grade: null, grade_from_age: null };
+    const L = (lim && lim.data && lim.data[0]) || { play_cap: 60, math_grade: null, grade_from_age: null, earn_cap: 30 };
     const r = data && data[0];
     if (error || !r) return say('<p class="msg err">This link has already been used or is not valid. Ask your child to send a new one from PlayCraft (My Games).</p>');
     if (r.expired) return say('<p class="msg err">This link has run out (links work for 14 days). Ask your child to send a new one from PlayCraft (My Games).</p>');
@@ -58,9 +58,10 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       <p class="muted"><b>What we keep:</b> the ID, nickname and age your child typed, which games they played and for how long, and their game progress. We don’t ask for real names, we show no ads and we sell nothing. Your e-mail is used only for this. <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>
       ${first ? `<p class="muted"><b>Already on:</b> playing every game alone. <b>Turns on when you approve:</b> your child’s ID on leaderboards, online play with other players, and sending in games they made (shown with their ID).</p>` : ''}
       <hr style="border:0;border-top:1px solid var(--line)">
-      <p><b>Learning mode</b> (optional)<br>Your child earns time for the other games by playing two learning games first:</p>
+      <p><b>Learning mode</b> (optional)<br>Your child earns time for the other games by playing learning games first:</p>
       <ul>
-        <li><b>Math Space War</b>: math questions at your child’s school grade. Right answers power up heroes in a space battle.<br><span class="muted">10 questions with 8 or more right = 1 minute of game time (up to 30 minutes a day).</span></li>
+        <li><b>Math Space War</b>: math questions at your child’s school grade. Right answers power up heroes in a space battle.<br><span class="muted">10 questions with 8 or more right = 1 minute of game time.</span></li>
+        <li><b>Study Arcade</b>: quiz and arcade games with starter decks (every Word League word, math at your child’s grade, world capitals).<br><span class="muted">Same rule: every 10 questions with 8 or more right = 1 minute. Math Space War and Study Arcade together give up to 30 minutes a day (you can change this).</span></li>
         <li><b>Word League</b>: hard English vocabulary (SSAT level). Right answers win soccer matches.<br><span class="muted">10 coins = 1 minute. New players start with 100 coins (about 10 minutes).</span></li>
       </ul>
       <p>Only your PIN can turn learning mode off. <a href="learning.html" target="_blank" rel="noopener">How learning mode works</a></p>
@@ -69,7 +70,8 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       <div class="pin" id="pinRow"><label>Your PIN (4 numbers, keep it from your child)<br><input id="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label></div>
       <div class="lim" id="limRow">
         <label>Most game time per day (other games)<br><select id="cap">${capOpts(L.play_cap)}</select></label><br>
-        <label>School grade for Math Space War (only rounds at this grade or higher give game time)<br><select id="grade">${gradeOpts(L.math_grade, L.grade_from_age)}</select></label>
+        <label>Most game time your child can earn per day in Math Space War and Study Arcade<br><select id="earn">${[10, 20, 30, 45, 60, 90].map(v => `<option value="${v}" ${+L.earn_cap === v ? 'selected' : ''}>${v} minutes</option>`).join('')}${[10, 20, 30, 45, 60, 90].includes(+L.earn_cap) ? '' : `<option value="${L.earn_cap}" selected>${L.earn_cap} minutes</option>`}</select></label><br>
+        <label>School grade for the math questions (only this grade or higher gives game time)<br><select id="grade">${gradeOpts(L.math_grade, L.grade_from_age)}</select></label>
       </div>
       <p class="msg" id="m"></p>
       <div class="btns">
@@ -85,7 +87,7 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       const learn = on ? true : (r.learn_mode ? false : null);
       if (on) {
         const cv = document.getElementById('cap').value, gv = document.getElementById('grade').value;
-        const { data: lr, error: le } = await sb.rpc('parent_save_limits', { p_token: token, p_play_cap: cv === '' ? null : +cv, p_math_grade: gv === '' ? null : +gv });
+        const { data: lr, error: le } = await sb.rpc('parent_save_limits', { p_token: token, p_play_cap: cv === '' ? null : +cv, p_math_grade: gv === '' ? null : +gv, p_earn_cap: +document.getElementById('earn').value });
         if (le || lr !== 'ok') { m.className = 'msg err'; m.textContent = lr === 'expired' ? 'This link has run out.' : 'That didn’t work. Please try again.'; return; }
       }
       const { data: res, error: e2 } = await sb.rpc('parent_decide', { p_token: token, p_approve: true, p_learn: learn, p_pin: on ? pin : null });

@@ -99,7 +99,7 @@ I.type=c=>{
     if(ok(v,cur.a)){right++;$('#fb').innerHTML='<span class="okc">Correct!</span>';c.hit(cur.card);c.fx.good($('#ti'))}else{c.fx.bad();wrongs.push(cur.card);$('#fb').innerHTML=`<span class="noc">Answer: ${c.esc(cur.a)}</span>`;$('#override').classList.remove('hide')}
     state='shown';$('#ti').readOnly=true;$('#tb').textContent='Next';$('#hint').disabled=true;$('#ti').focus();stats()};
   $('#hint').onclick=()=>{if(state!=='ask'||hinted)return;hinted=true;hints++;$('#fb').textContent=`First letter: ${cur.a.trim()[0]}`;$('#ti').focus();stats()};
-  $('#override').onclick=()=>{right++;c.hit(wrongs.pop());$('#override').classList.add('hide');$('#fb').innerHTML='<span class="okc">Counted as right</span>';$('#ti').focus();stats()};
+  $('#override').onclick=()=>{right++;window.SA_OVR=(window.SA_OVR||0)+1;c.hit(wrongs.pop());$('#override').classList.add('hide');$('#fb').innerHTML='<span class="okc">Counted as right</span>';$('#ti').focus();stats()};
   function end(){if(over)return;over=true;const full=i>=list.length,tot=full?list.length:(state==='shown'?i+1:i),a=tot?Math.round(right/tot*100):0;
     c.finish({title:`${right} right (${a}%)`,stats:[['Accuracy',a+'%'],['Right',right+' / '+tot],['Hints',hints],['Missed',wrongs.length]],wrongs,rec:full?{key:'type',val:a}:null,right,total:tot,score:a+'%'})}
   ask();return{stop(){over=true},end};

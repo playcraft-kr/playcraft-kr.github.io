@@ -2000,7 +2000,7 @@ function pcLearn(r){try{if(!PCA||!PCA.mathRound||!PCA.profile||!PCA.profile.lear
   if(x.ok)say(tx(`PlayCraft 게임 시간 +1분! (오늘 ${x.math_today}/${x.math_cap}분 · 모은 시간 ${x.math_min}분)`,`+1 minute of PlayCraft game time! (today ${x.math_today}/${x.math_cap} · saved ${x.math_min} min)`),true);
   else if(x.why==='score')say(tx(`게임 시간은 ${g} 이상 문제를 8개 이상 맞혀야 생겨요 (이번 판 ${x.good||0}개). 3초 안에 고른 답과 50:50을 쓴 문제는 세지 않아요.`,`Game time needs 8+ right at ${g} or higher (this round: ${x.good||0}). Answers picked in under 3 seconds or with 50:50 don’t count.`));
   else if(x.why==='fast')say(tx('게임 시간은 1분에 한 판까지만 생겨요.','Game time comes at most once a minute.'));
-  else if(x.why==='cap')say(tx(`오늘 수학으로 모을 수 있는 게임 시간(${x.math_cap}분)을 다 모았어요. 수련은 계속할 수 있어요!`,`You’ve earned today’s math game time (${x.math_cap} min). You can keep practicing!`))}).catch(()=>{})}catch(e){}}
+  else if(x.why==='cap')say(tx(`오늘 공부 게임(수학·Study Arcade)으로 모을 수 있는 게임 시간(${x.math_cap}분)을 다 모았어요. 수련은 계속할 수 있어요!`,`You’ve earned today’s game time from learning games (${x.math_cap} min, together with Study Arcade). You can keep practicing!`))}).catch(()=>{})}catch(e){}}
 
 
 /* ================= 수련 펫 ================= */
