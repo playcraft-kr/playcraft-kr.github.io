@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>PlayCraft · New parent PIN</title>
+<style>
+:root{--violet:#5b3fd0;--ink:#1d1b3a;--ink2:#5d5a7a;--line:#e3def7;--bg:#f6f4ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:520px;margin:0 auto;padding:24px 16px 48px}
+h1{color:var(--violet);margin:0 0 4px;font-size:28px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 18px 20px;margin:16px 0}
+.muted{color:var(--ink2);font-size:15px}
+label{display:block;font-weight:700;margin:14px 0 4px}
+input{width:100%;font:inherit;padding:10px 12px;border:2px solid var(--line);border-radius:12px}
+input:focus{outline:none;border-color:var(--violet)}
+.show{font-size:15px;font-weight:600;margin-top:8px;display:flex;gap:6px;align-items:center}
+.show input{width:auto}
+ul.rules{list-style:none;padding:0;margin:10px 0 0;font-size:15px}
+ul.rules li{padding:2px 0 2px 24px;position:relative;color:var(--ink2)}
+ul.rules li::before{content:"○";position:absolute;left:4px}
+ul.rules li.ok{color:#0f8a63}ul.rules li.ok::before{content:"✓"}
+button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor:pointer;border:2px solid var(--violet);background:var(--violet);color:#fff;margin-top:18px}
+.msg{font-weight:700}.err{color:#b3123d}.ok{color:#0f8a63}
+a{color:var(--violet)}
+</style>
+</head>
+<body>
+<main>
+  <h1>PlayCraft</h1>
+  <div id="box" class="card"><p>Loading…</p></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
+<script>
+(function () {
+  const sb = window.supabase.createClient('https://mglfvwxlleevbvglijzl.supabase.co', 'sb_publishable_0jKAyNY2GzWyIU63M_eD3g_PkVubQ6X', { auth: { persistSession: false } });
+  const box = document.getElementById('box');
+  const token = (location.hash.match(/t=([0-9a-f]{40,})/) || [])[1] || '';
+  history.replaceState(null, '', location.pathname);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const say = html => { box.innerHTML = html; };
+  const again = '<p class="muted">Need a new link? On PlayCraft, press “Forgot the PIN?” where the PIN is asked.</p><p><a href="preview/">Go to PlayCraft</a></p>';
+  if (!token) return say('<p class="msg err">This link is not complete. Please open the link from the email again.</p>' + again);
+  sb.rpc('pin_reset_info', { p_token: token }).then(({ data, error }) => {
+    const r = data && data[0];
+    if (error || !r) return say('<p class="msg err">This link isn’t valid.</p>' + again);
+    if (r.state === 'used') return say('<p class="msg err">This link was already used, or a newer link was sent.</p>' + again);
+    if (r.state === 'expired') return say('<p class="msg err">This link has run out (it worked for 24 hours).</p>' + again);
+    say(`
+      <h2 style="margin:0 0 6px">New parent PIN for ${esc(r.username)}</h2>
+      <p class="muted">The parent PIN turns learning mode on or off, changes the daily limits and opens the Word League reward settings. Keep it from your child.</p>
+      <label for="p1">New PIN (4 numbers)</label><input id="p1" type="password" inputmode="numeric" maxlength="4" autocomplete="off">
+      <label for="p2">Type it again</label><input id="p2" type="password" inputmode="numeric" maxlength="4" autocomplete="off">
+      <p class="msg" id="m"></p>
+      <button id="go">Save the new PIN</button>`);
+    const p1 = document.getElementById('p1'), p2 = document.getElementById('p2'), m = document.getElementById('m');
+    p1.focus();
+    document.getElementById('go').onclick = async () => {
+      const a = p1.value.trim(), b = p2.value.trim(); m.className = 'msg err';
+      if (!/^[0-9]{4}$/.test(a)) return (m.textContent = 'The PIN must be 4 numbers.');
+      if (a !== b) return (m.textContent = 'The two PINs aren’t the same.');
+      const { data: res, error: e2 } = await sb.rpc('pin_reset_save', { p_token: token, p_pin: a });
+      if (e2 || res !== 'ok') { m.textContent = res === 'used' ? 'This link was already used.' : res === 'expired' ? 'This link has run out.' : res === 'wait' ? 'Too many tries. Please wait an hour.' : 'That didn’t work. Please try again.'; return; }
+      say('<p class="msg ok">Done! The new parent PIN is saved.</p><p class="muted">We also sent a confirmation email.</p><p><a href="preview/">Go to PlayCraft</a></p>');
+    };
+  });
+})();
+</script>
+</body>
+</html>

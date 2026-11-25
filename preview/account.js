@@ -107,6 +107,7 @@ const Account = {
   },
 
   // ---- learning mode: other games cost coins earned in the learning games (the database guards the switch) ----
+  async requestPinReset() { const { data, error } = await sb.rpc('request_pin_reset'); if (error) throw error; return data; },
   async checkParentPin(pin) { const { data, error } = await sb.rpc('check_parent_pin', { p_pin: pin }); if (error) throw error; return data; },
   async learnStatus() { const { data, error } = await sb.rpc('learn_status'); if (error) throw error; return (data && data[0]) || { learn_mode: false, has_pin: false }; },
   async setupLearnMode(on, pin) { const { error } = await sb.rpc('setup_learn_mode', { p_on: !!on, p_pin: pin }); if (error) throw error; await loadProfile(); emit(); },

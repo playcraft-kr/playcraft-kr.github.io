@@ -428,6 +428,14 @@ async function renderRecovery() {
     toast(x === 'ok' ? 'Recovery email removed.' : x === 'password' ? 'That password isn’t right.' : 'Too many tries. Wait an hour.'); renderRecovery();
   };
 }
+// Forgot the parent PIN: a link goes to the parent's email (or the player's confirmed recovery email).
+async function forgotPin() {
+  let r; try { r = await ACC.requestPinReset(); } catch { return toast('Couldn’t send. Try again.'); }
+  if (r === 'parent') toast('We sent a link to your parent’s email to choose a new PIN.');
+  else if (r === 'self') toast('We sent a link to your recovery email to choose a new PIN.');
+  else if (r === 'wait') toast('A link was just sent. Please wait an hour before asking again.');
+  else askParent('There’s no email on this account yet. Type your parent’s email and we’ll send them a link to choose a new PIN.');
+}
 async function renderLearnAcct() {
   const st = $('#ma-learn-state'), btn = $('#ma-learn-btn'), coinEl = $('#ma-coins');
   let ls; try { ls = await ACC.learnStatus(); } catch { st.textContent = '—'; return; }
@@ -435,6 +443,7 @@ async function renderLearnAcct() {
   coinEl.textContent = '';
   if (ls.learn_mode) walletText(true).then(t => { coinEl.textContent = t; }).catch(() => {});
   const lb = $('#ma-limits-btn'); if (lb) lb.hidden = true;
+  const pf = $('#ma-pin-forgot'); if (pf) { pf.hidden = !ls.has_pin; pf.onclick = forgotPin; }
   btn.hidden = false;
   // The parent PIN is only ever set from the parent's email link, so a child can't make one.
   if (!ls.has_pin || (ACC.profile && ACC.profile.age && ACC.profile.age < 13)) {
