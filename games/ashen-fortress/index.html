@@ -147,6 +147,16 @@ body.touch .hint{display:none}
 #saveinfo{font-size:12px;color:#a99d8a}
 #lockchip{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-size:12px;color:#e8dcc6;background:rgba(10,6,6,.6);padding:6px 12px;border:1px solid rgba(236,228,211,.2);opacity:0;transition:opacity .4s;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
 #lockchip.on{opacity:1}
+.dklb{width:min(380px,92vw);margin:16px auto 0;text-align:left;background:rgba(14,9,8,.78);border:1px solid #5a4a3c;padding:10px 14px 12px;font-size:13px;color:var(--bone);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.dklb[hidden]{display:none}
+.dklb h3{margin:0 0 6px;font:800 15px "Cinzel",serif;letter-spacing:.2em;text-transform:uppercase;text-align:center;color:var(--bone)}
+.dklb .r{display:grid;grid-template-columns:26px minmax(0,1fr) auto 40px;gap:8px;align-items:center;padding:3px 6px}
+.dklb .r span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dklb .r span:nth-child(n+3){text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dklb .r.hd{color:#a99d8a;font-size:11px}
+.dklb .r.me{background:rgba(179,20,31,.35);border-left:2px solid #b3141f;font-weight:700}
+.dklb .m{margin:6px 0 0;color:#a99d8a;font-size:12px;text-align:center}
+#over{overflow:auto}
 body.playing.free #game canvas{cursor:none}
 
 #shopm{background:rgba(6,4,4,.62);z-index:12}
@@ -235,6 +245,7 @@ body.playing.free #game canvas{cursor:none}
     <div class="btns"><button class="big" id="start">Start Battle</button><button class="ghost" id="cont" hidden></button><button class="ghost adv" id="advc" hidden>Continue Journey</button></div>
     <div class="where" id="where"></div>
   </div>
+  <div class="dklb" hidden aria-live="polite"></div>
   <div class="keys">
     <div><kbd>WASD</kbd>Move</div><div><kbd>Left click</kbd>3-hit combo</div><div><kbd>Right click</kbd>Spin slash</div>
     <div><kbd>Shift</kbd>Roll · Run</div><div><kbd>Space</kbd>Jump · Glide</div><div><kbd>Q</kbd>Potion</div>
@@ -259,7 +270,7 @@ body.playing.free #game canvas{cursor:none}
   <button class="ghost" id="totitle">Save and go to title</button>
   <div id="saveinfo"></div>
 </div></div>
-<div id="over" class="screen" hidden><div><h2>You Have Fallen</h2><div id="ovs"></div><div class="btns"><button class="big" id="again">Rise Again</button><button class="ghost" id="againcp" hidden></button></div></div></div>
+<div id="over" class="screen" hidden><div><h2>You Have Fallen</h2><div id="ovs"></div><div class="btns"><button class="big" id="again">Rise Again</button><button class="ghost" id="againcp" hidden></button></div><div class="dklb" hidden aria-live="polite"></div></div></div>
 <div id="touch" hidden>
   <div id="stick"><div id="knob"></div></div>
   <div class="tbs">
@@ -4845,6 +4856,52 @@ three/build/three.module.js:
    * SPDX-License-Identifier: MIT
    *)
 */
+</script>
+<script>
+/* PlayCraft leaderboard (added outside the game bundle above; it only reads window.__game).
+   Ranks how far each player got: on the endless road (cycle, then farthest metres), otherwise the arena wave reached;
+   ties broken by level. Uses the signed-in PlayCraft player (window.parent.Account), separate from this game's own
+   save login. One row per player in game_kv, filed under their sign-in ID, replaced only by a better run.
+   Players are shown by nickname only. */
+(function(){'use strict';
+var SLUG='ashen-fortress',ROAD0=150;
+var PCA=(function(){try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})();
+if(!PCA)return;
+var esc=function(t){return String(t).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var myName=function(){try{return PCA.signedIn&&PCA.profile?String(PCA.profile.username||''):''}catch(e){return ''}};
+var isLimited=function(){try{return !!PCA.limited}catch(e){return false}};
+var pcReady=async function(){for(var i=0;i<50&&!PCA.ready;i++)await new Promise(function(r){setTimeout(r,100)})};
+var key=function(r){return[+r.c||0,+r.d||0,+r.w||0,+r.l||0]};
+var cmp=function(a,b){var x=key(a),y=key(b);for(var i=0;i<4;i++)if(x[i]!==y[i])return x[i]-y[i];return 0};
+var sent=null,busy=Promise.resolve();
+function current(){var g=window.__game;if(!g||!g.game||!g.road||!g.player)return null;var N=g.game,G=g.road;
+  if(N.state==='title')return null;
+  var road=N.mode==='adv'||G.maxX>ROAD0;
+  var r={c:road?Math.max(1,+G.cycle||1):0,d:road?Math.max(0,Math.round(G.maxX-ROAD0)):0,w:road?3:Math.max(0,+N.wave||0),l:+g.player.lvl||1};
+  return r.c||r.w?r:null}
+function record(){var c=current();if(!c)return;if(sent&&cmp(c,sent)<=0)return;
+  busy=busy.then(function(){return send(c)}).catch(function(){})}
+async function send(c){await pcReady();var me=myName();if(!me||isLimited())return;
+  var old=null;try{old=await PCA.kvGet(SLUG,'rank',me)}catch(e){}
+  if(!old||cmp(c,old)>0){await PCA.kvSet(SLUG,'rank',me,{c:c.c,d:c.d,w:c.w,l:c.l,t:Date.now()});sent=c}else sent=old}
+var fmt=function(r){return r.c?(r.c>1?'Cycle '+r.c+' · ':'')+r.d+' m':'Wave '+r.w};
+async function render(){var els=document.querySelectorAll('.dklb');if(!els.length)return;await pcReady();var me=myName(),rows=[];
+  try{rows=(await PCA.kvList(SLUG,'rank',300)).filter(function(r){return r&&r.data&&(+r.data.c||+r.data.w)}).map(function(r){return{id:r.doc_id,nk:r.data.nick||r.data.n||r.doc_id,c:+r.data.c||0,d:+r.data.d||0,w:+r.data.w||0,l:+r.data.l||0,t:+r.data.t||0}}).sort(function(a,b){return cmp(b,a)||a.t-b.t})}catch(e){}
+  var myI=-1;rows.forEach(function(r,i){if(r.id===me&&myI<0)myI=i});
+  var row=function(r,i){return '<div class="r'+(r.id===me?' me':'')+'"><span>'+(i<3?['🥇','🥈','🥉'][i]:(i+1)+'.')+'</span><span>'+esc(String(r.nk).slice(0,16))+'</span><span>'+fmt(r)+'</span><span>Lv '+r.l+'</span></div>'};
+  var h='<h3>Farthest Knights</h3>'+(rows.length?'<div class="r hd"><span></span><span>Knight</span><span>Farthest</span><span>Level</span></div>'+rows.slice(0,10).map(row).join(''):'<p class="m">No knights on the board yet. Be the first!</p>');
+  if(myI>=10)h+='<p class="m">…</p>'+row(rows[myI],myI);
+  if(!me)h+='<p class="m">Sign in to PlayCraft to join the board.</p>';
+  else if(isLimited())h+='<p class="m">Your score will join the board after your parent approves your PlayCraft account (My Games → Your account → “Ask my parent”).</p>';
+  els.forEach(function(el){el.innerHTML=h;el.hidden=false})}
+function onScreen(){var t=document.getElementById('title'),o=document.getElementById('over');
+  if((t&&!t.hidden)||(o&&!o.hidden)){record();busy.then(render)}}
+setInterval(record,10000);
+document.addEventListener('visibilitychange',function(){if(document.hidden)record()});
+window.addEventListener('pagehide',record);
+var mo=new MutationObserver(onScreen);['title','over'].forEach(function(id){var el=document.getElementById(id);if(el)mo.observe(el,{attributes:true,attributeFilter:['hidden']})});
+onScreen();
+})();
 </script>
 </body>
 </html>

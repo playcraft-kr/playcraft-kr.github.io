@@ -135,6 +135,19 @@ textarea{width:100%;min-height:90px;border-radius:12px;border:2px solid var(--li
 #loading{position:fixed;inset:0;display:grid;place-items:center;background:#1d2a20;color:#fbf5e9;font:700 18px Nunito,sans-serif;z-index:10}
 #loading b{display:block;font:800 54px Fraunces,serif;margin-bottom:8px}
 #loading .bar{width:260px;margin:14px auto 0;background:rgba(255,255,255,.15)}
+.evlb{background:rgba(251,245,233,.96);color:var(--ink);border-radius:16px;padding:10px 14px 12px;box-shadow:var(--shadow);text-align:left;width:min(420px,100%);margin:18px auto 0;font-size:14px;text-shadow:none}
+.evlb[hidden]{display:none}
+.evlb h3{margin:0 0 6px;font:800 18px/1.2 Fraunces,serif;color:var(--green);text-align:center}
+.evlb .r{display:grid;grid-template-columns:28px minmax(0,1fr) auto minmax(0,auto);gap:8px;align-items:center;padding:3px 8px;border-radius:10px;font-weight:700}
+.evlb .r span:nth-child(2),.evlb .r span:nth-child(4){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.evlb .r span:nth-child(3){text-align:right;font-variant-numeric:tabular-nums}
+.evlb .r span:nth-child(4){color:var(--soft);font-size:12.5px;max-width:9.5em}
+.evlb .r b{font:800 15px Fraunces,serif;color:var(--green)}
+.evlb .r.hd{color:var(--soft);font-size:12px;padding-top:0;padding-bottom:0}
+.evlb .r.me{background:#fde7c8;box-shadow:inset 0 0 0 2px var(--ember)}
+.evlb .m{margin:6px 0 0;color:var(--soft);font-size:13px;text-align:center;font-weight:700}
+#title .card0{max-height:100vh;overflow:auto}
+.panel .evlb{box-shadow:inset 0 0 0 1px var(--line);background:#fff;width:auto;margin:16px 0 0}
 @media(max-width:700px){#obj{display:none}#mini{width:110px;height:110px}#keys{display:none}#res{max-width:calc(100vw - 210px)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -162,8 +175,9 @@ textarea{width:100%;min-height:90px;border-radius:12px;border:2px solid var(--li
   </div>
 </div>
 <div id="panel" class="scrim hidden"></div>
-<div id="title" class="hidden"><div class="card0"><h1>Evergreen</h1><p>A cozy forest village, one cabin at a time.</p><div class="row"><button id="bnew" class="ember">New village</button><button id="bcont">Continue</button></div><div class="hint">Best with keyboard and mouse · headphones recommended</div></div></div>
+<div id="title" class="hidden"><div class="card0"><h1>Evergreen</h1><p>A cozy forest village, one cabin at a time.</p><div class="row"><button id="bnew" class="ember">New village</button><button id="bcont">Continue</button></div><div class="hint">Best with keyboard and mouse · headphones recommended</div><div id="evlbTitle" class="evlb" hidden aria-live="polite"></div></div></div>
 <div id="fade"></div>
 <script type="module" src="./js/main.js"></script>
+<script type="module" src="./js/rank.js"></script>
 </body>
 </html>

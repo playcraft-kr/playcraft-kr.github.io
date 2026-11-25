@@ -80,6 +80,7 @@ export const ui = {
     const s = E.S.settings;
     return `<div class="panel" style="width:min(560px,100%)">${this.head('Paused', `Day ${E.S.day} · ${SEASONS[E.S.season]} · ${LEVELS[E.S.level - 1].name}`)}<div class="body">
       <div class="row"><button data-act="resume" class="ember">Resume</button><button data-act="save">Save game</button><button data-act="load" class="ghost">Load last save</button><button data-act="newgame" class="ghost">New village</button></div>
+      <div id="evlb" class="evlb"></div>
       <h3 class="f" style="margin:18px 0 4px;color:var(--green)">Settings</h3>
       <label class="set">Shadows<select data-set="shadows"><option value="off">Off</option><option value="low">Low</option><option value="high">High</option></select></label>
       <label class="set">Grass density<select data-set="grass"><option value="low">Low</option><option value="med">Medium</option><option value="high">High</option></select></label>

@@ -90,6 +90,13 @@ body.civ .build-only{display:none!important}body:not(.civ) .civ-only{display:non
 .inv li span:last-child{white-space:nowrap;font-variant-numeric:tabular-nums}
 .endp{position:absolute;inset:0;display:grid;place-items:center;background:rgba(5,4,13,.72);padding:16px}
 .endp[hidden]{display:none}
+.lb .r{display:grid;grid-template-columns:30px 1fr auto 40px;gap:8px;align-items:center;padding:5px 8px;border-radius:10px;font-size:14px}
+.lb .r span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .r span:nth-child(n+3){text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.lb .r.hd{color:var(--dim);font-size:12px;padding-top:0;padding-bottom:0}
+.lb .r.me{background:rgba(255,195,107,.16);color:var(--warn);font-weight:700}
+.lb .m{color:var(--dim);font-size:13px;margin:8px 0 0}
+#endLb{font-size:14px;color:var(--warn);font-weight:700}#endLb:empty{display:none}
 .endp .box{max-width:360px;text-align:center;background:var(--panel);border:1px solid var(--warn);border-radius:18px;padding:22px}
 .endp h3{font:34px/1.1 "Do Hyeon",sans-serif;margin:0 0 8px;color:var(--warn)}
 .endp p{margin:0 0 14px}
@@ -228,7 +235,7 @@ body.fs{overflow:hidden}
           <div id="labinv"></div></div>
       </div></div>
       <div class="dlg" id="dlg" hidden><div class="box"><p class="who">Ruler, please decide</p><h3 id="dlgT"></h3><p id="dlgX"></p><div class="ch"><button id="dlgA"></button><button id="dlgB"></button></div></div></div>
-      <div class="endp" id="endp" hidden><div class="box"><h3>Galactic Civilization Reached!</h3><p id="endTxt"></p><button class="play" id="endAgain">Start Over</button></div></div>
+      <div class="endp" id="endp" hidden><div class="box"><h3>Galactic Civilization Reached!</h3><p id="endTxt"></p><p id="endLb"></p><button class="play" id="endAgain">Start Over</button></div></div>
     </div>
     <div class="stats civ-only">
       <div class="stat"><div class="k">Population</div><div class="v" id="cP">-</div></div>
@@ -276,6 +283,7 @@ body.fs{overflow:hidden}
       <div class="presets" id="presets"></div>
     </div>
     <div class="card build-only"><h2>Scientist’s Notes</h2><ul class="warn" id="warn"></ul></div>
+    <div class="card lb" id="lbCard" hidden><h2>🚀 Fastest to the Stars</h2><p class="hint" style="font-size:13px;color:var(--dim);margin:-4px 0 10px">Top 10 rulers whose civilization went galactic in the earliest year.</p><div id="lb"></div></div>
     <div class="card build-only"><h2>Planet Collection <span class="count" id="count"></span></h2><div class="dex" id="dex"></div></div>
   </aside>
 </main>
@@ -650,6 +658,7 @@ function endCiv(){
   C.ended=true;const d=Math.round(INV[NI-1][1]-C.year);
   $('endTxt').innerHTML=`Became a galactic civilization in ${fmtYear(C.year)}.<br>${d>=0?`Compared with the expected timeline (AD 3500): <b>${d.toLocaleString()} years sooner</b>`:`${(-d).toLocaleString()} years behind the expected timeline (AD 3500)`}<br>Gifts sent: ${C.gifts}`;
   $('endp').hidden=false;renderGifts();
+  $('endLb').textContent='';pcRecord(Math.round(C.year),C.gifts);
 }
 function civUI(){
   const i=Math.floor(C.P),d=Math.round(natYear(C.P)-C.year);
@@ -2000,8 +2009,35 @@ function loop(now){const dt=Math.min(0.05,(now-last)/1000);last=now;const t=now/
   if(uiT>0.1||!simming){uiT=0;c=updateUI()}else c=calc(age);}
   if(W)render(c,t);
   requestAnimationFrame(loop)}
+/* PlayCraft leaderboard (shared table game_kv, one row per player filed under their own sign-in ID):
+   the earliest year a civilization reached the galactic age (lower is better), ties broken by fewer gifts.
+   Players are shown by nickname only. */
+const SLUG='planet-maker',lbEl=$('lb'),lbCard=$('lbCard');
+const PCA=(()=>{try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})();
+const escH=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const myName=()=>{try{return PCA&&PCA.signedIn&&PCA.profile?String(PCA.profile.username||''):''}catch(e){return ''}};
+const isLimited=()=>{try{return !!(PCA&&PCA.limited)}catch(e){return false}};
+async function pcReady(){for(let i=0;i<50&&PCA&&!PCA.ready;i++)await new Promise(r=>setTimeout(r,100))}
+let pcBusy=Promise.resolve();
+function pcRecord(y,g){if(!PCA)return;pcBusy=pcBusy.then(()=>pcSend(y,g)).catch(()=>{})}
+async function pcSend(y,g){await pcReady();const me=myName();let better=false;
+  if(me&&!isLimited()&&isFinite(y)){try{let c=null;try{c=await PCA.kvGet(SLUG,'rank',me)}catch(e){}
+    better=!c||!isFinite(+c.y)||y<+c.y||(y===+c.y&&g<(+c.g||0));
+    if(better)await PCA.kvSet(SLUG,'rank',me,{y,g,t:Date.now()})}catch(e){better=false}}
+  const rows=await showBoard(),i=rows.findIndex(r=>r.id===me);
+  if(i>=0)$('endLb').textContent=(better?'New personal best! ':'')+`You are #${i+1} on the Fastest to the Stars board.`}
+async function showBoard(){if(!lbEl||!PCA)return [];const me=myName();
+  let rows=[];try{rows=(await PCA.kvList(SLUG,'rank',300)).filter(r=>r&&r.data&&isFinite(+r.data.y)).map(r=>({id:r.doc_id,nk:r.data.nick||r.data.n||r.doc_id,y:+r.data.y,g:+r.data.g||0,t:+r.data.t||0})).sort((a,b)=>a.y-b.y||a.g-b.g||a.t-b.t)}catch(e){}
+  const myI=rows.findIndex(r=>r.id===me),row=(r,i)=>`<div class="r${r.id===me?' me':''}"><span>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'.'}</span><span>${escH(String(r.nk).slice(0,16))}</span><span>${fmtYear(r.y)}</span><span>${r.g}</span></div>`;
+  let h=rows.length?'<div class="r hd"><span></span><span>Ruler</span><span>Galactic in</span><span>Gifts</span></div>'+rows.slice(0,10).map(row).join(''):'<p class="m">No galactic civilizations yet. Be the first!</p>';
+  if(myI>=10)h+='<p class="m">…</p>'+row(rows[myI],myI);
+  if(!me)h+='<p class="m">Sign in to PlayCraft to join the board.</p>';
+  else if(isLimited())h+='<p class="m">Your score will join the board after your parent approves your PlayCraft account (My Games → Your account → “Ask my parent”).</p>';
+  lbEl.innerHTML=h;lbCard.hidden=false;return rows}
+showBoard();
 syncControls();renderDex();resize();updateUI();requestAnimationFrame(loop);
 }
+
 </script>
 </body>
 </html>
