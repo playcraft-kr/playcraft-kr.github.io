@@ -295,11 +295,11 @@
    "Sports"
   ],
   "lang": "English",
-  "version": 2,
+  "version": 3,
   "multiplayer": true,
-  "updated": "2026-11-25",
+  "updated": "2026-11-26",
   "added": "2026-11-21",
-  "notes": "Box a friend online 1:1 and race for the fastest KO!",
+  "notes": "The boxers are now real 3D comic-book fighters with big POW! and BAM! hits!",
   "cover": "img/cover-boxing.webp",
   "wide": "img/wide-boxing.webp",
   "controls": [
