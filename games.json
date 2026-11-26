@@ -500,10 +500,10 @@
    "Action"
   ],
   "lang": "English & Korean",
-  "version": 7,
-  "updated": "2026-11-25",
+  "version": 8,
+  "updated": "2026-11-26",
   "added": "2026-11-22",
-  "notes": "Game time you earn here is now shared with Study Arcade.",
+  "notes": "The top bar fits on phones now, and the leaderboard shows nicknames.",
   "cover": "img/cover-math-space-war.webp",
   "wide": "img/wide-math-space-war.webp",
   "controls": [
