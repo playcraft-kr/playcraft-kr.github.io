@@ -298,9 +298,10 @@ h2.sub{font-size:24px;margin:26px 0 14px}
 .si-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
 .si-note{margin:8px 0 0;font-size:13px;color:var(--ink-2);text-align:center}
 .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin:6px 0 10px}
-.stat{background:var(--card);border-radius:20px;padding:16px 18px;box-shadow:var(--shadow)}
-.stat b{display:block;font-family:var(--f-display);font-size:30px;font-weight:700;color:var(--violet);line-height:1.1}
-.stat span{color:var(--ink-2);font-size:14px;font-weight:800}
+.stat{background:var(--card);border-radius:20px;padding:16px 18px;box-shadow:var(--shadow);min-width:0;overflow:hidden}
+.stat b{display:block;font-family:var(--f-display);font-size:30px;font-weight:700;color:var(--violet);line-height:1.1;white-space:nowrap}
+.stat.name b{font-size:22px;white-space:normal;overflow-wrap:anywhere;line-height:1.15}
+.stat span{display:block;margin-top:4px;color:var(--ink-2);font-size:14px;font-weight:800;line-height:1.3}
 .card .rec{color:var(--violet);font-size:13px;font-weight:900;padding:0 4px;margin-top:-6px}
 @media (max-width:860px){.acct{margin-left:auto}.acct-btn{min-height:42px;padding:0 12px;font-size:15px}}
 
@@ -375,6 +376,7 @@ a.chip.hero-chip:hover{background:rgba(255,255,255,.26)}
 .si-x:hover{background:var(--bg)}
 .mobile-note{background:#fff1d6;color:var(--ink);border-radius:12px;padding:8px 12px;font-size:15px;font-weight:800}
 @media (max-width:600px){.big-bar .hint{display:none}}
+@media (hover:none),(pointer:coarse){.big-bar .hint{display:none}}
 @media (max-width:520px){.pick:nth-child(n+5){display:none}.pick{width:52px;height:52px}}
 .ask-input{width:100%;height:48px;border:2px solid var(--line);border-radius:12px;padding:0 12px;font:700 18px ui-monospace,Menlo,monospace;margin-bottom:12px}
 
