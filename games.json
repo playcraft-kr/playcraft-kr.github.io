@@ -295,11 +295,11 @@
    "Sports"
   ],
   "lang": "English",
-  "version": 5,
+  "version": 6,
   "multiplayer": true,
   "updated": "2026-11-26",
   "added": "2026-11-21",
-  "notes": "Tougher boxers, tap fast to get up when knocked down online, and your wins now show who you beat!",
+  "notes": "Fingers stay inside the gloves now. Plus tougher boxers and a list of who you beat online!",
   "cover": "img/cover-boxing-3d.webp",
   "wide": "img/wide-boxing-3d.webp",
   "controls": [

@@ -314,9 +314,11 @@ function makeModelFighter(c){
   const cuff=new THREE.Mesh(new THREE.CylinderGeometry(.72,.68,.55,14),mat(0xf4f0ea));cuff.position.y=-.95;g.add(cuff);outline(cuff,.06);
   hand.add(g);gloves.push(g);glMats.push(gm);
  }
+ // shrink the bare hands (fingers ride on the hand bone) so they stay inside the gloves
+ bones.LeftHand.scale.setScalar(.4);bones.RightHand.scale.setScalar(.4);
  root.updateMatrixWorld(true);
  const ws=new V3();
- for(let i=0;i<2;i++){gloves[i].parent.getWorldScale(ws);const k=.095*sc/ws.x;gloves[i].scale.setScalar(k);gloves[i].position.set(0,.075*sc/ws.x,.012*sc/ws.x)}
+ for(let i=0;i<2;i++){gloves[i].parent.getWorldScale(ws);const k=.095*sc/ws.x;gloves[i].scale.setScalar(k);gloves[i].position.set(0,.06*sc/ws.x,.01*sc/ws.x)}
  const mixer=new THREE.AnimationMixer(model),clips=clipsFor(src),A={};
  for(const k in clips){const a=mixer.clipAction(clips[k]);a.play();a.paused=true;a.setEffectiveWeight(0);A[k]=a}
  return{kind:'model',cfg:c,root,model,bones,head:bones.Head,gloves,glMats,flashMats,mixer,A,skinned,anim:{hitT:9,hitSide:0,winT:0,lastFlash:0}};
