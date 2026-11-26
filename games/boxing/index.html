@@ -1029,7 +1029,8 @@ $('makeBtn').onclick=makeRoom;$('joinBtn').onclick=joinCode;
 $('codeIn').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')joinCode()});
 $('lbBack').onclick=()=>{if(ONL){netLeave();lobbyUI(PICK_MSG,true)}else toMenu()};
 renderBoard();
-window.__box={qa:{newOpp:i=>{newOpp(i)},knockdown:()=>{O.hp=0;knockdown()}},get net(){return ONL},get P(){return P},get O(){return O},get fight(){return fight},tryAct,blockHeld:v=>{touchBlock=!!v},joy};
+let QA_CAM=null;// cover-shot camera (QA tools only)
+window.__box={qa:{cam:c=>{QA_CAM=c},newOpp:i=>{newOpp(i)},knockdown:()=>{O.hp=0;knockdown()}},get net(){return ONL},get P(){return P},get O(){return O},get fight(){return fight},tryAct,blockHeld:v=>{touchBlock=!!v},joy};
 loadModels();newPlayer();newOpp(0);P.pos.set(.3,0,-1.3);O.pos.set(0,0,1.3);separate();
 
 // adaptive resolution: phones drop pixel ratio when frames run slow, climb back when there is room
@@ -1043,7 +1044,7 @@ function frame(now){
  if(slowT>0)slowT-=rdt;
  timeScale+=((slowT>0?slowScale:1)-timeScale)*Math.min(1,rdt*14);
  let dt=rdt*timeScale;if(hitstop>0){hitstop-=rdt;dt=0}
- if(fight==='title'){gameTime+=rdt;P.yaw=Math.atan2(O.pos.x-P.pos.x,O.pos.z-P.pos.z);animFighter(P,rdt);animFighter(O,rdt);const a=gameTime*.15;camPos.set(Math.sin(a)*4.5,2.2,Math.cos(a)*4.5);camera.position.copy(camPos);camera.lookAt(0,1.2,0);camera.fov=55;camera.updateProjectionMatrix()}
+ if(fight==='title'){gameTime+=rdt;P.yaw=Math.atan2(O.pos.x-P.pos.x,O.pos.z-P.pos.z);animFighter(P,rdt);animFighter(O,rdt);if(QA_CAM){camera.position.set(QA_CAM[0],QA_CAM[1],QA_CAM[2]);camera.lookAt(QA_CAM[3],QA_CAM[4],QA_CAM[5]);camera.fov=QA_CAM[6]||45}else{const a=gameTime*.15;camPos.set(Math.sin(a)*4.5,2.2,Math.cos(a)*4.5);camera.position.copy(camPos);camera.lookAt(0,1.2,0);camera.fov=55}camera.updateProjectionMatrix()}
  else{update(dt,rdt);updCamera(dt,rdt)}
  adaptRes(rdt);ren.render(scene,camera);drawHUD();
  requestAnimationFrame(frame);
