@@ -62,6 +62,8 @@ button.mid.ghost{background:transparent;margin-top:18px}
 .code{margin:6px auto 0;font-size:16px;color:#ddd}.code b{display:block;font:400 54px "Black Han Sans";letter-spacing:8px;color:#ffcc33}
 @media (pointer:coarse){#touch{display:block}#keys{display:none}.keyonly{display:none}}
 @media(max-width:600px){#keys{font-size:12px}}
+#upBtn{position:fixed;left:50%;bottom:16%;transform:translateX(-50%);width:120px;height:120px;border-radius:50%;border:6px solid #0d0a0c;background:#ffcc33;color:#1d1b3a;font:400 64px 'Black Han Sans',sans-serif;z-index:30;box-shadow:0 7px 0 #0d0a0c;touch-action:manipulation;cursor:pointer}
+#upBtn:active{transform:translateX(-50%) translateY(4px);box-shadow:0 3px 0 #0d0a0c}
 </style>
 </head>
 <body>
@@ -112,6 +114,7 @@ button.mid.ghost{background:transparent;margin-top:18px}
 
 <div class="ov hide" id="res"><div class="card"><h2 id="resT"></h2><p id="resP"></p><div class="btns"><button class="big" id="resBtn"></button><button class="big ghostb" id="resBtn2">MENU</button></div><p id="resNote" class="note" hidden></p></div></div>
 
+<button id="upBtn" type="button" hidden>F</button>
 <div id="touch">
  <div id="joy"><span>Move</span><div id="knob"></div></div>
  <button class="tb" data-a="block" style="right:236px;bottom:96px">Block</button>
@@ -380,9 +383,9 @@ function modelHeadPos(f){const m=f.mesh;m.head.getWorldPosition(_hp);return _hp.
 
 /* ===== DATA ===== */
 const CFG=[
- {nick:'The Wall',name:'Max Stone',model:'rival',tint:null,scale:1,skin:0xd39b6e,hair:0x17110d,trunks:0x1f5fff,trim:0xffffff,glove:0xf0f0f0,hp:110,speed:1,aggr:.75,dodge:.1,guard:.3,dmg:1,getups:1},
- {nick:'Lightning',name:'Ray Santos',model:'hero',tint:0xffc400,scale:.97,skin:0x8b573a,hair:0x0b0705,trunks:0xffc400,trim:0x111111,glove:0x1d8f4e,hp:125,speed:1.22,aggr:1,dodge:.2,guard:.25,dmg:1.15,getups:1},
- {nick:'Titan',name:'Volkov',model:'rival',tint:0xa5111b,scale:1.07,skin:0xecc6a6,hair:0xd8c391,trunks:0xa5111b,trim:0xffd34d,glove:0x262626,hp:155,speed:1.4,aggr:1.25,dodge:.26,guard:.35,dmg:1.35,getups:2}
+ {nick:'The Wall',name:'Max Stone',model:'rival',tint:null,scale:1,skin:0xd39b6e,hair:0x17110d,trunks:0x1f5fff,trim:0xffffff,glove:0xf0f0f0,hp:130,speed:1.15,aggr:1,dodge:.18,guard:.35,dmg:1.15,getups:1,armor:.25,stunAt:40},
+ {nick:'Lightning',name:'Ray Santos',model:'hero',tint:0xffc400,scale:.97,skin:0x8b573a,hair:0x0b0705,trunks:0xffc400,trim:0x111111,glove:0x1d8f4e,hp:150,speed:1.4,aggr:1.25,dodge:.3,guard:.32,dmg:1.3,getups:1,armor:.55,stunAt:48},
+ {nick:'Titan',name:'Volkov',model:'rival',tint:0xa5111b,scale:1.07,skin:0xecc6a6,hair:0xd8c391,trunks:0xa5111b,trim:0xffd34d,glove:0x262626,hp:185,speed:1.6,aggr:1.5,dodge:.36,guard:.42,dmg:1.5,getups:2,armor:.8,stunAt:58}
 ];
 const PCFG={model:'hero',tint:null,scale:1,skin:0xc98c62,hair:0x221510,trunks:0xd01a24,trim:0xffffff,glove:0xd8202a};
 const TINFO={cross:{c:'#ff5a5a',txt:'DODGE!',key:'Space · Q · E'},hook:{c:'#ffa733',txt:'DUCK!',key:'Space'},upper:{c:'#c08bff',txt:'SIDE!',key:'Q · E'}};
@@ -408,7 +411,7 @@ const camPos=new V3(0,1.8,-4),camLook=new V3();
 /* ===== INPUT ===== */
 const keys={};let touchBlock=false,joy={x:0,y:0};
 const KMAP={KeyJ:'jab',KeyK:'cross',KeyL:'upper',Space:'duck',KeyQ:'slipL',KeyE:'slipR'};
-addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.repeat)return;const a=KMAP[e.code];if(a)tryAct(a,false)});
+addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.repeat)return;if(UPM&&e.code===UPM.key){upTap();return}const a=KMAP[e.code];if(a)tryAct(a,false)});
 addEventListener('keyup',e=>{keys[e.code]=false});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;touchBlock=false});
 ren.domElement.addEventListener('mousedown',e=>{if(fight==='title')return;if(e.button===0)tryAct('jab',false);if(e.button===2)tryAct('cross',false)});
@@ -461,7 +464,8 @@ function punchImpact(a){
  P.missFar=0;
  if(O.def&&defAmt(O)>.5){SFX.miss();pop(hp,'MISS','#aaa',.9);P.combo=0;return}
  let dmg=D.dmg*a.pow,tag=null,blocked=false;const counter=P.counter>0;
- if(O.state==='windup'){dmg*=1.3;tag=['Interrupted!','#ffcc33'];O.state='recover';O.act=null;O.rec=.45;O.st=0;O.chain=0}
+ if(O.state==='windup'&&a.type==='jab'&&!counter&&Math.random()<(O.c.armor||0)){tag=['Too tough! Dodge it!','#ff8a3d']}
+ else if(O.state==='windup'){dmg*=1.3;tag=['Interrupted!','#ffcc33'];O.state='recover';O.act=null;O.rec=.45;O.st=0;O.chain=0}
  else if(O.guardT>0&&!counter&&O.state==='idle'&&O.stun<=0){
   if(a.type==='upper'){O.guardT=0;tag=['Guard broken!','#c08bff'];dmg*=1.1}else{dmg*=.15;blocked=true}
  }
@@ -485,7 +489,7 @@ function punchImpact(a){
  else if(P.combo>=3&&P.combo%2===1)banner(P.combo+' COMBO!','#ff6a3d',.5,7);
  O.hp-=dmg;O.stunM+=dmg;
  if(O.hp<=0){O.hp=0;knockdown();return}
- if(O.stunM>34&&O.stun<=0){O.stun=1.7;O.stunM=0;O.state='idle';O.act=null;O.chain=0;O.guardT=0;banner('Dizzy! Go, go, go!','#ffcc33',.9,9);crowd(.15,.6)}
+ if(O.stunM>(O.c.stunAt||34)&&O.stun<=0){O.stun=1.7;O.stunM=0;O.state='idle';O.act=null;O.chain=0;O.guardT=0;banner('Dizzy! Go, go, go!','#ffcc33',.9,9);crowd(.15,.6)}
  if(O.state==='idle'&&O.stun<=0&&!counter&&Math.random()<O.c.guard*.5)O.guardT=rnd(.5,1.1);
 }
 function sweat(pos,n,dir,pw){for(let i=0;i<n;i++){const v=new V3(dir.x+rnd(-.8,.8),rnd(.2,1.2),dir.z+rnd(-.8,.8)).normalize().multiplyScalar(rnd(1.5,4)*(.6+pw*.6));emit({pos,vel:v,grav:9,size:rnd(.02,.04),life:rnd(.35,.7),color:0xd6ecff})}}
@@ -509,7 +513,7 @@ function aiDecide(){
  const r=Math.random();
  if(r<.6*c.aggr||O.quick){let n=0;if(Math.random()<.4*c.aggr)n++;if(Math.random()<.2*c.aggr)n++;O.chain=n;startAtk(false)}
  else if(r<.82)O.guardT=rnd(.8,1.8);
- O.think=rnd(.45,1.2)/c.speed;
+ O.think=rnd(.35,.95)/c.speed;
 }
 function oppImpact(){
  const a=O.act,d=P.def,amt=defAmt(P);let dodged=false,perfect=false,wrong=false,far=dist()>1.6;
@@ -761,7 +765,14 @@ $('startBtn').onclick=()=>{initAudio();netLeave();$('title').classList.add('hide
    순위: game_kv 의 'rank' (서버가 doc_id=내 ID, nick 을 붙여 준다) {s: 가장 빠른 KO 초, w: 온라인 승리, t}. 화면엔 nick 만. */
 const PCA=(()=>{try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})();
 const GAME='boxing',LB='rank',GETUPS=1,ROUND_S=120,UP_MS=4600,QUIET_MS=8000;
-const NET_EVS=['s','hit','res','down','ph','end','again','start','bye'];
+const NET_EVS=['s','hit','res','down','up','ph','end','again','start','bye'];
+// online knockdown: tap the shown key UP_TAPS times before the count of 10, or it is a K.O.
+const UP_KEYS=['KeyF','KeyG','KeyH','KeyV','KeyB','KeyN'],UP_TAPS=18,UP_LIMIT_MS=7700;let UPM=null;
+function upStart(){const k=UP_KEYS[Math.floor(Math.random()*UP_KEYS.length)];UPM={key:k,ch:k.slice(3),taps:0,sent:false,at:0,pop:0};const b=$('upBtn');b.textContent=UPM.ch;b.hidden=false}
+function upEnd(){UPM=null;$('upBtn').hidden=true}
+function upTap(){const N=ONL;if(!UPM||UPM.sent||!N||fight!=='down')return;UPM.taps++;UPM.pop=1;tone(.05,500+UPM.taps*40,700+UPM.taps*40,.12,'square');
+ if(UPM.taps>=UP_TAPS){UPM.sent=true;UPM.at=performance.now();send('up',{kd:N.myKd});if(N.host)hostUp(N.id)}}
+function hostUp(who){const N=ONL;if(!N||!N.host||N.phase!=='match'||fight!=='down'||N.downWho!==who)return;N.upAt=0;hostPh({ph:'fight',who})}
 const cleanNick=n=>String(n||'').replace(/[<>\u0000-\u001f]/g,'').trim().slice(0,16);
 const fmtS=s=>(Math.round(s*10)/10).toFixed(1)+'s';
 function myNick(){let n='';try{n=cleanNick(PCA&&PCA.profile&&PCA.profile.nickname)}catch(e){}return n||'Boxer'}
@@ -784,7 +795,7 @@ function send(ev,p,N=ONL){if(!N||!N.rc)return;p.i=N.id;try{const r=N.rc.send({ty
 function dropCh(ch,N){if(!ch)return;try{ch.untrack()}catch(e){}try{(N&&N.R||rt()).removeChannel(ch)}catch(e){}}
 function dropRoom(){const N=ONL;if(N&&N.rc){dropCh(N.rc,N);N.rc=null}}
 function dropLobby(){const N=ONL;if(N&&N.lobby){dropCh(N.lobby,N);N.lobby=null}}
-function netLeave(){const N=ONL;ONL=null;if(!N)return;if(N.phase!=='wait')send('bye',{},N);dropCh(N.rc,N);dropCh(N.lobby,N)}
+function netLeave(){upEnd();const N=ONL;ONL=null;if(!N)return;if(N.phase!=='wait')send('bye',{},N);dropCh(N.rc,N);dropCh(N.lobby,N)}
 addEventListener('pagehide',()=>netLeave());
 function netStart(){netLeave();ONL={id:newId(),nick:myNick(),R:rt(),rc:null,lobby:null,code:'',jt:0,phase:'wait',quick:false,own:false,showCode:false,host:false,
  oppId:'',oppNick:'',oppGone:false,lastRx:0,kd:{},myKd:0,downSent:0,again:{me:false,opp:false},ended:null,t0:0,tEnd:0,upAt:0,downWho:'',downT0:0,lastCount:0,hitK:0,pend:{},saveNote:''};return ONL}
@@ -938,15 +949,15 @@ function iAmDown(){const N=ONL;if(P.down)return;P.down=true;P.act=null;P.def=nul
  send('down',{kd:N.myKd});if(N.host)hostDown(N.id,N.myKd)}
 function hostDown(who,kd){const N=ONL;if(!N.host||N.ended||N.phase!=='match')return;if((N.kd[who]||0)>=kd)return;N.kd[who]=kd;
  if(kd>GETUPS)hostEnd({win:who===N.id?N.oppId:N.id,how:'ko',s:Math.max(1,Math.round((performance.now()-(N.t0||performance.now()))/100)/10)});
- else{N.upAt=performance.now()+UP_MS;hostPh({ph:'down',who})}}
+ else{N.upAt=performance.now()+UP_LIMIT_MS;hostPh({ph:'down',who})}}
 function hostPh(p){send('ph',p);applyPh(p)}
 function applyPh(p){const N=ONL;if(N.phase!=='match')return;
  if(p.ph==='down'){fight='down';N.downWho=p.who;N.downT0=performance.now();N.lastCount=0;P.act=null;P.buf=null;
-  if(p.who!==N.id){banner('DOWN!','#ffcc33',1,14);crowd(.3,1.2);whiteFlash=.3}else if(!P.down){P.down=true}}
- else if(p.ph==='fight'){if(p.who===N.id&&P.down){P.down=false;P.hp=P.hpG=40;P.st=100;P.sinceHit=0}
+  if(p.who!==N.id){banner('DOWN!','#ffcc33',1,14);crowd(.3,1.2);whiteFlash=.3}else{if(!P.down)P.down=true;upStart()}}
+ else if(p.ph==='fight'){upEnd();if(p.who===N.id&&P.down){P.down=false;P.hp=P.hpG=40;P.st=100;P.sinceHit=0}
   N.downWho='';fight='fight';SFX.bell(1);banner(p.who===N.id?'Get up! FIGHT!':'FIGHT!','#fff',.8,14)}}
 function hostEnd(e){send('end',e);applyEnd(e)}
-function applyEnd(e){const N=ONL;if(N.phase!=='match')return;N.phase='end';N.ended=e;N.tEnd=performance.now();endT=0;N.downWho='';
+function applyEnd(e){const N=ONL;if(N.phase!=='match')return;upEnd();N.phase='end';N.ended=e;N.tEnd=performance.now();endT=0;N.downWho='';
  const won=e.win===N.id;fight=!e.win?'draw':won?'ko':'lose';P.act=null;P.buf=null;
  if(e.how==='ko'){whiteFlash=.6;SFX.ko();SFX.bell(3);banner('K.O.!','#ffcc33',2.6,20)}
  else if(e.how==='time'){SFX.bell(3);banner('TIME!','#fff',1.6,18)}
@@ -975,6 +986,7 @@ function onNet(ev,p){const N=ONL;if(N.phase==='wait'||!N.oppId||p.i!==N.oppId)re
   case'hit':if(N.phase==='match')netOnHit(p);break;
   case'res':if(N.phase==='match')netOnRes(p);break;
   case'down':if(N.host)hostDown(N.oppId,+p.kd||1);break;
+  case'up':if(N.host)hostUp(N.oppId);break;
   case'ph':if(!N.host)applyPh(p);break;
   case'end':if(!N.host)applyEnd(p);break;
   case'again':if(N.phase==='end'){N.again.opp=true;if(!N.again.me&&$('res').dataset.shown)resNote(N.oppNick+' wants a rematch!');if(N.host&&N.again.me)hostStart()}break;
@@ -986,9 +998,10 @@ function netTick(){const N=ONL;if(!N)return;const now=performance.now();
  sendState();
  if(N.phase==='match'){
   if(now-N.lastRx>QUIET_MS){oppLeft();return}
+  if(UPM&&UPM.sent&&fight==='down'&&now-UPM.at>800){UPM.at=now;send('up',{kd:N.myKd})}
   if(P.down&&fight==='fight'&&now-N.downSent>1000){N.downSent=now;send('down',{kd:N.myKd});if(N.host)hostDown(N.id,N.myKd)}
   if(N.host){
-   if(fight==='down'&&N.upAt&&now>=N.upAt){N.upAt=0;hostPh({ph:'fight',who:N.downWho})}
+   if(fight==='down'&&N.upAt&&now>=N.upAt){N.upAt=0;hostEnd({win:N.downWho===N.id?N.oppId:N.id,how:'ko',s:Math.max(1,Math.round((now-(N.t0||now))/100)/10)})}
    else if(fight==='fight'&&N.t0&&now-N.t0>ROUND_S*1000){const a=P.hp,b=O.hp;hostEnd({win:Math.abs(a-b)<.5?'':a>b?N.id:N.oppId,how:'time'})}
   }}
  else if(N.phase==='end'&&!N.oppGone&&now-N.lastRx>QUIET_MS*2)oppLeft();
@@ -997,7 +1010,13 @@ setInterval(netTick,66);
 function netHUD(pad,fz){const N=ONL;if(!N)return;
  let rem=ROUND_S;if(N.t0)rem=Math.max(0,ROUND_S-((N.tEnd||performance.now())-N.t0)/1000);
  const sec=Math.ceil(rem);txt(Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0'),W/2,pad+fz*.6,fz*1.15,sec<=15?'#ff6262':'#fff');
- if(fight==='down'&&N.downWho){const c=Math.min(10,Math.floor((performance.now()-N.downT0)/750)+1);txt(String(c),W/2,H*.45,(15+countPop*8)*S,'#fff')}
+ if(fight==='down'&&N.downWho){const c=Math.min(10,Math.floor((performance.now()-N.downT0)/750)+1);txt(String(c),W/2,H*.45,(15+countPop*8)*S,'#fff');
+  if(UPM&&N.downWho===N.id){const fz=Math.max(20,5.2*S),y=H*.22;UPM.pop=Math.max(0,UPM.pop-.08);
+   if(UPM.sent)txt('Getting up!',W/2,y,fz,'#5fd3ff');
+   else{txt('TAP  '+UPM.ch+'  FAST TO GET UP!',W/2,y,fz,'#ffcc33',1+UPM.pop*.08);
+    const bw=Math.min(W*.6,420),bx=W/2-bw/2,by=y+fz*.9;bar(bx,by,bw,Math.max(10,fz*.35),UPM.taps/UP_TAPS,UPM.taps/UP_TAPS,'#ffcc33');
+    txt(UPM.taps+' / '+UP_TAPS,W/2,by+fz*1.1,fz*.6,'#fff')}}
+  else if(N.downWho!==N.id)txt(String(O.c.nick||'Boxer')+' is trying to get up…',W/2,H*.22,Math.max(16,3.6*S),'#fff')}
 }
 
 /* ---- Fastest KOs board ---- */
@@ -1024,6 +1043,7 @@ async function renderBoard(){const box=$('koBoard');if(!PCA){box.hidden=true;ret
 function toMenu(){netLeave();fight='title';['res','lobby'].forEach(i=>$(i).classList.add('hide'));delete $('res').dataset.shown;$('title').classList.remove('hide');$('onMsg').hidden=true;
  hitstop=0;slowT=0;newPlayer();newOpp(0);P.pos.set(.3,0,-1.3);O.pos.set(0,0,1.3);separate();pops=[];banners=[];renderBoard()}
 $('onlineBtn').onclick=openOnline;
+$('upBtn').addEventListener('pointerdown',e=>{e.preventDefault();upTap()});
 $('quickBtn').onclick=()=>{initAudio();quickMatch()};
 $('makeBtn').onclick=makeRoom;$('joinBtn').onclick=joinCode;
 $('codeIn').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')joinCode()});

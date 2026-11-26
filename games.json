@@ -295,11 +295,11 @@
    "Sports"
   ],
   "lang": "English",
-  "version": 3,
+  "version": 4,
   "multiplayer": true,
   "updated": "2026-11-26",
   "added": "2026-11-21",
-  "notes": "The boxers are now real 3D comic-book fighters with big POW! and BAM! hits!",
+  "notes": "Tougher boxers! And when you get knocked down online, tap the key on screen fast to get back up!",
   "cover": "img/cover-boxing.webp",
   "wide": "img/wide-boxing.webp",
   "controls": [
