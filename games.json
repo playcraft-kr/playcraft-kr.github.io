@@ -215,10 +215,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 34,
+  "version": 35,
   "added": "2026-11-22",
-  "updated": "2026-11-25",
-  "notes": "Even more new player cards are ready to train!",
+  "updated": "2026-11-26",
+  "notes": "New mini game: dribble past a defender and shoot 1-on-1 to win bonus coins!",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
@@ -233,6 +233,10 @@
    [
     "Settings",
     "Switch Korean/English or soccer/fantasy"
+   ],
+   [
+    "1:1 Shootout",
+    "◀ ▶ move · Space fake · stop the gauge in the middle to shoot"
    ]
   ],
   "tip": "Sign in and your progress follows your account. Words you keep missing come back until they become Legend cards.",
