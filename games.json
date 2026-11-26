@@ -35,57 +35,6 @@
   "wide": "img/wide-study-arcade.webp"
  },
  {
-  "slug": "evergreen",
-  "title": "Evergreen",
-  "desc": "Build a cozy village in the forest! Chop trees, gather stones and flowers, open cafés and cabins, and welcome happy visitors. Unlock the lake, meadow, mountains and an old woodland full of secrets.",
-  "emoji": "🌲",
-  "cats": [
-   "3D",
-   "Adventure"
-  ],
-  "lang": "English",
-  "controls": [
-   [
-    "WASD",
-    "Walk"
-   ],
-   [
-    "Mouse",
-    "Look around (click the world)"
-   ],
-   [
-    "Shift / Space",
-    "Run / Jump"
-   ],
-   [
-    "E",
-    "Chop, mine, fish, talk"
-   ],
-   [
-    "B",
-    "Build mode (R rotate, click to place)"
-   ],
-   [
-    "V / J / I / M",
-    "Village, journal, bag, map"
-   ],
-   [
-    "Esc",
-    "Menu and save"
-   ]
-  ],
-  "tip": "Lay Stone Path tiles so visitors can reach your shops, and press E at the water to go fishing.",
-  "mobile": false,
-  "version": 2,
-  "updated": "2026-11-25",
-  "added": "2026-11-25",
-  "notes": "New: a leaderboard for the most loved villages!",
-  "author": "hugo",
-  "authorName": "Hugo",
-  "cover": "img/cover-evergreen.webp",
-  "wide": "img/wide-evergreen.webp"
- },
- {
   "slug": "tower-stack",
   "title": "Tower Stack",
   "desc": "Drop each sliding block right on top of the last. Anything that hangs over gets sliced off. Line it up perfectly three times and the block grows back.",
@@ -144,7 +93,6 @@
   "author": "hugo",
   "cover": "img/cover-merge-2048.webp",
   "wide": "img/wide-merge-2048.webp",
-  "updated": "2026-11-23",
   "authorName": "Hugo"
  },
  {
@@ -202,7 +150,6 @@
   "author": "hugo",
   "cover": "img/cover-planet-maker.webp",
   "wide": "img/wide-planet-maker.webp",
-  "updated": "2026-11-23",
   "authorName": "Hugo"
  },
  {
@@ -255,7 +202,6 @@
   "author": "hugo",
   "cover": "img/cover-echoes-of-the-unknown.webp",
   "wide": "img/wide-echoes-of-the-unknown.webp",
-  "updated": "2026-11-23",
   "authorName": "Hugo"
  },
  {
@@ -336,7 +282,6 @@
   "tip": "Each fighting type levels up on its own. Try them all!",
   "mobile": false,
   "author": "hugo",
-  "updated": "2026-11-22",
   "authorName": "Hugo"
  },
  {
@@ -450,7 +395,6 @@
   "tip": "Rolling makes you invincible for a moment. Use it to escape crowds.",
   "mobile": false,
   "author": "hugo",
-  "updated": "2026-11-22",
   "authorName": "Hugo"
  },
  {
