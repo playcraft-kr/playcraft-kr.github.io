@@ -295,11 +295,11 @@
    "Sports"
   ],
   "lang": "English",
-  "version": 4,
+  "version": 5,
   "multiplayer": true,
   "updated": "2026-11-26",
   "added": "2026-11-21",
-  "notes": "Tougher boxers! And when you get knocked down online, tap the key on screen fast to get back up!",
+  "notes": "Tougher boxers, tap fast to get up when knocked down online, and your wins now show who you beat!",
   "cover": "img/cover-boxing.webp",
   "wide": "img/wide-boxing.webp",
   "controls": [

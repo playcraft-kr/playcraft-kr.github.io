@@ -49,7 +49,9 @@ button.big:disabled{opacity:.45;cursor:default}
 .note{margin:14px auto 0;max-width:460px;padding:10px 14px;border-radius:12px;background:rgba(255,204,51,.12);border:1px solid rgba(255,204,51,.4);color:#ffe7a0;font-size:15px}
 .board{margin:16px auto 0;max-width:420px;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px 14px;font-size:15px}
 .board h3{margin:0 0 6px;font:400 19px "Black Han Sans";color:#ffcc33;text-align:center}
-.board ol{margin:0;padding:0;list-style:none}
+.board ol,.board ul.beat{margin:0;padding:0;list-style:none}
+.board h4{margin:10px 0 4px;font:400 15px "Black Han Sans";color:#9ef;text-align:center}
+.board ul.beat li{display:flex;gap:10px;padding:2px 6px;font-size:14px}
 .board li{display:flex;gap:10px;padding:3px 6px;border-radius:8px}
 .board li .rk{width:26px;color:#aaa}.board li .nk{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.board li .tm{font-weight:700;color:#fff}
 .board li.me{background:rgba(255,204,51,.2)}.board li.me .nk{color:#ffcc33;font-weight:700}
@@ -962,7 +964,7 @@ function applyEnd(e){const N=ONL;if(N.phase!=='match')return;upEnd();N.phase='en
  if(e.how==='ko'){whiteFlash=.6;SFX.ko();SFX.bell(3);banner('K.O.!','#ffcc33',2.6,20)}
  else if(e.how==='time'){SFX.bell(3);banner('TIME!','#fff',1.6,18)}
  else banner(N.oppNick+' left','#fff',1.6,10);
- if(won&&e.how!=='left')saveWin(e.how==='ko'?+e.s||0:0)}
+ if(won&&e.how!=='left')saveWin(e.how==='ko'?+e.s||0:0,e.how)}
 function oppLeft(){const N=ONL;if(!N||N.oppGone)return;N.oppGone=true;
  if(N.phase==='match')applyEnd({win:N.id,how:'left'});
  else if(N.phase==='end'&&$('res').dataset.shown){$('resBtn').disabled=true;const n=$('resNote');n.textContent=N.oppNick+' left the ring.';n.hidden=false}}
@@ -1020,13 +1022,15 @@ function netHUD(pad,fz){const N=ONL;if(!N)return;
 }
 
 /* ---- Fastest KOs board ---- */
-async function saveWin(secs){const me=myUser(),N=ONL;if(!PCA||!me)return;let limited=false;try{limited=PCA.limited}catch(e){}if(limited)return;
+async function saveWin(secs,how){const me=myUser(),N=ONL,opp=cleanNick(N&&N.oppNick)||'Boxer';if(!PCA||!me)return;let limited=false;try{limited=PCA.limited}catch(e){}if(limited)return;
  let note='';
  try{let old=null;try{old=await PCA.kvGet(GAME,LB,me)}catch(e){}old=(old&&typeof old==='object')?old:{};
   const best=+old.s||0,better=secs>0&&(!best||secs<best);
   const v=Object.assign({},old,{w:(+old.w||0)+1,t:Date.now(),nick:myNick()});delete v.n;if(better)v.s=Math.round(secs*10)/10;
+  // who you beat (nicknames only), newest first
+  v.beat=[{n:opp,h:how==='ko'?'ko':'pts',s:secs>0?Math.round(secs*10)/10:0,t:Date.now()}].concat(Array.isArray(old.beat)?old.beat:[]).slice(0,8);
   await PCA.kvSet(GAME,LB,me,v);
-  note=better?(best?`New record! Your fastest K.O. is now ${fmtS(secs)}.`:`You’re on the Fastest KOs board with ${fmtS(secs)}!`):(secs&&best?`Your fastest K.O. is still ${fmtS(best)}.`:'Win saved!');
+  note=`You beat ${opp}! `+(better?(best?`New record! Your fastest K.O. is now ${fmtS(secs)}.`:`You’re on the Fastest KOs board with ${fmtS(secs)}!`):(secs&&best?`Your fastest K.O. is still ${fmtS(best)}.`:'Win saved!'));
  }catch(e){note='Couldn’t save your win this time.'}
  if(N&&ONL===N){N.saveNote=note;if($('res').dataset.shown&&!N.oppGone&&!N.again.me&&!N.again.opp)resNote(note)}
  renderBoard()}
@@ -1034,11 +1038,15 @@ async function renderBoard(){const box=$('koBoard');if(!PCA){box.hidden=true;ret
  for(let i=0;i<50&&!PCA.ready;i++)await new Promise(r=>setTimeout(r,100));
  let rows=[];try{rows=(await PCA.kvList(GAME,LB,300))||[]}catch(e){box.hidden=true;return}
  const me=myUser();
+ const mine=rows.find(r=>!!me&&r&&r.doc_id===me),beat=mine&&mine.data&&Array.isArray(mine.data.beat)?mine.data.beat.slice(0,5):[];
  const list=rows.map(r=>{const d=(r&&r.data)||{};return{me:!!me&&r.doc_id===me,nk:cleanNick(d.nick)||'Boxer',s:+d.s||0,w:+d.w||0}}).filter(r=>r.s>0).sort((a,b)=>a.s-b.s||b.w-a.w).slice(0,10);
  box.innerHTML='';const h=document.createElement('h3');h.textContent='🥊 Fastest KOs · Online 1:1';box.append(h);
  if(!list.length){const p=document.createElement('p');p.className='dim';p.style.cssText='margin:0;text-align:center;font-size:14px';p.textContent='No K.O.s yet. Win an online 1:1 by K.O. to be first!';box.append(p)}
  else{const ol=document.createElement('ol');list.forEach((r,i)=>{const li=document.createElement('li');if(r.me)li.className='me';
   [['rk',(i+1)+'.'],['nk',r.nk+(r.me?' (you)':'')],['tm',fmtS(r.s)],['dim',r.w+(r.w===1?' win':' wins')]].forEach(([c,t])=>{const sp=document.createElement('span');sp.className=c;sp.textContent=t;li.append(sp)});ol.append(li)});box.append(ol)}
+ if(beat.length){const h4=document.createElement('h4');h4.textContent='Your wins';box.append(h4);const ul=document.createElement('ul');ul.className='beat';
+  beat.forEach(b=>{const li=document.createElement('li');const a=document.createElement('span');a.className='nk';a.textContent='Beat '+(cleanNick(b&&b.n)||'Boxer');
+   const c=document.createElement('span');c.className='dim';c.textContent=b&&b.h==='ko'?('K.O.'+(+b.s>0?' '+fmtS(+b.s):'')):'on points';li.append(a,c);ul.append(li)});box.append(ul)}
  box.hidden=false}
 function toMenu(){netLeave();fight='title';['res','lobby'].forEach(i=>$(i).classList.add('hide'));delete $('res').dataset.shown;$('title').classList.remove('hide');$('onMsg').hidden=true;
  hitstop=0;slowT=0;newPlayer();newOpp(0);P.pos.set(.3,0,-1.3);O.pos.set(0,0,1.3);separate();pops=[];banners=[];renderBoard()}
