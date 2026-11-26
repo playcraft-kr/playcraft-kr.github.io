@@ -215,10 +215,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 37,
+  "version": 38,
   "added": "2026-11-22",
   "updated": "2026-11-26",
-  "notes": "Shootout: new skill moves (Q E R Shift), a packed stadium and big goal celebrations!",
+  "notes": "Added 41 synonym words missed or skipped on Nov 26 (24 new). They come first in training.",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
