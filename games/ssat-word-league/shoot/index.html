@@ -217,86 +217,58 @@ function flyTo(p0,v0,w,kn,zEnd=0){const p=p0.clone(),v=v0.clone(),a=new V3();let
 function solveKick(p0,tgt,speed,w,kn){const d=new V3(tgt.x-p0.x,tgt.y-p0.y,-p0.z).normalize();const v=d.multiplyScalar(speed);
  for(let i=0;i<10;i++){const c=flyTo(p0,v,w,kn);const ex=tgt.x-c.x,ey=tgt.y-c.y;if(Math.abs(ex)<.01&&Math.abs(ey)<.01)break;const tt=Math.max(.2,c.t);v.x+=ex/tt;v.y+=ey/tt*1.05;v.setLength(speed)}return v}
 
-/* ---------------- players (boxing models, repainted into football kits) ---------------- */
-const MODELS={};
+/* ---------------- players: Mixamo characters moved by motion-capture clips ---------------- */
+const GL={};                    // loaded glTFs
 const KITS={
- me:{shirt:0xd3122b,shorts:0xf5f5f5,socks:0xd3122b,boot:0x15171c,trim:0xffffff,hand:null},
- df:{shirt:0x1d4fd0,shorts:0x0f1d45,socks:0xf2f2f2,boot:0xf2f2f2,trim:0xffffff,hand:null},
- gk:{shirt:0xc8ef3a,shorts:0x111111,socks:0xc8ef3a,boot:0x111111,trim:0x111111,hand:0xf0f0f0}};
-// sort each vertex of the boxer into a kit zone using its height (meters, bind pose) and which bone moves it most
-function zoneGeometry(mesh){const g=mesh.geometry;if(g.attributes.zcat)return;const P=g.attributes.position,J=g.attributes.skinIndex,W=g.attributes.skinWeight,bones=mesh.skeleton.bones,z=new Float32Array(P.count*4);
- // body part per vertex (torso/legs, upper arm, forearm, hand; head = none). The kit lines are cut per pixel from the rest-pose height.
- for(let i=0;i<P.count;i++){let bj=0,bw=-1;const ws=[W.getX(i),W.getY(i),W.getZ(i),W.getW(i)],js=[J.getX(i),J.getY(i),J.getZ(i),J.getW(i)];for(let k=0;k<4;k++){if(ws[k]>bw){bw=ws[k];bj=js[k]}}
-  const n=bones[bj].name;const c=/Hand/.test(n)?3:/ForeArm/.test(n)?2:/Arm$/.test(n)?1:/Head|neck|head/.test(n)?-1:0;if(c>=0)z[i*4+c]=1}
- g.setAttribute('zcat',new T.BufferAttribute(z,4))}
-function skinTone(mesh){try{const g=mesh.geometry,img=mesh.material.map.image,P=g.attributes.position,U=g.attributes.uv;const c=cvs(img.width,img.height,x=>x.drawImage(img,0,0)).getContext('2d');
-  const D=c.getImageData(0,0,c.canvas.width,c.canvas.height).data,acc=[];for(let i=0;i<P.count;i+=3){const y=P.getY(i),zz=P.getZ(i);if(y>1.47&&y<1.6&&zz>.06){const u=U.getX(i),v=U.getY(i),k=((v*(c.canvas.height-1)|0)*c.canvas.width+(u*(c.canvas.width-1)|0))*4;acc.push([D[k],D[k+1],D[k+2]])}}
-  acc.sort((a,b)=>a[0]+a[1]+a[2]-b[0]-b[1]-b[2]);const m=acc[acc.length>>1];if(m)return new T.Color(m[0]/255,m[1]/255,m[2]/255).convertSRGBToLinear()}catch(e){}return new T.Color(0xd9a07e).convertSRGBToLinear()}
-function kitMaterial(orig,kit,skin){const m=new T.MeshStandardMaterial({map:orig.map,roughness:.78,metalness:0,skinning:true});
- const U={uShirt:kit.shirt,uShorts:kit.shorts,uSocks:kit.socks,uBoot:kit.boot,uTrim:kit.trim};
- const lin=h=>new T.Color(h).convertSRGBToLinear();m.onBeforeCompile=s=>{for(const k in U)s.uniforms[k]={value:lin(U[k])};s.uniforms.uHand={value:kit.hand!=null?lin(kit.hand):skin};s.uniforms.uSkin={value:skin};
-  s.vertexShader='attribute vec4 zcat;\nvarying vec4 vZC;\nvarying float vBY;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvZC=zcat;vBY=position.y;');
-  s.fragmentShader='uniform vec3 uShirt,uShorts,uSocks,uBoot,uTrim,uHand,uSkin;\nvarying vec4 vZC;\nvarying float vBY;\n'+s.fragmentShader.replace('#include <map_fragment>',`#include <map_fragment>
-  float hd=1.-(vZC.x+vZC.y+vZC.z+vZC.w),mx=max(max(vZC.x,vZC.y),max(vZC.z,vZC.w)),y=vBY,vZone=0.;
-  if(hd>mx)vZone=y<1.37?6.:0.;
-  else if(vZC.w==mx)vZone=5.;else if(vZC.z==mx)vZone=7.;
-  else if(vZC.y==mx)vZone=y>1.17?1.:y>1.135?6.:7.;
-  else vZone=y>1.385?0.:y>1.355?6.:y>.86?1.:y>.52?2.:y>.44?7.:y>.40?6.:y>.11?3.:4.;
-  if(vZone>.5){float lu=dot(diffuseColor.rgb,vec3(.3,.59,.11));vec3 kc=vZone<1.5?uShirt:vZone<2.5?uShorts:vZone<3.5?uSocks:vZone<4.5?uBoot:vZone<5.5?uHand:vZone<6.5?uTrim:uSkin;
-   diffuseColor.rgb=kc*clamp(.93+.22*(lu-.55),.8,1.06);}`)};
- m.customProgramCacheKey=()=>'kit';return m}
+ me:{model:'striker',shirt:0xd3122b,shorts:0xf4f4f4,socks:0xd3122b},
+ df:{model:'defender',shirt:0x1a45b8,shorts:0x101c44,socks:0x1a45b8,shoes:0x262626,flat:true},
+ gk:{model:'striker',shirt:0xc3e83a,shorts:0x161616,socks:0xc3e83a,gloves:0xf4f4f4}};
+const lin=h=>new T.Color(h).convertSRGBToLinear();
+// keeper gloves: the hands are part of the body mesh, so tint by how much each vertex follows a hand/finger bone
+function gloveTint(mesh,m,col){const g=mesh.geometry;if(!g.attributes.aGlove){const J=g.attributes.skinIndex,W=g.attributes.skinWeight,bn=mesh.skeleton.bones.map(b=>/Hand/.test(b.name)),a=new Float32Array(J.count);
+  for(let i=0;i<J.count;i++)a[i]=(bn[J.getX(i)]?W.getX(i):0)+(bn[J.getY(i)]?W.getY(i):0)+(bn[J.getZ(i)]?W.getZ(i):0)+(bn[J.getW(i)]?W.getW(i):0);g.setAttribute('aGlove',new T.BufferAttribute(a,1))}
+ m.onBeforeCompile=s=>{s.uniforms.uGlove={value:lin(col)};s.vertexShader='attribute float aGlove;\nvarying float vGlove;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvGlove=aGlove;');
+  s.fragmentShader='uniform vec3 uGlove;\nvarying float vGlove;\n'+s.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\ndiffuseColor.rgb=mix(diffuseColor.rgb,uGlove,smoothstep(.3,.6,vGlove));')};
+ m.customProgramCacheKey=()=>'glove'}
+function dress(o,kit){const n=o.name.toLowerCase(),m=o.material.clone();o.material=m;m.metalness=0;m.roughness=.82;
+ const part=/shirt/.test(n)?'shirt':/shorts/.test(n)?'shorts':/sock/.test(n)?'socks':/shoe|sneaker/.test(n)?'shoes':null;
+ if(part&&kit[part]!=null){if(kit.flat&&part!=='socks')m.map=null;m.color=lin(kit[part])}
+ if(/hair|lash/.test(n)){m.transparent=false;m.alphaTest=.4;m.side=T.DoubleSide;m.roughness=.6}
+ if(kit.gloves&&/body/.test(n))gloveTint(o,m,kit.gloves);m.needsUpdate=true}
 
-// rotate bones in the character's own space (x: its left, y: up, z: forward), on top of the rest pose
-const QT=new T.Quaternion(),QE=new T.Euler(),QT2=new T.Quaternion();
-const POSEB=['Hips','Spine02','Spine01','Spine','neck','Head','LeftUpLeg','LeftLeg','LeftFoot','RightUpLeg','RightLeg','RightFoot','LeftArm','LeftForeArm','RightArm','RightForeArm','LeftShoulder','RightShoulder'];
-function makeRig(model){const b={};model.traverse(o=>{if(o.isBone)b[o.name]=o});model.updateMatrixWorld(true);const ri=model.getWorldQuaternion(new T.Quaternion()).invert(),R={};
- for(const n of POSEB){const o=b[n];if(!o)continue;const w=ri.clone().multiply(o.getWorldQuaternion(new T.Quaternion()));R[n]={o,l:o.quaternion.clone(),w,wi:w.clone().invert()}}return{R,b}}
-function applyPose(rig,P){for(const n in rig.R){const r=rig.R[n],e=P[n];if(!e){r.o.quaternion.copy(r.l);continue}
- QT.setFromEuler(QE.set(e[0]*D2R,e[1]*D2R,e[2]*D2R,'YXZ'));r.o.quaternion.copy(r.l).multiply(QT2.copy(r.wi).multiply(QT).multiply(r.w))}}
-// how much lower the hips sit when the legs bend, so the feet stay on the grass
-const L1=.37,L2=.343;
-function legDrop(P){const h=s=>{const t=(P[s+'UpLeg']||[0,0,0]),k=(P[s+'Leg']||[0,0,0]);return(L1*Math.cos(t[0]*D2R)+L2*Math.cos((t[0]+k[0])*D2R))*Math.cos(t[2]*D2R)};return L1+L2-Math.max(h('Left'),h('Right'))}
-
-class Player{constructor(kind,kit,hand){const src=MODELS[kind];this.root=new T.Group();this.body=new T.Group();this.root.add(this.body);scene.add(this.root);
-  const model=T.SkeletonUtils.clone(src.scene);this.body.add(model);this.model=model;let sk=null;
-  model.traverse(o=>{if(o.isSkinnedMesh){sk=o;o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;zoneGeometry(o);o.material=kitMaterial(o.material,kit,src.skin)}});
-  this.rig=makeRig(model);const hb=this.rig.b;if(hb.LeftHand){hb.LeftHand.scale.setScalar(hand);hb.RightHand.scale.setScalar(hand)}
-  this.P={};this.cur={};this.shiftX=0;this.x=0;this.z=0;this.vx=0;this.yaw=0;this.ph=0;this.lift=0;this.roll=0;this.shift=0}
- place(x,z,yaw){this.shiftX=0;this.x=x;this.z=z;this.yaw=yaw;this.vx=0;this.lift=0;this.roll=0;this.shift=0;this.body.rotation.set(0,0,0);this.body.position.set(0,0,0);this.cur={}}
- // blend toward the wanted pose (rate: higher = snappier)
- pose(P,dt,rate=16){const k=1-Math.exp(-rate*dt),C=this.cur;for(const n in P){const a=C[n]||(C[n]=[0,0,0]),b=P[n];a[0]+=(b[0]-a[0])*k;a[1]+=(b[1]-a[1])*k;a[2]+=(b[2]-a[2])*k}
-  for(const n in C)if(!P[n]){const a=C[n];a[0]-=a[0]*k;a[1]-=a[1]*k;a[2]-=a[2]*k}applyPose(this.rig,C);this.drop=legDrop(C)}
- sync(bob=0){this.root.position.set(this.x,0,this.z);this.root.rotation.y=this.yaw;this.body.position.y=this.lift-(this.drop||0)+bob}}
-
-/* poses (degrees, character space). x<0 on a thigh = leg forward; x>0 on a knee = bend */
-function poseRun(ph,amp,lean,headDown){const s=Math.sin(ph),c=Math.cos(ph),a=amp;
- return{LeftUpLeg:[-a*s-8,0,3],RightUpLeg:[a*s-8,0,-3],LeftLeg:[14+a*1.7*Math.max(0,c)+6*Math.max(0,-s),0,0],RightLeg:[14+a*1.7*Math.max(0,-c)+6*Math.max(0,s),0,0],
-  LeftFoot:[12*Math.max(0,-s),0,0],RightFoot:[12*Math.max(0,s),0,0],
-  LeftArm:[a*.85*s,0,-12],RightArm:[-a*.85*s,0,12],LeftForeArm:[-62-10*s,0,0],RightForeArm:[-62+10*s,0,0],
-  Hips:[0,7*s,0],Spine02:[lean,-5*s,0],Spine:[3,-6*s,0],Head:[headDown-lean*.6,4*s,0]}}
-function poseIdle(t){const b=Math.sin(t*1.6)*1.2;return{LeftUpLeg:[-3,0,4],RightUpLeg:[-3,0,-4],LeftLeg:[6,0,0],RightLeg:[6,0,0],LeftArm:[0,0,-14],RightArm:[0,0,14],LeftForeArm:[-18,0,0],RightForeArm:[-18,0,0],Spine02:[2+b,0,0],Head:[2,0,0]}}
-function poseKick(t,tech){const tc=.42,thigh=kf(t,[[0,-6],[.22,32],[tc,-58],[.62,-78],[1,-10]]),knee=kf(t,[[0,15],[.22,98],[tc,12],[.62,28],[1,8]]);
- const open=tech==='curl'?-38:tech==='inside'?-24:0,toe=tech==='knuckle'?38:tech==='curl'?10:4,arm=sm(t/.4);
- return{RightUpLeg:[thigh,open*sm(t/.3),-6],RightLeg:[knee,0,0],RightFoot:[toe,tech==='knuckle'?0:-18,0],LeftUpLeg:[-14,0,6],LeftLeg:[26,0,0],
-  LeftArm:[-25*arm,0,52*arm],RightArm:[28*arm,0,-38*arm],LeftForeArm:[-30,0,0],RightForeArm:[-40,0,0],
-  Hips:[0,kf(t,[[0,-8],[tc,14],[1,4]]),0],Spine02:[kf(t,[[0,10],[tc,tech==='knuckle'?14:2],[.7,-6],[1,4]]),kf(t,[[0,-10],[tc,10],[1,0]]),0],Head:[16,0,0]}}
-function poseFeint(t,dir){const b=Math.sin(Math.PI*clamp(t,0,1)),s=dir;   // dir +1: towards the character's left
- const P=poseRun(0,10,10,14);P.Spine02=[10,0,-s*20*b];P.Hips=[0,s*12*b,-s*8*b];
- if(s>0){P.RightUpLeg=[-34*b,0,26*b];P.RightLeg=[40*b,0,0]}else{P.LeftUpLeg=[-34*b,0,-26*b];P.LeftLeg=[40*b,0,0]}
- P.LeftArm=[0,0,(s>0?10:35)*b];P.RightArm=[0,0,-(s>0?35:10)*b];return P}
-function poseJockey(ph,lat){const w=Math.min(1,Math.abs(lat)/3),s=Math.sin(ph);
- return{LeftUpLeg:[-30,0,12+9*s*w],RightUpLeg:[-30,0,-12+9*s*w],LeftLeg:[40,0,0],RightLeg:[40,0,0],LeftFoot:[-8,0,0],RightFoot:[-8,0,0],
-  Spine02:[22,0,0],Spine:[4,0,0],Head:[-18,0,0],LeftArm:[-14,0,24],RightArm:[-14,0,-24],LeftForeArm:[-36,0,0],RightForeArm:[-36,0,0]}}
-function poseLunge(t,dir){const e=eo(t/.35),s=dir;   // dir +1: towards its left
- const P={Spine02:[20,0,-s*22*e],Head:[-10,0,s*10*e],LeftArm:[-10,0,30+(s<0?20:0)*e],RightArm:[-10,0,-30-(s>0?20:0)*e],LeftForeArm:[-30,0,0],RightForeArm:[-30,0,0]};
- if(s>0){P.LeftUpLeg=[-18*e,0,52*e];P.LeftLeg=[8,0,0];P.RightUpLeg=[-42,0,-6];P.RightLeg=[66,0,0]}else{P.RightUpLeg=[-18*e,0,-52*e];P.RightLeg=[8,0,0];P.LeftUpLeg=[-42,0,6];P.LeftLeg=[66,0,0]}return P}
-function poseKeeper(t){const b=Math.sin(t*7)*2;return{LeftUpLeg:[-38,0,14],RightUpLeg:[-38,0,-14],LeftLeg:[50+b,0,0],RightLeg:[50+b,0,0],LeftFoot:[-10,0,0],RightFoot:[-10,0,0],
- Spine02:[26,0,0],Head:[-22,0,0],LeftArm:[-38,0,34],RightArm:[-38,0,-34],LeftForeArm:[-48,0,0],RightForeArm:[-48,0,0]}}
-function poseDive(p,dir){const e=eo(p);const s=dir;   // dir +1: dive to its left
- return{LeftUpLeg:[-10*e,0,s>0?18*e:4],RightUpLeg:[-25*e,0,s<0?-18*e:-4],LeftLeg:[s>0?10:45*e,0,0],RightLeg:[s<0?10:45*e,0,0],
-  Spine02:[8*(1-e),0,0],Head:[-6,0,0],LeftArm:[-10*e,0,34+(150-34)*e],RightArm:[-10*e,0,-34-(150-34)*e],LeftForeArm:[-10,0,0],RightForeArm:[-10,0,0]}}
-function poseCheer(t){const w=Math.sin(t*9)*12;return{LeftArm:[-20,0,150+w],RightArm:[-20,0,-150-w],LeftForeArm:[-20,0,0],RightForeArm:[-20,0,0],Spine02:[-8,0,0],Head:[-14,0,0],LeftUpLeg:[-5,0,6],RightUpLeg:[-5,0,-6]}}
-function poseSad(){return{Spine02:[18,0,0],Spine:[6,0,0],Head:[30,0,0],LeftArm:[0,0,-6],RightArm:[0,0,6],LeftForeArm:[-10,0,0],RightForeArm:[-10,0,0],LeftLeg:[6,0,0],RightLeg:[6,0,0]}}
+let CLIPS={},CLIP_SPD={};
+const ONCE={kick:1,tackle:1,gk_dive_a:1,gk_dive_b:1,gk_catch:1,header:1};
+// loops run in place: take the forward/sideways drift out of the hips and remember the speed it had
+function prepClips(list){for(const c of list){const t=c.tracks.find(t=>/Hips\.position$/.test(t.name));let spd=0;
+  if(t&&!ONCE[c.name]){const v=t.values,n=t.times.length,d=c.duration||1,dx=v[(n-1)*3]-v[0],dy=v[(n-1)*3+1]-v[1];for(let i=0;i<n;i++){const f=t.times[i]/d;v[i*3]-=dx*f;v[i*3+1]-=dy*f}spd=Math.hypot(dx,dy)/d/100}
+  CLIPS[c.name]=c;CLIP_SPD[c.name]=spd}}
+const TV=new V3(),TV2=new V3(),QT=new T.Quaternion();
+// bone pairs the ball can hit on the keeper (radius in meters)
+const CAPS=[['Head','HeadTop_End',.12],['Neck','Head',.08],['Spine2','Neck',.17],['Spine','Spine2',.17],['Hips','Spine',.16],
+ ['LeftArm','LeftForeArm',.07],['LeftForeArm','LeftHand',.06],['LeftHand','LeftHandMiddle3',.09],['RightArm','RightForeArm',.07],['RightForeArm','RightHand',.06],['RightHand','RightHandMiddle3',.09],
+ ['LeftUpLeg','LeftLeg',.09],['LeftLeg','LeftFoot',.07],['LeftFoot','LeftToeBase',.06],['RightUpLeg','RightLeg',.09],['RightLeg','RightFoot',.07],['RightFoot','RightToeBase',.06]];
+class Player{constructor(kit){const g=GL[kit.model];this.root=new T.Group();scene.add(this.root);this.model=T.SkeletonUtils.clone(g.scene);this.root.add(this.model);this.B={};
+  this.model.traverse(o=>{if(o.isBone)this.B[o.name]=o;if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;dress(o,kit)}});
+  this.mx=new T.AnimationMixer(this.model);this.acts={};this.cur=null;this.rm=null;this.x=0;this.z=0;this.yaw=0;this.vx=0;this.lift=0;this.shift=0;
+  this.caps=CAPS.filter(c=>this.B[c[0]]&&this.B[c[1]]).map(c=>({a:this.B[c[0]],b:this.B[c[1]],r:c[2],leg:/Leg|Foot/.test(c[0]),pa:new V3(),pb:new V3()}))}
+ act(n){let a=this.acts[n];if(!a){a=this.acts[n]=this.mx.clipAction(CLIPS[n]);if(ONCE[n]){a.setLoop(T.LoopOnce,1);a.clampWhenFinished=true}}return a}
+ // switch clip with a short cross-fade (from: start time; speed: playback rate)
+ play(n,{fade=.22,from=null,speed=1}={}){const a=this.act(n);if(this.cur===n&&from==null){a.timeScale=speed;return a}
+  const p=this.cur?this.act(this.cur):null;a.reset();a.paused=false;a.timeScale=speed;a.setEffectiveWeight(1);if(from!=null)a.time=from;a.play();
+  if(p&&p!==a)p.crossFadeTo(a,fade,false);this.cur=n;return a}
+ time(){return this.cur?this.act(this.cur).time:0}
+ // scale the clip's own travel (a dive that must reach farther or a shorter slide)
+ setRM(kx,kz){this.model.position.set(0,0,0);this.model.updateMatrixWorld(true);this.rm={kx,kz,h0:this.hipsM().clone()}}
+ hipsM(){this.B.Hips.getWorldPosition(TV);return this.model.worldToLocal(TV)}
+ // keep the spot where the clip carried the body (before switching back to a loop)
+ bake(){this.B.Hips.getWorldPosition(TV2);this.x=TV2.x;this.z=TV2.z;this.rm=null;this.model.position.set(0,0,0)}
+ place(x,z,yaw){this.x=x;this.z=z;this.yaw=yaw;this.vx=0;this.lift=0;this.shift=0;this.rm=null;this.mx.stopAllAction();this.cur=null;this.model.position.set(0,0,0)}
+ update(dt){this.mx.update(dt);this.root.position.set(this.x+this.shift,this.lift,this.z);this.root.rotation.y=this.yaw;
+  if(this.rm){this.root.updateMatrixWorld(true);const h=this.hipsM();this.model.position.set((h.x-this.rm.h0.x)*(this.rm.kx-1),0,(h.z-this.rm.h0.z)*(this.rm.kz-1))}
+  this.root.updateMatrixWorld(true)}
+ bones(){for(const c of this.caps){c.a.getWorldPosition(c.pa);c.b.getWorldPosition(c.pb)}}}
+function segPt(a,b,p){const vx=b.x-a.x,vy=b.y-a.y,vz=b.z-a.z,l=vx*vx+vy*vy+vz*vz||1,t=clamp(((p.x-a.x)*vx+(p.y-a.y)*vy+(p.z-a.z)*vz)/l,0,1);
+ TV2.set(a.x+vx*t,a.y+vy*t,a.z+vz*t);return TV2}
 
 /* ---------------- audio (all synthesized) ---------------- */
 let AC=null,crowdG=null,NB=null;
@@ -320,7 +292,7 @@ const camS={px:SP(),py:SP(),pz:SP(),lx:SP(),ly:SP(),lz:SP()};
 let tScale=1;
 
 function newAttempt(){const i=GS.shot;me.place(rnd(-1.5,1.5),30,Math.PI);df.place(0,17,0);gk.place(0,.5,0);
- A={phase:'ready',t:0,i,hist:[],def:{st:'jockey',t:0,vx:0,dir:0,feints:0},react:.22-.008*i,dvmax:5.2+.05*i,dacc:12+.4*i,bite:.93-.035*i,
+ A={phase:'ready',t:0,i,hist:[],def:{st:'jockey',t:0,vx:0,dir:0,feints:0},react:.22-.008*i,dvmax:5.2+.05*i,dacc:12+.4*i,bite:.95-.025*i,
   feint:null,fcool:0,aim:{x:0,y:1.1},gauge:null,timer:0,kick:null,res:null,shotT:0,gkPlan:null,post:false,saved:false,resT:0,touch:0};
  B.live=false;B.p.set(me.x,BR,me.z-.5);B.v.set(0,0,0);B.w.set(0,0,0);ball.position.copy(B.p);
  for(const k in camS)camS[k].x=NaN;
@@ -350,12 +322,12 @@ addEventListener('pointerup',()=>dragAim=false);
 
 function steer(){return((keys.ArrowRight||keys.d||keys.D||keys._R)?1:0)-((keys.ArrowLeft||keys.a||keys.A||keys._L)?1:0)}
 function skill(){if(!A||A.phase!=='dribble'||A.feint||A.fcool>0)return;const dz=me.z-df.z;let dir=steer()||A.lastDir||(Math.random()<.5?-1:1);
- A.feint={t:0,dir};A.fcool=1.1;SFX.touch();
+ A.feint={t:0,dir};A.fcool=1.1;SFX.touch();me.play(-dir>0?'strafe_l':'strafe_r',{fade:.12,speed:1.5});
  const d=A.def;if(d.st==='jockey'){
   if(dz>7.5){toast(L('너무 멀어요! 더 가까이에서','Too far! Get closer first'));return}
   if(dz<1.9){toast(L('너무 가까워요!','Too close!'));return}
   const p=d.feints?A.bite*.45:A.bite;d.feints++;
-  if(Math.random()<p){d.st='bite';d.t=0;d.dir=dir;d.from=df.x;toast(L('속았다! 지금 반대쪽으로! ⟵⟶','He bit! Go the other way! ⟵⟶'),1)}
+  if(Math.random()<p){d.dir=dir;dfTackle(df.x+dir*2.4,df.z+.8,'bite');toast(L('속았다! 지금 반대쪽으로! ⟵⟶','He bit! Go the other way! ⟵⟶'),1)}
   else toast(L('수비수가 안 속았어요','The defender didn’t bite'))}}
 function action(){if(!A)return;if(A.phase==='dribble'){skill();return}
  if(A.phase!=='aim'||A.kick)return;
@@ -399,95 +371,97 @@ function launch(){const k=A.kick,tt=TECH[k.tech];const p0=new V3(B.p.x,BR,B.p.z)
  else{w.set(-.4,.25,0);kn={a:3.8,f:rnd(3,4.2),f2:rnd(2.4,3.4),p1:rnd(0,TAU),p2:rnd(0,TAU)}}
  const v=solveKick(p0,tgt,speed,w,kn);B.p.copy(p0);B.v.copy(v);B.w.copy(w);B.knuck=kn;B.t=0;B.live=true;A.phase='flight';A.shotT=0;A.tgt=tgt;
  SFX.kick(k.tech==='knuckle'?1.2:1);planKeeper()}
-// the keeper guesses where the ball will cross the line
+// the keeper guesses where the ball will cross his line
 function planKeeper(){const tech=A.kick.tech,i=A.i;const real=flyTo(B.p,B.v,B.w,B.knuck,gk.z);let gx=real.x,gy=real.y,react=.2-.006*i;
- if(tech==='curl'){if(Math.random()<.3){react=.24}else{const st=flyTo(B.p,B.v,new V3(),null,gk.z);gx=st.x;gy=st.y;react=.24;A.gkFix=real.t*.55}}   // sometimes he reads the bend   // fooled by the bend at first
- if(tech==='knuckle'){if(Math.random()>.2){gx+=rnd(-.6,.6);gy+=rnd(-.35,.35)}react=.27}   // a lucky guess now and then
- if(tech==='inside'){gx+=rnd(-.35,.35);gy+=rnd(-.15,.15);react=.24-.006*i}
- A.gkPlan={t:-react,x:gx,y:gy,tc:real.t,dur:.64-.008*i,dir:0};setDive(gx,gy)}
-function setDive(x,y){const P=A.gkPlan,dx=x-gk.x;P.x=x;P.y=y;
- P.stay=Math.abs(dx)>3.8;   // thinks it is going wide
- P.dir=Math.sign(dx)||1;P.shift=P.dir*Math.min(.8,Math.max(0,Math.abs(dx)-.35));const rx=Math.abs(dx)-Math.abs(P.shift),ry=Math.max(.15,y-.15);
- P.alpha=Math.min(84,Math.atan2(rx,ry)/D2R);P.reach=Math.min(1.95,Math.hypot(rx,ry));P.low=Math.abs(dx)<.6&&y<1.7}
-const dvE=p=>1-(1-clamp(p,0,1))**2;   // dive easing
-function keeperBody(){// world segment feet→hands for save checks
- const P=A.gkPlan,p=P?clamp(P.t/P.dur,0,1):0;const e=dvE(p),a=(P&&!P.stay?P.alpha*e:0)*D2R*(P?P.dir:1);
- const fx=gk.x+(P&&!P.stay?P.shift*e:0),fy=gk.lift,reach=P&&!P.stay?lerp(1.55,P.reach,e):1.55;
- return{ax:fx,ay:fy+.1,bx:fx+Math.sin(a)*reach,by:fy+.1+Math.cos(a)*reach,z:gk.z}}
-function segDist(px,py,s){const vx=s.bx-s.ax,vy=s.by-s.ay,t=clamp(((px-s.ax)*vx+(py-s.ay)*vy)/(vx*vx+vy*vy),0,1);return Math.hypot(px-s.ax-vx*t,py-s.ay-vy*t)}
+ if(tech==='curl'){if(Math.random()<.2){react=.3}else{const st=flyTo(B.p,B.v,new V3(),null,gk.z);gx=st.x;gy=st.y;react=.24;A.gkFix=real.t*.55}}   // usually fooled by the bend at first
+ if(tech==='knuckle'){if(Math.random()>.25){gx+=rnd(-.6,.6);gy+=rnd(-.35,.35)}react=.27}   // a lucky guess now and then
+ if(tech==='inside'){gx+=rnd(-.35,.35);gy+=rnd(-.15,.15);react=.29-.006*i}
+ A.gkPlan={t:-react,x:gx,y:gy,tc:real.t,started:false}}
+// the two dive clips: which way they go, when the push starts (tA) and the full stretch (tE), how far the hands reach, hand height at the stretch
+const DIVE={gk_dive_a:{tA:.45,tE:1.25,reach:2.85,hy:.55,down:1.9},gk_dive_b:{tA:.45,tE:1.38,reach:2.3,hy:.3,down:2.0}};
+function startDive(P){const dx=P.x-gk.x,left=Math.max(.12,P.tc-A.shotT);
+ if(Math.abs(dx)>3.9){P.stay=true;return}                                   // thinks it is going wide
+ if(Math.abs(dx)<.7&&P.y<1.95){P.kind='gk_catch';P.tA=.1;P.tE=.4;P.lift=Math.max(0,P.y-1.45);gk.play('gk_catch',{fade:.08,from:.1,speed:clamp(.3/left,.9,2.2)});gk.setRM(1,.5);return}
+ const n=dx<0?'gk_dive_a':'gk_dive_b',D=DIVE[n];P.kind=n;P.tA=D.tA;P.tE=D.tE;P.down=D.down;P.lift=clamp(P.y-D.hy-.1,0,1.1);
+ gk.play(n,{fade:.06,from:D.tA,speed:clamp((D.tE-D.tA)/left,1,1.45)});gk.setRM(clamp(Math.abs(dx)/D.reach,.3,1.15),.45)}
+function keeperDive(dt){const P=A.gkPlan;if(!P)return;P.t+=dt;
+ if(A.gkFix!=null&&!P.fixed&&A.shotT>=A.gkFix){P.fixed=true;if(!P.started){const r=flyTo(B.p,B.v,B.w,B.knuck,gk.z);P.x=r.x;P.y=r.y;P.t=Math.min(P.t,-.06)}}
+ if(!P.started&&P.t>=0){P.started=true;startDive(P)}
+ if(!P.started||P.stay){gk.play('gk_idle');return}
+ const t=gk.time(),e=(t-P.tA)/(P.tE-P.tA);gk.lift=(P.lift||0)*(e<=1?sm(e):1-sm((e-1)/.7));   // springs higher for high balls
+ if(P.down&&t>P.down)gk.act(P.kind).paused=true}                            // stays down after the dive
 
 function endAttempt(goal,title,sub){if(A.res)return;A.res={g:goal};A.phase='result';A.resT=0;GS.res[GS.shot]={g:goal};if(goal)GS.goals++;dots();
  msg(title,sub);if(goal){SFX.cheer();CROWD.jump=2.2;CROWD.idle=false}else SFX.groan();ui('none')}
 function nextAttempt(){GS.shot++;if(GS.shot>=SHOTS){finish();return}newAttempt()}
 
-function update(dt,rdt){A.t+=dt;const i=A.i;
- // ---- ready: short pause before the run
- if(A.phase==='ready'){me.pose(poseIdle(A.t),dt);df.pose(poseJockey(0,0),dt);gk.pose(poseKeeper(A.t),dt);ballFollow(0,dt);if(A.t>1.1)A.phase='dribble'}
- // ---- dribble: run at the defender
+let RUN=4.4,DRB=1.7;   // run speed (m/s) and the dribble clip's playback rate that matches it
+function update(dt,rdt){A.t+=dt;
+ if(A.phase==='ready'){me.play('idle');df.play('gk_idle');gk.play('gk_idle');ballFollow('idle',dt);if(A.t>1.1){A.phase='dribble';me.play('dribble',{fade:.35,speed:DRB})}}
  else if(A.phase==='dribble'){A.fcool-=dt;const s=steer();if(s)A.lastDir=s;
-  const tv=s*4.8;me.vx+=clamp(tv-me.vx,-26*dt,26*dt);me.x=clamp(me.x+me.vx*dt,-9,9);me.z-=6*dt;me.yaw=Math.atan2(me.vx*.6,-6);
-  me.ph+=dt*6/2.1*TAU;A.hist.push([A.t,me.x,me.vx]);while(A.hist.length&&A.hist[0][0]<A.t-.6)A.hist.shift();
-  let P;if(A.feint){A.feint.t+=dt/.42;P=poseFeint(A.feint.t,-A.feint.dir);me.shift=A.feint.dir*.28*Math.sin(Math.PI*clamp(A.feint.t,0,1));if(A.feint.t>=1){A.feint=null;me.shift=0}}else P=poseRun(me.ph,34,12,14);
-  me.pose(P,dt,20);me.bob=.035*Math.abs(Math.sin(me.ph))-.02;ballFollow(1,dt);defender(dt);keeperIdle(dt);
-  if(me.z<df.z-.55&&A.def.st!=='won'){A.def.st='beaten';enterAim()}}
- else if(A.phase==='aim'){const tt=TECH[techSel];
-  if(!A.kick){me.z-=6*dt;me.x+=me.vx*dt;me.ph+=dt*6/2.1*TAU;me.pose(poseRun(me.ph,30,12,16),dt);ballFollow(1,dt);
+  me.vx+=clamp(s*4.3-me.vx,-22*dt,22*dt);me.x=clamp(me.x+me.vx*dt,-9,9);me.z-=RUN*dt;me.yaw=Math.atan2(me.vx*.55,-RUN);
+  A.hist.push([A.t,me.x,me.vx]);while(A.hist.length&&A.hist[0][0]<A.t-.6)A.hist.shift();
+  if(A.feint){A.feint.t+=dt;me.shift=A.feint.dir*.25*Math.sin(Math.PI*clamp(A.feint.t/.4,0,1));if(A.feint.t>=.4){A.feint=null;me.shift=0;me.play('dribble',{fade:.2,speed:DRB})}}
+  ballFollow(A.feint?'feint':'dribble',dt);defender(dt);keeperIdle(dt);
+  if(me.z<df.z-.55&&A.def.st!=='won'){A.passed=true;if(A.def.st==='jockey')A.def.st='beaten';enterAim()}}
+ else if(A.phase==='aim'){
+  if(!A.kick){me.z-=RUN*dt;me.x+=me.vx*dt;ballFollow('dribble',dt);
    const ax=((keys.ArrowRight||keys.d||keys.D)?1:0)-((keys.ArrowLeft||keys.a||keys.A)?1:0),ay=((keys.ArrowUp||keys.w||keys.W)?1:0)-((keys.ArrowDown||keys.s||keys.S)?1:0);
    A.aim.x=clamp(A.aim.x+ax*rdt*3.2,-3.45,3.45);A.aim.y=clamp(A.aim.y+ay*rdt*2.2,.22,2.25);
    A.timer+=rdt;if(A.gauge)A.gauge.t+=rdt;
-   if(A.timer>A.tlim){// too slow: the keeper rushes out and takes the ball
-    endAttempt(false,L('늦었어요!','Too slow!'),L('골키퍼가 먼저 공을 잡았어요','The keeper got to the ball first'));gk.x=B.p.x;gk.z=B.p.z-.6;A.smother=1;return}}
-  else{A.kick.t+=dt/.55;me.pose(poseKick(A.kick.t,A.kick.tech),dt,40);if(!A.kick.launched&&A.kick.t>=.42){A.kick.launched=true;tScale=1;launch()}else if(!A.kick.launched)ballFollow(.2,dt)}
-  dfChase(dt);keeperIdle(dt,true)}
- else if(A.phase==='flight'){A.shotT+=dt;if(A.kick.t<1){A.kick.t+=dt/.55;me.pose(poseKick(A.kick.t,A.kick.tech),dt,40)}else me.pose(poseIdle(A.t),dt,6);
-  dfChase(dt);keeperDive(dt);ballPhysics(dt);}
- else if(A.phase==='result'){A.resT+=dt;const g=A.res.g;me.pose(g?poseCheer(A.resT):poseSad(),dt,6);
-  if(A.smother){gk.pose(poseDive(1,1),dt,8);gk.roll=lerp(gk.roll,-Math.PI/2*.9,1-Math.exp(-dt*8));}
-  else if(A.gkPlan)keeperDive(dt);else gk.pose(poseKeeper(A.t),dt);
-  if(A.def.st==='won')df.pose(poseCheer(A.resT),dt,6);else dfChase(dt);if(B.live)ballPhysics(dt);
-  if(A.resT>2.4)nextAttempt()}
- me.sync(me.bob||0);me.root.position.x+=me.shift||0;df.sync();gk.sync();
- if(gk.roll!=null){gk.body.rotation.z=gk.roll;gk.body.position.x=gk.shiftX||0}
-}
-// ball at the attacker's feet: pushed ahead each stride
-function ballFollow(on,dt){if(B.live)return;const f=on===1?(me.ph/TAU)%1:0;const ahead=on===1?.5+.42*eo(f*1.6):on?.36:.45;
- const fx=Math.sin(me.yaw),fz=Math.cos(me.yaw);const tx=me.x+fx*ahead+(me.shift||0)*0,tz=me.z+fz*ahead;
- if(on&&f<A.touch)SFX.touch();A.touch=f;const nx=lerp(B.p.x,tx,1-Math.exp(-dt*22)),nz=lerp(B.p.z,tz,1-Math.exp(-dt*22));
- rollBall(nx-B.p.x,nz-B.p.z);B.p.set(nx,BR,nz)}
+   if(A.timer>A.tlim){endAttempt(false,L('늦었어요!','Too slow!'),L('골키퍼가 먼저 공을 잡았어요','The keeper got to the ball first'));A.smother=1}}
+  else{if(!A.kick.on){A.kick.on=1;me.vx=0;me.yaw=Math.atan2(A.aim.x-me.x,-me.z);me.play('kick',{fade:.1,from:.15,speed:1.15})}
+   ballFollow('kick',dt);if(!A.kick.launched&&me.time()>=.47){A.kick.launched=true;tScale=1;launch()}}
+  defender(dt);keeperIdle(dt,true)}
+ else if(A.phase==='flight'){A.shotT+=dt;defender(dt);keeperDive(dt);ballPhysics(dt)}
+ else if(A.phase==='result'){A.resT+=dt;
+  if(!A.resAnim){A.resAnim=1;me.play(A.res.g?'header':'idle',{fade:.3,speed:A.res.g?1:.7});me.vx=0;
+   if(A.smother){const dx=B.p.x-gk.x;gk.play(dx<0?'gk_dive_a':'gk_dive_b',{fade:.1,from:.45,speed:1.5});gk.setRM(.2,.3);A.gkPlan=null}}
+  if(A.smother){gk.x=lerp(gk.x,B.p.x,1-Math.exp(-dt*5));gk.z=lerp(gk.z,B.p.z-.9,1-Math.exp(-dt*5));const a=gk.act(gk.cur);if(a.time>1.9)a.paused=true}
+  else if(A.gkPlan)keeperDive(dt);
+  defender(dt);if(B.live)ballPhysics(dt);
+  if(A.resT>2.6)nextAttempt()}
+ if(!A)return;
+ me.update(dt);df.update(dt);gk.update(dt);gk.bones()}
+// the ball at the attacker's feet: pushed ahead with the dribble's touches, set at the right boot for the kick
+function ballFollow(mode,dt){if(B.live)return;let lx=0,lz=.45;
+ if(mode==='dribble'){const d=CLIPS.dribble.duration,f=((me.time()/d)*2)%1;lz=.55+.42*eo(f*1.6);if(f<A.touch)SFX.touch();A.touch=f}
+ else if(mode==='kick'){lx=.05;lz=.34}else if(mode==='feint')lz=.5;
+ const c=Math.cos(me.yaw),s=Math.sin(me.yaw),tx=me.x+me.shift+lx*c+lz*s,tz=me.z-lx*s+lz*c,k=1-Math.exp(-dt*(mode==='kick'?30:20));
+ const nx=lerp(B.p.x,tx,k),nz=lerp(B.p.z,tz,k);rollBall(nx-B.p.x,nz-B.p.z);B.p.set(nx,BR,nz)}
 function rollBall(dx,dz){const d=Math.hypot(dx,dz);if(d<1e-5)return;QT.setFromAxisAngle(new V3(dz/d,0,-dx/d),d/BR);ball.quaternion.premultiply(QT)}
+// defender: shuffles sideways (strafe clips) to stay in front, then a real slide tackle
+function dfLoop(){const v=df.vx,n=Math.abs(v)<.7?'gk_idle':(v>0?'strafe_l':'strafe_r');df.play(n,{fade:.2,speed:n==='gk_idle'?1:clamp(Math.abs(v)/2.3,.8,1.8)})}
+function dfTackle(tx,tz,kind){const d=A.def;d.st=kind;d.t=0;d.hit=0;const dx=tx-df.x,dz=tz-df.z;df.yaw=Math.atan2(dx,dz);
+ df.play('tackle',{fade:.08,from:.05,speed:1.25});df.setRM(1,clamp(Math.hypot(dx,dz)/2.6,.3,1.1))}
 function defender(dt){const d=A.def,dz=me.z-df.z;d.t+=dt;
- if(d.st==='jockey'){// watch the attacker with a short delay, then shuffle across
+ if(d.st==='jockey'){// watches the attacker with a short delay, then shuffles across
   const seen=A.hist.find(h=>h[0]>=A.t-A.react)||A.hist[A.hist.length-1]||[0,me.x,0];
   const tc=clamp((dz-.8)/7,0,.6),tx=clamp(seen[1]+seen[2]*tc*.75,-9,9);
   const want=clamp((tx-df.x)*5,-A.dvmax,A.dvmax);df.vx+=clamp(want-df.vx,-A.dacc*dt,A.dacc*dt);df.x+=df.vx*dt;
-  if(dz>3.2)df.z-=1.1*dt;df.yaw=Math.atan2(me.x-df.x,me.z-df.z)*.6;df.ph+=dt*Math.abs(df.vx)*2.4;df.pose(poseJockey(df.ph,df.vx),dt);
-  if(dz<1.35&&dz>-.3){// tackle
-   const bx=B.p.x;const closing=Math.sign(df.vx)===Math.sign(bx-df.x)&&Math.abs(df.vx)>2;   // already moving that way: he can stretch further
-   if(Math.abs(bx-df.x)<1.08+(closing?.55:0)){d.st='won';d.t=0;tackled();return}
-   d.st='late';d.t=0;d.dir=Math.sign(bx-df.x)}}
- else if(d.st==='bite'){// fooled: lunges the wrong way, then needs time to get up
-  const e=eo(d.t/.35);df.x=d.from+d.dir*1.25*e;df.vx=0;df.pose(poseLunge(d.t,d.dir),dt,22);if(d.t>.95){d.st='jockey';df.vx=0}}
- else if(d.st==='late'){df.pose(poseLunge(d.t,d.dir),dt,22);df.x+=d.dir*dt*1.5*(1-clamp(d.t/.4,0,1))}
- if(d.st==='won')df.pose(poseLunge(d.t,Math.sign(B.p.x-df.x)||1),dt,22)}
+  if(dz>3.2)df.z-=.9*dt;df.yaw=Math.atan2(me.x-df.x,me.z-df.z)*.5;dfLoop();
+  if(dz<1.7&&dz>-.3){const bx=B.p.x,closing=Math.sign(df.vx)===Math.sign(bx-df.x)&&Math.abs(df.vx)>2;   // already moving that way: he can stretch further
+   if(Math.abs(bx-df.x)<1.08+(closing?.55:0))dfTackle(bx,B.p.z-RUN*.3,'won');else dfTackle(bx,B.p.z,'late')}}
+ else if(d.st==='won'){if(!d.hit&&d.t>.26){d.hit=1;tackled()}}
+ else if(d.st==='bite'&&!A.passed&&d.t>1.75){// the attacker hasn't gone past: he gets back up
+  const a=df.act('tackle');a.paused=false;if(d.t>2.25){df.bake();df.vx=0;d.st='jockey';dfLoop()}}
+ if((d.st==='bite'||d.st==='late'||d.st==='beaten')&&df.cur==='tackle'){const a=df.act('tackle');if(a.time>1.0&&!(d.st==='bite'&&!A.passed&&d.t>1.75))a.paused=true}}
 function tackled(){B.live=true;B.v.set(rnd(-4,4),1.2,rnd(5,8));B.w.set(rnd(-20,20),0,0);B.knuck=null;SFX.kick(.6);me.vx=0;
  endAttempt(false,L('뺏겼어요!','Tackled!'),L('수비수가 공을 걷어 냈어요','The defender won the ball'))}
-function dfChase(dt){const d=A.def;d.t+=dt;if(d.st==='bite'||d.st==='late'||d.st==='beaten'){// beaten: goes down sideways (a missed slide), staying low and out of the shot
-  const dir=d.dir||Math.sign(df.x-me.x)||1;d.fallT=(d.fallT||0)+dt;df.body.rotation.z=-dir*1.38*sm(d.fallT/.45);df.pose(poseLunge(1,dir),dt,10)}}
 function enterAim(){A.phase='aim';A.timer=0;A.tlim=Math.max(3.2,4.4-.12*A.i);tScale=.16;A.aim.x=clamp(-Math.sign(me.x||1)*1.6,-3.4,3.4);A.aim.y=1;ui('aim');msg('','');}
-function keeperIdle(dt,closing){// step out to narrow the angle
- const bz=B.p.z,want=clamp(.5+(22-bz)*.09,.5,closing?2.6:2);gk.z=lerp(gk.z,want,1-Math.exp(-dt*2));gk.x=lerp(gk.x,clamp(B.p.x*gk.z/Math.max(bz,1),-2.5,2.5),1-Math.exp(-dt*3));gk.yaw=0;gk.pose(poseKeeper(A.t),dt)}
-function keeperDive(dt){const P=A.gkPlan;if(!P)return;P.t+=dt;
- if(A.gkFix!=null&&!P.fixed&&A.shotT>=A.gkFix){P.fixed=true;const r=flyTo(B.p,B.v,B.w,B.knuck,gk.z);if(P.t<P.dur*.35){P.t=-.06;setDive(r.x,r.y)}else{P.late=true}}
- const p=clamp(P.t/P.dur,0,1);if(P.t<0||P.stay){gk.pose(poseKeeper(A.t),dt);return}
- const e=dvE(p);gk.pose(P.low&&P.y<1.2?poseDive(p*.6,P.dir):poseDive(p,P.dir),dt,26);
- gk.shiftX=P.shift*e;gk.lift=Math.sin(Math.PI*Math.min(1,p*1.1))*.28*Math.min(1,P.y/1.2);gk.roll=-P.dir*P.alpha*D2R*e}
+function keeperIdle(dt,closing){// steps out to narrow the angle
+ const bz=B.p.z,want=clamp(.5+(22-bz)*.09,.5,closing?2.4:1.8);gk.z=lerp(gk.z,want,1-Math.exp(-dt*2));gk.x=lerp(gk.x,clamp(B.p.x*gk.z/Math.max(bz,1),-2.5,2.5),1-Math.exp(-dt*3));gk.yaw=0;gk.play('gk_idle')}
 function ballPhysics(dt){const n=Math.max(1,Math.ceil(dt/(1/240))),h=dt/n,a=new V3();
  for(let s=0;s<n;s++){B.t+=h;ballAcc(B.p,B.v,B.w,B.knuck,B.t,a);B.v.addScaledVector(a,h);const pz=B.p.z;B.p.addScaledVector(B.v,h);B.w.multiplyScalar(1-.15*h);
   if(B.p.y<BR){B.p.y=BR;if(B.v.y<-.6)SFX.touch();B.v.y=Math.abs(B.v.y)*.5;B.v.x*=.86;B.v.z*=.86;if(Math.abs(B.v.y)<.3)B.v.y=0;B.v.x*=1-1.6*h;B.v.z*=1-1.6*h}
   if(A.phase!=='flight')continue;
   // keeper
-  if(!A.saved&&Math.abs(B.p.z-gk.z)<.45){const s=keeperBody();if(segDist(B.p.x,B.p.y,s)<.19+BR){A.saved=true;SFX.save();const away=Math.sign(B.p.x-gk.x)||1;B.v.set(away*rnd(2,5),rnd(1.5,4),Math.abs(B.v.z)*.35);B.w.set(0,0,rnd(-20,20));B.knuck=null;
-   endAttempt(false,L('선방!','Saved!'),L('골키퍼가 막았어요','The keeper stopped it'));return}}
+  // keeper: the ball against his real limbs and body this frame
+  const diving=A.gkPlan&&A.gkPlan.started&&/dive/.test(A.gkPlan.kind||'');   // mid-dive the trailing legs don't count
+  if(!A.saved&&Math.abs(B.p.z-gk.z)<2.2)for(const c of gk.caps){if(diving&&c.leg)continue;const q=segPt(c.pa,c.pb,B.p),dx=B.p.x-q.x,dy=B.p.y-q.y,dz=B.p.z-q.z,d=Math.hypot(dx,dy,dz);
+   if(d<c.r+BR){A.saved=true;A.hitBy=c.a.name+'@'+gk.time().toFixed(2)+'/'+(A.gkPlan&&A.gkPlan.kind);SFX.save();const nx=dx/(d||1),ny=dy/(d||1),nz=d?dz/d:1,vn=B.v.x*nx+B.v.y*ny+B.v.z*nz;if(vn<0){B.v.x-=1.7*vn*nx;B.v.y-=1.7*vn*ny;B.v.z-=1.7*vn*nz}
+    B.v.multiplyScalar(.45);B.v.z=Math.max(B.v.z,2);B.v.y+=rnd(.5,2.5);B.w.set(rnd(-20,20),0,rnd(-20,20));B.knuck=null;
+    endAttempt(false,L('선방!','Saved!'),L('골키퍼가 막았어요','The keeper stopped it'));return}}
   // posts and crossbar
   for(const px of[-GW/2-PR,GW/2+PR]){const dx=B.p.x-px,dz=B.p.z;const d=Math.hypot(dx,dz);if(d<PR+BR&&B.p.y<GH+PR){const nx=dx/d,nz=dz/d,vn=B.v.x*nx+B.v.z*nz;if(vn<0){B.v.x-=1.6*vn*nx;B.v.z-=1.6*vn*nz;A.post=true;SFX.post()}}}
   {const dy=B.p.y-(GH+PR),dz=B.p.z,d=Math.hypot(dy,dz);if(d<PR+BR&&Math.abs(B.p.x)<GW/2+PR){const ny=dy/d,nz=dz/d,vn=B.v.y*ny+B.v.z*nz;if(vn<0){B.v.y-=1.6*vn*ny;B.v.z-=1.6*vn*nz;A.post=true;SFX.post()}}}
@@ -553,6 +527,7 @@ let last=performance.now(),paused=false;const AX=new V3();const AR={acc:0,n:0,co
 function frame(now){requestAnimationFrame(frame);const rdt=Math.min(.05,(now-last)/1000);last=now;if(document.hidden)return;
  AR.acc+=rdt;AR.n++;AR.cool-=rdt;if(AR.n>=45){const avg=AR.acc/AR.n;AR.acc=0;AR.n=0;if(AR.cool<=0){let p=px;if(avg>1/42)p=Math.max(.65,p*.85);else if(avg<1/57&&p<DPRMAX)p=Math.min(DPRMAX,p*1.08);if(Math.abs(p-px)>.02){px=p;ren.setPixelRatio(px);resize();AR.cool=2}}}
  if(GS.mode==='play'&&A&&!paused){const target=A.phase==='aim'&&!A.kick?.16:1;tScale+=(target-tScale)*(1-Math.exp(-rdt*(target<tScale?10:14)));update(rdt*tScale,rdt)}
+ else if(me&&!paused){me.update(rdt);df.update(rdt);gk.update(rdt)}
  ball.position.copy(B.p);if(B.live){const w=B.w;const wl=w.length();if(wl>1e-3){QT.setFromAxisAngle(AX.set(w.x/wl,w.y/wl,w.z/wl),wl*rdt*tScale);ball.quaternion.premultiply(QT)}
   if(B.p.y<=BR+.001){const sp=Math.hypot(B.v.x,B.v.z);if(sp>.05)rollBall(B.v.x*rdt*tScale,B.v.z*rdt*tScale)}}
  netUpdate(rdt);crowdUpdate(rdt);camera(rdt);hudFrame(rdt);
@@ -560,12 +535,11 @@ function frame(now){requestAnimationFrame(frame);const rdt=Math.min(.05,(now-las
  ren.render(scene,cam)}
 
 /* ---------------- load ---------------- */
-const ld=new T.GLTFLoader(),get=u=>new Promise((res,rej)=>ld.load(u,res,undefined,rej));
-Promise.all([get('assets/hero.glb'),get('assets/rival.glb')]).then(([h,r])=>{
- for(const [k,g] of[['hero',h],['rival',r]]){MODELS[k]=g;g.scene.traverse(o=>{if(o.isSkinnedMesh&&!g.skin)g.skin=skinTone(o)})}
- me=new Player('hero',KITS.me,.42);df=new Player('rival',KITS.df,.42);gk=new Player('rival',KITS.gk,.62);
- me.place(0,30,Math.PI);df.place(0,17,0);gk.place(0,.5,0);
- for(const p of[me,df,gk])p.pose(poseIdle(0),1,100);gk.pose(poseKeeper(0),1,100);me.sync();df.sync();gk.sync();B.p.set(0,BR,29.5);
+const ld=new T.GLTFLoader(),PROG=[0,0,0],SIZE=9.7e6,get=(u,i)=>new Promise((res,rej)=>ld.load(u,res,e=>{PROG[i]=e.loaded;const el=$('load');if(el)el.textContent='⚽ '+L('선수들이 경기장에 나오는 중','Players coming out')+' '+Math.min(99,Math.round((PROG[0]+PROG[1]+PROG[2])/SIZE*100))+'%'},rej));
+Promise.all([get('assets/striker.glb',0),get('assets/defender.glb',1),get('assets/anims.glb',2)]).then(([st,de,an])=>{
+ GL.striker=st;GL.defender=de;prepClips(an.animations);DRB=clamp(RUN/(CLIP_SPD.dribble||2.4),1,2.2);
+ me=new Player(KITS.me);df=new Player(KITS.df);gk=new Player(KITS.gk);
+ me.place(0,30,Math.PI);df.place(0,17,0);gk.place(0,.5,0);me.play('idle');df.play('gk_idle');gk.play('gk_idle');B.p.set(0,BR,29.55);
  $('load').remove();lobby();
  window.__SHOOT={get A(){return A},GS:()=>GS,finish:()=>finish(),lobby:()=>lobby(),me:()=>me,df:()=>df,gk:()=>gk,B,keys,startGame,setTech,action,skill,TECH};
 }).catch(e=>{$('load').textContent=L('불러오기에 실패했어요. 다시 열어 주세요.','Could not load. Please reopen.');console.error(e)});

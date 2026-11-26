@@ -215,10 +215,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 35,
+  "version": 36,
   "added": "2026-11-22",
   "updated": "2026-11-26",
-  "notes": "New mini game: dribble past a defender and shoot 1-on-1 to win bonus coins!",
+  "notes": "The shootout players now look and move like real footballers!",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
