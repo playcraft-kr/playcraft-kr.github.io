@@ -215,10 +215,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 38,
+  "version": 39,
   "added": "2026-11-22",
   "updated": "2026-11-26",
-  "notes": "Added 41 synonym words missed or skipped on Nov 26 (24 new). They come first in training.",
+  "notes": "Goal celebrations look smoother, and practice is now once a day!",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [

@@ -299,7 +299,7 @@ const ONCE={kick:1,tackle:1,gk_dive_a:1,gk_dive_b:1,gk_catch:1,header:1};
 function prepClips(list){for(const c of list){const t=c.tracks.find(t=>/Hips\.position$/.test(t.name));let spd=0;
   if(t&&!ONCE[c.name]){const v=t.values,n=t.times.length,d=c.duration||1,dx=v[(n-1)*3]-v[0],dy=v[(n-1)*3+1]-v[1];for(let i=0;i<n;i++){const f=t.times[i]/d;v[i*3]-=dx*f;v[i*3+1]-=dy*f}spd=Math.hypot(dx,dy)/d/100}
   CLIPS[c.name]=c;CLIP_SPD[c.name]=spd}}
-const TV=new V3(),TV2=new V3(),QT=new T.Quaternion(),QM=new T.Quaternion(),QW=new T.Quaternion(),QR=new T.Quaternion(),QD=new T.Quaternion(),EU=new T.Euler();
+const QI=new T.Quaternion(),TV=new V3(),TV2=new V3(),QT=new T.Quaternion(),QM=new T.Quaternion(),QW=new T.Quaternion(),QR=new T.Quaternion(),QD=new T.Quaternion(),EU=new T.Euler();
 // bone pairs the ball can hit on the keeper (radius in meters)
 const CAPS=[['Head','HeadTop_End',.12],['Neck','Head',.08],['Spine2','Neck',.17],['Spine','Spine2',.17],['Hips','Spine',.16],
  ['LeftArm','LeftForeArm',.07],['LeftForeArm','LeftHand',.06],['LeftHand','LeftHandMiddle3',.09],['RightArm','RightForeArm',.07],['RightForeArm','RightHand',.06],['RightHand','RightHandMiddle3',.09],
@@ -323,6 +323,11 @@ class Player{constructor(kit){const g=GL[kit.model];this.root=new T.Group();scen
  update(dt){this.mx.update(dt);this.root.position.set(this.x+this.shift,this.lift,this.z);this.root.rotation.y=this.yaw;
   if(this.rm){this.root.updateMatrixWorld(true);const h=this.hipsM();this.model.position.set((h.x-this.rm.h0.x)*(this.rm.kx-1),0,(h.z-this.rm.h0.z)*(this.rm.kz-1))}
   this.root.updateMatrixWorld(true)}
+ // point a bone at a direction in character space (x left, y up, z forward), blended by w; keeps the arm chain straight
+ aim(n,c,x,y,z,w){const b=this.B[n],ch=this.B[c];if(!b||!ch||w<=0)return;b.getWorldPosition(TV);ch.getWorldPosition(TV2);TV2.sub(TV).normalize();
+  this.model.getWorldQuaternion(QM);TV.set(x,y,z).normalize().applyQuaternion(QM);QR.setFromUnitVectors(TV2,TV);if(w<1)QR.slerp(QI,1-w);
+  b.parent.getWorldQuaternion(QW);QD.copy(QW).invert().multiply(QR).multiply(QW);b.quaternion.premultiply(QD)}
+ arm(side,x,y,z,w,ex,ey,ez){const S=side;this.aim(S+'Arm',S+'ForeArm',x,y,z,w);this.aim(S+'ForeArm',S+'Hand',ex??x,ey??y,ez??z,w);this.aim(S+'Hand',S+'HandMiddle1',ex??x,ey??y,ez??z,w)}
  bones(){for(const c of this.caps){c.a.getWorldPosition(c.pa);c.b.getWorldPosition(c.pb)}}
  // add a rotation (degrees, character space) on top of what the clip set this frame
  addRot(n,x,y,z){const b=this.B[n];if(!b||(!x&&!y&&!z))return;this.model.getWorldQuaternion(QM).invert();b.getWorldQuaternion(QW).premultiply(QM);QR.setFromEuler(EU.set(x*D2R,y*D2R,z*D2R,'YXZ'));QD.copy(QW).invert().multiply(QR).multiply(QW);b.quaternion.multiply(QD)}}
@@ -571,10 +576,9 @@ function celeUpdate(dt){const c=A.cele;c.t+=dt;
  else if(c.k==='slide'&&!c.slid){c.slid=1;me.play('tackle',{fade:.15,from:.12,speed:1});me.setRM(1,1)}
  else if(c.k==='plane'&&!c.end){c.end=1;me.play('header',{fade:.3})}
  if(c.slid){const a=me.act('tackle');if(a.time>1.05)a.paused=true}}
-function celeLayer(){const c=A.cele,t=c.t;
- if(c.k==='plane'&&!c.end){me.addRot('LeftArm',0,0,82);me.addRot('RightArm',0,0,-82);me.addRot('Hips',0,0,Math.sin(t*2.4)*14)}
- if(c.k==='slide'){const up=c.slid?150:45;me.addRot('LeftArm',0,0,up);me.addRot('RightArm',0,0,-up);if(c.slid){me.addRot('Spine1',-16,0,0);me.addRot('Head',-20,0,0)}}
- if(c.k==='jump'||c.end){const w=Math.sin(t*9)*20;me.addRot('LeftArm',0,0,125+w);me.addRot('RightArm',0,0,-125-w)}}
+function celeLayer(){const c=A.cele,t=c.t,w=sm(clamp(t/.35,0,1));
+ if(c.k==='plane'&&!c.end){me.arm('Left',1,-.08,-.12,w);me.arm('Right',-1,-.08,-.12,w);me.addRot('Hips',0,0,Math.sin(t*2.4)*14*w)}   // airplane: both arms straight out
+ if(c.k==='jump'||c.end){const v=Math.sin(t*9)*.18;me.arm('Left',.55+v,.83,.08,w,.42+v,.9,.12);me.arm('Right',-.55-v,.83,.08,w,-.42-v,.9,.12)}}   // both arms up in a V, pumping
 
 /* ---------------- screen effects: confetti, fireworks, flash, GOAL! ---------------- */
 const FX={shake:0,slow:0,fwQ:[]};
@@ -629,7 +633,9 @@ function hudFrame(rdt){if(msgT>0){msgT-=rdt;if(msgT<=0)$('msg').innerHTML=''}
 
 /* ---------------- lobby / results ---------------- */
 let entrySel=null;
-function info(){try{return H?H.info():{coins:LOCAL?500:0,left:DAYMAX,day:DAYMAX}}catch(e){return{coins:0,left:0,day:DAYMAX}}}
+const PKEY='wl_shoot_prac',pday=()=>new Date().toDateString();
+function info(){try{const I=H?H.info():{coins:LOCAL?500:0,left:DAYMAX,day:DAYMAX};if(I.pleft==null)I.pleft=localStorage.getItem(PKEY)===pday()?0:1;return I}catch(e){return{coins:0,left:0,day:DAYMAX,pleft:0}}}
+function usePractice(){try{if(H&&H.practice)return H.practice();if(localStorage.getItem(PKEY)===pday())return false;localStorage.setItem(PKEY,pday());return true}catch(e){return false}}
 function lobby(){GS.mode='lobby';A=null;ui('none');$('top').classList.add('hide');$('quit').classList.add('hide');msg('','');tScale=1;
  const I=info(),can=!!H||LOCAL;if(entrySel==null)entrySel=ENTRIES.find(e=>e<=I.coins)||null;if(entrySel&&entrySel>I.coins)entrySel=null;
  const pay=entrySel?[7,8,9,10].map(g=>`<tr><td>${L(g+'골',g+' goals')}</td><td>${L(`🪙 ${payout(entrySel,g)} 받기`,`get 🪙 ${payout(entrySel,g)}`)} <span class="pos">(+${payout(entrySel,g)-entrySel})</span></td></tr>`).join('')+`<tr><td>${L('6골 이하','6 or fewer')}</td><td class="neg">${L('못 받음','nothing back')} (−${entrySel})</td></tr>`:'';
@@ -638,13 +644,13 @@ function lobby(){GS.mode='lobby';A=null;ui('none');$('top').classList.add('hide'
  <p style="margin:4px 0">${L('내 코인','My coins')} <b style="color:#ffd400">${I.coins.toLocaleString()}</b> · ${L('오늘 남은 도전','Challenges left today')} <b>${I.left}/${I.day||DAYMAX}</b></p>
  ${can?`<div class="ent">${ENTRIES.map(e=>`<button data-e="${e}" class="${e===entrySel?'on':''}" ${e>I.coins||!I.left?'disabled':''}>🪙 ${e}<small>${L('참가','entry')}</small></button>`).join('')}</div>`:''}
  ${entrySel&&I.left?`<table class="pay">${pay}</table>`:''}
- <div class="row">${can?`<button class="btn gold" id="go" ${!entrySel||!I.left?'disabled':''}>${L('도전 시작','Start')} ${entrySel?`(🪙 ${entrySel})`:''}</button>`:''}<button class="btn ghost" id="prac">${L('연습하기 (코인 없음)','Practice (no coins)')}</button>${H?`<button class="btn ghost" id="cls">${L('나가기','Exit')}</button>`:''}</div>
- ${!I.left?`<p class="small" style="color:#fca5a5">${L('오늘 도전은 다 했어요. 내일 또 만나요! 연습은 계속할 수 있어요.','No challenges left today. Come back tomorrow! Practice is always open.')}</p>`:''}
+ <div class="row">${can?`<button class="btn gold" id="go" ${!entrySel||!I.left?'disabled':''}>${L('도전 시작','Start')} ${entrySel?`(🪙 ${entrySel})`:''}</button>`:''}<button class="btn ghost" id="prac" ${I.pleft?'':'disabled'}>${I.pleft?L('연습하기 (하루 1번, 코인 없음)','Practice (once a day, no coins)'):L('오늘 연습 끝','Practice done today')}</button>${H?`<button class="btn ghost" id="cls">${L('나가기','Exit')}</button>`:''}</div>
+ ${!I.left?`<p class="small" style="color:#fca5a5">${L('오늘 도전은 다 했어요. 내일 또 만나요!','No challenges left today. Come back tomorrow!')}</p>`:''}
  <div class="keys">${L('⌨️ 드리블: ◀ ▶ 이동 · Q/E 왼쪽·오른쪽 속이기 · R 턴 · Shift 치고 달리기 · Space 자동 속이기','⌨️ Dribble: ◀ ▶ move · Q/E fake left/right · R spin · Shift burst · Space auto fake')}<br>${L('⌨️ 슛: 1 2 3 슛 종류 · 화살표/드래그 조준 · Space 게이지 시작, 가운데에서 한 번 더','⌨️ Shoot: 1 2 3 kick type · arrows/drag aim · Space starts the gauge, again in the middle')}<br>${L('📱 화면 버튼으로도 할 수 있어요','📱 On-screen buttons work too')}</div></div>`;
  $('lobby').classList.remove('hide');
  $('lobby').querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{entrySel=+b.dataset.e;lobby()});
  const go=$('go');if(go)go.onclick=()=>{if(!entrySel)return;let ok=true;if(H)ok=H.pay(entrySel);if(!ok){lobby();return}startGame(false,entrySel)};
- $('prac').onclick=()=>startGame(true,0);const c=$('cls');if(c)c.onclick=()=>H.close()}
+ $('prac').onclick=()=>{if(!usePractice()){lobby();return}startGame(true,0)};const c=$('cls');if(c)c.onclick=()=>H.close()}
 function finish(){GS.mode='over';A=null;ui('none');$('quit').classList.add('hide');const g=GS.goals,win=g>=NEED,P=GS.practice?0:payout(GS.entry,g);let now=null;
  if(!GS.practice&&H){try{now=H.earn(P,g)}catch(e){}}
  SFX[win?'cheer':'groan']();if(win){CROWD.jump=3;CROWD.idle=false}
@@ -679,7 +685,7 @@ Promise.all([get('assets/striker.glb',0),get('assets/defender.glb',1),get('asset
  me=new Player(KITS.me);df=new Player(KITS.df);gk=new Player(KITS.gk);
  me.place(0,30,Math.PI);df.place(0,17,0);gk.place(0,.5,0);me.play('idle');df.play('gk_idle');gk.play('gk_idle');B.p.set(0,BR,29.55);
  $('load').remove();lobby();
- window.__SHOOT={CROWD,get A(){return A},GS:()=>GS,finish:()=>finish(),lobby:()=>lobby(),me:()=>me,df:()=>df,gk:()=>gk,B,keys,startGame,setTech,action,skill,TECH};
+ window.__SHOOT={CROWD,cele:k=>{celeStart();if(k){A.cele.k=k;me.play(k==="jump"?"header":"jog",{fade:.1,speed:k==="jump"?1:1.3})}},get A(){return A},GS:()=>GS,finish:()=>finish(),lobby:()=>lobby(),me:()=>me,df:()=>df,gk:()=>gk,B,keys,startGame,setTech,action,skill,TECH};
 }).catch(e=>{$('load').textContent=L('불러오기에 실패했어요. 다시 열어 주세요.','Could not load. Please reopen.');console.error(e)});
 requestAnimationFrame(frame);
 }
