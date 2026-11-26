@@ -500,10 +500,10 @@
    "Action"
   ],
   "lang": "English & Korean",
-  "version": 9,
+  "version": 10,
   "updated": "2026-11-26",
   "added": "2026-11-22",
-  "notes": "Battles fit on phones held upright now, so every button is on screen.",
+  "notes": "Heroes and monsters now walk with a bounce and swing back before every hit, so battles move more smoothly.",
   "cover": "img/cover-math-space-war.webp",
   "wide": "img/wide-math-space-war.webp",
   "controls": [
