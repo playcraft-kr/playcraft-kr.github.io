@@ -66,6 +66,18 @@ button.mid.ghost{background:transparent;margin-top:18px}
 @media(max-width:600px){#keys{font-size:12px}}
 #upBtn{position:fixed;left:50%;bottom:16%;transform:translateX(-50%);width:120px;height:120px;border-radius:50%;border:6px solid #0d0a0c;background:#ffcc33;color:#1d1b3a;font:400 64px 'Black Han Sans',sans-serif;z-index:30;box-shadow:0 7px 0 #0d0a0c;touch-action:manipulation;cursor:pointer}
 #upBtn:active{transform:translateX(-50%) translateY(4px);box-shadow:0 3px 0 #0d0a0c}
+.pickT{font:400 18px "Black Han Sans",sans-serif;color:#ffcc33;margin:0 0 8px}
+.pick{display:flex;gap:10px;justify-content:center;margin:0 0 16px;flex-wrap:wrap}
+.pick button{all:unset;box-sizing:border-box;cursor:pointer;width:150px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.07);border:3px solid rgba(255,255,255,.16);text-align:left;color:#fff}
+.pick button:focus-visible{outline:3px solid #ffcc33;outline-offset:2px}
+.pick button[aria-checked="true"]{border-color:#ffcc33;background:rgba(255,204,51,.16);box-shadow:0 0 0 3px rgba(255,204,51,.25)}
+.pick .nm{font:400 22px "Black Han Sans",sans-serif;display:flex;align-items:center;gap:8px}
+.pick .sw{width:14px;height:14px;border-radius:50%;border:2px solid #0d0a0c;flex:none}
+.pick .tg{font-size:12px;font-weight:800;letter-spacing:.06em;color:#ffcc33;margin:2px 0 6px}
+.pick .st{display:flex;align-items:center;gap:6px;font-size:12px;color:#cfd0ee;margin:2px 0}
+.pick .st span:first-child{width:46px}
+.pick .pp{display:flex;gap:3px}.pick .pp i{width:11px;height:8px;border-radius:2px;background:rgba(255,255,255,.18)}.pick .pp i.on{background:#ffcc33}
+@media (max-width:520px){.pick button{width:31%;min-width:96px;padding:8px}.pick .nm{font-size:15px;gap:5px}.pick .st span:first-child{width:38px}.pick .pp i{width:7px}}
 </style>
 </head>
 <body>
@@ -96,6 +108,8 @@ button.mid.ghost{background:transparent;margin-top:18px}
    <li>If they cover their face with their arms, break through with <b>L</b> (uppercut).</li>
   </ol>
   <p class="keyonly dim" style="margin:-6px 0 16px;font-size:14px">The controls stay in the bottom-left corner while you play.</p>
+  <div class="pickT">Choose your boxer</div>
+  <div class="pick" id="pick" role="radiogroup" aria-label="Choose your boxer"></div>
   <div class="btns"><button class="big" id="startBtn">VS CPU</button><button class="big blue" id="onlineBtn">ONLINE 1:1</button></div>
   <p id="onMsg" class="note" hidden></p>
   <div id="koBoard" class="board" hidden></div>
@@ -392,13 +406,22 @@ const CFG=[
  {nick:'Titan',name:'Volkov',model:'rival',tint:0xa5111b,scale:1.07,skin:0xecc6a6,hair:0xd8c391,trunks:0xa5111b,trim:0xffd34d,glove:0x262626,hp:185,speed:1.6,aggr:1.5,dodge:.36,guard:.42,dmg:1.5,getups:2,armor:.8,stunAt:58}
 ];
 const PCFG={model:'hero',tint:null,scale:1,skin:0xc98c62,hair:0x221510,trunks:0xd01a24,trim:0xffffff,glove:0xd8202a};
+// pickable boxers: spd = punch + footwork speed, pow = punch damage, hp = health. Looks reuse the two models.
+const CHARS={
+ blaze:{name:'Blaze',tag:'FAST',model:'hero',tint:null,scale:1,glove:0xd8202a,spd:1.25,pow:.85,hp:95,bars:[5,2,3]},
+ ace:{name:'Ace',tag:'ALL-ROUND',model:'hero',tint:0x1f8fff,scale:1,glove:0xf4f0ea,spd:1.05,pow:1.05,hp:105,bars:[3,3,4]},
+ boulder:{name:'Boulder',tag:'STRONG',model:'rival',tint:0x22a352,scale:1.04,glove:0x2b2b2b,spd:.82,pow:1.35,hp:120,bars:[2,5,5]}};
+let CH_ID=(()=>{try{const v=localStorage.getItem('box.char');return CHARS[v]?v:'blaze'}catch(e){return 'blaze'}})();
+const CH=()=>CHARS[CH_ID];
+const chPow=id=>CHARS[id]?CHARS[id].pow:1;
+function charCfg(id){const c=CHARS[id]||CHARS.blaze;return Object.assign({},PCFG,{model:c.model,tint:c.tint,scale:c.scale,glove:c.glove})}
 const TINFO={cross:{c:'#ff5a5a',txt:'DODGE!',key:'Space · Q · E'},hook:{c:'#ffa733',txt:'DUCK!',key:'Space'},upper:{c:'#c08bff',txt:'SIDE!',key:'Q · E'}};
 const PUNCH={jab:{w:.03,k:.07,r:.13,cost:5,dmg:4.5,hs:.05,p:.35,reach:1.5},cross:{w:.05,k:.08,r:.17,cost:9,dmg:8,hs:.075,p:.65,reach:1.55},upper:{w:.08,k:.1,r:.2,cost:14,dmg:12,hs:.11,p:1,reach:1.35}};
 
 function fighterState(mesh){return{mesh,pos:new V3(),yaw:0,kb:new V3(),vel:new V3(),act:null,def:null,cd:0,guardAmt:0,sp:{x:0,y:0,z:0,p:0,vx:0,vy:0,vz:0,vp:0},flash:0,walk:0,fall:0,stun:0,hurtT:0}}
-let PM=makeFighter(PCFG);
+let PM=makeFighter(charCfg(CH_ID));
 let OM=null,P,O;
-function newPlayer(){P=Object.assign(fighterState(PM),{hp:100,hpG:100,st:100,buf:null,counter:0,combo:0,comboT:0,maxCombo:0,blocking:false,sinceHit:9,upSide:-1,farT:0,missFar:0})}
+function newPlayer(){const hp=CH().hp;P=Object.assign(fighterState(PM),{hp,hpG:hp,max:hp,st:100,buf:null,counter:0,combo:0,comboT:0,maxCombo:0,blocking:false,sinceHit:9,upSide:-1,farT:0,missFar:0})}
 function newOpp(i){const c=CFG[i];if(OM){disposeFighter(OM)}OM=makeFighter(c);
  O=Object.assign(fighterState(OM),{c,hp:c.hp,max:c.hp,hpG:c.hp,state:'idle',chain:0,think:1.2,guardT:0,stunM:0,kd:0,count:0,countT:0,getupAt:5,quick:false,lastDodged:false,want:1.2,wantT:2,strafe:1,strafeT:1})}
 
@@ -451,9 +474,9 @@ const headPos=f=>f.mesh.kind==='model'?modelHeadPos(f):f.mesh.head.getWorldPosit
 /* ===== PLAYER ACTIONS ===== */
 function startPunch(type){
  const D=PUNCH[type];let side=type==='jab'?-1:1;
- const weak=P.st<D.cost;P.st=Math.max(0,P.st-D.cost);const sp=weak?1.3:1;
+ const weak=P.st<D.cost;P.st=Math.max(0,P.st-D.cost);const sp=(weak?1.3:1)/CH().spd;
  if(P.def)P.def.t=Math.max(P.def.t,P.def.dur-.13);
- P.act={type,side,t:0,w:D.w*sp,k:D.k*sp,r:D.r*sp,pow:weak?.5:1,done:false,player:true,nid:++netSeq};
+ P.act={type,side,t:0,w:D.w*sp,k:D.k*sp,r:D.r*sp,pow:weak?.5:1,pm:CH().pow,done:false,player:true,nid:++netSeq};
  SFX.swish(type==='jab'?1.3:type==='cross'?1.1:.85);
  if(!ONL&&dist()<D.reach+.1&&O.state==='idle'&&O.stun<=0&&P.counter<=0&&!O.def){
   if(O.guardT<=0&&Math.random()<O.c.dodge*(type==='jab'?.7:1.15)){startDef(O,['duck','slipL','slipR'][Math.floor(Math.random()*3)]);if(Math.random()<.5){O.think=.15;O.quick=true}}
@@ -467,7 +490,7 @@ function punchImpact(a){
  if(dist()>D.reach){SFX.miss();P.combo=0;P.missFar++;pop(hp,'Too far!','#bbb',.8);if(P.missFar>=2)banner('Press W to get closer','#fff',1,6);return}
  P.missFar=0;
  if(O.def&&defAmt(O)>.5){SFX.miss();pop(hp,'MISS','#aaa',.9);P.combo=0;return}
- let dmg=D.dmg*a.pow,tag=null,blocked=false;const counter=P.counter>0;
+ let dmg=D.dmg*a.pow*(a.pm||1),tag=null,blocked=false;const counter=P.counter>0;
  if(O.state==='windup'&&a.type==='jab'&&!counter&&Math.random()<(O.c.armor||0)){tag=['Too tough! Dodge it!','#ff8a3d']}
  else if(O.state==='windup'){dmg*=1.3;tag=['Interrupted!','#ffcc33'];O.state='recover';O.act=null;O.rec=.45;O.st=0;O.chain=0}
  else if(O.guardT>0&&!counter&&O.state==='idle'&&O.stun<=0){
@@ -587,7 +610,7 @@ function update(dt,rdt){
  const il=Math.hypot(ix,iz);if(il>1){ix/=il;iz/=il}
  if(fight==='lose'||fight==='intro'||(ONL&&(fight!=='fight'||P.down))){ix=iz=0}
  const pf=fwdOf(P),pr=rightOf(P);
- moveFighter(P,pf.clone().multiplyScalar(iz).addScaledVector(pr,ix),2.6*(P.act?.55:1)*(P.blocking?.6:1)*(P.def?.4:1),dt);
+ moveFighter(P,pf.clone().multiplyScalar(iz).addScaledVector(pr,ix),2.6*Math.sqrt(CH().spd)*(P.act?.55:1)*(P.blocking?.6:1)*(P.def?.4:1),dt);
  if(ONL){updOnline(dt);return}
  // opponent
  O.flash=Math.max(0,O.flash-dt);O.stunM=Math.max(0,O.stunM-10*dt);springs(O,dt);
@@ -732,7 +755,7 @@ function drawHUD(){
  for(const p of pops){const s=toScreen(p.pos);if(!s.ok)continue;const a=1-clamp((p.t-.6)/.3,0,1),sc=(p.t<.08?lerp(1.8,1,p.t/.08):1)*p.sc;txt(p.txt,s.x,s.y-p.t*40,Math.max(18,4*S),p.c,sc,a)}
  const pad=Math.max(12,2*S),bw=Math.min(W*.38,420),bh=Math.max(12,2.2*S),fz=Math.max(14,2.6*S);
  txt('YOU',pad,pad+fz*.6,fz,'#fff',1,1,'left');
- bar(pad,pad+fz+6,bw,bh,P.hp/100,P.hpG/100,P.hp<30?'#ff3030':'#ff8a2a',false);
+ bar(pad,pad+fz+6,bw,bh,P.hp/(P.max||100),P.hpG/(P.max||100),P.hp<30?'#ff3030':'#ff8a2a',false);
  bar(pad,pad+fz+10+bh,bw*.75,bh*.45,P.st/100,P.st/100,'#ffe14d',false);
  hx.font=`700 ${Math.max(11,1.6*S)}px "Noto Sans KR"`;hx.textAlign='left';hx.fillStyle='#ccc';hx.fillText('Health  ·  Yellow bar = energy (for punches)',pad,pad+fz+bh*1.8+22);
  txt(ONL?O.c.nick:`"${O.c.nick}" ${O.c.name}  ${oppIdx+1}/3`,W-pad,pad+fz*.6,fz,'#fff',1,1,'right');
@@ -748,7 +771,7 @@ function drawHUD(){
 }
 
 /* ===== FLOW ===== */
-function startFight(i){oppIdx=i;newOpp(i);P.hp=Math.max(P.hp,i===0?100:70);P.hpG=P.hp;P.st=100;P.def=null;P.act=null;P.counter=0;P.combo=0;P.fall=0;P.kb.set(0,0,0);P.vel.set(0,0,0);P.farT=0;
+function startFight(i){oppIdx=i;newOpp(i);P.hp=Math.max(P.hp,i===0?P.max:P.max*.7);P.hpG=P.hp;P.st=100;P.def=null;P.act=null;P.counter=0;P.combo=0;P.fall=0;P.kb.set(0,0,0);P.vel.set(0,0,0);P.farT=0;
  P.pos.set(0,0,-1.4);O.pos.set(0,0,1.4);separate();camPos.set(0,1.8,-3.8);
  fight='intro';introT=0;pops=[];banners=[];$('res').classList.add('hide');delete $('res').dataset.shown;SFX.bell(2)}
 function showResult(){
@@ -889,11 +912,12 @@ function updOnline(dt){const N=ONL,R=O.net;
  if(N.phase==='end'){endT+=dt;if(endT>1.6&&!$('res').dataset.shown)showOnlineResult()}
 }
 function sendState(){const r3=v=>Math.round(v*1000)/1000;
- send('s',{x:r3(P.pos.x),z:r3(P.pos.z),h:Math.round(P.hp*10)/10,b:P.blocking?1:0,f:P.down?1:0,
+ send('s',{ch:CH_ID,x:r3(P.pos.x),z:r3(P.pos.z),h:Math.round(P.hp*10)/10,b:P.blocking?1:0,f:P.down?1:0,
   a:P.act?[P.act.nid,P.act.type,P.act.side,r3(P.act.t)]:0,d:P.def?[P.def.nid,P.def.type,r3(P.def.t)]:0})}
 function netOnState(p){const R=O&&O.net;if(!R)return;
  R.x=clamp(+p.x||0,-RING,RING);R.z=clamp(+p.z||0,-RING,RING);R.b=p.b?1:0;R.f=p.f?1:0;
- if(typeof p.h==='number')O.hp=clamp(p.h,0,100);
+ if(typeof p.ch==='string'&&CHARS[p.ch]&&O.ch!==p.ch){O.ch=p.ch;O.max=CHARS[p.ch].hp;if(OM)disposeFighter(OM);OM=makeFighter(charCfg(p.ch));O.mesh=OM}
+ if(typeof p.h==='number')O.hp=clamp(p.h,0,O.max||100);
  if(Array.isArray(p.a)&&PUNCH[p.a[1]]){const[id,ty,sd,t]=p.a;if(!O.act||O.act.nid!==id){const D=PUNCH[ty];O.act={type:ty,side:sd===1?1:-1,t:clamp(+t||0,0,1),w:D.w,k:D.k,r:D.r,done:true,player:true,nid:id}}}
  if(Array.isArray(p.d)&&['duck','slipL','slipR'].includes(p.d[1])){const[id,ty,t]=p.d;if(!O.def||O.def.nid!==id)O.def={type:ty,t:clamp(+t||0,0,.46),dur:.46,nid:id}}
 }
@@ -907,7 +931,7 @@ function netOnHit(p){const N=ONL,D=PUNCH[p.ty];if(!D)return;
  if(!O.act||O.act.nid!==p.n)O.act={type:p.ty,side:p.sd===1?1:-1,t:D.w+D.k,w:D.w,k:D.k,r:D.r,done:true,player:true,nid:p.n};
  const reply=(r,dmg)=>send('res',{k:p.k,r,dmg:Math.round(dmg*10)/10,h:Math.round(P.hp*10)/10});
  if(fight!=='fight'||N.phase!=='match'||P.down){reply('miss',0);return}
- let dmg=D.dmg*clamp(+p.pw||1,.3,1)*(1+Math.min(.5,(clamp(+p.cb||1,1,40)-1)*.08));if(p.c)dmg*=2;
+ let dmg=D.dmg*chPow(O.ch)*clamp(+p.pw||1,.3,1)*(1+Math.min(.5,(clamp(+p.cb||1,1,40)-1)*.08));if(p.c)dmg*=2;
  const hp=headPos(P),dirv=new V3().subVectors(P.pos,O.pos).setY(0).normalize(),d=P.def,amt=defAmt(P);
  if(dist()>D.reach+.6){pop(hp,'Backed out of it','#9ef',1);reply('far',0);return}
  if(d&&amt>.5){
@@ -928,7 +952,7 @@ function netOnHit(p){const N=ONL,D=PUNCH[p.ty];if(!D)return;
 }
 // the other player told me what my punch did
 function netOnRes(p){const N=ONL,q=N.pend[p.k];if(!q)return;delete N.pend[p.k];
- if(typeof p.h==='number')O.hp=clamp(p.h,0,100);
+ if(typeof p.h==='number')O.hp=clamp(p.h,0,O.max||100);
  const hp=headPos(O),dmg=+p.dmg||0;
  if(p.r==='miss')return;
  if(p.r==='far'){SFX.miss();pop(hp,'Too far!','#bbb',.8);P.combo=0;return}
@@ -958,7 +982,7 @@ function hostPh(p){send('ph',p);applyPh(p)}
 function applyPh(p){const N=ONL;if(N.phase!=='match')return;
  if(p.ph==='down'){fight='down';N.downWho=p.who;N.downT0=performance.now();N.lastCount=0;P.act=null;P.buf=null;
   if(p.who!==N.id){banner('DOWN!','#ffcc33',1,14);crowd(.3,1.2);whiteFlash=.3}else{if(!P.down)P.down=true;upStart()}}
- else if(p.ph==='fight'){upEnd();if(p.who===N.id&&P.down){P.down=false;P.hp=P.hpG=40;P.st=100;P.sinceHit=0}
+ else if(p.ph==='fight'){upEnd();if(p.who===N.id&&P.down){P.down=false;P.hp=P.hpG=Math.round((P.max||100)*.4);P.st=100;P.sinceHit=0}
   N.downWho='';fight='fight';SFX.bell(1);banner(p.who===N.id?'Get up! FIGHT!':'FIGHT!','#fff',.8,14)}}
 function hostEnd(e){send('end',e);applyEnd(e)}
 function applyEnd(e){const N=ONL;if(N.phase!=='match')return;upEnd();N.phase='end';N.ended=e;N.tEnd=performance.now();endT=0;N.downWho='';
@@ -1053,6 +1077,16 @@ async function renderBoard(){const box=$('koBoard');if(!PCA){box.hidden=true;ret
 function toMenu(){netLeave();fight='title';['res','lobby'].forEach(i=>$(i).classList.add('hide'));delete $('res').dataset.shown;$('title').classList.remove('hide');$('onMsg').hidden=true;
  hitstop=0;slowT=0;newPlayer();newOpp(0);P.pos.set(.3,0,-1.3);O.pos.set(0,0,1.3);separate();pops=[];banners=[];renderBoard()}
 $('onlineBtn').onclick=openOnline;
+function renderPick(){const box=$('pick');box.innerHTML='';
+ for(const id in CHARS){const c=CHARS[id],b=document.createElement('button');b.type='button';b.setAttribute('role','radio');b.setAttribute('aria-checked',id===CH_ID?'true':'false');
+  const nm=document.createElement('div');nm.className='nm';const sw=document.createElement('span');sw.className='sw';sw.style.background='#'+new THREE.Color(c.tint==null?(c.model==='hero'?0xd01a24:0x1f3a8a):c.tint).getHexString();nm.append(sw,document.createTextNode(c.name));
+  const tg=document.createElement('div');tg.className='tg';tg.textContent=c.tag;b.append(nm,tg);
+  ['Speed','Power','Health'].forEach((L,k)=>{const r=document.createElement('div');r.className='st';const a=document.createElement('span');a.textContent=L;const pp=document.createElement('span');pp.className='pp';for(let q=0;q<5;q++){const i=document.createElement('i');if(q<c.bars[k])i.className='on';pp.append(i)}r.append(a,pp);b.append(r)});
+  b.setAttribute('aria-label',`${c.name}: ${c.tag}. Speed ${c.bars[0]}, power ${c.bars[1]}, health ${c.bars[2]} out of 5`);
+  b.onclick=()=>pickChar(id);box.append(b)}}
+function pickChar(id){if(!CHARS[id])return;CH_ID=id;try{localStorage.setItem('box.char',id)}catch(e){}
+ if(PM)disposeFighter(PM);PM=makeFighter(charCfg(id));if(P){P.mesh=PM;P.max=P.hp=P.hpG=CH().hp}renderPick()}
+renderPick();
 $('upBtn').addEventListener('pointerdown',e=>{e.preventDefault();upTap()});
 $('quickBtn').onclick=()=>{initAudio();quickMatch()};
 $('makeBtn').onclick=makeRoom;$('joinBtn').onclick=joinCode;
