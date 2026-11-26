@@ -215,10 +215,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 36,
+  "version": 37,
   "added": "2026-11-22",
   "updated": "2026-11-26",
-  "notes": "The shootout players now look and move like real footballers!",
+  "notes": "Shootout: new skill moves (Q E R Shift), a packed stadium and big goal celebrations!",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
@@ -236,7 +236,7 @@
    ],
    [
     "1:1 Shootout",
-    "◀ ▶ move · Space fake · stop the gauge in the middle to shoot"
+    "◀ ▶ move · Q/E fake · R spin · Shift burst · stop the gauge in the middle to shoot"
    ]
   ],
   "tip": "Sign in and your progress follows your account. Words you keep missing come back until they become Legend cards.",
