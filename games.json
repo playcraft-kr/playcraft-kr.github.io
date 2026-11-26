@@ -500,10 +500,10 @@
    "Action"
   ],
   "lang": "English & Korean",
-  "version": 10,
+  "version": 11,
   "updated": "2026-11-26",
   "added": "2026-11-22",
-  "notes": "Heroes and monsters now walk with a bounce and swing back before every hit, so battles move more smoothly.",
+  "notes": "Shape questions now come with a picture, so you can see the angles, sides and circles you are solving.",
   "cover": "img/cover-math-space-war.webp",
   "wide": "img/wide-math-space-war.webp",
   "controls": [
