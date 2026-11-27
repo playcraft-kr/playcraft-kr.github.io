@@ -1,4 +1,4 @@
-/* PlayCraft — arcade-lobby layout: sticky search bar, a cinematic featured carousel, then shelves of cover-art cards.
+/* Zanycade — arcade-lobby layout: sticky search bar, a cinematic featured carousel, then shelves of cover-art cards.
    Built for players aged ~10+: 17px body text, 44px+ targets, icon + word on every control. Single light theme by choice. */
 :root{
   color-scheme: light;
@@ -43,6 +43,20 @@ h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.15;margin:0;
 .brand img{width:44px;height:44px;border-radius:14px;background:#d9cffb;object-fit:cover;object-position:50% 20%}
 .brand span{font-family:var(--f-display);font-size:27px;font-weight:700;letter-spacing:-.01em}
 .brand b{color:var(--violet)}
+/* Zanycade wordmark: bouncing letters, one colour each */
+.zany{display:inline-flex;font-family:"Chewy","Fredoka",system-ui,sans-serif;font-size:34px;line-height:1;gap:1px;padding:4px 2px}
+.zany i{font-style:normal;display:inline-block;-webkit-text-stroke:4px var(--ink);paint-order:stroke fill}
+.zany i:nth-child(1){color:#ffc93c;transform:rotate(-8deg) translateY(1px)}
+.zany i:nth-child(2){color:#ff4f8b;transform:rotate(6deg) translateY(-3px)}
+.zany i:nth-child(3){color:#16c2b0;transform:rotate(-4deg) translateY(2px)}
+.zany i:nth-child(4){color:#8e6bff;transform:rotate(9deg) translateY(-2px)}
+.zany i:nth-child(5){color:#ffc93c;transform:rotate(-6deg) translateY(3px)}
+.zany i:nth-child(6){color:#ff4f8b;transform:rotate(5deg) translateY(-2px)}
+.zany i:nth-child(7){color:#16c2b0;transform:rotate(-9deg) translateY(1px)}
+.zany i:nth-child(8){color:#8e6bff;transform:rotate(7deg) translateY(-3px)}
+@media (prefers-reduced-motion:no-preference){.brand:hover .zany i{animation:zbob .45s ease-in-out}.brand:hover .zany i:nth-child(even){animation-delay:.06s}@keyframes zbob{50%{translate:0 -5px}}}
+@media (max-width:520px){.zany{font-size:31px}.zany i{-webkit-text-stroke:3.5px var(--ink)}}
+
 .search{position:relative;flex:1;max-width:520px;display:flex;align-items:center;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:0 16px;height:50px;transition:border-color .15s,box-shadow .15s}
 .search:focus-within{border-color:var(--violet);box-shadow:0 0 0 4px rgba(91,63,208,.15)}
 .search svg{width:22px;height:22px;fill:none;stroke:var(--ink-2);stroke-width:2.4;stroke-linecap:round;flex:none}

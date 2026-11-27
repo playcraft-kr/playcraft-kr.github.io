@@ -1,4 +1,4 @@
-// PlayCraft accounts: sign in with an admin-issued ID + password, and keep play records per person.
+// Zanycade accounts: sign in with an admin-issued ID + password, and keep play records per person.
 // The publishable key below is meant to be public; every table is locked so each player only sees their own rows.
 (() => {
 'use strict';

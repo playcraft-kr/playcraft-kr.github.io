@@ -55,7 +55,7 @@ const toast = m => { const t = $('#toast'); t.textContent = m; t.hidden = false;
 /* ---------- art & credit helpers ---------- */
 const coverOf = g => g.community ? g.coverUrl : ROOT + g.cover;
 const wideOf = g => g.community ? g.coverUrl : ROOT + g.wide;
-const madeBy = g => (g.authorName || g.author) ? `Made by ${g.authorName || g.author}` : 'PlayCraft Original';
+const madeBy = g => (g.authorName || g.author) ? `Made by ${g.authorName || g.author}` : 'Zanycade Original';
 const EMO = { Action: '💥', Fighting: '🥊', '3D': '🧊', Space: '🪐', Adventure: '🗺️', Sports: '⚽', Puzzle: '🧩', Racing: '🏎️' };
 function artNode(g, cls) {
   const u = coverOf(g);
@@ -204,7 +204,7 @@ function route() {
   if (p0 !== 'game') stopGame();
   if (p0 !== 'search') q.value = '';
   menu.hidden = true;
-  document.title = 'PlayCraft — Free Original Browser Games';
+  document.title = 'Zanycade — Free Original Browser Games';
   if (p0 === 'game' && bySlug(arg)) return openGame(bySlug(arg));
   if (p0 === 'categories') { show('categories', 'categories'); return; }
   if (p0 === 'cat') return openList(`${arg} games`, MAIN().filter(g => g.cats.includes(arg)), 'categories');
@@ -341,7 +341,7 @@ async function waitingPopup() {
 }
 function openGame(g) {
   if (current !== g) stopGame();
-  current = g; document.title = `${g.title} · PlayCraft`; playLabel(); renderComments();
+  current = g; document.title = `${g.title} · Zanycade`; playLabel(); renderComments();
   $('#crumbs').replaceChildren(h('a', { href: '#/', text: 'Home' }), h('span', { 'aria-hidden': 'true', text: '›' }), h('a', { href: '#/cat/' + encodeURIComponent(g.cats[0]), text: g.cats[0] }), h('span', { 'aria-hidden': 'true', text: '›' }), h('span', { 'aria-current': 'page', text: g.title }));
   const wb = wideOf(g); $('#start-bg').hidden = !wb; if (wb) $('#start-bg').src = wb;
   $('#start').style.cssText = wb ? '' : genBg(g.slug);
@@ -396,7 +396,7 @@ async function askParent(reason) {
     if (em === null) return;
   }
   let r; try { r = await ACC.requestParentConsent(em); } catch { return toast('Couldn’t send. Try again.'); }
-  toast(r.ok ? (r.mailed ? 'Sent! Ask your parent to check their email.' : 'Saved! A PlayCraft grown-up will pass the message to your parent.')
+  toast(r.ok ? (r.mailed ? 'Sent! Ask your parent to check their email.' : 'Saved! A Zanycade grown-up will pass the message to your parent.')
     : r.why === 'same' ? 'That’s your own recovery email. Please type your parent’s email.' : r.why === 'email' ? 'That email doesn’t look right.' : r.why === 'wait' ? 'Please wait 2 minutes before sending again.' : r.why === 'limit' ? 'You’ve sent 5 today. Try again tomorrow.' : 'Couldn’t send.');
   if (!$('#v-my').hidden) openMy(true);
 }
@@ -409,7 +409,7 @@ function infoDialog(title, text) {
 }
 $('#forgot-pw').addEventListener('click', async e => {
   e.preventDefault();
-  const id = await askText('Type your PlayCraft ID. If your account has a confirmed email (your parent’s, or your own recovery email), we’ll send a link to set a new password.', $('#si-id').value.trim(), 'Send link');
+  const id = await askText('Type your Zanycade ID. If your account has a confirmed email (your parent’s, or your own recovery email), we’ll send a link to set a new password.', $('#si-id').value.trim(), 'Send link');
   if (id === null) return;
   try { await ACC.requestPasswordReset(id); } catch {}
   // Same answer every time, so nobody can find out which accounts exist or have an email.
@@ -417,10 +417,10 @@ $('#forgot-pw').addEventListener('click', async e => {
 });
 $('#forgot-id').addEventListener('click', async e => {
   e.preventDefault();
-  const em = await askText('Parents: type the email you used to approve your child. We’ll email you every PlayCraft ID linked to it.', '', 'Email me the IDs');
+  const em = await askText('Parents: type the email you used to approve your child. We’ll email you every Zanycade ID linked to it.', '', 'Email me the IDs');
   if (em === null) return;
   try { await ACC.sendUsernames(em); } catch {}
-  infoDialog('Check your email 📬', 'If any PlayCraft IDs are linked to this email, we just sent you the list.');
+  infoDialog('Check your email 📬', 'If any Zanycade IDs are linked to this email, we just sent you the list.');
 });
 async function addRecovery(pw, email) {
   if (!pw) { pw = await askText('To add a recovery email, first type your current password.', '', 'Next', false, 'password'); if (pw === null) return; }
@@ -555,7 +555,7 @@ function needCoinsDialog(g, why) {
 }
 function stopCoinTimer() {
   clearInterval(coinTimer); coinTimer = null; drawLeft();
-  if (wlMins && coinGame) { const n = wlMins, t = coinGame; ACC.walletNote(`PlayCraft: ${t} (${n} min)`, n * ACC.WL_PER_MIN).catch(() => {}); }
+  if (wlMins && coinGame) { const n = wlMins, t = coinGame; ACC.walletNote(`Zanycade: ${t} (${n} min)`, n * ACC.WL_PER_MIN).catch(() => {}); }
   coinMins = 0; wlMins = 0; coinGame = null;
 }
 // Pays one minute: game minutes first, then Word League coins. Returns 'math' | 'wl' | 'cap' | 'none'.
@@ -726,7 +726,7 @@ ageSel.append(h('option', { value: 18, text: '18 or older' }));
 // Password rule (NIST SP 800-63B-4 style): length, no easy passwords, not the ID. No character-type rules. The server checks the same on resets.
 const COMMON_PW = new Set('12345678 123456789 1234567890 password password1 password12 password123 passw0rd qwerty123 qwertyuiop iloveyou iloveyou1 11111111 00000000 88888888 12341234 asdfasdf asdfghjkl qwertyui abc12345 abcd1234 1q2w3e4r 1qaz2wsx zaq12wsx zxcvbnm1 baseball baseball1 football football1 basketball soccer123 princess princess1 sunshine sunshine1 superman superman1 starwars pokemon1 pokemon123 minecraft minecraft1 fortnite fortnite1 roblox123 robloxian letmein1 welcome1 welcome123 trustno1 computer michelle jennifer whatever dragon123 monkey123 shadow123 master123 killer123 charlie1 freedom1 internet 00001111 87654321 11223344 12121212 qwer1234 asdf1234 zxcv1234 game1234 gamer123 playgame password! iloveyou! chocolate butterfly unicorn1 spiderman batman123 ninja123 hello123 hello1234 abcdefgh aaaaaaaa'.split(' '));
 const pwCommon = p => { const l = p.toLowerCase(); return COMMON_PW.has(l) || /^(.)\1+$/.test(l) || '01234567890123456789'.includes(l) || '98765432109876543210'.includes(l) || 'abcdefghijklmnopqrstuvwxyz'.includes(l); };
-const pwHasName = (p, id) => { const l = p.toLowerCase(); return l.includes('playcraft') || (id && id.length >= 3 && l.includes(id.toLowerCase())); };
+const pwHasName = (p, id) => { const l = p.toLowerCase(); return l.includes('playcraft') || l.includes('zanycade') || (id && id.length >= 3 && l.includes(id.toLowerCase())); };
 const RULES = { len: p => p.length >= 8, common: p => p.length > 0 && !pwCommon(p), name: p => p.length > 0 && !pwHasName(p, ($('#su-id') ? $('#su-id').value.trim() : '')) };
 const pwOk = p => Object.values(RULES).every(f => f(p));
 $('#su-pw').addEventListener('input', () => { const p = $('#su-pw').value; document.querySelectorAll('#pw-rules li').forEach(li => li.classList.toggle('ok', RULES[li.dataset.r](p))); });
@@ -759,7 +759,7 @@ $('#su-form').addEventListener('submit', async e => {
   if (age < 13 && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(parentEmail)) return say('Because you’re under 13, please type your parent’s email so they can approve your account.');
   if (pw.length < 8) return say('Your password needs at least 8 characters.');
   if (pwCommon(pw)) return say('That password is too easy to guess. Try three words, like tiger-pizza-moon.');
-  if (pwHasName(pw, id)) return say('Your password can’t contain your ID or “playcraft”.');
+  if (pwHasName(pw, id)) return say('Your password can’t contain your ID or “zanycade”.');
   const recEmail = age >= 13 ? $('#su-recovery').value.trim() : '';
   if (recEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(recEmail)) return say('That recovery email doesn’t look right. Fix it or leave it empty.');
   if (pw !== $('#su-pw2').value) return say('The two passwords don’t match. Type them again.');
@@ -772,7 +772,7 @@ $('#su-form').addEventListener('submit', async e => {
       if (age < 13) { try { await ACC.requestParentConsent(parentEmail); } catch { toast('Account made. Open My Games to send the message to your parent again.'); } }
       dlg.close(); $('#su-form').reset(); $('#su-parent-row').hidden = true; $('#su-recovery-row').hidden = true;
       if (recEmail) setTimeout(() => addRecovery(pw, recEmail), 400); document.querySelectorAll('#pw-rules li').forEach(li => li.classList.remove('ok')); $('#su-pw2-hint').textContent = '';
-      toast(age < 13 ? `Welcome, ${nick}! 🎉 You can play now. We sent your parent an email so they can turn on leaderboards and online play.` : `Welcome to PlayCraft, ${nick}! 🎉`);
+      toast(age < 13 ? `Welcome, ${nick}! 🎉 You can play now. We sent your parent an email so they can turn on leaderboards and online play.` : `Welcome to Zanycade, ${nick}! 🎉`);
     }
   } catch (x) {
     const m = (x && x.message || '').toLowerCase();
@@ -981,7 +981,7 @@ function ask(text) {
 }
 $('#adm-q').addEventListener('input', renderAdmin);
 $('#ma-delete').addEventListener('click', async () => {
-  if (!(await ask('Delete your PlayCraft account? Your ID, nickname, saved games and play records will be gone for good. This can’t be undone.'))) return;
+  if (!(await ask('Delete your Zanycade account? Your ID, nickname, saved games and play records will be gone for good. This can’t be undone.'))) return;
   try { endSession(); await ACC.deleteMyAccount(); toast('Your account was deleted.'); location.hash = '#/'; }
   catch { toast('We couldn’t delete your account. Check your internet and try again.'); }
 });
@@ -1030,7 +1030,7 @@ async function renderMySubs() {
   const box = $('#my-subs'); if (!signedIn()) { box.hidden = true; return; }
   const list = await ACC.myGames().catch(() => []);
   box.hidden = false;
-  const label = { pending: ['wait', '⏳ Waiting for review'], approved: ['ok', '✓ Live on PlayCraft'], rejected: ['bad', '✗ Not approved'] };
+  const label = { pending: ['wait', '⏳ Waiting for review'], approved: ['ok', '✓ Live on Zanycade'], rejected: ['bad', '✗ Not approved'] };
   $('#sub-list').replaceChildren(...(list.length ? list.map(g => h('li', {},
     h('span', { class: 't' }, g.title, h('small', { text: g.review_note ? `Admin note: ${g.review_note}` : new Date(g.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) })),
     h('span', { class: 'pill ' + label[g.status][0], text: label[g.status][1] }),
