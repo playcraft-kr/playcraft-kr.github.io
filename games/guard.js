@@ -1,4 +1,4 @@
-/* PlayCraft: these games may only be played on playcraft-kr.github.io. Embedding them on another site is not permitted. */
+/* PlayCraft: these games may only be played on zanycade.com. Embedding them on another site is not permitted. */
 /* Playing needs a PlayCraft account: a game opened on its own goes to its PlayCraft page; inside a page with no signed-in player,
    the whole game area becomes one button that opens "Create account" on the PlayCraft page. */
 (function(){var slug=(location.pathname.match(/\/games\/([^\/]+)\//)||[])[1]||'',to=location.origin+'/preview/#/game/'+slug,A=null;
