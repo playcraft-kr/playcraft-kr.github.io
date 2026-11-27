@@ -356,7 +356,7 @@ const camS={px:SP(),py:SP(),pz:SP(),lx:SP(),ly:SP(),lz:SP()};
 let tScale=1;
 
 function newAttempt(){const i=GS.shot;me.place(rnd(-1.5,1.5),30,Math.PI);df.place(0,17,0);gk.place(0,.5,0);
- A={phase:'ready',t:0,i,hist:[],def:{st:'jockey',t:0,vx:0,dir:0,feints:0},react:.19-.008*i,dvmax:5.55+.06*i,dacc:13.4+.44*i,bite:.9-.025*i,press:1.45,pressAt:2.85,tdz:1.84,treach:1.15,
+ A={phase:'ready',t:0,i,hist:[],def:{st:'jockey',t:0,vx:0,dir:0,feints:0},react:.19-.008*i,dvmax:5.55+.06*i,dacc:13.4+.44*i,bite:.8-.022*i,press:1.45,pressAt:2.85,tdz:1.84,treach:1.15,
   feint:null,fcool:0,aim:{x:0,y:1.1},gauge:null,timer:0,kick:null,res:null,shotT:0,gkPlan:null,post:false,saved:false,resT:0,touch:0};
  B.live=false;B.p.set(me.x,BR,me.z-.5);B.v.set(0,0,0);B.w.set(0,0,0);ball.position.copy(B.p);
  for(const k in camS)camS[k].x=NaN;
@@ -501,7 +501,7 @@ function defender(dt){const d=A.def,dz=me.z-df.z;d.t+=dt;
   const seen=A.hist.find(h=>h[0]>=A.t-A.react)||A.hist[A.hist.length-1]||[0,me.x,0];
   const tc=clamp((dz-.8)/7,0,.6),tx=clamp(seen[1]+seen[2]*tc*.75,-9,9);
   const want=clamp((tx-df.x)*5,-A.dvmax,A.dvmax);df.vx+=clamp(want-df.vx,-A.dacc*dt,A.dacc*dt);df.x+=df.vx*dt;
-  if(dz>A.pressAt)df.z-=A.press*dt;   // steps up to press
+  if(A.lunge>0){A.lunge-=dt;df.z-=2.4*dt}else if(dz>A.pressAt)df.z-=A.press*dt;   // steps up to press
   df.yaw=Math.atan2(me.x-df.x,me.z-df.z)*.5;dfLoop();
   if(dz<A.tdz&&dz>-.3){const bx=B.p.x,closing=Math.sign(df.vx)===Math.sign(bx-df.x)&&Math.abs(df.vx)>2;   // already moving that way: he can stretch further
    if(Math.abs(bx-df.x)<A.treach+(closing?.55:0))dfTackle(bx,B.p.z-RUN*.3,'won');else dfTackle(bx,B.p.z,'late')}}
@@ -543,16 +543,16 @@ function skill(kind){if(!A||A.phase!=='dribble')return;const d=A.def,dz=me.z-df.
  if(A.move||A.fcool>0)return;
  if(kind==='spin'){if(A.spun){toast(L('턴은 슛마다 한 번만!','One spin per shot!'));return}A.spun=1;const dir=Math.sign(me.x-df.x)||A.lastDir||1;
   A.move={k:'spin',t:0,dir,dur:.62};A.fcool=.9;SFX.touch();
-  if(d.st==='jockey'){if(dz>4.6)toast(L('너무 멀어요! 더 가까이에서','Too far! Get closer first'));else if(dz>1.3&&Math.random()<.85){d.dir=-dir;dfTackle(B.p.x,B.p.z-RUN*.3,'bite');toast(L('턴으로 따돌렸다!','Spun past him!'),1)}
+  if(d.st==='jockey'){if(dz>4.6)toast(L('너무 멀어요! 더 가까이에서','Too far! Get closer first'));else if(dz>1.3&&Math.random()<.7-.015*A.i){d.dir=-dir;dfTackle(B.p.x,B.p.z-RUN*.3,'bite');toast(L('턴으로 따돌렸다!','Spun past him!'),1)}
    else toast(L('수비수가 안 속았어요','The defender didn’t bite'))}return}
  if(!kind||kind==='auto')kind=(steer()||A.lastDir||(Math.random()<.5?-1:1))<0?'fakeL':'fakeR';
  const dir=kind==='fakeL'?-1:1;A.move={k:'fake',t:0,dir,dur:.7};A.fcool=1;SFX.touch();
  if(d.st==='jockey'){
   if(dz>7.5){toast(L('너무 멀어요! 더 가까이에서','Too far! Get closer first'));return}
   if(dz<1.9){toast(L('너무 가까워요!','Too close!'));return}
-  const p=d.feints?A.bite*.45:A.bite;d.feints++;
+  const near=dz<=4.2?1:lerp(1,.25,clamp((dz-4.2)/3.3,0,1)),p=(d.feints?A.bite*.45:A.bite)*near;d.feints++;   // a fake from far away rarely fools him
   if(Math.random()<p){d.dir=dir;dfTackle(df.x+dir*2.4,df.z+.8,'bite');toast(L('속았다! 반대쪽으로 빠져요! ⟵⟶','He bit! Cutting the other way! ⟵⟶'),1)}
-  else toast(L('수비수가 안 속았어요','The defender didn’t bite'))}}
+  else{toast(near<.8?L('너무 멀리서 속였어요! 가까이 가서','Too far to fool him! Get closer'):L('수비수가 안 속았어요','The defender didn’t bite'));A.lunge=.5}}}
 // the body: extra lean / step-over / arms laid over the motion-capture clip (character space: x its left, y up, z forward)
 function meLayer(){const m=A.move;
  if(m&&m.k==='fake'){const p=m.t/m.dur,fc=-m.dir,a1=Math.sin(Math.PI*clamp(p/.55,0,1)),a2=Math.sin(Math.PI*clamp((p-.42)/.58,0,1));
@@ -565,30 +565,53 @@ function meLayer(){const m=A.move;
 
 /* ---------------- goal celebrations ---------------- */
 const lerpA=(a,b,t)=>{let d=((b-a+Math.PI)%TAU+TAU)%TAU-Math.PI;return a+d*t};
-// goal celebration: a short run, a jump with a half turn in the air, then a wide landing with both arms thrust down
-const CJ={run:1.25,air:.78,h:.8};
-function celeStart(){const side=me.x>=0?1:-1;
- A.cele={k:'spinjump',t:0,side,tx:side*7,tz:Math.max(3.5,me.z-1)};me.play('jog',{fade:.3,speed:1.3});
+// goal celebrations: a short run to the corner, then one of several poses (never the same twice in a row)
+const CJ={run:1.35,air:.82,h:.95},CELES=['spinjump','spinjump','plane','ear','heart','sky'];let lastCele='';
+const camA=c=>c.t*.42+c.side*1.1;   // where the orbiting camera is (see the camera code)
+function celeStart(force){const side=me.x>=0?1:-1;let k=force;if(!k){do k=CELES[Math.floor(Math.random()*CELES.length)];while(k===lastCele)}lastCele=k;
+ A.cele={k,t:0,side,tx:side*7,tz:Math.max(3.5,me.z-1),runT:k==='spinjump'?CJ.run:k==='plane'?3.2:1.5};me.play('jog',{fade:.3,speed:1.3});
  for(let n=0;n<3;n++)setTimeout(()=>{if(A&&A.cele){me.B.Hips.getWorldPosition(TV);confetti(TV.x+rnd(-2,2),rnd(7,10),TV.z+rnd(-2,2),110,2.6,.3)}},700+n*500)}
-function celeUpdate(dt){const c=A.cele;c.t+=dt;const tL=CJ.run+CJ.air;
- if(c.t<CJ.run){let dx=c.tx-me.x,dz=c.tz-me.z,dd=Math.hypot(dx,dz)||1;me.x+=dx/dd*5.2*dt;me.z+=dz/dd*5.2*dt;me.yaw=lerpA(me.yaw,Math.atan2(dx,dz),1-Math.exp(-dt*5));return}
- if(!c.air){c.air=1;me.play('idle',{fade:.12});c.y0=me.yaw;const face=tL*.42+c.side*1.1;let d=((face-c.y0+Math.PI)%TAU+TAU)%TAU-Math.PI;if(Math.abs(d)<2.4)d+=d>=0?-TAU:TAU;c.dy=d;
-  const f=Math.atan2(c.tx-me.x,c.tz-me.z);c.vx=Math.sin(f)*1.6;c.vz=Math.cos(f)*1.6}
- const u=(c.t-CJ.run)/CJ.air;
- if(u<1){me.lift=4*CJ.h*u*(1-u);me.yaw=c.y0+c.dy*sm(clamp(u*1.15,0,1));me.x+=c.vx*dt;me.z+=c.vz*dt}
- else{if(!c.land){c.land=1;me.yaw=c.y0+c.dy;SFX.cheer();CROWD.jump=3;FX.shake=Math.max(FX.shake,.35)}
-  const e=c.t-tL;me.lift=-.14*Math.exp(-e*5)*Math.sin(Math.min(e*9,Math.PI))-.06*sm(clamp(e*4,0,1))}}
-function celeLayer(){const c=A.cele,t=c.t;if(!c.air)return;const u=(t-CJ.run)/CJ.air;
- if(u<1){// in the air: knees tucked, arms swing up and out
-  const k=Math.sin(Math.PI*clamp(u,0,1)),w=sm(clamp(u*3,0,1));
-  me.addRot('LeftUpLeg',-40*k,0,8*k);me.addRot('RightUpLeg',-40*k,0,-8*k);me.addRot('LeftLeg',70*k,0,0);me.addRot('RightLeg',70*k,0,0);
-  me.arm('Left',.75,.55,.1,w);me.arm('Right',-.75,.55,.1,w)}
- else{// the landing: feet wide, knees soft, chest out, arms thrust down and out
-  const e=t-CJ.run-CJ.air,w=sm(clamp(e*7,0,1)),b=1+.25*Math.exp(-e*4);
-  me.addRot('LeftUpLeg',-6*w,0,24*w);me.addRot('RightUpLeg',-6*w,0,-24*w);me.addRot('LeftLeg',18*w,0,0);me.addRot('RightLeg',18*w,0,0);
-  me.addRot('LeftFoot',0,0,-14*w);me.addRot('RightFoot',0,0,14*w);
-  me.addRot('Spine',-8*w,0,0);me.addRot('Spine2',-10*w*b,0,0);me.addRot('Head',-12*w,0,0);
-  me.arm('Left',.7,-.62,.22,w);me.arm('Right',-.7,-.62,.22,w)}}
+function celeUpdate(dt){const c=A.cele;c.t+=dt;
+ if(c.t<c.runT){let dx=c.tx-me.x,dz=c.tz-me.z,dd=Math.hypot(dx,dz);
+  if(c.k==='plane'&&dd<1.4){c.tx=-c.tx*.5;c.tz+=2.5;dx=c.tx-me.x;dz=c.tz-me.z;dd=Math.hypot(dx,dz)}
+  let h=Math.atan2(dx,dz);if(c.k==='spinjump'&&c.t>c.runT-.6)h=camA({t:c.runT+CJ.air,side:c.side})+Math.PI;   // turn the back to the camera just before the jump
+  me.yaw=lerpA(me.yaw,h,1-Math.exp(-dt*(c.k==='spinjump'&&c.t>c.runT-.6?9:5)));me.x+=Math.sin(me.yaw)*5.2*dt;me.z+=Math.cos(me.yaw)*5.2*dt;return}
+ if(c.k==='spinjump'){const tL=c.runT+CJ.air;
+  if(!c.air){c.air=1;me.play('idle',{fade:.12});c.y0=me.yaw;let d=((camA({t:tL,side:c.side})-c.y0+Math.PI)%TAU+TAU)%TAU-Math.PI;if(Math.abs(d)<2.2)d+=d>=0?-TAU:TAU;c.dy=d;c.vx=Math.sin(c.y0)*2;c.vz=Math.cos(c.y0)*2}
+  const u=(c.t-c.runT)/CJ.air;
+  if(u<1){me.lift=4*CJ.h*u*(1-u);me.yaw=c.y0+c.dy*sm(clamp(u*1.2,0,1));me.x+=c.vx*dt*(1-u);me.z+=c.vz*dt*(1-u)}
+  else{if(!c.land){c.land=1;me.yaw=c.y0+c.dy;SFX.cheer();CROWD.jump=3;FX.shake=Math.max(FX.shake,.4)}
+   const e=c.t-tL;me.lift=-.16*Math.exp(-e*5)*Math.sin(Math.min(e*9,Math.PI))-.09*sm(clamp(e*4,0,1))}
+  return}
+ if(c.k==='plane'){if(!c.end){c.end=1;me.play('header',{fade:.3})}const a=me.act('header');if(a.time>=CLIPS.header.duration-.06)me.play('header',{from:.6});return}
+ // standing poses: stop and face the camera
+ if(!c.pose){c.pose=1;me.play('idle',{fade:.25});c.face=camA({t:c.t+.6,side:c.side});SFX.cheer()}
+ me.yaw=lerpA(me.yaw,c.face,1-Math.exp(-dt*6));const e=c.t-c.runT;
+ if(c.k==='heart')me.lift=Math.abs(Math.sin(e*5))*.06;
+ if(c.k==='sky')me.lift=e<.5?0:Math.max(0,Math.sin((e-.5)*4.4))*.32}
+function celeLayer(){const c=A.cele,t=c.t;
+ if(c.k==='plane'){const w=sm(clamp(t/.35,0,1));
+  if(!c.end){me.arm('Left',1,-.08,-.12,w);me.arm('Right',-1,-.08,-.12,w);me.addRot('Hips',0,0,Math.sin(t*2.4)*14*w)}   // airplane: arms straight out
+  else{const v=Math.sin(t*9)*.18;me.arm('Left',.55+v,.83,.08,1,.42+v,.9,.12);me.arm('Right',-.55-v,.83,.08,1,-.42-v,.9,.12)}return}
+ if(c.k==='spinjump'){if(!c.air)return;const u=(t-c.runT)/CJ.air;
+  if(u<1){// in the air: arms flung wide, knees tucked
+   const k=Math.sin(Math.PI*clamp(u,0,1)),w=sm(clamp(u*4,0,1));
+   me.addRot('LeftUpLeg',-48*k,0,10*k);me.addRot('RightUpLeg',-30*k,0,-10*k);me.addRot('LeftLeg',85*k,0,0);me.addRot('RightLeg',60*k,0,0);
+   me.arm('Left',1,.3,-.05,w);me.arm('Right',-1,.3,-.05,w);me.addRot('Spine2',-8*k,0,0)}
+  else{// the landing: very wide stance, knees soft, chest out, arms thrust down and back, chin up
+   const e=t-c.runT-CJ.air,w=sm(clamp(e*8,0,1)),b=1+.3*Math.exp(-e*4);
+   me.addRot('LeftUpLeg',-4*w,0,32*w);me.addRot('RightUpLeg',-4*w,0,-32*w);me.addRot('LeftLeg',22*w,0,0);me.addRot('RightLeg',22*w,0,0);
+   me.addRot('LeftFoot',0,0,-22*w);me.addRot('RightFoot',0,0,22*w);
+   me.addRot('Spine',-6*w,0,0);me.addRot('Spine1',-6*w*b,0,0);me.addRot('Spine2',-12*w*b,0,0);me.addRot('Head',-14*w,0,0);
+   me.arm('Left',.72,-.55,-.3,w);me.arm('Right',-.72,-.55,-.3,w)}
+  return}
+ if(!c.pose)return;const e=t-c.runT,w=sm(clamp(e/.35,0,1));
+ if(c.k==='ear'){// hand cupped to the ear: "I can't hear you!"
+  const q=Math.sin(e*3)*6;me.arm('Right',-.92,.3,-.12,w,.85,.45,-.2);me.arm('Left',.95,.05,.15,w*.8);me.addRot('Spine1',0,-10*w,(-10+q)*w);me.addRot('Head',0,-12*w,-14*w)}
+ if(c.k==='heart'){// hands make a heart above the head
+  me.arm('Left',.36,.93,.1,w,-.88,.43,.12);me.arm('Right',-.36,.93,.1,w,.88,.43,.12);me.addRot('Head',-8*w,0,0)}
+ if(c.k==='sky'){// both arms up, pointing at the sky
+  me.arm('Left',.16,1,.1,w);me.arm('Right',-.16,1,.1,w);me.addRot('Spine2',-12*w,0,0);me.addRot('Head',-28*w,0,0)}}
 
 /* ---------------- screen effects: confetti, fireworks, flash, GOAL! ---------------- */
 const FX={shake:0,slow:0,fwQ:[]};
@@ -695,7 +718,7 @@ Promise.all([get('assets/striker.glb',0),get('assets/defender.glb',1),get('asset
  me=new Player(KITS.me);df=new Player(KITS.df);gk=new Player(KITS.gk);
  me.place(0,30,Math.PI);df.place(0,17,0);gk.place(0,.5,0);me.play('idle');df.play('gk_idle');gk.play('gk_idle');B.p.set(0,BR,29.55);
  $('load').remove();lobby();
- window.__SHOOT={CROWD,cele:()=>celeStart(),get A(){return A},GS:()=>GS,finish:()=>finish(),lobby:()=>lobby(),me:()=>me,df:()=>df,gk:()=>gk,B,keys,startGame,setTech,action,skill,TECH};
+ window.__SHOOT={CROWD,cele:k=>celeStart(k),get A(){return A},GS:()=>GS,finish:()=>finish(),lobby:()=>lobby(),me:()=>me,df:()=>df,gk:()=>gk,B,keys,startGame,setTech,action,skill,TECH};
 }).catch(e=>{$('load').textContent=L('불러오기에 실패했어요. 다시 열어 주세요.','Could not load. Please reopen.');console.error(e)});
 requestAnimationFrame(frame);
 }
