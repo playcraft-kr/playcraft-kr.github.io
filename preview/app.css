@@ -54,7 +54,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.15;margin:0;
 .zany i:nth-child(6){color:#ff4f8b;transform:rotate(5deg) translateY(-2px)}
 .zany i:nth-child(7){color:#16c2b0;transform:rotate(-9deg) translateY(1px)}
 .zany i:nth-child(8){color:#8e6bff;transform:rotate(7deg) translateY(-3px)}
-@media (prefers-reduced-motion:no-preference){.brand:hover .zany i{animation:zbob .45s ease-in-out}.brand:hover .zany i:nth-child(even){animation-delay:.06s}@keyframes zbob{50%{translate:0 -5px}}}
+@media (prefers-reduced-motion:no-preference){.zany i{animation:zbob 1.8s ease-in-out infinite}.zany i:nth-child(1){animation-delay:0.00s}.zany i:nth-child(2){animation-delay:0.12s}.zany i:nth-child(3){animation-delay:0.24s}.zany i:nth-child(4){animation-delay:0.36s}.zany i:nth-child(5){animation-delay:0.48s}.zany i:nth-child(6){animation-delay:0.60s}.zany i:nth-child(7){animation-delay:0.72s}.zany i:nth-child(8){animation-delay:0.84s}.brand:hover .zany i{animation-duration:.7s}@keyframes zbob{0%,60%,100%{translate:0 0}30%{translate:0 -6px}}}
 @media (max-width:520px){.zany{font-size:31px}.zany i{-webkit-text-stroke:3.5px var(--ink)}}
 
 .search{position:relative;flex:1;max-width:520px;display:flex;align-items:center;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:0 16px;height:50px;transition:border-color .15s,box-shadow .15s}
