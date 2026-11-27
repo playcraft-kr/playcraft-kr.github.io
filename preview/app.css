@@ -516,3 +516,10 @@ textarea.ask-input{width:100%;box-sizing:border-box;font:inherit;border:2px soli
 .lock-band[hidden]{display:none}
 .lock-list{list-style:none;padding:0;margin:4px 0 10px;text-align:left;display:grid;gap:6px;font-weight:800}
 .lock-list li{background:#f6f4ff;border-radius:12px;padding:8px 12px}
+/* card badges sit in one row that wraps, so NEW/UPDATED and the language tag never cover each other */
+.badges{position:absolute;top:10px;left:10px;right:10px;z-index:1;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.badges .badge{position:static;white-space:nowrap}
+.badges .badge.lang{margin-left:auto}
+.badges .badge{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:520px){.badges .badge{font-size:11px;letter-spacing:.02em;padding:3px 7px}}
+@media (max-width:520px){.badges .badge .bv{display:none}}
