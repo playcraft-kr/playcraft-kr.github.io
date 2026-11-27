@@ -215,10 +215,10 @@
    "Adventure"
   ],
   "lang": "English & Korean",
-  "version": 39,
+  "version": 40,
   "added": "2026-11-22",
-  "updated": "2026-11-26",
-  "notes": "Goal celebrations look smoother, and practice is now once a day!",
+  "updated": "2026-11-27",
+  "notes": "Fixed: shootout practice opens again every new day!",
   "cover": "img/cover-ssat-word-league.webp",
   "wide": "img/wide-ssat-word-league.webp",
   "controls": [
