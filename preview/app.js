@@ -1198,6 +1198,15 @@ fetch(ROOT + 'games.json', { cache: 'no-cache' }).then(r => r.json()).then(list 
   $('#cats-b').replaceChildren(...CATS.map(([n, i, e]) => catTile(n, i, e)));
   route();
 }).catch(() => { $('#grid-all').replaceChildren(h('p', { text: 'We couldn’t load the games. Please refresh the page.' })); });
+/* send a game to a friend: the phone's share sheet, or copy the link */
+$('#share-btn') && $('#share-btn').addEventListener('click', async () => {
+  if (!current) return;
+  const url = location.origin + location.pathname + '#/game/' + current.slug, text = `Play ${current.title} with me on Zanycade!`;
+  if (navigator.share) { try { await navigator.share({ title: current.title, text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  try { await navigator.clipboard.writeText(url); toast('Link copied! Paste it in a message to your friend.'); }
+  catch { infoDialog('Send this link to your friend', url); }
+});
+
 /* launch reactions: count this browser once a day, and ask once about the new name */
 (() => {
   if (!ACC || typeof ACC.logVisit !== 'function') return;

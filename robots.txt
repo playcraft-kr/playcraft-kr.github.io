@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /pin.html
+Disallow: /parent.html
+Disallow: /reset.html
+Allow: /
