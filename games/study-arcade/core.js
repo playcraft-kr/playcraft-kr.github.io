@@ -16,7 +16,7 @@ const ck=c=>c.t+'\t'+c.d;
 const CAP=[["France","Paris"],["Japan","Tokyo"],["Canada","Ottawa"],["Australia","Canberra"],["Brazil","Brasília"],["Egypt","Cairo"],["Germany","Berlin"],["Italy","Rome"],["Spain","Madrid"],["United Kingdom","London"],["China","Beijing"],["India","New Delhi"],["Russia","Moscow"],["Mexico","Mexico City"],["Argentina","Buenos Aires"],["Türkiye (Turkey)","Ankara"],["Thailand","Bangkok"],["Vietnam","Hanoi"],["Kenya","Nairobi"],["New Zealand","Wellington"],["Switzerland","Bern"],["Netherlands","Amsterdam"],["Saudi Arabia","Riyadh"],["Indonesia","Jakarta"]];
 /* Starter decks: words = every Word League word, math = Math Space War questions (decks.js, made by tools/study_decks/build.py). */
 const SDK=window.SA_DECKS||{words:[],math:[]};
-let MGRADE=null,MCARDS=null;   // school grade: the parent's choice on PlayCraft, else age − 5
+let MGRADE=null,MCARDS=null;   // school grade: the parent's choice on Zanycade, else age − 5
 const gradeName=g=>g>=12?'Grade 12':'Grade '+g;
 function mathGrade(){if(MGRADE)return MGRADE;try{const a=PCA&&PCA.profile&&+PCA.profile.age;if(a)return Math.max(1,Math.min(12,a-5))}catch(e){}return 1}
 // Only questions at the player's grade or harder, nearest grades first (up to two grades higher; more only if there are too few).
@@ -67,7 +67,7 @@ memory:`<svg viewBox="0 0 160 100">${[0,1,2,3].map(i=>`<rect x="${20+i*31}" y="$
 };
 
 /* ---------- saving ----------
-   Signed in on PlayCraft: one private save per player (Account.writeSave('study-arcade')).
+   Signed in on Zanycade: one private save per player (Account.writeSave('study-arcade')).
    localStorage (kept per player) is only an offline backup. */
 const PCA=(()=>{try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})();
 const SLUG='study-arcade';let LK='';
@@ -138,7 +138,7 @@ async function initCloud(){
     setSync('cloud');setMascot();renderCoin();route(true);
   }catch(e){setSync('local')}
 }
-/* PlayCraft leaderboard: total right answers. Shared table game_kv; the server adds data.nick. Players see nicknames only. */
+/* Zanycade leaderboard: total right answers. Shared table game_kv; the server adds data.nick. Players see nicknames only. */
 async function pushRank(){if(!PCA||!Cloud.on)return;try{if(PCA.limited)return;const me=myId();if(!me)return;await PCA.kvSet(SLUG,'rank',me,{s:R.tot.right|0,g:R.tot.games|0,t:Date.now()})}catch(e){}}
 async function renderLb(){const el=$('#stLb');if(!el)return;if(!PCA){$('#lbCard').classList.add('hide');return}
   let rows=[];try{rows=(await PCA.kvList(SLUG,'rank',300)).map(r=>({id:r.doc_id,nk:(r.data&&r.data.nick)||'Player',s:+(r.data&&r.data.s)||0})).filter(r=>r.s>0).sort((a,b)=>b.s-a.s)}catch(e){}
@@ -218,10 +218,10 @@ function askPin(onOk){
   document.body.appendChild(ov);const close=()=>ov.remove();
   ov.querySelector('#pinNo').onclick=close;ov.querySelector('#pinIn').focus();
   ov.querySelector('#pinF2').onsubmit=async e=>{e.preventDefault();const out=ov.querySelector('#pinErr');
-    if(!PCA||!PCA.checkParentPin){out.textContent='This opens only inside PlayCraft.';return}
+    if(!PCA||!PCA.checkParentPin){out.textContent='This opens only inside Zanycade.';return}
     let r='err';try{r=await PCA.checkParentPin(ov.querySelector('#pinIn').value.trim())}catch(x){}
     if(r==='ok'){PIN_UNTIL=Date.now()+15*60*1000;close();onOk();return}
-    out.textContent=r==='wrong'?'Wrong PIN.':r==='locked'?'Too many wrong tries. Locked for 15 minutes.':r==='nopin'?'No parent PIN yet. In PlayCraft, open My Games → Your account and press “Ask my parent”.':'Couldn’t check right now. Try again.'};
+    out.textContent=r==='wrong'?'Wrong PIN.':r==='locked'?'Too many wrong tries. Locked for 15 minutes.':r==='nopin'?'No parent PIN yet. In Zanycade, open My Games → Your account and press “Ask my parent”.':'Couldn’t check right now. Try again.'};
 }
 function openDeck(id){
   const d=findDeck(id);if(!d)return go('decks');CUR=d;SET.deck=d.id;
@@ -475,9 +475,9 @@ $('#exitPlay').addEventListener('click',()=>{stopGame();openSetup(LAST.k,LAST.de
 $('#endPlay').addEventListener('click',()=>{if(G&&G.end)G.end()});
 document.addEventListener('keydown',e=>{if(!G||!G.key||$('#vPlay').classList.contains('hide')||(e.target.matches&&e.target.matches('input,textarea,select')))return;G.key(e)});
 
-/* PlayCraft learning mode: a finished round on a starter deck earns PlayCraft game time (shared daily limit with Math Space War).
+/* Zanycade learning mode: a finished round on a starter deck earns Zanycade game time (shared daily limit with Math Space War).
    Every 10 questions with 80%+ right = 1 minute. Not for your own decks, Flashcards or Yes or No; "Count it as right" doesn't count. */
-// Learning mode: show the PlayCraft game time next to the coins, so nobody mixes them up (coins stay in Study Arcade).
+// Learning mode: show the Zanycade game time next to the coins, so nobody mixes them up (coins stay in Study Arcade).
 function showGameTime(min,cap){const c=$('#gtChip'),box=$('#gtInfo');if(!c)return;if(min==null){c.hidden=true;if(box)box.hidden=true;return}$('#gtN').textContent=fmt(min);c.hidden=false;if(box){box.hidden=false;$('#gtHave').textContent=fmt(min);if(cap!=null)$('#gtCap').textContent=cap}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshGameTime()});
 function refreshGameTime(){try{if(!PCA||!PCA.learnWallet||!PCA.profile||!PCA.profile.learn_mode)return showGameTime(null);
@@ -486,16 +486,16 @@ function pcLearn(r,deck,k){try{
   if(!PCA||!PCA.learnRound||!PCA.profile||!PCA.profile.learn_mode||!r.total)return;
   const box=document.createElement('div');box.className='pcl';
   const say=(t,good)=>{box.textContent='🎮 '+t;box.classList.toggle('good',!!good);$('#rCoins').appendChild(box)};
-  if(!deck||!deck.sample)return say('Your own decks are for practice. Play a starter deck to earn PlayCraft game time.');
-  if(k==='flash'||k==='ox')return say(`${GM[k].name} doesn’t earn PlayCraft game time. Try a quiz or action game.`);
+  if(!deck||!deck.sample)return say('Your own decks are for practice. Play a starter deck to earn Zanycade game time.');
+  if(k==='flash'||k==='ox')return say(`${GM[k].name} doesn’t earn Zanycade game time. Try a quiz or action game.`);
   const n=r.total,good=Math.max(0,(r.right||0)-(window.SA_OVR||0));
-  if(n<10)return say('Answer at least 10 questions to earn PlayCraft game time.');
+  if(n<10)return say('Answer at least 10 questions to earn Zanycade game time.');
   const lvOf=deck.id==='s-math'?(()=>{const g=mathGrade();return ()=>g})():()=>99;
   const levels=Array.from({length:Math.min(good,n)},()=>lvOf());
   PCA.learnRound(SLUG,n,levels).then(x=>{if(!x||x.why==='off'||x.why==='signin')return;
     if(x.math_min!=null)showGameTime(x.math_min,x.math_cap);
-    if(x.ok)say(`+${x.got} minute${x.got>1?'s':''} of PlayCraft game time! (today ${x.math_today} of ${x.math_cap})`,true);
-    else if(x.why==='score')say(`Get 8 out of 10 right (80%) to earn PlayCraft game time. This round: ${Math.round(good/n*100)}%.`);
+    if(x.ok)say(`+${x.got} minute${x.got>1?'s':''} of Zanycade game time! (today ${x.math_today} of ${x.math_cap})`,true);
+    else if(x.why==='score')say(`Get 8 out of 10 right (80%) to earn Zanycade game time. This round: ${Math.round(good/n*100)}%.`);
     else if(x.why==='fast')say('Game time comes at most once a minute. Keep going!');
     else if(x.why==='cap')say(`You’ve earned today’s game time from learning games (${x.math_cap} min). You can keep practicing!`)}).catch(()=>{});
 }catch(e){}}

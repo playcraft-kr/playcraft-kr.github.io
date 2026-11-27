@@ -784,7 +784,7 @@ function showResult(){
  setTimeout(()=>$('resBtn').focus(),50);
 }
 $('startBtn').onclick=()=>{initAudio();netLeave();$('title').classList.add('hide');newPlayer();startFight(0)};
-/* ===== ONLINE 1:1 (PlayCraft realtime) =====
+/* ===== ONLINE 1:1 (Zanycade realtime) =====
    방 채널 boxing-room-<코드>: presence 로 두 선수, 먼저 들어온 사람이 호스트.
    각자 자기 선수를 움직이고 15번/초 상태(s)를 보낸다. 내 펀치가 닿으면 hit → 맞는 쪽이 자기 피하기·막기로 판정해 res 로 답한다.
    쓰러짐(down)·카운트·다시 일어남(ph)·KO·시간 끝·결과(end)는 호스트가 정해서 보낸다.
@@ -805,12 +805,12 @@ const fmtS=s=>(Math.round(s*10)/10).toFixed(1)+'s';
 function myNick(){let n='';try{n=cleanNick(PCA&&PCA.profile&&PCA.profile.nickname)}catch(e){}return n||'Boxer'}
 function myUser(){try{return PCA&&PCA.signedIn&&PCA.profile?String(PCA.profile.username||''):''}catch(e){return ''}}
 function rt(){try{return PCA&&!PCA.limited?PCA.realtime:null}catch(e){return null}}
-const LIMITED_MSG='Online 1:1 and the rankings open after your parent approves your PlayCraft account. Ask them from My Games → Your account → “Ask my parent”. You can still box the CPU!';
+const LIMITED_MSG='Online 1:1 and the rankings open after your parent approves your Zanycade account. Ask them from My Games → Your account → “Ask my parent”. You can still box the CPU!';
 const NOCONN='Can’t connect right now. Check the internet and try again!';
 const PICK_MSG='Box a real player! Knock them down twice to win.';
 function onlineBlock(){
- if(!PCA)return 'Online 1:1 only works on PlayCraft. You can still box the CPU!';
- try{if(PCA.limited)return LIMITED_MSG;if(!PCA.signedIn)return 'Sign in to PlayCraft to box other players online.'}catch(e){return 'Online 1:1 isn’t available right now.'}
+ if(!PCA)return 'Online 1:1 only works on Zanycade. You can still box the CPU!';
+ try{if(PCA.limited)return LIMITED_MSG;if(!PCA.signedIn)return 'Sign in to Zanycade to box other players online.'}catch(e){return 'Online 1:1 isn’t available right now.'}
  if(!rt())return 'Can’t reach the game server right now. Try again later!';
  return '';
 }

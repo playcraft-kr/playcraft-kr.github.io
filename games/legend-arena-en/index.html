@@ -2127,7 +2127,7 @@ animFns.push((t,dt)=>{if(!started||!player||SET.q==='low')return;const cave=W3G.
 requestAnimationFrame(loop);
 window.__game={get audio(){return AC&&{state:AC.state,seq:!!seqT,song}},get player(){return player},get battle(){return battle},startMatch,openShop,openBoss,useSkill:i=>useSkill(player,i),enterBoss,gainXP,get fighters(){return fighters},get S(){return S}};
 
-/* PlayCraft 계정 연동: 사이트에 로그인돼 있으면 그 아이디로 바로 시작하고, 기록은 계정에 저장 */
+/* Zanycade 계정 연동: 사이트에 로그인돼 있으면 그 아이디로 바로 시작하고, 기록은 계정에 저장 */
 (()=>{let A=null;try{A=window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){}if(!A)return;
 const KO=document.documentElement.lang==='ko',SL='legend-arena';let on=false,qt=null,lastTs=0;
 async function init(){const t0=Date.now();while(!A.ready&&Date.now()-t0<15000)await new Promise(r=>setTimeout(r,100));if(!(A.signedIn&&A.user))return;
@@ -2136,14 +2136,14 @@ async function init(){const t0=Date.now();while(!A.ready&&Date.now()-t0<15000)aw
  const cs=cl&&cl.data&&cl.data.S,loc=ACC[nm];
  const base=cs&&(!loc||((cl.data.ts||0)>=(loc._ts||0)))?cs:(loc||cs||{name:nm});
  S=migrate(JSON.parse(JSON.stringify(base)));S.name=nm;
- const ni=$('#nameIn');ni.value=nm;ni.disabled=true;const lab=document.querySelector('label[for=nameIn]');if(lab)lab.textContent='PlayCraft';
+ const ni=$('#nameIn');ni.value=nm;ni.disabled=true;const lab=document.querySelector('label[for=nameIn]');if(lab)lab.textContent='Zanycade';
  const pw=$('#pwRow');if(pw)pw.classList.add('hide');
  selType=S.type||selType;renderTypes();$('#goBtn').textContent=S.type?(KO?'이어하기':'Continue'):(KO?'모험 시작':'Start Adventure');
- $('#goHint').textContent=KO?`${nm} 계정으로 로그인됨 · 기록은 PlayCraft 계정에 저장돼요`:`Signed in as ${nm} · progress saves to your PlayCraft account`;
+ $('#goHint').textContent=KO?`${nm} 계정으로 로그인됨 · 기록은 Zanycade 계정에 저장돼요`:`Signed in as ${nm} · progress saves to your Zanycade account`;
 
- /* 친구 대결: PlayCraft 실시간 채널로 두 사람이 서로 싸울 수 있게 (방송 채널만 사용, 다른 서버 기능은 끔) */
+ /* 친구 대결: Zanycade 실시간 채널로 두 사람이 서로 싸울 수 있게 (방송 채널만 사용, 다른 서버 기능은 끔) */
  try{const RT=A.realtime;if(RT&&A.user){const nul={data:null,error:null};const chain=()=>{const p=new Proxy(function(){},{get:(t,k)=>k==='then'?((res,rej)=>Promise.resolve(nul).then(res,rej)):(()=>p),apply:()=>p});return p};
-  sb={_pc:true,channel:(...a)=>RT.channel(...a),removeChannel:c=>RT.removeChannel(c),from:()=>chain(),rpc:()=>Promise.resolve({data:null,error:{message:KO?'PlayCraft에서는 쓸 수 없어요':'Not available on PlayCraft'}}),auth:{getSession:async()=>({data:{session:null}}),signOut:async()=>({})}};
+  sb={_pc:true,channel:(...a)=>RT.channel(...a),removeChannel:c=>RT.removeChannel(c),from:()=>chain(),rpc:()=>Promise.resolve({data:null,error:{message:KO?'Zanycade에서는 쓸 수 없어요':'Not available on Zanycade'}}),auth:{getSession:async()=>({data:{session:null}}),signOut:async()=>({})}};
   sbUser={id:A.user.id+'-'+Math.random().toString(36).slice(2,6)};const db=$('#duelBtn');if(db&&player)db.classList.remove('hide')}}catch(e){console.warn('duel setup',e)}
  const _s=save;save=function(){if(S)S._ts=Date.now();const r=_s.apply(this,arguments);queue();return r};on=true;
  if(!cs&&loc)queue()}

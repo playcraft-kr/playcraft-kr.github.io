@@ -691,7 +691,7 @@ function syncEnt(e,dt){const m=e.mesh;
  const on=onRoad(e.x,e.z);e.shadow.visible=on;e.shadow.position.set(e.x,0.03,e.z);e.shadow.scale.setScalar(clamp(1-e.y/12,0.4,1)*e.sc);
  e.aura.position.set(e.x,0.05,e.z);e.aura.visible=on;e.aura.scale.setScalar(e.sc);}
 
-/* ---------- PlayCraft 순위표: 승리 수 → KO 수 → 가장 오래 버틴 시간 (표 game_kv, 서버가 본인 아이디로만 기록) ---------- */
+/* ---------- Zanycade 순위표: 승리 수 → KO 수 → 가장 오래 버틴 시간 (표 game_kv, 서버가 본인 아이디로만 기록) ---------- */
 const PCA_=(()=>{try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})();
 function lbEsc(t){return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function bhLB(win,kos,surv){const box=$('#rBoard');if(!box||!PCA_)return;box.innerHTML='<div style="color:#cfd6ea;text-align:center">🏆 Loading leaderboard…</div>';
@@ -703,7 +703,7 @@ async function bhLB(win,kos,surv){const box=$('#rBoard');if(!box||!PCA_)return;b
   let h=`<div style="font:400 22px 'Black Han Sans',sans-serif;color:#ffd166;text-align:center;margin-bottom:6px">🏆 TOP SURVIVORS</div><div style="display:grid;grid-template-columns:34px 1fr 52px 52px 52px;gap:6px;padding:0 10px;color:#8f9bbd;font-size:12px;font-weight:700"><span></span><span>Player</span><span style="text-align:right">Wins</span><span style="text-align:right">KOs</span><span style="text-align:right">Best</span></div>`;
   h+=rows.length?rows.slice(0,10).map(row).join(''):'<div style="color:#cfd6ea;text-align:center">No scores yet — be the first!</div>';
   if(myI>=10)h+='<div style="text-align:center;color:#8f9bbd">…</div>'+row(rows[myI],myI);
-  if(!me)h+='<div style="text-align:center;color:#ffd6a8;margin-top:6px;font-size:14px">Sign in to PlayCraft to join the leaderboard</div>';
+  if(!me)h+='<div style="text-align:center;color:#ffd6a8;margin-top:6px;font-size:14px">Sign in to Zanycade to join the leaderboard</div>';
   box.innerHTML=h}catch(e){box.innerHTML=''}}
 function showResult(win){const g=G,p=g.player;g.over=true;
  const rank=win?1:p.rank,surv=p.surv||g.t;const coins=Math.floor(surv*1.2)+p.kos*25+(12-rank)*5+(win?150:0);save.coins+=coins;persist();

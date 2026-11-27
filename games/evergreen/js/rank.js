@@ -1,4 +1,4 @@
-// EVERGREEN — PlayCraft leaderboard: the most loved villages, ranked by reputation (the game's own progress score).
+// EVERGREEN — Zanycade leaderboard: the most loved villages, ranked by reputation (the game's own progress score).
 // One row per player in the shared table game_kv, filed under their own sign-in ID; players are shown by nickname only.
 // A row is only replaced when the new reputation is higher. Shown on the title screen and in the pause menu.
 import { E, LEVELS, levelOf, esc } from './ctx.js';
@@ -38,8 +38,8 @@ async function render(el) {
   const row = (r, i) => `<div class="r${r.id === me ? ' me' : ''}"><span>${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + '.'}</span><span>${esc(String(r.nk).slice(0, 16))}</span><span><b>${r.s}</b></span><span>${esc(LEVELS[Math.min(LEVELS.length, levelOf(r.s)) - 1].name)}</span></div>`;
   let h = '<h3>🏆 Most loved villages</h3>' + (list.length ? '<div class="r hd"><span></span><span>Player</span><span>Reputation</span><span>Village</span></div>' + list.slice(0, 10).map(row).join('') : '<p class="m">No villages yet. Be the first!</p>');
   if (myI >= 10) h += '<p class="m">…</p>' + row(list[myI], myI);
-  if (!me) h += '<p class="m">Sign in to PlayCraft to join the board.</p>';
-  else if (isLimited()) h += '<p class="m">Your score will join the board after your parent approves your PlayCraft account (My Games → Your account → “Ask my parent”).</p>';
+  if (!me) h += '<p class="m">Sign in to Zanycade to join the board.</p>';
+  else if (isLimited()) h += '<p class="m">Your score will join the board after your parent approves your Zanycade account (My Games → Your account → “Ask my parent”).</p>';
   el.innerHTML = h; el.hidden = false;
 }
 

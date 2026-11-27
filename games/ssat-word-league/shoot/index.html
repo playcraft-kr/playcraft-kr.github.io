@@ -197,7 +197,7 @@ function fanGeometry(){const parts=[],add=(g,part,x,y,z)=>{g=g.toNonIndexed();g.
  for(const k of['position','normal','part']){const sz=parts[0].attributes[k].itemSize,arr=new Float32Array(tot*sz);let o=0;for(const g of parts){arr.set(g.attributes[k].array,o);o+=g.attributes[k].array.length}out.setAttribute(k,new T.BufferAttribute(arr,sz))}
  return out}
 {const concrete=new T.MeshStandardMaterial({color:0x7d8494,roughness:.95}),dark=new T.MeshStandardMaterial({color:0x3a3f4b,roughness:.95});
- const boards=[[L('워드 리그','WORD LEAGUE'),'#0f3fb8','#fff'],['PLAYCRAFT','#111827','#ffd400'],[L('단어가 힘이다','WORDS ARE POWER'),'#d61f2c','#fff']];
+ const boards=[[L('워드 리그','WORD LEAGUE'),'#0f3fb8','#fff'],['ZANYCADE','#111827','#ffd400'],[L('단어가 힘이다','WORDS ARE POWER'),'#d61f2c','#fff']];
  const bt=boards.map(b=>{const t=tex(boardC(...b));return new T.MeshStandardMaterial({map:t,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.3,roughness:.6})});
  for(let i=-4;i<4;i++){const m=new T.Mesh(new T.BoxGeometry(8,.9,.12),bt[(i+8)%3]);m.position.set(i*8+4,.45,-5.2);m.castShadow=true;m.receiveShadow=true;scene.add(m)}
  for(const s of[-1,1])for(let i=0;i<5;i++){const m=new T.Mesh(new T.BoxGeometry(.12,.9,8),bt[(i+1)%3]);m.position.set(s*37,.45,-1+i*8);scene.add(m)}

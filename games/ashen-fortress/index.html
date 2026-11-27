@@ -4858,9 +4858,9 @@ three/build/three.module.js:
 */
 </script>
 <script>
-/* PlayCraft leaderboard (added outside the game bundle above; it only reads window.__game).
+/* Zanycade leaderboard (added outside the game bundle above; it only reads window.__game).
    Ranks how far each player got: on the endless road (cycle, then farthest metres), otherwise the arena wave reached;
-   ties broken by level. Uses the signed-in PlayCraft player (window.parent.Account), separate from this game's own
+   ties broken by level. Uses the signed-in Zanycade player (window.parent.Account), separate from this game's own
    save login. One row per player in game_kv, filed under their sign-in ID, replaced only by a better run.
    Players are shown by nickname only. */
 (function(){'use strict';
@@ -4891,8 +4891,8 @@ async function render(){var els=document.querySelectorAll('.dklb');if(!els.lengt
   var row=function(r,i){return '<div class="r'+(r.id===me?' me':'')+'"><span>'+(i<3?['🥇','🥈','🥉'][i]:(i+1)+'.')+'</span><span>'+esc(String(r.nk).slice(0,16))+'</span><span>'+fmt(r)+'</span><span>Lv '+r.l+'</span></div>'};
   var h='<h3>Farthest Knights</h3>'+(rows.length?'<div class="r hd"><span></span><span>Knight</span><span>Farthest</span><span>Level</span></div>'+rows.slice(0,10).map(row).join(''):'<p class="m">No knights on the board yet. Be the first!</p>');
   if(myI>=10)h+='<p class="m">…</p>'+row(rows[myI],myI);
-  if(!me)h+='<p class="m">Sign in to PlayCraft to join the board.</p>';
-  else if(isLimited())h+='<p class="m">Your score will join the board after your parent approves your PlayCraft account (My Games → Your account → “Ask my parent”).</p>';
+  if(!me)h+='<p class="m">Sign in to Zanycade to join the board.</p>';
+  else if(isLimited())h+='<p class="m">Your score will join the board after your parent approves your Zanycade account (My Games → Your account → “Ask my parent”).</p>';
   els.forEach(function(el){el.innerHTML=h;el.hidden=false})}
 function onScreen(){var t=document.getElementById('title'),o=document.getElementById('over');
   if((t&&!t.hidden)||(o&&!o.hidden)){record();busy.then(render)}}

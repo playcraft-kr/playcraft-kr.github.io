@@ -353,15 +353,15 @@ ol.rank{list-style:none;padding:0;margin:0;display:grid;gap:6px}ol.rank li{displ
 <script>
 {
 
-/* ===== PlayCraft 연결 (사이트판에만 있음) ===== */
+/* ===== Zanycade 연결 (사이트판에만 있음) ===== */
 var PCA=(()=>{try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})(),PGAME='math-space-war';
-/* 순위표·공유 덱 → PlayCraft 서버(game_kv). 계정(acct)·비밀번호는 서버로 보내지 않아요. */
+/* 순위표·공유 덱 → Zanycade 서버(game_kv). 계정(acct)·비밀번호는 서버로 보내지 않아요. */
 function pcDB(){const wrap=v=>({exists:v!=null,data:()=>v});return{
  doc(path){const i=path.indexOf('/'),c=path.slice(0,i),id=path.slice(i+1);return{
   async get(){if(c==='acct')return null;const v=await PCA.kvGet(PGAME,c,id);return v==null?null:wrap(v)},
   async set(v){if(c==='acct')return;await PCA.kvSet(PGAME,c,id,v)}}},
  collection(c){return{async get(){if(c==='acct')return{docs:[]};const rows=await PCA.kvList(PGAME,c,500);return{docs:rows.map(r=>wrap(r.data))}}}}}}
-/* 친구와 1:1 대전 → PlayCraft 실시간 채널. presence(...)는 내 상태에 합쳐서 상대에게 보내요. */
+/* 친구와 1:1 대전 → Zanycade 실시간 채널. presence(...)는 내 상태에 합쳐서 상대에게 보내요. */
 function pcRoomP(){const RT=PCA.realtime;return{async join(name){
  const me=Math.random().toString(36).slice(2,10),ch=RT.channel('mswar:'+name,{config:{broadcast:{self:false},presence:{key:me}}});
  const st={},peers=new Map(),cbs=[];let sendT=0,lastSend=0,closed=false;
@@ -2091,15 +2091,15 @@ function finishQuiz(){const r=Q;if(!r)return;if(r.taInt)clearInterval(r.taInt);Q
  <div class="row" style="justify-content:center"><button id="again" class="r">한 번 더</button><button id="toShop" class="y">상점 가기</button><button id="toMap">모험으로</button></div></div>`;
  petBind();PET.pets.forEach((p,i)=>{p.delay=i*.1;p.pend=r.ok>=5?'happy':'sad'});petSay(pick(PET.pets),r.ok>=8?`${r.ok}문제나 맞혔어! 대단해!`:r.ok>=5?'수고했어! 한 판 더?':'오답노트로 같이 복습하자!',4);
  $('#again').onclick=()=>{renderStudy();$('#goStudy').click()};$('#toShop').onclick=()=>show('shop');$('#toMap').onclick=()=>show('adv');pcLearn(r)}
-/* PlayCraft 학습 모드: 10문제 한 판(내 학년 이상, 8개 이상, 3초 넘게 생각, 50:50 없이) = PlayCraft 게임 시간 1분 */
+/* Zanycade 학습 모드: 10문제 한 판(내 학년 이상, 8개 이상, 3초 넘게 생각, 50:50 없이) = Zanycade 게임 시간 1분 */
 function pcLearn(r){try{if(!PCA||!PCA.mathRound||!PCA.profile||!PCA.profile.learn_mode)return;const h2=document.querySelector('#studyRun .card h2');if(!h2)return;
  const say=(t,good)=>{const p=document.createElement('p');p.className='qtxt';p.style.cssText='margin:8px 0;font-size:16px;font-weight:700;color:'+(good?'var(--grn2)':'inherit');p.textContent='🎮 '+t;h2.after(p)};
- if(r.ta)return say(tx('타임어택은 PlayCraft 게임 시간이 생기지 않아요. 10문제 수련을 해 보세요.','Time Attack doesn’t give PlayCraft game time. Try a 10-question round.'));
+ if(r.ta)return say(tx('타임어택은 Zanycade 게임 시간이 생기지 않아요. 10문제 수련을 해 보세요.','Time Attack doesn’t give Zanycade game time. Try a 10-question round.'));
  if(r.retry)return say(tx('오답 다시 풀기는 게임 시간이 생기지 않아요.','Retry rounds don’t give game time.'));
  const lg=r.log||[];if(lg.length<10)return say(tx('10문제를 끝까지 풀어야 게임 시간이 생겨요.','Finish all 10 questions to earn game time.'));
  const good=lg.filter(a=>a.ok&&!a.fast&&!a.hint&&a.lv>0).map(a=>a.lv);
  PCA.mathRound(lg.length,good).then(x=>{if(!x||x.why==='off'||x.why==='signin')return;const g=x.grade?lvName(x.grade):'';
-  if(x.ok)say(tx(`PlayCraft 게임 시간 +1분! (오늘 ${x.math_today}/${x.math_cap}분 · 모은 시간 ${x.math_min}분)`,`+1 minute of PlayCraft game time! (today ${x.math_today}/${x.math_cap} · saved ${x.math_min} min)`),true);
+  if(x.ok)say(tx(`Zanycade 게임 시간 +1분! (오늘 ${x.math_today}/${x.math_cap}분 · 모은 시간 ${x.math_min}분)`,`+1 minute of Zanycade game time! (today ${x.math_today}/${x.math_cap} · saved ${x.math_min} min)`),true);
   else if(x.why==='score')say(tx(`게임 시간은 ${g} 이상 문제를 8개 이상 맞혀야 생겨요 (이번 판 ${x.good||0}개). 3초 안에 고른 답과 50:50을 쓴 문제는 세지 않아요.`,`Game time needs 8+ right at ${g} or higher (this round: ${x.good||0}). Answers picked in under 3 seconds or with 50:50 don’t count.`));
   else if(x.why==='fast')say(tx('게임 시간은 1분에 한 판까지만 생겨요.','Game time comes at most once a minute.'));
   else if(x.why==='cap')say(tx(`오늘 공부 게임(수학·Study Arcade)으로 모을 수 있는 게임 시간(${x.math_cap}분)을 다 모았어요. 수련은 계속할 수 있어요!`,`You’ve earned today’s game time from learning games (${x.math_cap} min, together with Study Arcade). You can keep practicing!`))}).catch(()=>{})}catch(e){}}
@@ -2926,7 +2926,7 @@ $('#authF').addEventListener('submit',async e=>{e.preventDefault();const err=m=>
    enter(id,keep);toast(id+'님, 다시 오신 걸 환영해요!')}}
  finally{$('#aGo').disabled=false}});
 $('#userBtn').onclick=()=>{save();UID=null;try{localStorage.removeItem(CKEY)}catch(e){}if(BT){cancelAnimationFrame(raf);BT=null}$('#modal').classList.remove('on');show('adv');$('#userBtn').hidden=true;$('#aPw').value='';$('#aPw2').value='';aTab('in');$('#auth').classList.add('on')};
-/* PlayCraft: 사이트에 로그인돼 있으면 그 아이디로 바로 시작하고, 진행은 PlayCraft 계정에 저장 */
+/* Zanycade: 사이트에 로그인돼 있으면 그 아이디로 바로 시작하고, 진행은 Zanycade 계정에 저장 */
 var PSL='math-space-war',pcOn=false,pcT=0,pcLast=0;
 /* 서버에 더 새 기록이 있으면(다른 기기·옮겨 온 기록) 덮어쓰지 않고 그걸 불러와요 */
 async function pcSend(){clearTimeout(pcT);if(!pcOn||!UID||!S||!(PCA.signedIn&&PCA.user))return;

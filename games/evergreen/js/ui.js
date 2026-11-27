@@ -92,7 +92,7 @@ export const ui = {
       <label class="set">Effects<input type="range" min="0" max="1" step="0.05" value="${s.sfx}" data-set="sfx"></label>
       <label class="set">Ambience<input type="range" min="0" max="1" step="0.05" value="${s.amb}" data-set="amb"></label>
       <h3 class="f" style="margin:18px 0 4px;color:var(--green)">Save code</h3>
-      <p style="margin:0 0 8px;color:var(--soft);font-size:13.5px">Your village saves by itself to your PlayCraft account. You can also copy a code to keep a spare copy, or paste one to load it.</p>
+      <p style="margin:0 0 8px;color:var(--soft);font-size:13.5px">Your village saves by itself to your Zanycade account. You can also copy a code to keep a spare copy, or paste one to load it.</p>
       <textarea id="savecode" spellcheck="false" placeholder="Paste a save code here"></textarea>
       <div class="row" style="margin-top:8px"><button data-act="copycode" class="ghost">Copy my save code</button><button data-act="loadcode" class="ghost">Load pasted code</button></div>
       <h3 class="f" style="margin:18px 0 4px;color:var(--green)">Controls</h3>

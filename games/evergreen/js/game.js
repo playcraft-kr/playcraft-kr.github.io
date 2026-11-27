@@ -519,7 +519,7 @@ export function serialize() {
   S.savedAt = Date.now();
   return JSON.stringify(S);
 }
-// PlayCraft: when the player is signed in, the village is also kept in their PlayCraft account
+// Zanycade: when the player is signed in, the village is also kept in their Zanycade account
 // (PCA.writeSave, at most every 25 s and when the page is hidden). localStorage stays as a fallback,
 // kept per player so two kids on one computer never see each other's village.
 const PCA = (() => { try { return window.parent !== window && window.parent.Account ? window.parent.Account : null; } catch (e) { return null; } })();

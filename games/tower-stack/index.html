@@ -190,7 +190,7 @@ function frame(now){
   requestAnimationFrame(frame);
 }
 
-/* PlayCraft leaderboard (shared table game_kv; the server files each row under the player's own ID) and
+/* Zanycade leaderboard (shared table game_kv; the server files each row under the player's own ID) and
    my recent games (my own save, only I can read it). */
 const PCA=(()=>{try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})();
 const lbEl=document.getElementById('lb');let recent=[];
@@ -213,7 +213,7 @@ async function showBoard(){if(!lbEl||!PCA)return;const me=myName();
   let h='<h3>🏆 Top builders</h3>'+(rows.length?rows.slice(0,10).map(row).join(''):'<div class="m">No scores yet. Be the first!</div>');
   if(myI>=10)h+='<div class="m">…</div>'+row(rows[myI],myI);
   if(me&&recent.length)h+='<h3>🕒 My recent games</h3>'+recent.slice(0,5).map(x=>`<div class="r"><span></span><span>${ago(x.t)}</span><span>${x.s}</span></div>`).join('');
-  if(!me)h+='<div class="m">Sign in to PlayCraft to join the leaderboard</div>';
+  if(!me)h+='<div class="m">Sign in to Zanycade to join the leaderboard</div>';
   lbEl.innerHTML=h}
 pcLoad();
 reset();cur=null;requestAnimationFrame(frame);

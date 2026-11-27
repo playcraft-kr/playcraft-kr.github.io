@@ -200,7 +200,7 @@ undoBtn.addEventListener('click',undo);
 newBtn.addEventListener('click',()=>{pcRecord();hide();start()});
 addEventListener('visibilitychange',()=>{if(document.hidden)pcRecord()});
 
-/* PlayCraft leaderboard (shared table game_kv, one row per player filed under their own sign-in ID):
+/* Zanycade leaderboard (shared table game_kv, one row per player filed under their own sign-in ID):
    best score, ties broken by the biggest tile. Players are shown by nickname only. */
 const SLUG='merge-2048',lbEl=document.getElementById('lb');
 const PCA=(()=>{try{return window.parent!==window&&window.parent.Account?window.parent.Account:null}catch(e){return null}})();
@@ -221,8 +221,8 @@ async function showBoard(){if(!lbEl||!PCA)return;const me=myName();
   const myI=rows.findIndex(r=>r.id===me),row=(r,i)=>`<div class="r${r.id===me?' me':''}"><span>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'.'}</span><span>${esc(String(r.nk).slice(0,16))}</span><span><b>${r.s}</b></span><span>${r.x||''}</span></div>`;
   let h='<h3>🏆 Top 10</h3>'+(rows.length?'<div class="r hd"><span></span><span>Player</span><span>Score</span><span>Tile</span></div>'+rows.slice(0,10).map(row).join(''):'<p class="m">No scores yet. Be the first!</p>');
   if(myI>=10)h+='<p class="m">…</p>'+row(rows[myI],myI);
-  if(!me)h+='<p class="m">Sign in to PlayCraft to join the board.</p>';
-  else if(isLimited())h+='<p class="m">Your score will join the board after your parent approves your PlayCraft account (My Games → Your account → “Ask my parent”).</p>';
+  if(!me)h+='<p class="m">Sign in to Zanycade to join the board.</p>';
+  else if(isLimited())h+='<p class="m">Your score will join the board after your parent approves your Zanycade account (My Games → Your account → “Ask my parent”).</p>';
   lbEl.innerHTML=h;lbEl.hidden=false}
 showBoard();
 load();

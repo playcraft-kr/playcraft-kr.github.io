@@ -2009,7 +2009,7 @@ function loop(now){const dt=Math.min(0.05,(now-last)/1000);last=now;const t=now/
   if(uiT>0.1||!simming){uiT=0;c=updateUI()}else c=calc(age);}
   if(W)render(c,t);
   requestAnimationFrame(loop)}
-/* PlayCraft leaderboard (shared table game_kv, one row per player filed under their own sign-in ID):
+/* Zanycade leaderboard (shared table game_kv, one row per player filed under their own sign-in ID):
    the earliest year a civilization reached the galactic age (lower is better), ties broken by fewer gifts.
    Players are shown by nickname only. */
 const SLUG='planet-maker',lbEl=$('lb'),lbCard=$('lbCard');
@@ -2031,8 +2031,8 @@ async function showBoard(){if(!lbEl||!PCA)return [];const me=myName();
   const myI=rows.findIndex(r=>r.id===me),row=(r,i)=>`<div class="r${r.id===me?' me':''}"><span>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'.'}</span><span>${escH(String(r.nk).slice(0,16))}</span><span>${fmtYear(r.y)}</span><span>${r.g}</span></div>`;
   let h=rows.length?'<div class="r hd"><span></span><span>Ruler</span><span>Galactic in</span><span>Gifts</span></div>'+rows.slice(0,10).map(row).join(''):'<p class="m">No galactic civilizations yet. Be the first!</p>';
   if(myI>=10)h+='<p class="m">…</p>'+row(rows[myI],myI);
-  if(!me)h+='<p class="m">Sign in to PlayCraft to join the board.</p>';
-  else if(isLimited())h+='<p class="m">Your score will join the board after your parent approves your PlayCraft account (My Games → Your account → “Ask my parent”).</p>';
+  if(!me)h+='<p class="m">Sign in to Zanycade to join the board.</p>';
+  else if(isLimited())h+='<p class="m">Your score will join the board after your parent approves your Zanycade account (My Games → Your account → “Ask my parent”).</p>';
   lbEl.innerHTML=h;lbCard.hidden=false;return rows}
 showBoard();
 syncControls();renderDex();resize();updateUI();requestAnimationFrame(loop);

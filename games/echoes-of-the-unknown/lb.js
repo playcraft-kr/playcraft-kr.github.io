@@ -1,4 +1,4 @@
-/* Echoes of the Unknown — PlayCraft leaderboard (kept outside the built bundle in assets/, which is not edited).
+/* Echoes of the Unknown — Zanycade leaderboard (kept outside the built bundle in assets/, which is not edited).
    Ranks explorers by achievements earned, ties broken by level. Reads the game's own state through window.__game
    (exposed by the bundle). One row per player in the shared table game_kv, filed under their own sign-in ID;
    a row is only replaced by a better one. Players are shown by nickname only. */
@@ -42,8 +42,8 @@
     var row = function (r, i) { return '<div class="r' + (r.id === me ? ' me' : '') + '"><span>' + (i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + '.') + '</span><span>' + esc(String(r.nk).slice(0, 16)) + '</span><span>' + r.a + '</span><span>Lv ' + r.l + '</span></div>'; };
     var h = '<h3>Top Explorers</h3>' + (rows.length ? '<div class="r hd"><span></span><span>Explorer</span><span>Achievements</span><span>Level</span></div>' + rows.slice(0, 10).map(row).join('') : '<p class="m">No explorers yet. Be the first!</p>');
     if (myI >= 10) h += '<p class="m">…</p>' + row(rows[myI], myI);
-    if (!me) h += '<p class="m">Sign in to PlayCraft to join the board.</p>';
-    else if (isLimited()) h += '<p class="m">Your score will join the board after your parent approves your PlayCraft account (My Games → Your account → “Ask my parent”).</p>';
+    if (!me) h += '<p class="m">Sign in to Zanycade to join the board.</p>';
+    else if (isLimited()) h += '<p class="m">Your score will join the board after your parent approves your Zanycade account (My Games → Your account → “Ask my parent”).</p>';
     el.innerHTML = h; el.hidden = false;
   }
   function onMenu() { var m = document.getElementById('menu'); if (m && !m.classList.contains('hidden')) { record(); busy.then(render); } }
