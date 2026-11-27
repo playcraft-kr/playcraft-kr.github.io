@@ -1,0 +1,15 @@
+# Free Supabase projects pause after a week with no activity.
+# This reads one tiny public row twice a week so Zanycade sign-in keeps working.
+name: Keep Supabase awake
+on:
+  schedule:
+    - cron: "17 9 * * 1,4"   # Mondays and Thursdays
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read heartbeat row
+        run: |
+          curl -fsS "https://mglfvwxlleevbvglijzl.supabase.co/rest/v1/heartbeat?select=id" \
+            -H "apikey: sb_publishable_0jKAyNY2GzWyIU63M_eD3g_PkVubQ6X"
