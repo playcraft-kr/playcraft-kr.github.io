@@ -105,6 +105,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.15;margin:0;
 .btn.play{min-height:60px;font-size:22px;padding:0 38px;font-family:var(--f-display);font-weight:700}
 .btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--line)}
 .btn.ghost:hover{border-color:var(--violet)}
+.share-btn{min-height:44px;font-size:15px;padding:0 16px;margin-top:10px}
 .btn.ghost[aria-pressed="true"]{background:#ffe6ee;border-color:var(--berry);color:#b3123d}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 13px;border-radius:999px;background:var(--card);border:2px solid var(--line);font-weight:800;font-size:14px;color:var(--ink);text-decoration:none}
