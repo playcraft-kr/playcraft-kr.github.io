@@ -345,9 +345,9 @@ const SFX={kick(p=1){tone(.14,140,48,.55*p);noise(.06,2500,1,.25*p,'highpass',.0
  groan(){noise(1.4,380,.8,.4,'lowpass',.2)},whistle(){tone(.28,2900,2850,.18);setTimeout(()=>tone(.22,2900,2800,.15),330)},tick(){tone(.04,1200,1200,.06,'square')},save(){tone(.12,220,90,.4);noise(.12,1200,1,.25)}};
 
 /* ---------------- game state ---------------- */
-const TECH={inside:{k:'1',ico:'🎯',n:L('인사이드','Inside'),d:L('정확하고 쉬워요 · 대신 공이 느려서 골키퍼가 잘 막아요','Accurate and easy · slower, so keepers save more'),speed:22.5,sweet:.17,maxErr:9},
- curl:{k:'2',ico:'🌀',n:L('감아차기','Curl'),d:L('스핀! 공이 바깥에서 안으로 휘어 들어가요 · 골키퍼가 늦게 반응','Spin! The ball bends back in · keeper reacts late'),speed:23,sweet:.13,maxErr:10},
- knuckle:{k:'3',ico:'⚡',n:L('무회전','Knuckle'),d:L('무스핀! 아주 빠르고 흔들려요 · 게이지가 제일 어려워요','No spin! Very fast and wobbly · hardest timing'),speed:28,sweet:.09,maxErr:11}};
+const TECH={inside:{k:'J',ico:'🎯',n:L('인사이드','Inside'),d:L('정확하고 쉬워요 · 대신 공이 느려서 골키퍼가 잘 막아요','Accurate and easy · slower, so keepers save more'),speed:22.5,sweet:.17,maxErr:9},
+ curl:{k:'K',ico:'🌀',n:L('감아차기','Curl'),d:L('스핀! 공이 바깥에서 안으로 휘어 들어가요 · 골키퍼가 늦게 반응','Spin! The ball bends back in · keeper reacts late'),speed:23,sweet:.13,maxErr:10},
+ knuckle:{k:'L',ico:'⚡',n:L('무회전','Knuckle'),d:L('무스핀! 아주 빠르고 흔들려요 · 게이지가 제일 어려워요','No spin! Very fast and wobbly · hardest timing'),speed:28,sweet:.09,maxErr:11}};
 let me,df,gk;                 // players
 let GS={mode:'load',practice:true,entry:0,shot:0,goals:0,res:[]};
 let A=null;                   // the current attempt
@@ -361,17 +361,18 @@ function newAttempt(){const i=GS.shot;me.place(rnd(-1.5,1.5),30,Math.PI);df.plac
  B.live=false;B.p.set(me.x,BR,me.z-.5);B.v.set(0,0,0);B.w.set(0,0,0);ball.position.copy(B.p);
  for(const k in camS)camS[k].x=NaN;
  dots();msg(L(`${i+1}번째 슛`,`Shot ${i+1}`),L('수비수를 제쳐라!','Beat the defender!'));SFX.whistle();
- showHint(i<2?(MOBILE?L('<b>◀ ▶</b> 이동 · 수비수 앞에서 아래 <b>기술 버튼</b>! 속이면 반대쪽으로 빠져요','<b>◀ ▶</b> move · near the defender tap a <b>skill</b>! Fake him, then you cut the other way'):L('<b>◀ ▶</b> 이동 · 수비수 앞에서 <b>Q</b>/<b>E</b> 왼쪽·오른쪽 속이기 · <b>R</b> 턴 · <b>Shift</b> 치고 달리기','<b>◀ ▶</b> move · near the defender <b>Q</b>/<b>E</b> fake left/right · <b>R</b> spin · <b>Shift</b> burst')):'');
+ showHint(i<2?(MOBILE?L('<b>◀ ▶</b> 이동 · 수비수 앞에서 아래 <b>기술 버튼</b>! 속이면 반대쪽으로 빠져요','<b>◀ ▶</b> move · near the defender tap a <b>skill</b>! Fake him, then you cut the other way'):L('<b>A</b>/<b>D</b> 이동 · 수비수 앞에서 <b>J</b>/<b>L</b> 왼쪽·오른쪽 속이기 · <b>K</b> 턴 · <b>I</b> 치고 달리기','<b>A</b>/<b>D</b> move · near the defender <b>J</b>/<b>L</b> fake left/right · <b>K</b> spin · <b>I</b> burst')):'');
  ui('dribble')}
 
 function startGame(practice,entry){GS={mode:'play',practice,entry,shot:0,goals:0,res:[]};$('lobby').classList.add('hide');$('top').classList.remove('hide');$('quit').classList.remove('hide');audio();newAttempt()}
 
 /* ---------------- input ---------------- */
-addEventListener('keydown',e=>{audio();const k=e.key,c=e.code;keys[k]=1;if(k===' '||k==='Enter'){e.preventDefault();if(A&&A.phase==='result'&&A.cele&&A.resT>1.2)A.skip=1;else action()}
- if(!e.repeat&&A&&A.phase==='dribble'){if(c==='KeyQ')skill('fakeL');else if(c==='KeyE')skill('fakeR');else if(c==='KeyR')skill('spin');else if(c==='ShiftLeft'||c==='ShiftRight')skill('burst')}
- if(A&&A.phase==='aim'){if(k==='1')setTech('inside');if(k==='2')setTech('curl');if(k==='3')setTech('knuckle')}
+addEventListener('keydown',e=>{audio();const k=e.key,c=e.code;keys[k]=1;keys[c]=1;if(k===' '||k==='Enter'){e.preventDefault();if(A&&A.phase==='result'&&A.cele&&A.resT>1.2)A.skip=1;else action()}
+ if(!e.repeat&&A&&A.phase==='dribble'){if(c==='KeyJ'||c==='KeyQ')skill('fakeL');else if(c==='KeyL'||c==='KeyE')skill('fakeR');else if(c==='KeyK'||c==='KeyR')skill('spin');else if(c==='KeyI'||c==='ShiftLeft'||c==='ShiftRight')skill('burst')}
+ if(A&&A.phase==='aim'&&!A.kick){if(k==='1'||c==='KeyJ')setTech('inside');if(k==='2'||c==='KeyK')setTech('curl');if(k==='3'||c==='KeyL')setTech('knuckle')}
  if(/^Arrow/.test(k))e.preventDefault();if(k==='Escape')quitAsk()});
-addEventListener('keyup',e=>{keys[e.key]=0});
+addEventListener('keyup',e=>{keys[e.key]=0;keys[e.code]=0});
+addEventListener('blur',()=>{for(const k in keys)if(!k.startsWith('_'))keys[k]=0});
 const hold=(el,k)=>{const on=e=>{e.preventDefault();audio();keys[k]=1;el.classList.add('on')},off=e=>{keys[k]=0;el.classList.remove('on')};el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointerleave',off);el.addEventListener('pointercancel',off)};
 hold($('bL'),'_L');hold($('bR'),'_R');
 $('bSh').addEventListener('pointerdown',e=>{e.preventDefault();audio();if(A&&A.phase==='dribble'){skill('auto');return}action()});
@@ -383,7 +384,7 @@ ren.domElement.addEventListener('pointerdown',e=>{audio();dragAim=true;aimAt(e)}
 addEventListener('pointermove',e=>{if(dragAim||e.pointerType==='mouse')aimAt(e)});
 addEventListener('pointerup',()=>dragAim=false);
 
-function steer(){return((keys.ArrowRight||keys.d||keys.D||keys._R)?1:0)-((keys.ArrowLeft||keys.a||keys.A||keys._L)?1:0)}
+function steer(){return((keys.KeyD||keys.ArrowRight||keys._R)?1:0)-((keys.KeyA||keys.ArrowLeft||keys._L)?1:0)}
 function action(){if(!A)return;if(A.phase==='dribble'){skill('auto');return}
  if(A.phase!=='aim'||A.kick)return;
  if(!A.gauge){A.gauge={t:0,period:Math.max(.78,1.06-.03*A.i)};SFX.tick();ui('gauge');return}
@@ -406,7 +407,7 @@ function ui(st){const show=(id,v)=>$(id).classList.toggle('hide',!v);
   $('tech').querySelectorAll('[data-t]').forEach(b=>b.onpointerdown=e=>{e.preventDefault();if(!A.gauge)setTech(b.dataset.t)});
   $('techDesc').textContent=TECH[techSel].d;
   const tt=TECH[techSel],sw=tt.sweet,g=$('gauge');g.querySelector('.gr').style.cssText=`left:${(.5-sw)*100}%;width:${sw*200}%`;g.querySelector('.y').style.cssText=`left:${(.5-sw*2.6)*100}%;width:${sw*520}%`}
- if(st==='aim')showHint(MOBILE?L('골대를 눌러 <b>조준</b> · 아래에서 <b>슛 종류</b> 고르기 · <b>⚽ 슛</b> 누르면 게이지 시작','Tap the goal to <b>aim</b> · pick a <b>kick</b> below · <b>⚽ Shoot</b> starts the gauge'):L('<b>조준</b>: 골대를 끌거나 화살표 · <b>1 2 3</b> 기술 고르기 · <b>Space</b> 누르면 게이지 시작','<b>Aim</b>: drag on the goal or arrows · <b>1 2 3</b> pick a kick · <b>Space</b> starts the gauge'));
+ if(st==='aim')showHint(MOBILE?L('골대를 눌러 <b>조준</b> · 아래에서 <b>슛 종류</b> 고르기 · <b>⚽ 슛</b> 누르면 게이지 시작','Tap the goal to <b>aim</b> · pick a <b>kick</b> below · <b>⚽ Shoot</b> starts the gauge'):L('<b>조준</b>: <b>W A S D</b> 또는 골대 끌기 · <b>J K L</b> 슛 고르기 · <b>Space</b> 누르면 게이지 시작','<b>Aim</b>: <b>W A S D</b> or drag on the goal · <b>J K L</b> pick a kick · <b>Space</b> starts the gauge'));
  if(st==='gauge')showHint(MOBILE?L('바늘이 <b>초록 가운데</b>에 올 때 <b>⚽</b> 한 번 더!','Tap <b>⚽</b> again when the needle is in the <b>green middle</b>!'):L('바늘이 <b>초록 가운데</b>에 올 때 한 번 더 <b>Space</b>!','Press <b>Space</b> again when the needle is in the <b>green middle</b>!'));
  if(st==='none')showHint('')}
 
@@ -467,7 +468,7 @@ function update(dt,rdt){A.t+=dt;
   if(me.z<df.z-.55&&A.def.st!=='won'){A.passed=true;if(A.def.st==='jockey')A.def.st='beaten';enterAim()}}
  else if(A.phase==='aim'){
   if(!A.kick){me.z-=RUN*dt;me.x+=me.vx*dt;ballFollow('dribble',dt);
-   const ax=((keys.ArrowRight||keys.d||keys.D)?1:0)-((keys.ArrowLeft||keys.a||keys.A)?1:0),ay=((keys.ArrowUp||keys.w||keys.W)?1:0)-((keys.ArrowDown||keys.s||keys.S)?1:0);
+   const ax=((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0),ay=((keys.KeyW||keys.ArrowUp)?1:0)-((keys.KeyS||keys.ArrowDown)?1:0);
    A.aim.x=clamp(A.aim.x+ax*rdt*3.2,-3.45,3.45);A.aim.y=clamp(A.aim.y+ay*rdt*2.2,.22,2.25);
    A.timer+=rdt;if(A.gauge)A.gauge.t+=rdt;
    if(A.timer>A.tlim){endAttempt(false,L('늦었어요!','Too slow!'),L('골키퍼가 먼저 공을 잡았어요','The keeper got to the ball first'));A.smother=1}}
@@ -537,7 +538,7 @@ function ballPhysics(dt){const n=Math.max(1,Math.ceil(dt/(1/240))),h=dt/n,a=new 
  if(A.phase==='flight'&&(A.shotT>3.5||(B.v.length()<1&&A.shotT>1))&&!A.res)endAttempt(false,L('빗나갔어요','Missed!'),'')}
 
 /* ---------------- skills: fakes, spin, burst (keys Q E R Shift) ---------------- */
-const SKILLS={fakeL:{key:'Q',ico:'⬅️',n:L('왼쪽 속이기','Fake left')},fakeR:{key:'E',ico:'➡️',n:L('오른쪽 속이기','Fake right')},spin:{key:'R',ico:'🌀',n:L('턴','Spin')},burst:{key:'Shift',ico:'💨',n:L('치고 달리기','Burst')}};
+const SKILLS={fakeL:{key:'J',ico:'⬅️',n:L('왼쪽 속이기','Fake left')},fakeR:{key:'L',ico:'➡️',n:L('오른쪽 속이기','Fake right')},spin:{key:'K',ico:'🌀',n:L('턴','Spin')},burst:{key:'I',ico:'💨',n:L('치고 달리기','Burst')}};
 function skill(kind){if(!A||A.phase!=='dribble')return;const d=A.def,dz=me.z-df.z;
  if(kind==='burst'){if(A.burst||(A.burstN||0)>=2)return;A.burstN=(A.burstN||0)+1;A.burst={t:0};SFX.touch();toast(L('치고 달리기!','Burst!'),1);return}
  if(A.move||A.fcool>0)return;
@@ -679,7 +680,7 @@ function lobby(){GS.mode='lobby';A=null;ui('none');$('top').classList.add('hide'
  ${entrySel&&I.left?`<table class="pay">${pay}</table>`:''}
  <div class="row">${can?`<button class="btn gold" id="go" ${!entrySel||!I.left?'disabled':''}>${L('도전 시작','Start')} ${entrySel?`(🪙 ${entrySel})`:''}</button>`:''}<button class="btn ghost" id="prac" ${I.pleft?'':'disabled'}>${I.pleft?L('연습하기 (하루 1번, 코인 없음)','Practice (once a day, no coins)'):L('오늘 연습 끝','Practice done today')}</button>${H?`<button class="btn ghost" id="cls">${L('나가기','Exit')}</button>`:''}</div>
  ${!I.left?`<p class="small" style="color:#fca5a5">${L('오늘 도전은 다 했어요. 내일 또 만나요!','No challenges left today. Come back tomorrow!')}</p>`:''}
- <div class="keys">${L('⌨️ 드리블: ◀ ▶ 이동 · Q/E 왼쪽·오른쪽 속이기 · R 턴 · Shift 치고 달리기 · Space 자동 속이기','⌨️ Dribble: ◀ ▶ move · Q/E fake left/right · R spin · Shift burst · Space auto fake')}<br>${L('⌨️ 슛: 1 2 3 슛 종류 · 화살표/드래그 조준 · Space 게이지 시작, 가운데에서 한 번 더','⌨️ Shoot: 1 2 3 kick type · arrows/drag aim · Space starts the gauge, again in the middle')}<br>${L('📱 화면 버튼으로도 할 수 있어요','📱 On-screen buttons work too')}</div></div>`;
+ <div class="keys">${L('⌨️ 드리블: 왼손 A/D 이동 · 오른손 J/L 왼쪽·오른쪽 속이기 · K 턴 · I 치고 달리기 · Space 자동 속이기','⌨️ Dribble: left hand A/D move · right hand J/L fake left/right · K spin · I burst · Space auto fake')}<br>${L('⌨️ 슛: W A S D 조준 · J K L 슛 종류 · Space 게이지 시작, 가운데에서 한 번 더','⌨️ Shoot: W A S D aim · J K L kick type · Space starts the gauge, again in the middle')}<br>${L('📱 화면 버튼으로도 할 수 있어요','📱 On-screen buttons work too')}</div></div>`;
  $('lobby').classList.remove('hide');
  $('lobby').querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{entrySel=+b.dataset.e;lobby()});
  const go=$('go');if(go)go.onclick=()=>{if(!entrySel)return;let ok=true;if(H)ok=H.pay(entrySel);if(!ok){lobby();return}startGame(false,entrySel)};
