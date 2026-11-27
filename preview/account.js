@@ -46,7 +46,13 @@ const Account = {
 
   // ---- admin (allowed only for admin accounts; the database checks this too) ----
   // launch reactions: a day count and three poll totals only (no IDs or device info are stored)
-  async logVisit() { if (!sb) return; const { error } = await sb.rpc('log_visit'); if (error) throw error; },
+  async logVisit(tz) {
+    if (!sb) return;
+    let { error } = await sb.rpc('log_visit', { p_tz: tz || null });
+    if (error) ({ error } = await sb.rpc('log_visit')); // server without supabase/025 yet
+    if (error) throw error;
+  },
+  async logCount(kind, slug) { if (!sb) return; const { error } = await sb.rpc('log_count', { p_kind: kind, p_slug: slug }); if (error) throw error; },
   async voteName(choice) { if (!sb) throw new Error('offline'); const { error } = await sb.rpc('vote_name', { p_choice: choice }); if (error) throw error; },
   async adminReactions() { const { data, error } = await sb.rpc('admin_reactions'); if (error) throw error; return data || {}; },
   async adminData() {

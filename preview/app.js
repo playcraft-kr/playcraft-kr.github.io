@@ -343,6 +343,7 @@ async function waitingPopup() {
 function openGame(g) {
   if (current !== g) stopGame();
   current = g; document.title = `${g.title} · Zanycade`; playLabel(); renderComments();
+  setTimeout(() => { if (current === g) countIt('open', g.slug); }, 1500);
   $('#crumbs').replaceChildren(h('a', { href: '#/', text: 'Home' }), h('span', { 'aria-hidden': 'true', text: '›' }), h('a', { href: '#/cat/' + encodeURIComponent(g.cats[0]), text: g.cats[0] }), h('span', { 'aria-hidden': 'true', text: '›' }), h('span', { 'aria-current': 'page', text: g.title }));
   const wb = wideOf(g); $('#start-bg').hidden = !wb; if (wb) $('#start-bg').src = wb;
   $('#start').style.cssText = wb ? '' : genBg(g.slug);
@@ -480,7 +481,7 @@ async function renderLearnAcct() {
   else {
     if (lb && ls.learn_mode) { lb.hidden = false; lb.onclick = changeLimits; }
     btn.textContent = ls.learn_mode ? 'Turn off (parent PIN)' : 'Turn on (parent PIN)';
-    btn.onclick = async () => { const pin = await askText(`Parent: enter your PIN to turn learning mode ${ls.learn_mode ? 'off' : 'on'}.`, '', ls.learn_mode ? 'Turn off' : 'Turn on'); if (pin === null) return;
+    btn.onclick = async () => { const pin = await askText(`Parent: enter your PIN to turn learning mode ${ls.learn_mode ? 'off' : 'on'}.`, '', ls.learn_mode ? 'Turn off' : 'Turn on', false, 'password'); if (pin === null) return;
       let r; try { r = await ACC.setLearnMode(pin, !ls.learn_mode); } catch { return toast('Couldn’t change it. Try again.'); }
       toast(r === 'ok' ? `Learning mode is ${ls.learn_mode ? 'off' : 'on'}.` : r === 'locked' ? 'Too many wrong tries. Try again in 15 minutes.' : r === 'wrong' ? 'Wrong PIN.' : 'Couldn’t change it.'); renderLearnAcct(); };
   }
@@ -522,11 +523,11 @@ async function walletText(long) {
 async function showCoins() { const el = $('#g-coins'); if (!needsCoins(current)) { el.hidden = true; return; } try { el.textContent = await walletText(false); el.hidden = false; } catch { el.hidden = true; } }
 async function changeLimits() {
   let w = null; try { w = await ACC.learnWallet(); } catch {}
-  const cap = await askText(`Parent: minutes of other games per day (now ${capText(w && w.play_cap)}). Type 0–600, or leave empty for no limit.`, w && w.play_cap != null ? String(w.play_cap) : '', 'Next');
+  const cap = await askText(`Parent: minutes of other games per day (now ${capText(w && w.play_cap)}). Type 0–600, or leave empty for no limit.`, w && w.play_cap != null ? String(w.play_cap) : '', 'Next', false, 'text', true);
   if (cap === null) return;
   const capN = cap.trim() === '' ? null : parseInt(cap, 10);
   if (capN !== null && !(capN >= 0 && capN <= 600)) return toast('Type a number from 0 to 600.');
-  const gr = await askText(`School grade for Math Space War (1–12). Only rounds at this grade or higher give game minutes. Leave empty to use the age (grade ${w ? w.math_grade : '?'} now).`, w && w.math_grade ? String(w.math_grade) : '', 'Next');
+  const gr = await askText(`School grade for Math Space War (1–12). Only rounds at this grade or higher give game minutes. Leave empty to use the age (grade ${w ? w.math_grade : '?'} now).`, w && w.math_grade ? String(w.math_grade) : '', 'Next', false, 'text', true);
   if (gr === null) return;
   const grN = gr.trim() === '' ? null : parseInt(gr, 10);
   if (grN !== null && !(grN >= 1 && grN <= 12)) return toast('Type a grade from 1 to 12.');
@@ -651,11 +652,6 @@ $('#play-btn').addEventListener('click', playGame);
 $('#restart-btn').addEventListener('click', () => { if (playing) playGame(); else playGame(); });
 $('#full-btn').addEventListener('click', async () => { if (!playing) await playGame(); if (playing) setFull(true); });
 $('#save-btn').addEventListener('click', () => { if (!current) return; const on = toggleSave(current.slug); syncSave(); toast(on ? 'Saved to My Games ♥' : 'Removed from My Games'); });
-$('#share-btn').addEventListener('click', async () => {
-  const url = location.href;
-  try { await navigator.clipboard.writeText(url); toast('Link copied! Paste it to share this game.'); }
-  catch { toast('Copy this link from the address bar to share.'); }
-});
 
 /* ---------- play sessions (signed-in players) ---------- */
 // Counts time while the game is open and the tab is visible; saves every 20 s and when the game closes.
@@ -815,6 +811,7 @@ if (ACC) ACC.onChange(async () => {
   } else await refreshAccountData();
   if (!signedIn()) mergedOnce = false;
   $('#req-btn').hidden = !(signedIn() && ACC.profile && ACC.profile.is_admin);
+  notCounted(); // remembers this browser as ours once an admin or family account signs in
   if (GAMES.length) { if (current) { syncSave(); if (!$('#v-game').hidden) renderComments(); } if (!$('#v-home').hidden) renderHome(); if (!$('#v-my').hidden) openMy(); if (!$('#v-admin').hidden) openAdmin(); if (!$('#v-submit').hidden) openSubmit(); }
 });
 renderAccount();
@@ -864,10 +861,32 @@ async function renderReactions() {
       h('div', { class: 'stat' }, h('b', { text: String(days[0] && days[0].day === new Date().toISOString().slice(0, 10) ? days[0].visits : 0) }), h('span', { text: 'Visitors today' })),
       h('div', { class: 'stat' }, h('b', { text: String(sum('visits')) }), h('span', { text: 'Visitors, last 30 days' })),
       h('div', { class: 'stat' }, h('b', { text: String(sum('signed_in')) }), h('span', { text: 'Of them signed in' }))),
-    h('p', { class: 'note', text: 'One count per browser per day. No names or device details are kept.' }),
+    h('p', { class: 'note', text: 'One count per browser per day. No names, IP addresses or device details are kept, only totals.' }),
     h('ul', { class: 'bars' }, ...(days.length ? days.slice(0, 14).map(d => statBar(d.day.slice(5), Number(d.visits), max, `${d.visits} visitors · ${d.signed_in} signed in`)) : [h('li', { class: 'note', text: 'No visits counted yet.' })])),
     h('h3', { text: `New name poll · ${all} vote${all === 1 ? '' : 's'}` }),
     h('ul', { class: 'bars' }, ...[['😀 Love it', 0], ['😐 It’s OK', 1], ['🙁 Not really', 2]].map(([t, i]) => statBar(t, votes[i], Math.max(1, ...votes), `${votes[i]} votes`))));
+  if (Array.isArray(r.counts)) {
+    const list = (kind, label, unit) => {
+      const rows = r.counts.filter(c => c.kind === kind).slice(0, 10), top = Math.max(1, ...rows.map(c => Number(c.n)));
+      return [h('h3', { text: label }), rows.length
+        ? h('ul', { class: 'bars' }, ...rows.map(c => statBar(kind === 'tz' ? tzLabel(c.key) : (bySlug(c.key) ? bySlug(c.key).title : c.key), Number(c.n), top, `${c.n} ${unit}`)))
+        : h('p', { class: 'note', text: 'Nothing counted yet.' })];
+    };
+    box.append(...list('tz', 'Where visitors are (from their clock’s time zone), last 30 days', 'visits'),
+      ...list('open', 'Games opened, last 30 days (once per browser per day)', 'opens'),
+      ...list('share', '“Send to a friend” presses, last 30 days', 'presses'));
+  }
+  const mine = h('button', { class: 'btn ghost tiny', type: 'button' });
+  const paint = () => { let off = false; try { off = localStorage.getItem('zc.ours') === '1'; } catch {} mine.textContent = off ? '🙈 This device is not counted · count it again' : '👀 This device is counted · stop counting it'; mine.dataset.off = off ? '1' : ''; };
+  mine.addEventListener('click', () => { try { if (mine.dataset.off) localStorage.removeItem('zc.ours'); else localStorage.setItem('zc.ours', '1'); } catch {} paint(); });
+  paint();
+  box.append(h('p', { class: 'note', text: 'Admin, hugo and luke devices stop being counted once they sign in. Use this for any other family device:' }), mine);
+}
+function tzLabel(tz) {
+  if (tz === 'Asia/Seoul') return '🇰🇷 Korea';
+  if (!tz || tz === 'unknown') return 'Unknown';
+  const parts = tz.split('/'), area = { America: 'Americas', Europe: 'Europe', Asia: 'Asia', Australia: 'Australia', Pacific: 'Pacific', Africa: 'Africa' }[parts[0]] || parts[0];
+  return `${parts[parts.length - 1].replace(/_/g, ' ')} (${area})`;
 }
 function renderAdmin() {
   if (!admData) return;
@@ -978,13 +997,13 @@ function makeTempPw() {
   const r = n => Math.floor((crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32) * n);
   return words[r(words.length)] + (100 + r(900)) + sym[r(sym.length)];
 }
-function askText(text, value, okLabel = 'Set password', multi = false, inputType = 'text') {
+function askText(text, value, okLabel = 'Set password', multi = false, inputType = 'text', allowEmpty = false) {
   return new Promise(res => {
     const inp = multi ? h('textarea', { rows: 4, maxlength: 2000, 'aria-label': text, class: 'ask-input' }) : h('input', { type: inputType, value, 'aria-label': okLabel === 'Set password' ? 'New password' : text, class: 'ask-input' });
     if (multi) inp.value = value || '';
     const d = h('dialog', { class: 'confirm' }, h('p', { text }), inp, h('div', { class: 'si-actions' },
       h('button', { class: 'btn ghost', onclick: () => { d.close(); res(null); } }, 'Cancel'),
-      h('button', { class: 'btn primary', onclick: () => { const v = inp.value.trim(); d.close(); res(v || null); } }, okLabel)));
+      h('button', { class: 'btn primary', onclick: () => { const v = inp.value.trim(); d.close(); res(v || (allowEmpty ? '' : null)); } }, okLabel)));
     d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal(); inp.select();
   });
 }
@@ -1199,20 +1218,38 @@ fetch(ROOT + 'games.json', { cache: 'no-cache' }).then(r => r.json()).then(list 
   $('#cats-b').replaceChildren(...CATS.map(([n, i, e]) => catTile(n, i, e)));
   route();
 }).catch(() => { $('#grid-all').replaceChildren(h('p', { text: 'We couldn’t load the games. Please refresh the page.' })); });
+/* launch numbers: totals only. Our own devices are not counted: automated test browsers,
+   any browser where an admin or a family account (hugo, luke) has signed in, or one switched off in Admin. */
+const OUR_ACCOUNTS = ['hugo', 'luke'];
+function notCounted() {
+  try {
+    if (navigator.webdriver) return true;
+    const p = signedIn() && ACC.profile;
+    if (p && (p.is_admin || OUR_ACCOUNTS.includes(p.username))) localStorage.setItem('zc.ours', '1');
+    return localStorage.getItem('zc.ours') === '1';
+  } catch { return true; }
+}
+function countIt(kind, slug) {
+  if (!ACC || typeof ACC.logCount !== 'function' || notCounted()) return;
+  if (kind === 'open') { const k = 'zc.open.' + slug, d = new Date().toISOString().slice(0, 10); try { if (localStorage.getItem(k) === d) return; localStorage.setItem(k, d); } catch { return; } }
+  ACC.logCount(kind, slug).catch(() => {});
+}
 /* send a game to a friend: the phone's share sheet, or copy the link */
-$('#share-btn') && $('#share-btn').addEventListener('click', async () => {
+document.querySelectorAll('.js-share').forEach(btn => btn.addEventListener('click', async () => {
   if (!current) return;
+  countIt('share', current.slug);
   const url = location.origin + location.pathname + '#/game/' + current.slug, text = `Play ${current.title} with me on Zanycade!`;
   if (navigator.share) { try { await navigator.share({ title: current.title, text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
   try { await navigator.clipboard.writeText(url); toast('Link copied! Paste it in a message to your friend.'); }
   catch { infoDialog('Send this link to your friend', url); }
-});
+}));
 
 /* launch reactions: count this browser once a day, and ask once about the new name */
 (() => {
   if (!ACC || typeof ACC.logVisit !== 'function') return;
   const today = new Date().toISOString().slice(0, 10), get = k => { try { return localStorage.getItem(k); } catch { return '1'; } }, put = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
-  if (get('zc.visit') !== today) setTimeout(() => ACC.logVisit().then(() => put('zc.visit', today)).catch(() => {}), 2500);
+  let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch {}
+  if (get('zc.visit') !== today) setTimeout(() => { if (!notCounted()) ACC.logVisit(tz).then(() => put('zc.visit', today)).catch(() => {}); }, 2500);
   const poll = $('#name-poll');
   if (poll && !get('zc.poll')) poll.hidden = false;
   $('#poll-btns') && $('#poll-btns').addEventListener('click', async e => {

@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261127153823">
+<link rel="stylesheet" href="app.css?v=20261127165737">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -264,7 +264,7 @@
             <p id="g-desc"></p>
             <button class="btn play" id="play-btn"><span aria-hidden="true">▶</span> Play</button>
             <p class="start-note" id="start-note"></p>
-            <button class="btn ghost share-btn" id="share-btn" type="button"><span aria-hidden="true">🔗</span> Send to a friend</button>
+            <button class="btn ghost share-btn js-share" id="share-btn" type="button"><span aria-hidden="true">🔗</span> Send to a friend</button>
           </div>
         </div>
       </div>
@@ -280,7 +280,7 @@
       <div class="gb-text"><strong id="g-name"></strong><span id="g-meta"></span><span id="g-coins" class="coin-pill" hidden></span></div>
       <div class="gb-actions">
         <button class="btn ghost" id="save-btn" aria-pressed="false">♡ Save</button>
-        <button class="btn ghost" id="share-btn">🔗 Copy link</button>
+        <button class="btn ghost js-share" id="share-bar-btn" type="button">🔗 Share</button>
         <button class="btn ghost" id="restart-btn">↻ Restart</button>
         <button class="btn ghost" id="full-btn">⛶ Big screen</button>
         <button class="btn ghost" id="req-btn" hidden>📝 Request a change</button>
@@ -390,7 +390,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261127153823"></script>
-<script src="app.js?v=20261127153823"></script>
+<script src="account.js?v=20261127165737"></script>
+<script src="app.js?v=20261127165737"></script>
 </body>
 </html>

@@ -67,7 +67,7 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       </ul>
       <p>Only your PIN can turn learning mode off. <a href="learning.html" target="_blank" rel="noopener">How learning mode works</a></p>
       <label class="opt"><input type="radio" name="lm" value="keep" ${r.learn_mode ? '' : 'checked'}> <span>${r.learn_mode ? 'Turn learning mode off' : 'No learning mode'}</span></label>
-      <label class="opt"><input type="radio" name="lm" value="on" ${r.learn_mode ? 'checked' : ''}> <span>${r.learn_mode ? 'Keep learning mode on (set a new PIN)' : 'Turn on learning mode'}</span></label>
+      <label class="opt"><input type="radio" name="lm" value="on" ${r.learn_mode ? 'checked' : ''}> <span>${r.learn_mode ? 'Keep learning mode on' : 'Turn on learning mode'}</span></label>
       <div class="pin" id="pinRow" style="display:block"><label><span id="pinLbl">Parent PIN (4 numbers, keep it from your child)</span><br><input id="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label></div>
       <div class="lim" id="limRow">
         <label>Most game time per day (other games)<br><select id="cap">${capOpts(L.play_cap)}</select></label><br>
@@ -93,13 +93,13 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       out.textContent = res === 'ok' ? 'Done. From now on, links go to the new email.' : res === 'same' ? 'That’s your child’s own email. Please use a parent’s email.' : res === 'expired' ? 'This link has run out.' : 'That didn’t work. Please try again.';
     };
     const pinRow = document.getElementById('pinRow'), limRow = document.getElementById('limRow'), m = document.getElementById('m');
-    const sync = () => { const on = document.querySelector('input[name=lm]:checked').value === 'on'; document.getElementById('pinLbl').textContent = on ? 'Parent PIN (4 numbers, keep it from your child). Needed for learning mode, and it also opens the Word League reward settings.' : 'Parent PIN (optional, 4 numbers). It opens the Word League reward settings, so only you can change rewards.'; limRow.style.display = on ? 'block' : 'none'; };
+    const sync = () => { const on = document.querySelector('input[name=lm]:checked').value === 'on'; document.getElementById('pinLbl').textContent = on && r.learn_mode ? 'New parent PIN (optional, 4 numbers). Leave it empty to keep your PIN.' : on ? 'Parent PIN (4 numbers, keep it from your child). Needed for learning mode, and it also opens the Word League reward settings.' : 'Parent PIN (optional, 4 numbers). It opens the Word League reward settings, so only you can change rewards.'; limRow.style.display = on ? 'block' : 'none'; };
     document.querySelectorAll('input[name=lm]').forEach(i => i.addEventListener('change', sync)); sync();
     document.getElementById('yes').onclick = async () => {
       const on = document.querySelector('input[name=lm]:checked').value === 'on', pin = document.getElementById('pin').value.trim();
-      if (on && !/^[0-9]{4}$/.test(pin)) { m.className = 'msg err'; m.textContent = 'Please choose a 4-number PIN for learning mode.'; return; }
+      if (on && !r.learn_mode && !/^[0-9]{4}$/.test(pin)) { m.className = 'msg err'; m.textContent = 'Please choose a 4-number PIN for learning mode.'; return; }
       if (pin && !/^[0-9]{4}$/.test(pin)) { m.className = 'msg err'; m.textContent = 'The PIN must be 4 numbers (or leave it empty).'; return; }
-      const learn = on ? true : (r.learn_mode ? false : null);
+      const learn = on ? (r.learn_mode && !pin ? null : true) : (r.learn_mode ? false : null); // already on + no new PIN: keep it as it is
       if (on) {
         const cv = document.getElementById('cap').value, gv = document.getElementById('grade').value;
         const { data: lr, error: le } = await sb.rpc('parent_save_limits', { p_token: token, p_play_cap: cv === '' ? null : +cv, p_math_grade: gv === '' ? null : +gv, p_earn_cap: +document.getElementById('earn').value });
@@ -107,7 +107,7 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       }
       const { data: res, error: e2 } = await sb.rpc('parent_decide', { p_token: token, p_approve: true, p_learn: learn, p_pin: pin || null });
       if (e2 || res !== 'ok') { m.className = 'msg err'; m.textContent = res === 'expired' ? 'This link has run out.' : 'That didn’t work. Please try again.'; return; }
-      say(`<p class="msg ok">Thank you! ${first ? esc(r.username) + '’s account is approved.' : 'Saved.'} ${on ? 'Learning mode is on with your PIN.' : (r.learn_mode ? 'Learning mode is off.' : '')}</p><p class="muted">We sent you a confirmation e-mail. You can close this page.</p>`);
+      say(`<p class="msg ok">Thank you! ${first ? esc(r.username) + '’s account is approved.' : 'Saved.'} ${on ? (r.learn_mode && !pin ? 'Learning mode stays on.' : 'Learning mode is on with your PIN.') : (r.learn_mode ? 'Learning mode is off.' : '')}</p><p class="muted">We sent you a confirmation e-mail. You can close this page.</p>`);
     };
     const no = document.getElementById('no');
     if (no) no.onclick = async () => {
