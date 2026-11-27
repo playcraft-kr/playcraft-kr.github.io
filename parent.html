@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>PlayCraft · For parents</title>
+<title>Zanycade · For parents</title>
 <style>
 :root{--violet:#5b3fd0;--violet-d:#3d2a8c;--ink:#1d1b3a;--ink2:#5d5a7a;--line:#e3def7;--bg:#f6f4ff}
 *{box-sizing:border-box}
@@ -28,7 +28,7 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
 </head>
 <body>
 <main>
-  <h1>PlayCraft · For parents</h1>
+  <h1>Zanycade · For parents</h1>
   <p class="muted">Kid-made browser games. No ads, nothing for sale, no real names.</p>
   <div id="box" class="card"><p>Loading…</p></div>
 </main>
@@ -50,12 +50,12 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
   Promise.all([sb.rpc('parent_consent_info', { p_token: token }), sb.rpc('parent_limits_info', { p_token: token })]).then(([{ data, error }, lim]) => {
     const L = (lim && lim.data && lim.data[0]) || { play_cap: 60, math_grade: null, grade_from_age: null, earn_cap: 30 };
     const r = data && data[0];
-    if (error || !r) return say('<p class="msg err">This link has already been used or is not valid. Ask your child to send a new one from PlayCraft (My Games).</p>');
-    if (r.expired) return say('<p class="msg err">This link has run out (links work for 14 days). Ask your child to send a new one from PlayCraft (My Games).</p>');
+    if (error || !r) return say('<p class="msg err">This link has already been used or is not valid. Ask your child to send a new one from Zanycade (My Games).</p>');
+    if (r.expired) return say('<p class="msg err">This link has run out (links work for 14 days). Ask your child to send a new one from Zanycade (My Games).</p>');
     const first = !r.approved;
     say(`
       <p class="kid">${esc(r.username)} <span class="muted">(nickname ${esc(r.nickname)}, age ${esc(r.age)})</span></p>
-      <p>${first ? 'Your child made this PlayCraft account and asked for your approval.' : 'Your child asked you to check their PlayCraft settings.'}</p>
+      <p>${first ? 'Your child made this Zanycade account and asked for your approval.' : 'Your child asked you to check their Zanycade settings.'}</p>
       <p class="muted"><b>What we keep:</b> the ID, nickname and age your child typed, which games they played and for how long, and their game progress. We don’t ask for real names, we show no ads and we sell nothing. Your e-mail is used only for this. <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>
       ${first ? `<p class="muted"><b>Already on:</b> playing every game alone. <b>Turns on when you approve:</b> your child’s ID on leaderboards, online play with other players, and sending in games they made (shown with their ID).</p>` : ''}
       <hr style="border:0;border-top:1px solid var(--line)">
