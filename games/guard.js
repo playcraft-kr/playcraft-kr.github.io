@@ -1,6 +1,6 @@
-/* PlayCraft: these games may only be played on zanycade.com. Embedding them on another site is not permitted. */
-/* Playing needs a PlayCraft account: a game opened on its own goes to its PlayCraft page; inside a page with no signed-in player,
-   the whole game area becomes one button that opens "Create account" on the PlayCraft page. */
+/* Zanycade: these games may only be played on zanycade.com. Embedding them on another site is not permitted. */
+/* Playing needs a Zanycade account: a game opened on its own goes to its Zanycade page; inside a page with no signed-in player,
+   the whole game area becomes one button that opens "Create account" on the Zanycade page. */
 (function(){var slug=(location.pathname.match(/\/games\/([^\/]+)\//)||[])[1]||'',to=location.origin+'/preview/#/game/'+slug,A=null;
  try{if(window.top===window.self){location.replace(to);return}A=window.parent.Account;if(A&&A.signedIn)return}catch(e){}
  try{window.stop()}catch(_){}
