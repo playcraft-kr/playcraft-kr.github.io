@@ -825,7 +825,7 @@ async function openAdmin() {
   const isAdm = signedIn() && ACC.profile && ACC.profile.is_admin;
   $('#adm-denied').hidden = !!isAdm; $('#adm-body').hidden = !isAdm;
   if (!isAdm) return;
-  renderReview(); renderDaily(); renderRequests(); renderPendingComments();
+  renderReview(); renderDaily(); renderRequests(); renderPendingComments(); renderReactions();
   try { admData = await ACC.adminData(); } catch { toast('Couldn’t load admin data. Try Refresh.'); return; }
   renderAdmin();
 }
@@ -851,6 +851,22 @@ async function renderWaiting(profiles) {
       h('button', { class: 'btn primary tiny', onclick: () => approveUser(p) }, 'Approve'),
       h('button', { class: 'btn ghost tiny', onclick: () => adminAct(p, 'block') }, p.blocked ? 'Unpause' : 'Pause'));
   }));
+}
+async function renderReactions() {
+  const box = $('#adm-react-body');
+  let r; try { r = await ACC.adminReactions(); } catch { box.replaceChildren(h('p', { class: 'note', text: 'Visitor counts are not set up on the server yet.' })); return; }
+  const days = r.days || [], poll = r.poll || {}, max = Math.max(1, ...days.map(d => d.visits));
+  const sum = k => days.reduce((a, d) => a + Number(d[k] || 0), 0);
+  const votes = ['love', 'ok', 'meh'].map(k => Number(poll[k] || 0)), all = votes.reduce((a, b) => a + b, 0);
+  box.replaceChildren(
+    h('div', { class: 'stats' },
+      h('div', { class: 'stat' }, h('b', { text: String(days[0] && days[0].day === new Date().toISOString().slice(0, 10) ? days[0].visits : 0) }), h('span', { text: 'Visitors today' })),
+      h('div', { class: 'stat' }, h('b', { text: String(sum('visits')) }), h('span', { text: 'Visitors, last 30 days' })),
+      h('div', { class: 'stat' }, h('b', { text: String(sum('signed_in')) }), h('span', { text: 'Of them signed in' }))),
+    h('p', { class: 'note', text: 'One count per browser per day. No names or device details are kept.' }),
+    h('ul', { class: 'bars' }, ...(days.length ? days.slice(0, 14).map(d => statBar(d.day.slice(5), Number(d.visits), max, `${d.visits} visitors · ${d.signed_in} signed in`)) : [h('li', { class: 'note', text: 'No visits counted yet.' })])),
+    h('h3', { text: `New name poll · ${all} vote${all === 1 ? '' : 's'}` }),
+    h('ul', { class: 'bars' }, ...[['😀 Love it', 0], ['😐 It’s OK', 1], ['🙁 Not really', 2]].map(([t, i]) => statBar(t, votes[i], Math.max(1, ...votes), `${votes[i]} votes`))));
 }
 function renderAdmin() {
   if (!admData) return;
@@ -1182,4 +1198,18 @@ fetch(ROOT + 'games.json', { cache: 'no-cache' }).then(r => r.json()).then(list 
   $('#cats-b').replaceChildren(...CATS.map(([n, i, e]) => catTile(n, i, e)));
   route();
 }).catch(() => { $('#grid-all').replaceChildren(h('p', { text: 'We couldn’t load the games. Please refresh the page.' })); });
+/* launch reactions: count this browser once a day, and ask once about the new name */
+(() => {
+  if (!ACC || typeof ACC.logVisit !== 'function') return;
+  const today = new Date().toISOString().slice(0, 10), get = k => { try { return localStorage.getItem(k); } catch { return '1'; } }, put = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+  if (get('zc.visit') !== today) setTimeout(() => ACC.logVisit().then(() => put('zc.visit', today)).catch(() => {}), 2500);
+  const poll = $('#name-poll');
+  if (poll && !get('zc.poll')) poll.hidden = false;
+  $('#poll-btns') && $('#poll-btns').addEventListener('click', async e => {
+    const b = e.target.closest('button[data-v]'); if (!b) return;
+    poll.querySelectorAll('button').forEach(x => (x.disabled = true));
+    try { await ACC.voteName(b.dataset.v); put('zc.poll', b.dataset.v); poll.replaceChildren(h('p', { text: 'Thanks for telling us! 🎉' })); setTimeout(() => (poll.hidden = true), 2500); }
+    catch { poll.querySelectorAll('button').forEach(x => (x.disabled = false)); toast('Couldn’t send that. Try again in a moment.'); }
+  });
+})();
 })();

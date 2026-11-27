@@ -45,6 +45,10 @@ const Account = {
   },
 
   // ---- admin (allowed only for admin accounts; the database checks this too) ----
+  // launch reactions: a day count and three poll totals only (no IDs or device info are stored)
+  async logVisit() { if (!sb) return; const { error } = await sb.rpc('log_visit'); if (error) throw error; },
+  async voteName(choice) { if (!sb) throw new Error('offline'); const { error } = await sb.rpc('vote_name', { p_choice: choice }); if (error) throw error; },
+  async adminReactions() { const { data, error } = await sb.rpc('admin_reactions'); if (error) throw error; return data || {}; },
   async adminData() {
     // totals are added up inside the database, so they stay right no matter how many plays there are
     const [p, us, gs, tot] = await Promise.all([
