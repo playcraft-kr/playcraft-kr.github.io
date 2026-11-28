@@ -429,6 +429,7 @@ a.chip.hero-chip:hover{background:rgba(255,255,255,.26)}
 
 /* new & updated games stand out */
 .badge.new{background:linear-gradient(90deg,#ff4f8b,#ffb347);color:#fff;box-shadow:0 0 0 2px #fff,0 4px 14px rgba(255,79,139,.55);animation:newPulse 1.8s ease-in-out infinite}
+.badge.soon{background:linear-gradient(90deg,#5a0c12,#b3141f);color:#fff;box-shadow:0 0 0 2px #fff,0 4px 12px rgba(179,20,31,.45)}
 .badge.upd{background:linear-gradient(90deg,#16a34a,#4ade80);color:#fff;box-shadow:0 0 0 2px #fff,0 4px 12px rgba(22,163,74,.45)}
 @keyframes newPulse{50%{transform:scale(1.08)}}
 .card.is-new .art{outline:3px solid #ffb347;outline-offset:-3px;box-shadow:0 0 22px rgba(255,140,90,.55)}
@@ -523,3 +524,4 @@ textarea.ask-input{width:100%;box-sizing:border-box;font:inherit;border:2px soli
 .badges .badge{max-width:100%;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:520px){.badges .badge{font-size:11px;letter-spacing:.02em;padding:3px 7px}}
 @media (max-width:520px){.badges .badge .bv{display:none}}
+#play-btn:disabled{filter:grayscale(.7);opacity:.85;cursor:default;transform:none}
