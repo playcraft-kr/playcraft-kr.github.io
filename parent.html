@@ -24,7 +24,7 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
 .yes{background:var(--violet);color:#fff}.no{background:#fff;color:var(--violet)}
 .lim{display:none;margin:10px 0 0 30px}.lim select{font:inherit;padding:6px 10px;border:2px solid var(--line);border-radius:10px;margin:4px 0 10px}
 .choices{width:100%;border-collapse:separate;border-spacing:0;border:2px solid var(--line);border-radius:14px;overflow:hidden;font-size:14px;line-height:1.35}
-.choices th{padding:10px 6px;font-size:14px;width:23%}.choices th:first-child{width:auto;background:var(--bg)}
+.choices th{padding:10px 6px;font-size:14px;width:30%}.choices th:first-child{width:auto;background:var(--bg)}
 .choices .c-yes{background:var(--violet);color:#fff}.choices .c-learn{background:#ffe9a8;color:#3a2500}.choices .c-no{background:#eee;color:#333}
 .choices td{padding:8px;border-top:1px solid var(--line);text-align:center;font-size:13px}.choices td:first-child{text-align:left;font-size:14px}
 .choices tr:nth-child(odd) td{background:#fbfaff}.choices .y{color:#0f8a63;font-weight:800;font-size:16px}.choices .n{color:#999}.choices small{color:var(--ink2)}
@@ -63,14 +63,14 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       <p class="kid">${esc(r.username)} <span class="muted">(nickname ${esc(r.nickname)}, age ${esc(r.age)})</span></p>
       <p>${first ? 'Your child made this Zanycade account and asked for your approval.' : 'Your child asked you to check their Zanycade settings.'}</p>
       <p class="muted"><b>What we keep:</b> the ID, nickname and age your child typed, which games they played and for how long, and their game progress. We don’t ask for real names, we show no ads and we sell nothing. Your e-mail is used only for this. <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>
-      ${first ? `<p style="margin:14px 0 4px"><b>Pick one of three choices</b> (buttons at the bottom):</p>
+      ${first ? `<p style="margin:14px 0 4px"><b>Pick one of two choices</b> (buttons at the bottom):</p>
       <table class="choices" role="presentation">
-        <tr><th></th><th class="c-yes">✅<br>Approve</th><th class="c-learn">📚<br>Learning mode only</th><th class="c-no">⏸️<br>Not now</th></tr>
-        <tr><td>🎮 Play every game on their own</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>🏆 Nickname on leaderboards</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td></tr>
-        <tr><td>👥 Play online with others</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td></tr>
-        <tr><td>📤 Share games they make</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td></tr>
-        <tr><td>📚 Learning mode<br><small>learn first to earn time for other games</small></td><td>you choose below</td><td class="y">✔ on</td><td class="n">—</td></tr>
+        <tr><th></th><th class="c-yes">✅<br>Approve</th><th class="c-no">⏸️<br>Not now</th></tr>
+        <tr><td>🎮 Play every game on their own</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>🏆 Nickname on leaderboards</td><td class="y">✔</td><td class="n">—</td></tr>
+        <tr><td>👥 Play online with others</td><td class="y">✔</td><td class="n">—</td></tr>
+        <tr><td>📤 Share games they make</td><td class="y">✔</td><td class="n">—</td></tr>
+        <tr><td>📚 Learning mode<br><small>learn first to earn time for other games</small></td><td>you choose below</td><td class="n">—</td></tr>
       </table>
       <p class="muted" style="margin-top:6px">Not now changes nothing, and this same link keeps working if you change your mind.</p>` : ''}
       <hr style="border:0;border-top:1px solid var(--line)">
@@ -94,10 +94,9 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       <p class="msg" id="m"></p>
       <div class="btns">
         <button class="yes" id="yes">${first ? '✅ Approve' : 'Save'}</button>
-        ${first && !r.learn_mode ? '<button class="no learn" id="learnOnly">📚 Learning mode only</button>' : ''}
         ${first ? '<button class="no gray" id="no">⏸️ Not now</button>' : ''}
       </div>
-      ${first ? `<p class="muted" style="margin-top:8px"><b>Approve</b> also turns on leaderboards, online play and sending in games (shown with your child’s nickname). <b>Learning mode only</b> keeps all of that off.</p>` : ''}
+      ${first ? `<p class="muted" style="margin-top:8px"><b>Approve</b> also turns on leaderboards, online play and sending in games (shown with your child’s nickname).</p>` : ''}
       <details style="margin-top:18px"><summary class="muted">Use a different parent email</summary>
         <p class="muted">Links for settings, the parent PIN and passwords will go to the new email. We tell both addresses.</p>
         <label>New parent email<br><input id="newEm" type="email" autocomplete="email" style="font:inherit;padding:8px;border:2px solid var(--line);border-radius:12px;width:100%;max-width:320px"></label>
