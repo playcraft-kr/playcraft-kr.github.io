@@ -1,6 +1,7 @@
 [
  {
   "slug": "study-arcade",
+  "soon": true,
   "title": "Study Arcade",
   "desc": "Make your own flashcard deck, then study it with 13 arcade games: shoot the right answer, defend your castle, beat the boss and more!",
   "emoji": "🕹️",
@@ -127,6 +128,7 @@
  },
  {
   "slug": "planet-maker",
+  "soon": true,
   "title": "Planet Maker",
   "desc": "Pick a star, set the distance, size, air and water, then run 5 billion years. Will life appear? Then guide a civilization from the Stone Age to the stars.",
   "emoji": "🪐",
@@ -159,6 +161,7 @@
  },
  {
   "slug": "echoes-of-the-unknown",
+  "soon": true,
   "title": "Echoes of the Unknown",
   "desc": "Explore a 3D world that remembers what its people forgot. Fight, gather, take on quests and wake the ancient stones to travel.",
   "emoji": "🧭",
@@ -253,6 +256,7 @@
  },
  {
   "slug": "legend-arena-en",
+  "soon": true,
   "title": "Legend Arena",
   "desc": "Pick a fighting type, level up, and battle bots and bosses in the arena.",
   "emoji": "⚔️",
@@ -426,6 +430,7 @@
  },
  {
   "slug": "black-hole",
+  "soon": true,
   "title": "Black Hole Survival",
   "desc": "A 12-player survival run. Play online with friends or against bots — don’t get pulled into the black hole!",
   "emoji": "🕳️",

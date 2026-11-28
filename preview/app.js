@@ -115,7 +115,7 @@ function buildHero() {
   slides.replaceChildren(...feat.map((g, i) => h('div', { class: 'slide', id: 'slide-' + i, role: 'tabpanel', 'aria-roledescription': 'slide', 'aria-label': `${i + 1} of ${feat.length}: ${g.title}` },
     h('img', { src: wideOf(g), alt: '', loading: i ? 'lazy' : 'eager' }),
     h('div', { class: 'slide-copy' },
-      h('span', { class: 'eyebrow' + (newness(g) ? ' fresh' : ''), text: newness(g) === 'new' ? '🆕 New game!' : newness(g) === 'upd' ? '✨ Just updated · v' + verOf(g) : i === 0 ? '★ Featured' : '★ Top pick' }),
+      h('span', { class: 'eyebrow' + (newness(g) ? ' fresh' : ''), text: g.soon ? '🔜 Coming soon' : newness(g) === 'new' ? '🆕 New game!' : newness(g) === 'upd' ? '✨ Just updated · v' + verOf(g) : i === 0 ? '★ Featured' : '★ Top pick' }),
       h('h2', { text: g.title }), h('p', { text: g.desc }),
       h('div', { class: 'chips' }, ...g.cats.map(c => h('a', { class: 'chip hero-chip', href: '#/cat/' + encodeURIComponent(c), text: c }))),
       h('div', {}, h('a', { class: 'btn primary', href: '#/game/' + g.slug }, '▶ Play now'))))));
@@ -574,7 +574,7 @@ function needCoinsDialog(g, why) {
     h('h3', { text: cap ? 'That’s all for today!' : why === 'out' ? 'Your game time is up!' : 'You need game time first' }),
     h('p', { class: 'gt-sub', text: cap ? 'Come back tomorrow for more game time.\nThe learning games are still open.' : 'Play a learning game to earn more.' }),
     card('math-space-war', '🧮', 'Math Space War', '8 right out of 10 = 1 minute'),
-    card('study-arcade', '🕹️', 'Study Arcade', '8 right out of 10 = 1 minute'),
+    bySlug('study-arcade') && !soonLocked(bySlug('study-arcade')) ? card('study-arcade', '🕹️', 'Study Arcade', '8 right out of 10 = 1 minute') : null,
     card('ssat-word-league', '📚', 'Word League', 'Earn coins = more minutes'),
     h('div', { class: 'gt-foot' }, h('a', { href: '../learning.html', target: '_blank', rel: 'noopener' }, 'How it works'),
       h('button', { class: 'btn ghost', onclick: () => d.close() }, 'Not now')));
