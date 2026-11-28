@@ -456,11 +456,11 @@
    "Action"
   ],
   "lang": "English",
-  "version": 7,
-  "ver": "1.6",
-  "updated": "2026-11-27",
+  "version": 8,
+  "ver": "2.0",
+  "updated": "2026-11-28",
   "added": "2026-11-21",
-  "notes": "Our site has a new name: Zanycade!",
+  "notes": "Brand-new cute players with jetpacks, a swirling black hole that bends the light, and easy-to-see controls!",
   "cover": "img/cover-black-hole.webp",
   "wide": "img/wide-black-hole.webp",
   "controls": [
@@ -469,20 +469,28 @@
     "Move"
    ],
    [
-    "Space",
-    "Jump"
+    "Mouse",
+    "Look around"
    ],
    [
     "Left click",
     "Attack"
    ],
    [
-    "Q / E",
-    "Skills"
+    "Space",
+    "Jump"
+   ],
+   [
+    "Q",
+    "Skill 1"
+   ],
+   [
+    "E",
+    "Skill 2"
    ],
    [
     "F",
-    "Switch weapon"
+    "Swap weapon"
    ],
    [
     "Esc",
