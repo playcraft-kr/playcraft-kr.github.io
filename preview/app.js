@@ -101,7 +101,7 @@ function card(g, opt) {
     h('span', { class: 't', text: g.title }),
     h('span', { class: 'by', text: madeBy(g) }),
     h('span', { class: 's', text: g.cats.slice(0, 2).join(' · ') }),
-    opt && opt.notes && g.notes ? h('span', { class: 'whatsnew', text: (nw === 'new' ? 'New! ' : 'What’s new: ') + g.notes }) : null);
+    opt && opt.notes && g.notes && !/new name: Zanycade/i.test(g.notes) ? h('span', { class: 'whatsnew', text: (nw === 'new' ? 'New! ' : 'What’s new: ') + g.notes }) : null);
 }
 const fill = (el, games) => el.replaceChildren(...games.map(card));
 
@@ -1319,7 +1319,7 @@ document.querySelectorAll('.js-share').forEach(btn => btn.addEventListener('clic
   let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch {}
   if (get('zc.visit') !== today) setTimeout(() => { if (!notCounted()) ACC.logVisit(tz).then(() => put('zc.visit', today)).catch(() => {}); }, 2500);
   const poll = $('#name-poll');
-  if (poll && !get('zc.poll')) poll.hidden = false;
+  // The new-name poll is closed (11/28): it no longer shows. Votes already given stay in Admin.
   $('#poll-btns') && $('#poll-btns').addEventListener('click', async e => {
     const b = e.target.closest('button[data-v]'); if (!b) return;
     poll.querySelectorAll('button').forEach(x => (x.disabled = true));
