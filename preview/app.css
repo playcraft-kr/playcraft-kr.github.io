@@ -534,7 +534,15 @@ textarea.ask-input{width:100%;box-sizing:border-box;font:inherit;border:2px soli
 .badges{position:absolute;top:10px;left:10px;right:10px;z-index:1;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
 .badges .badge{position:static;white-space:nowrap}
 .badges .badge.lang{margin-left:auto}
+.badges .badge.mp{margin-left:auto;background:rgba(20,15,51,.78);color:#fff}
+.badges .badge.mp+.badge.lang{margin-left:0}
 .badges .badge{max-width:100%;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:520px){.badges .badge{font-size:11px;letter-spacing:.02em;padding:3px 7px}}
 @media (max-width:520px){.badges .badge .bv{display:none}}
 #play-btn:disabled{filter:grayscale(.7);opacity:.85;cursor:default;transform:none}
+
+/* Coming soon games: their own shelf, a calmer picture, and no "Play" on hover */
+.shelf-soon .shelf-head .sub{color:var(--ink-2);font-weight:700;font-size:15px}
+.card.is-soon .art img{filter:saturate(.55) brightness(.8)}
+.card.is-soon .art::after{content:"🔜 Coming soon";background:#fff;color:#8a1520}
+.shelf-soon .shelf-head{flex-wrap:wrap;row-gap:4px}

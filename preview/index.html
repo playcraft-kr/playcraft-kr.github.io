@@ -9,6 +9,16 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="../img/app/apple-touch-icon.png">
 <meta name="theme-color" content="#eef0ff">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Zanycade">
+<meta property="og:title" content="Zanycade — Free Original Browser Games">
+<meta property="og:description" content="Play original browser games made by young creators. No download needed.">
+<meta property="og:url" content="https://zanycade.com/preview/">
+<meta property="og:image" content="https://zanycade.com/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://zanycade.com/img/og-image.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Zanycade">
@@ -17,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261127211730">
+<link rel="stylesheet" href="app.css?v=20261127215118">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -81,6 +91,11 @@
     <section class="shelf">
       <div class="shelf-head"><h2>All games</h2><span class="count" id="all-count"></span></div>
       <div class="grid" id="grid-all"></div>
+    </section>
+
+    <section class="shelf shelf-soon" id="shelf-soon" hidden>
+      <div class="shelf-head"><h2>🔜 Coming soon</h2><span class="count" id="soon-count"></span><span class="sub">Our game makers are still finishing these.</span></div>
+      <div class="grid" id="grid-soon"></div>
     </section>
 
     <section class="shelf" id="cats-home">
@@ -390,7 +405,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261127211730"></script>
-<script src="app.js?v=20261127211730"></script>
+<script src="account.js?v=20261127215118"></script>
+<script src="app.js?v=20261127215118"></script>
 </body>
 </html>

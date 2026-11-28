@@ -22,6 +22,8 @@ const WEEK = 7 * 864e5;
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 let GAMES = [];
 const MAIN = () => GAMES.filter(g => !g.variantOf);
+// Games you can play now come first; "Coming soon" games go to the end (order inside each group is kept).
+const openFirst = list => list.filter(g => !g.soon).concat(list.filter(g => g.soon));
 const bySlug = s => GAMES.find(g => g.slug === s);
 
 /* ---------- small storage helpers (this device only) ---------- */
@@ -82,15 +84,15 @@ function newness(g) {
 }
 const freshAt = g => Math.max(dayOf(g.added), dayOf(g.updated));
 // "New & updated" row: at most 5, newest first.
-const freshList = () => MAIN().filter(newness).sort((a, b) => freshAt(b) - freshAt(a)).slice(0, 5);
+const freshList = () => openFirst(MAIN().filter(newness).sort((a, b) => freshAt(b) - freshAt(a))).slice(0, 5);
 function card(g, opt) {
   const nw0 = newness(g), nw = nw0 === 'upd' && !(opt && opt.notes) ? '' : nw0;
-  return h('a', { class: 'card' + (nw ? ' is-' + nw : ''), href: '#/game/' + g.slug, 'aria-label': `${g.title}. ${g.desc}` },
+  return h('a', { class: 'card' + (g.soon ? ' is-soon' : nw ? ' is-' + nw : ''), href: '#/game/' + g.slug, 'aria-label': `${g.title}. ${g.desc}` },
     h('div', { class: 'art' },
       artNode(g),
-      g.multiplayer ? h('span', { class: 'mp-badge' }, '👥 Online') : null,
       h('div', { class: 'badges' },
         g.soon ? h('span', { class: 'badge soon' }, '🔜 COMING SOON') : nw === 'new' ? h('span', { class: 'badge new' }, '🆕 NEW') : nw === 'upd' ? h('span', { class: 'badge upd' }, '✨ UPDATED', h('span', { class: 'bv' }, ` · v${verOf(g)}`)) : null,
+        g.multiplayer ? h('span', { class: 'badge mp' }, '👥 Online') : null,
         g.lang !== 'English' ? h('span', { class: 'badge lang', title: `In-game text is in ${g.lang}` }, g.lang === 'Korean' ? '한국어' : /English/.test(g.lang) && /Korean/.test(g.lang) ? 'EN · 한국어' : g.lang) : null)),
     h('span', { class: 't', text: g.title }),
     h('span', { class: 'by', text: madeBy(g) }),
@@ -110,7 +112,7 @@ function catTile(name, img, emoji) {
 let heroI = 0, heroT = null, heroPaused = false;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function buildHero() {
-  const fr = freshList().filter(g => wideOf(g)), feat = fr.concat(MAIN().filter(g => wideOf(g) && !fr.includes(g))).slice(0, 6);
+  const fr = freshList().filter(g => wideOf(g)), feat = openFirst(fr.concat(MAIN().filter(g => wideOf(g) && !fr.includes(g)))).slice(0, 6);
   const slides = $('#hero-slides'), picks = $('#hero-picks');
   slides.replaceChildren(...feat.map((g, i) => h('div', { class: 'slide', id: 'slide-' + i, role: 'tabpanel', 'aria-roledescription': 'slide', 'aria-label': `${i + 1} of ${feat.length}: ${g.title}` },
     h('img', { src: wideOf(g), alt: '', loading: i ? 'lazy' : 'eager' }),
@@ -118,7 +120,7 @@ function buildHero() {
       h('span', { class: 'eyebrow' + (newness(g) ? ' fresh' : ''), text: g.soon ? '🔜 Coming soon' : newness(g) === 'new' ? '🆕 New game!' : newness(g) === 'upd' ? '✨ Just updated · v' + verOf(g) : i === 0 ? '★ Featured' : '★ Top pick' }),
       h('h2', { text: g.title }), h('p', { text: g.desc }),
       h('div', { class: 'chips' }, ...g.cats.map(c => h('a', { class: 'chip hero-chip', href: '#/cat/' + encodeURIComponent(c), text: c }))),
-      h('div', {}, h('a', { class: 'btn primary', href: '#/game/' + g.slug }, '▶ Play now'))))));
+      h('div', {}, h('a', { class: 'btn primary', href: '#/game/' + g.slug }, g.soon ? '🔜 Take a look' : '▶ Play now'))))));
   picks.replaceChildren(...feat.map((g, i) => h('button', { class: 'pick', role: 'tab', 'aria-controls': 'slide-' + i, 'aria-label': g.title, onclick: () => showSlide(i, true) },
     h('img', { src: coverOf(g), alt: '' }))));
   showSlide(0);
@@ -225,11 +227,13 @@ function renderHome() {
   const fresh = freshList();
   $('#shelf-new').hidden = !fresh.length; $('#row-new').replaceChildren(...fresh.map(g => card(g, { notes: true })));
   $('#shelf-recent').hidden = !played.length; fill($('#row-recent'), played);
-  fill($('#grid-all'), MAIN()); $('#all-count').textContent = plural(MAIN().length, 'game');
+  const open = MAIN().filter(g => !g.soon), soon = MAIN().filter(g => g.soon);
+  fill($('#grid-all'), open); $('#all-count').textContent = plural(open.length, 'game');
+  $('#shelf-soon').hidden = !soon.length; fill($('#grid-soon'), soon); $('#soon-count').textContent = plural(soon.length, 'game');
 }
 function openList(title, games, nav, term) {
   $('#list-title').textContent = title; $('#list-count').textContent = plural(games.length, 'game');
-  fill($('#grid-list'), games);
+  fill($('#grid-list'), openFirst(games));
   $('#list-empty').hidden = games.length > 0;
   if (!games.length) {
     $('#empty-title').textContent = term ? `No games match “${term}” yet.` : 'No games in this category yet. More are on the way!';
@@ -1273,7 +1277,7 @@ document.querySelectorAll('.js-share').forEach(btn => btn.addEventListener('clic
   if (!current) return;
   countIt('share', current.slug);
   const url = location.origin + location.pathname + '#/game/' + current.slug, text = `Play ${current.title} with me on Zanycade!`;
-  if (navigator.share) { try { await navigator.share({ title: current.title, text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  if (navigator.share) { try { await navigator.share({ title: current.title, text: `${text}\n${url}` }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
   try { await navigator.clipboard.writeText(url); toast('Link copied! Paste it in a message to your friend.'); }
   catch { infoDialog('Send this link to your friend', url); }
 }));
