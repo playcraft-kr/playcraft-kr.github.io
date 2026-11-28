@@ -305,6 +305,12 @@ td.num{text-align:right;white-space:nowrap;font-weight:900;color:var(--goldd)}
  .ntabs{gap:0;justify-content:space-between}.ntab{padding:8px 5px;font-size:13.5px}
 }
 @media(max-width:370px){.ntab{padding:8px 4px;font-size:13px}}
+/* pause (#117) */
+.pzov{position:fixed;inset:0;z-index:70;background:rgba(6,18,15,.72);display:grid;place-items:center;padding:16px;backdrop-filter:blur(3px)}
+.pzov.hide{display:none}.pzc{max-width:460px;width:100%;max-height:90vh;overflow:auto}.pzc h2{margin:0 0 6px;font-size:30px}
+.pzc .row{gap:10px;margin:14px 0}.pzc .btn{min-height:48px}.pzc .ctls{margin-top:4px}
+@media(pointer:coarse){.pzk{display:none}}
+body.paused #stage *,body.paused #stage *::before,body.paused #stage *::after{animation-play-state:paused!important}
 </style>
 </head>
 <body>
@@ -408,7 +414,8 @@ td.num{text-align:right;white-space:nowrap;font-weight:900;color:var(--goldd)}
 </section>
 
 <section id="vPlay" class="hide">
-  <div class="pbar"><div class="wrap pbin"><button class="btn ghost sm" id="exitPlay">← Exit</button><div class="mascot" id="mascot"><div class="bub" id="bub"></div></div><button class="sbtn" id="sound"></button><span class="ptitle" id="pTitle"></span><div class="pstats" id="pStats"></div><button class="btn sm" id="endPlay">End</button></div></div>
+  <div class="pbar"><div class="wrap pbin"><button class="btn ghost sm" id="exitPlay">← Exit</button><div class="mascot" id="mascot"><div class="bub" id="bub"></div></div><button class="sbtn" id="sound"></button><span class="ptitle" id="pTitle"></span><div class="pstats" id="pStats"></div><button class="btn ghost sm" id="pausePlay" aria-label="Pause">⏸ Pause</button><button class="btn sm" id="endPlay">End</button></div></div>
+  <div class="pzov hide" id="pzOv" role="dialog" aria-modal="true" aria-labelledby="pzH"><div class="card pzc"><h2 id="pzH">⏸ Paused</h2><p class="hint" style="margin-top:0">Take a break. Your game will wait for you!</p><div class="row center"><button class="btn" id="pzGo">▶ Keep playing</button><button class="btn ghost" id="pzExit">Exit game</button></div><div id="pzCtl"></div><p class="hint center pzk" style="margin-bottom:0">Esc also pauses and goes back.</p></div></div>
   <div class="wrap" id="stage"></div>
 </section>
 

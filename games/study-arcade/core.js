@@ -168,7 +168,22 @@ let G=null,CUR=null,LAST=null,SET={game:'gr',deck:null},CAT='all',WRONG=[];
 const last=lget('sa-last',{});
 function show(v,tab){VIEWS.forEach(x=>$('#'+x).classList.toggle('hide',x!==v));document.body.classList.toggle('playing',v==='vPlay');if(tab)$$('.ntab').forEach(a=>a.classList.toggle('on',a.dataset.tab===tab));window.scrollTo(0,0)}
 let CD=0;
-function stopGame(){CD++;if(G){try{G.stop()}catch(e){}G=null}}
+/* Pause (request #117): one switch for every game. While paused the game's clocks stop: Date.now / performance.now skip the
+   paused time, animation frames and timers wait until "Keep playing", game keys are held back and CSS animations in the stage stop. */
+const PZ={on:false,since:0,total:0,q:[],raf:[]};
+(()=>{const rD=Date.now.bind(Date),rP=performance.now.bind(performance),rR=window.requestAnimationFrame.bind(window),rT=window.setTimeout.bind(window),rI=window.setInterval.bind(window);
+  PZ.rP=rP;PZ.rR=rR;const off=()=>PZ.total+(PZ.on?rP()-PZ.since:0);PZ.off=off;
+  Date.now=()=>rD()-off();performance.now=()=>rP()-off();
+  window.requestAnimationFrame=cb=>rR(t=>{if(PZ.on){PZ.raf.push(cb);return}cb(t-off())});
+  window.setTimeout=(fn,ms,...a)=>typeof fn!=='function'?rT(fn,ms,...a):rT(()=>{if(PZ.on)PZ.q.push(()=>fn(...a));else fn(...a)},ms);
+  window.setInterval=(fn,ms,...a)=>typeof fn!=='function'?rI(fn,ms,...a):rI(()=>{if(!PZ.on)fn(...a)},ms);
+  window.addEventListener('keydown',e=>{if(PZ.on&&e.key!=='Escape')e.stopImmediatePropagation()},true);
+})();
+function pauseOn(){if(PZ.on||$('#vPlay').classList.contains('hide'))return;PZ.on=true;PZ.since=PZ.rP();document.body.classList.add('paused');
+  const k=LAST&&LAST.k;$('#pzCtl').innerHTML=k&&GM[k]?ctlHTML(GM[k].ctl):'';$('#pzOv').classList.remove('hide');$('#pzGo').focus()}
+function pauseOff(drop){if(!PZ.on)return;PZ.total+=PZ.rP()-PZ.since;PZ.on=false;document.body.classList.remove('paused');$('#pzOv').classList.add('hide');
+  const q=PZ.q,r=PZ.raf;PZ.q=[];PZ.raf=[];if(drop)return;q.forEach(f=>{try{f()}catch(e){console.error(e)}});r.forEach(cb=>PZ.rR(t=>cb(t-PZ.off())))}
+function stopGame(){pauseOff(true);CD++;if(G){try{G.stop()}catch(e){}G=null}}
 const TABS={home:'vHome',decks:'vDecks',games:'vGames',packs:'vPacks',shop:'vShop',stats:'vStats'};
 let curView='home';
 function route(soft){
@@ -493,6 +508,10 @@ function start(k,deck,opts,cards){window.SA_OVR=0;
 }
 $('#exitPlay').addEventListener('click',()=>{stopGame();openSetup(LAST.k,LAST.deck.id)});
 $('#endPlay').addEventListener('click',()=>{if(G&&G.end)G.end()});
+$('#pausePlay').addEventListener('click',pauseOn);$('#pzGo').addEventListener('click',()=>pauseOff());
+$('#pzExit').addEventListener('click',()=>{pauseOff(true);$('#exitPlay').click()});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape'||$('#vPlay').classList.contains('hide')||document.getElementById('pinOv'))return;e.preventDefault();PZ.on?pauseOff():pauseOn()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&G)pauseOn()});
 document.addEventListener('keydown',e=>{if(!G||!G.key||$('#vPlay').classList.contains('hide')||(e.target.matches&&e.target.matches('input,textarea,select')))return;G.key(e)});
 
 /* Zanycade learning mode: a finished round on a starter deck earns Zanycade game time (shared daily limit with Math Space War).
