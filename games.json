@@ -352,10 +352,10 @@
    "Adventure"
   ],
   "lang": "English",
-  "version": 5,
+  "version": 6,
   "updated": "2026-11-27",
   "added": "2026-11-21",
-  "notes": "Our site has a new name: Zanycade!",
+  "notes": "No more extra login: your Zanycade account saves your progress, and the title fits on phones.",
   "cover": "img/cover-ashen-fortress.webp",
   "wide": "img/wide-ashen-fortress.webp",
   "controls": [
