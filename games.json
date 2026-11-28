@@ -140,20 +140,36 @@
   "controls": [
    [
     "Click / Tap",
-    "Set the sliders and buttons"
+    "Set up your planet"
    ],
    [
-    "Run",
-    "Watch 5 billion years go by"
+    "Run 5 Billion Years",
+    "Watch your planet grow"
+   ],
+   [
+    "Drag",
+    "Move around a village"
+   ],
+   [
+    "Arrows",
+    "Move around a village"
+   ],
+   [
+    "Q · E",
+    "Turn the view"
+   ],
+   [
+    "W · S",
+    "Tilt the view"
    ]
   ],
   "tip": "Keep the average temperature between 5 and 35 °C for the best chance of life.",
   "mobile": true,
-  "version": 4,
-  "ver": "1.3",
+  "version": 5,
+  "ver": "1.4",
   "updated": "2026-11-27",
   "added": "2026-11-23",
-  "notes": "Our site has a new name: Zanycade!",
+  "notes": "Stars now show their color, water shows up as ocean, ice or steam, and the village has a controls guide.",
   "author": "hugo",
   "cover": "img/cover-planet-maker.webp",
   "wide": "img/wide-planet-maker.webp",

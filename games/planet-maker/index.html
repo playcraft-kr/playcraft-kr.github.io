@@ -180,6 +180,41 @@ body.fs{overflow:hidden}
 .dlg .ch button:hover{border-color:var(--accent)}
 .back{width:100%;min-height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;font-weight:700}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.step{font:18px/1.2 "Do Hyeon",sans-serif;color:var(--warn);margin:4px 0 6px}
+.seg button{display:flex;align-items:center;justify-content:center;gap:7px}
+.sdot{flex:none;width:var(--sz);height:var(--sz);border-radius:50%;background:var(--sc);box-shadow:0 0 8px var(--sc)}
+#godbar .helpb{background:#2a2350;border-color:var(--good)}
+.help{position:absolute;inset:0;display:grid;place-items:center;background:rgba(5,4,13,.7);padding:10px;z-index:7}
+.help[hidden]{display:none}
+.help .box{background:var(--panel);border:1px solid var(--good);border-radius:18px;padding:16px 18px;width:min(100%,430px);max-height:100%;overflow:auto}
+.help h3{font:26px/1.1 "Do Hyeon",sans-serif;margin:0 0 10px;text-align:center}
+.help .keys{list-style:none;margin:0 0 10px;padding:0}
+.help .keys li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line);font-size:16px}
+.help .keys li>span:last-child{font-weight:700;text-align:right}
+.help .kc{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.help .kc em{font-style:normal;color:var(--dim);font-size:13px;margin:0 4px}
+.help .kc-dev{font-weight:700;color:#e6e2ff}
+.help kbd{display:inline-grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:7px;background:#f4f2ff;color:#1b1640;font:900 15px/1 system-ui,sans-serif;border-bottom:3px solid #9a93c9}
+.help .kpad{display:inline-flex;flex-direction:column;align-items:center;gap:2px}.help .kpad span{display:flex;gap:2px}
+.help .sub2{color:var(--dim);font-size:14px;text-align:center;margin:0 0 12px}
+.help .play{width:100%}
+.help .ms{display:inline-block;width:13px;height:19px;border:2px solid #e6e2ff;border-radius:7px;margin-right:5px;vertical-align:-4px;background:linear-gradient(#e6e2ff,#e6e2ff) 50% 2px/2px 5px no-repeat}
+.prow[hidden]{display:none}
+.pad .box{max-height:100%;overflow:auto}
+#godbar{mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+#godbar.end{mask-image:none;-webkit-mask-image:none}
+.age{background:rgba(10,8,24,.55);padding:6px 10px;border-radius:12px;max-width:30%}
+.sw::before{content:"";position:absolute;inset:-7px -4px}
+#vpre button{min-width:44px}
+#godbar button{padding:0 10px}#godbar{gap:5px}
+.age small{color:#d9d4f5;text-shadow:0 1px 4px #000}
+.toast{z-index:8}
+#cP{white-space:normal;font-size:21px}
+.arow label{width:66px;font-size:13px}
+#zsize button{min-height:40px}#vpre button{min-height:40px}
+@media(max-width:600px){#sceneName{bottom:176px;left:12px;transform:none}.age{max-width:calc(100% - 215px);font-size:18px}#zsize button{padding:0 8px;font-size:12px}input[type=range]{height:40px}.bar .mk{font-size:11px}.bar .mk:last-child{border-left:0;border-right:2px solid rgba(255,255,255,.35);padding:0 4px 0 0;transform:translateX(-100%)}}
+.touch-only{display:none}
+@media (pointer:coarse){.help .touch-only{display:block}.help .pc-only{display:none}}
 </style>
 </head>
 <body>
@@ -196,14 +231,14 @@ body.fs{overflow:hidden}
       <div class="age" id="age">0 years<small id="stageTxt">No life yet</small></div>
       <div class="toast" id="toast"></div>
       <button class="fsbtn civ-only" id="fsbtn">Full Screen</button>
-      <div class="zhint civ-only" id="zhint">Tap the planet to look into a village</div>
+      <div class="zhint civ-only" id="zhint">👆 Tap the planet to look into a village</div>
       <div class="zoomui civ-only" id="zoomui" hidden>
         <div id="sceneName"></div>
         <div id="zsize"><button data-v="village" class="on">Small Village</button><button data-v="city">Big City</button></div>
         <button class="zb" id="zback">← To Planet</button>
         <div class="zpm"><button id="zin" aria-label="Zoom In">+</button><button id="zout" aria-label="Zoom Out">−</button><button id="vrl" aria-label="Rotate Left">↺</button><button id="vrr" aria-label="Rotate Right">↻</button></div>
         <div id="tray" hidden></div><div id="placeTag" hidden></div><div id="pinfo" hidden></div><canvas id="mini" width="160" height="120" aria-label="Minimap"></canvas>
-        <div id="godbar"><button data-t="hand" class="on">Hand (lift up)</button><button data-t="eye">Rotate View</button><button data-t="draw">Draw and Create</button><button data-t="gift">Drop an Item</button><button data-t="lab">Creation Lab</button><button data-t="lev">Float All</button><button data-t="follow">Follow</button><button data-t="night">Go to Night</button></div>
+        <div id="godbar"><button id="helpBtn" class="helpb" aria-label="How to play">❓ Help</button><button data-t="hand" class="on">✋ Hand</button><button data-t="eye">🔄 Turn</button><button data-t="draw">✏️ Draw</button><button data-t="gift">🎁 Drop</button><button data-t="lab">🧪 Lab</button><button data-t="lev">🎈 Float</button><button data-t="follow">👀 Follow</button><button data-t="night">🌙 Night</button></div>
         <div id="vpanel"><span>View</span><div id="vpre"><button data-p="90">Top</button><button data-p="50">Angled</button><button data-p="22">Low</button></div><input type="range" id="vpitch" min="18" max="90" value="55" aria-label="Tilt"></div>
       </div>
       <div class="pad" id="pad" hidden><div class="box">
@@ -234,6 +269,29 @@ body.fs{overflow:hidden}
           <div class="prow"><select id="labf"><option>All</option><option>Particles</option><option>Elements</option><option>Molecules</option><option>Energy</option><option>Materials</option><option>Objects</option><option>Life</option><option>Creation Matter</option></select></div>
           <div id="labinv"></div></div>
       </div></div>
+      <div class="help" id="help" hidden><div class="box">
+        <h3>How to play in the village</h3>
+        <ul class="keys pc-only">
+          <li><span class="kc"><span class="kc-dev"><i class="ms" aria-hidden="true"></i>Drag the ground</span></span><span>Move around</span></li>
+          <li><span class="kc"><span class="kpad"><span><kbd>↑</kbd></span><span><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></span></span></span><span>Move around</span></li>
+          <li><span class="kc"><span class="kc-dev"><i class="ms" aria-hidden="true"></i>Mouse wheel</span><em>or</em><span class="kc-dev">＋ − buttons</span></span><span>Zoom in and out</span></li>
+          <li><span class="kc"><kbd>Q</kbd><kbd>E</kbd></span><span>Turn the view</span></li>
+          <li><span class="kc"><kbd>W</kbd><kbd>S</kbd></span><span>Tilt the view</span></li>
+          <li><span class="kc"><span class="kc-dev"><i class="ms" aria-hidden="true"></i>Right-drag</span></span><span>Turn and tilt</span></li>
+          <li><span class="kc"><span class="kc-dev"><i class="ms" aria-hidden="true"></i>Click a person</span></span><span>See who they are</span></li>
+          <li><span class="kc"><span class="kc-dev"><i class="ms" aria-hidden="true"></i>Drag a person</span></span><span>Lift them up</span></li>
+        </ul>
+        <ul class="keys touch-only">
+          <li><span class="kc"><span class="kc-dev">👆 Drag the ground</span></span><span>Move around</span></li>
+          <li><span class="kc"><span class="kc-dev">👆 ＋ − buttons</span></span><span>Zoom in and out</span></li>
+          <li><span class="kc"><span class="kc-dev">👆 ↺ ↻ buttons</span></span><span>Turn the view</span></li>
+          <li><span class="kc"><span class="kc-dev">👆 🔄 Turn, then drag</span></span><span>Turn and tilt</span></li>
+          <li><span class="kc"><span class="kc-dev">👆 Tap a person</span></span><span>See who they are</span></li>
+          <li><span class="kc"><span class="kc-dev">👆 Drag a person</span></span><span>Lift them up</span></li>
+        </ul>
+        <p class="sub2">The buttons at the bottom are your god powers. Try them all!</p>
+        <button class="play" id="helpOk">Got it!</button>
+      </div></div>
       <div class="dlg" id="dlg" hidden><div class="box"><p class="who">Ruler, please decide</p><h3 id="dlgT"></h3><p id="dlgX"></p><div class="ch"><button id="dlgA"></button><button id="dlgB"></button></div></div></div>
       <div class="endp" id="endp" hidden><div class="box"><h3>Galactic Civilization Reached!</h3><p id="endTxt"></p><p id="endLb"></p><button class="play" id="endAgain">Start Over</button></div></div>
     </div>
@@ -262,7 +320,7 @@ body.fs{overflow:hidden}
         <button class="play" id="toCiv" hidden style="background:var(--warn)">Civilization Sim for This Planet →</button>
         <div class="bar" id="bar"><div class="fill" id="fill"></div></div>
       </div>
-      <ul class="log" id="log"><li>Set the conditions and run time.</li></ul>
+      <ul class="log" id="log"><li>Pick a star, build your planet, then press Run.</li></ul>
     </div>
   </section>
   <aside>
@@ -273,11 +331,14 @@ body.fs{overflow:hidden}
     <div class="card civ-only"><button class="back" id="back">Back to Planet Design</button></div>
     <div class="card build-only">
       <h2>Planet Design</h2>
+      <p class="step">1. Pick your star</p>
+      <p class="hint" style="font-size:13px;color:var(--dim);margin:-2px 0 8px">This is the sun your planet goes around, not the planet itself.</p>
       <div class="seg" id="stars"></div>
+      <p class="step">2. Build your planet</p>
       <div class="ctl"><label for="dist">Distance from Star <span id="vDist"></span></label><input type="range" id="dist" min="0" max="100"><p class="hint">Closer is hotter, farther is colder. Earth is 1</p></div>
       <div class="ctl"><label for="mass">Planet Size (Mass) <span id="vMass"></span></label><input type="range" id="mass" min="0" max="100"><p class="hint">Small planets struggle to hold on to air. Earth is 1</p></div>
       <div class="ctl"><label for="atm">Atmosphere Thickness <span id="vAtm"></span></label><input type="range" id="atm" min="0" max="50"><p class="hint">Thicker air means more greenhouse warming. Earth is 1</p></div>
-      <div class="ctl"><label for="water">Amount of Water <span id="vWater"></span></label><input type="range" id="water" min="0" max="100"><p class="hint">About 70% of Earth’s surface is ocean</p></div>
+      <div class="ctl"><label for="water">Amount of Water <span id="vWater"></span></label><input type="range" id="water" min="0" max="100"><p class="hint" id="wHint">About 70% of Earth’s surface is ocean</p></div>
       <div class="toggle"><span>Magnetic Shield</span><button class="sw" id="mag" aria-pressed="true" aria-label="Magnetic Field On/Off"></button></div>
       <p class="hint" style="font-size:13px;color:var(--dim);margin:0 0 12px">A magnetic field protects the atmosphere from the wind coming off the star</p>
       <div class="presets" id="presets"></div>
@@ -371,8 +432,9 @@ const clamp=(x,a,b)=>x<a?a:x>b?b:x;
 
 function drawPlanet(c,t){
   const sea=c.boiled?-1:seaFor(S.water),d=img.data,T=c.T;
-  const cloudAmt=clamp(c.atm*0.6,0,0.8)*(c.boiled?0.6:clamp(S.water/40,0.15,1));
+  const cloudAmt=c.boiled?(S.water>0?clamp(0.12+S.water/100*0.8,0,0.92):clamp(c.atm*0.6,0,0.8)*0.3):clamp(c.atm*0.6,0,0.8)*clamp(S.water/40,0.15,1);
   const haze=clamp((c.atm-2.2)/2.5,0,0.88);
+  const HZ=mix([222,188,120],[236,236,230],c.boiled?clamp(S.water/100,0,1)*0.9:0);   // steam from boiled water makes the haze whiter
   let lthr=2,lcol=[0,0,0],smog=0;
   if(mode==='civ'){const ci=Math.floor(C.P),city=clamp(Math.log10(C.pop*100+1)/5.9,0,1);
     if(ci>=17){lthr=0.9-0.3*city;lcol=[240,200,120]}else{lthr=0.975-0.13*city;lcol=[210,105,35]}
@@ -388,13 +450,13 @@ function drawPlanet(c,t){
     const Tl=(c.tidal?T+60*dot-15:T+14-46*Math.pow(Math.abs(Math.sin(lat)),1.4))+(CM[k]-0.5)*28;
     let col,emit=[0,0,0];
     if(h<sea){
-      if(Tl<-6)col=[226,238,246];
+      if(Tl<-6)col=mix([170,210,238],[214,234,250],clamp((sea-h)*6,0,1));
       else{const dep=clamp((sea-h)*8,0,1);col=mix([46,130,196],[16,48,120],dep);if(stage>=1)col=mix(col,[30,140,150],0.25)}
     }else{
       const hh=clamp((h-sea)*4,0,1);
       if(T>=400){col=mix([58,36,32],[90,60,50],hh);const cr=(h*22)%1;if(cr<0.13){const g=clamp((T-400)/500,0.35,1);emit=[255*g,100*g,25*g]}}
       else if(Tl>=100)col=mix([176,112,70],[214,160,100],hh);
-      else if(Tl<-6)col=[236,240,246];
+      else if(Tl<-6)col=mix(mix([128,110,92],[170,152,128],hh),[240,243,248],clamp(S.water/50,0,0.92));
       else if(stage>=2&&Tl>0&&Tl<32&&S.water>3&&!(mode==='civ'&&CM[k]*100>C.env+28))col=hh>0.7?[110,110,96]:mix([54,128,62],[36,90,48],hh);
       else if(stage>=2&&Tl>=32)col=[204,172,112];
       else col=mix([128,110,92],[170,152,128],hh);
@@ -403,7 +465,7 @@ function drawPlanet(c,t){
     if(h>=sea&&Tl>-6&&lit<0.15&&UM[k]>lthr){const q=1-lit/0.15;r+=lcol[0]*q;g+=lcol[1]*q;b+=lcol[2]*q}
     if(smog>0){const sm=0.15+lit*0.85;r+=(150*sm-r)*smog;g+=(122*sm-g)*smog;b+=(84*sm-b)*smog}
     if(cloudAmt>0){const ck=jj*MW+((ii+Math.floor(t*6))%MW);const ca=clamp((CM[ck]-0.5)/0.2,0,1)*cloudAmt;const cl=(0.1+lit*0.9)*245;r+=(cl-r)*ca;g+=(cl-g)*ca;b+=(cl-b)*ca}
-    if(haze>0){const hz=(0.12+lit*0.88);r+=(222*hz-r)*haze;g+=(188*hz-g)*haze;b+=(120*hz-b)*haze}
+    if(haze>0){const hz=(0.12+lit*0.88);r+=(HZ[0]*hz-r)*haze;g+=(HZ[1]*hz-g)*haze;b+=(HZ[2]*hz-b)*haze}
     d[o]=Math.min(255,r+emit[0]);d[o+1]=Math.min(255,g+emit[1]);d[o+2]=Math.min(255,b+emit[2]);d[o+3]=255;
   }
   pctx.putImageData(img,0,0);
@@ -448,7 +510,7 @@ function renderPlanet(c,t){
 function ageText(a){if(a<=0)return '0 years';if(a<1e9)return Math.round(a/1e6)+' million years';return (a/1e9).toFixed(1).replace(/\.0$/,'')+' billion years'}
 function toast(s){const el=$('toast');el.textContent=s;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2600)}
 function logEv(s){events.unshift(`<li><b>${ageText(age)}</b> · ${s}</li>`);$('log').innerHTML=events.slice(0,30).join('')}
-function award(id){if(got.has(id))return;got.add(id);store.set('dex',[...got]);const b=BADGES.find(x=>x.id===id);toast(`New in collection: ${b.name}!`);logEv(`Added 「${b.name}」 to the collection`);renderDex()}
+function award(id){if(got.has(id))return;got.add(id);store.set('dex',[...got]);const b=BADGES.find(x=>x.id===id);toast(`New in collection: ${b.name}!`);logEv(`Added “${b.name}” to the collection`);renderDex()}
 function renderDex(){$('dex').innerHTML=BADGES.map(b=>`<div class="badge${got.has(b.id)?' got':''}"><b>${got.has(b.id)?b.name:'???'}</b>${b.hint}</div>`).join('');$('count').textContent=`${got.size} / ${BADGES.length}`}
 
 function checkStatic(c){
@@ -479,6 +541,7 @@ function updateUI(){
   $('vMass').textContent=''+(S.m<1?S.m.toFixed(2):S.m.toFixed(1))+'× Earth';
   $('vAtm').textContent=S.atm===0?'None':''+S.atm.toFixed(1)+'× Earth';
   $('vWater').textContent=S.water+'%';
+  $('wHint').textContent=S.water===0?'No water at all. A dry, rocky planet':c.boiled?'Too hot! The water is boiling into steam clouds':c.frozen?'Too cold! The water is frozen into ice':c.atm<=0.05?'The air is too thin, so the water drifts away into space':'About 70% of Earth’s surface is ocean';
   $('sT').textContent=Math.round(c.T)+'°C';
   $('sW').textContent=S.water===0?'None':c.boiled?'Steam':c.frozen?'Ice':c.atm<=0.05?'Escaped':'Ocean';
   $('sA').textContent=c.atm<0.05?'Almost None':c.atm<0.5?'Thin':c.atm<=2?'Just Right':'Thick';
@@ -491,12 +554,12 @@ function updateUI(){
   if(!simming)checkStatic(c);
   return c;
 }
-function resetSim(){$('toCiv').hidden=true;age=0;stage=0;extinct=false;ended=false;lostAtm=false;simming=false;events=[];$('log').innerHTML='<li>Set the conditions and run time.</li>';$('play').disabled=false;$('play').textContent='Run 5 Billion Years';setInputs(true)}
+function resetSim(){$('toCiv').hidden=true;age=0;stage=0;extinct=false;ended=false;lostAtm=false;simming=false;events=[];$('log').innerHTML='<li>Pick a star, build your planet, then press Run.</li>';$('play').disabled=false;$('play').textContent='Run 5 Billion Years';setInputs(true)}
 function setInputs(on){document.querySelectorAll('aside input,aside button').forEach(e=>e.disabled=!on)}
 function syncControls(){
   $('dist').value=vFromD(S.d);$('mass').value=vFromM(S.m);$('atm').value=Math.round(S.atm*10);$('water').value=S.water;
   $('mag').setAttribute('aria-pressed',S.mag);
-  $('stars').innerHTML=STARS.map((s,i)=>`<button data-i="${i}" class="${i===S.star?'on':''}">${s.name}</button>`).join('');
+  $('stars').innerHTML=STARS.map((s,i)=>`<button data-i="${i}" class="${i===S.star?'on':''}"><i class="sdot" style="--sc:rgb(${s.col});--sz:${Math.round(10+s.size*8)}px" aria-hidden="true"></i>${s.name}</button>`).join('');
 }
 $('stars').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.star=+b.dataset.i;syncControls();resetSim();updateUI()});
 $('dist').addEventListener('input',e=>{S.d=dFromV(+e.target.value);resetSim();updateUI()});
@@ -1356,8 +1419,9 @@ function drawScene(t){
 // ---- Screen switching & input ----
 function enterZoom(x,y){scene.on=true;scene.dir=1;scene.cp={x,y};if(scene.tier!==tierOf(Math.floor(C.P)))genLayout();scene.camX=scene.ww/2;scene.camY=scene.wh/2;scene.sel=null;scene.follow=null;scene.z=2.2;
   scene.prevSpeed=speed||1;setSpeed(0);document.body.classList.add('zoomed');$('zoomui').hidden=false;$('zhint').hidden=true;$('sceneName').textContent=SNAME[scene.size][scene.tier];syncPitch();
+  if(!store.get('helpSeen',0))$('help').hidden=false;
   setTimeout(()=>{if(scene.on)toast('Inside the village, time runs at real speed. 1 second = 1 second')},900)}
-function exitZoom(){scene.dir=-1;scene.sel=null;scene.grab=null;scene.follow=null;setTool('hand');$('zoomui').hidden=true;$('pad').hidden=true;document.body.classList.remove('zoomed');setSpeed(scene.prevSpeed||1)}
+function exitZoom(){$('help').hidden=true;scene.dir=-1;scene.sel=null;scene.grab=null;scene.follow=null;setTool('hand');$('zoomui').hidden=true;$('pad').hidden=true;document.body.classList.remove('zoomed');setSpeed(scene.prevSpeed||1)}
 function zoomBy(f,cx,cy){camSetup();const before=cx!=null?unproj(cx,cy):null;scene.z=clamp(scene.z*f,0.6,5);if(before){camSetup();const after=unproj(cx,cy);scene.camX+=before[0]-after[0];scene.camY+=before[1]-after[1]}}
 function rotateBy(da){scene.yawT=(scene.yawT==null?scene.yaw:scene.yawT)+da}
 function pitchTo(p){scene.pitch=clamp(p,18,90);syncPitch()}
@@ -1403,6 +1467,13 @@ window.addEventListener('keydown',e=>{if(!scene.on||e.target.tagName==='INPUT')r
   else return;});
 $('mini').addEventListener('pointerdown',e=>{e.stopPropagation();const b=$('mini').getBoundingClientRect();scene.camX=(e.clientX-b.left)/b.width*scene.ww;scene.camY=(e.clientY-b.top)/b.height*scene.wh;scene.follow=null});
 $('zback').addEventListener('click',exitZoom);
+{const gb=$('godbar'),edge=()=>gb.classList.toggle('end',gb.scrollLeft+gb.clientWidth>=gb.scrollWidth-4);
+ gb.addEventListener('scroll',edge);new ResizeObserver(edge).observe(gb);
+ gb.addEventListener('wheel',e=>{if(gb.scrollWidth>gb.clientWidth&&Math.abs(e.deltaY)>Math.abs(e.deltaX)){gb.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false})}
+$('helpBtn').addEventListener('click',e=>{e.stopPropagation();$('help').hidden=false});
+function closeHelp(){$('help').hidden=true;store.set('helpSeen',1)}
+$('helpOk').addEventListener('click',closeHelp);
+$('help').addEventListener('click',e=>{if(e.target===$('help'))closeHelp()});
 $('zin').addEventListener('click',()=>zoomBy(1.35,W/2,H/2));
 $('zout').addEventListener('click',()=>zoomBy(1/1.35,W/2,H/2));
 $('vrl').addEventListener('click',()=>rotateBy(-Math.PI/4));
@@ -1415,9 +1486,9 @@ $('godbar').addEventListener('click',e=>{const b=e.target.closest('button');if(!
   if(t==='hand'||t==='gift'||t==='eye'){setTool(t);if(t==='eye')toast('Drag the screen to turn the view. Left/right: rotate, up/down: tilt')}
   else if(t==='draw'){setTool('hand');openPad()}
   else if(t==='lab'){setTool('hand');openLab()}
-  else if(t==='follow'){if(scene.follow){scene.follow=null;b.textContent='Follow';return}if(!scene.sel){toast('First tap a person briefly to pick them');return}scene.follow=scene.sel;b.textContent='Stop following';toast('Follow this person')}
+  else if(t==='follow'){if(scene.follow){scene.follow=null;b.textContent='👀 Follow';return}if(!scene.sel){toast('First tap a person briefly to pick them');return}scene.follow=scene.sel;b.textContent='👀 Stop';toast('Follow this person')}
   else if(t==='lev'){scene.levT=6;for(const p of scene.people)p.grabbed=false;toast('Everyone is floating up into the sky!');clog('By the power of the gods, <b>the villagers floated up into the air</b>')}
-  else if(t==='night'){scene.night=!scene.night;b.textContent=scene.night?'Daytime':'Go to Night'}});
+  else if(t==='night'){scene.night=!scene.night;b.textContent=scene.night?'☀️ Day':'🌙 Night'}});
 function viewTick(dt){
   if(scene.yawT!=null){const d=scene.yawT-scene.yaw;scene.yaw+=d*Math.min(1,dt*8);if(Math.abs(d)<0.002){scene.yaw=scene.yawT;scene.yawT=null}}
   if(scene.pitchT!=null){const d=scene.pitchT-scene.pitch;scene.pitch+=d*Math.min(1,dt*6);if(Math.abs(d)<0.3){scene.pitch=scene.pitchT;scene.pitchT=null}syncPitch()}
