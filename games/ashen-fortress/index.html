@@ -197,6 +197,30 @@ body.playing.free #game canvas{cursor:none}
 .qbtn.on{color:#fff;border-color:#b3141f;background:#4a0c10}
 @media(max-width:600px){.status{left:12px;top:12px}#wave{top:auto;bottom:14px;font-size:13px}#combo{right:16px}#combo b{font-size:44px}.card{width:100%;min-height:0;flex-direction:row;padding:14px}.card b{margin:0;font-size:18px}.card span{margin:0;text-align:left}#cards{flex-direction:column;width:100%;max-width:420px}}
 @media(prefers-reduced-motion:reduce){#banner.on{animation-duration:.01s;opacity:1}}
+
+/* controls guide: key caps, mouse, finger, touch buttons; one action per row */
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:7px 22px;margin:26px auto 0;max-width:600px;text-align:left}
+.ctl .row{display:grid;grid-template-columns:118px 1fr;gap:12px;align-items:center;font-size:15px;color:#efe6d4;line-height:1.3}
+.ctl .cap{display:flex;justify-content:flex-end;align-items:center;gap:5px;flex-wrap:wrap}
+.ctl kbd,.dkc kbd{font:800 13px "Noto Sans KR",sans-serif;display:inline-grid;place-items:center;min-width:28px;height:28px;padding:0 7px;box-sizing:border-box;border:1px solid #8a7a66;border-bottom-width:4px;border-radius:5px;color:#fff6e6;background:linear-gradient(#4a3c31,#2a211b);box-shadow:0 2px 0 rgba(0,0,0,.5)}
+.ctl kbd.w2{min-width:46px}.ctl kbd.w3{min-width:84px}
+.ctl .pad{display:inline-grid;grid-template-columns:repeat(3,auto);gap:3px}.ctl .pad kbd{min-width:26px;height:26px;padding:0}.ctl .pad kbd:first-child{grid-column:2}.ctl .pad kbd:nth-child(2){grid-column:1}
+.ctl .or{font-size:11px;color:#a8987f;text-transform:uppercase;letter-spacing:.08em}
+.ctl .hold{font:800 10px "Noto Sans KR",sans-serif;color:#1a0f0b;background:#e7b45a;border-radius:999px;padding:2px 6px;letter-spacing:.06em}
+.ctl svg{width:22px;height:30px;flex:none}
+.ctl .tbx{font:700 13px "Noto Sans KR",sans-serif;color:#fff;background:rgba(30,18,14,.85);border:2px solid #b38b5a;border-radius:999px;padding:5px 12px}
+.ctl .tbx.red{background:linear-gradient(#7a1018,#3a0609);border-color:#d0484f}
+.ctl .stk{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;border:2px solid #b38b5a;background:rgba(30,18,14,.7)}.ctl .stk i{width:14px;height:14px;border-radius:50%;background:#efe6d4}
+.ctl .fing{font-size:22px;line-height:1}
+.ctl .lbl small{display:block;color:#b9aa92;font-size:12px}
+#title .ctl{background:rgba(10,6,5,.55);border:1px solid #4a3c30;padding:14px 16px}
+#hud .hint .ctl{display:flex;flex-direction:column;gap:4px;margin:0;max-width:none;background:rgba(8,5,4,.62);border:1px solid rgba(120,100,80,.5);padding:10px 12px}
+#hud .hint .ctl .row{grid-template-columns:96px auto;font-size:13px;gap:9px}
+#hud .hint .ctl kbd{height:24px;min-width:24px;font-size:12px}#hud .hint .ctl kbd.w3{min-width:66px}#hud .hint .ctl .pad kbd{height:22px;min-width:22px}
+#hud .hint{text-align:left;line-height:1.3;color:#efe6d4}
+#pause .ctlbox{margin-top:12px;text-align:left}#pause .ctlbox summary{cursor:pointer;font-weight:700;color:#efe6d4}
+#pause .ctl{grid-template-columns:1fr;margin-top:10px;max-height:44vh;overflow:auto}
+@media(max-width:560px){.ctl .row{grid-template-columns:100px 1fr;font-size:14px}}
 </style>
 </head>
 <body class="dksoon">
@@ -4903,6 +4927,42 @@ document.addEventListener('visibilitychange',function(){if(document.hidden)recor
 window.addEventListener('pagehide',record);
 var mo=new MutationObserver(onScreen);['title','over'].forEach(function(id){var el=document.getElementById(id);if(el)mo.observe(el,{attributes:true,attributeFilter:['hidden']})});
 onScreen();
+})();
+</script>
+<script>
+/* Controls guide (title screen, hint during play, pause menu): keys drawn as key caps, the mouse and finger as pictures,
+   one action per row. Phones and tablets see only the touch buttons. */
+(function(){
+var touch=matchMedia('(pointer:coarse)').matches;
+var M=function(side){return '<svg viewBox="0 0 18 24" aria-hidden="true"><rect x="1.5" y="1.5" width="15" height="21" rx="7.5" fill="#efe6d4" stroke="#2a1d16" stroke-width="2"/>'+(side==='l'?'<path d="M9 2.5A6.5 6.5 0 0 0 2.5 9v1.5H9z" fill="#d0262f"/>':side==='r'?'<path d="M9 2.5A6.5 6.5 0 0 1 15.5 9v1.5H9z" fill="#d0262f"/>':'<path d="M4 15l5 4 5-4" fill="none" stroke="#d0262f" stroke-width="1.8"/>')+'<path d="M9 2.5v8M2.5 10.5h13" stroke="#2a1d16" stroke-width="1.6"/></svg>'};
+var k=function(t,w){return '<kbd'+(w?' class="'+w+'"':'')+'>'+t+'</kbd>'};
+var or='<span class="or">or</span>',hold='<span class="hold">HOLD</span>';
+var pad=function(a){return '<span class="pad" role="img" aria-label="'+a.join(' ')+' keys">'+a.map(function(x){return k(x)}).join('')+'</span>'};
+var KEYS=[
+ [pad(['W','A','S','D']),'Move','core'],
+ [M('l'),'Slash<small>Click 3 times for a combo</small>','core'],
+ [M('r')+or+k('F'),'Spin slash','core'],
+ [k('Space','w3'),'Jump','core'],
+ [k('Space','w3'),'Glide<small>Press again in the air, once you have the glider</small>'],
+ [k('Shift','w2'),'Roll<small>Dodges attacks</small>','core'],
+ [k('Shift','w2')+hold,'Run','core'],
+ [k('Q'),'Drink a potion','core'],
+ [k('E'),'Talk · shop · open'],
+ [k('R'),'Go back to the village'],
+ [M('')+or+pad(['↑','←','↓','→']),'Look around<small>Click the game first to use the mouse</small>'],
+ [k('Esc','w2'),'Pause','core']];
+var b=function(t,c){return '<span class="tbx'+(c?' '+c:'')+'">'+t+'</span>'};
+var TOUCH=[
+ ['<span class="stk"><i></i></span>','Move<small>Drag the circle on the left</small>'],
+ [b('Slash','red'),'Slash<small>Tap 3 times for a combo</small>'],
+ [b('Spin'),'Spin slash'],[b('Jump'),'Jump'],[b('Roll'),'Roll<small>Dodges attacks</small>'],
+ [b('Potion'),'Drink a potion'],[b('Interact'),'Talk · shop · open'],[b('Recall'),'Go back to the village'],
+ ['<span class="fing" aria-hidden="true">👆</span>','Look around<small>Drag on the right side of the screen</small>']];
+function list(rows){return '<div class="ctl">'+rows.map(function(r){return '<div class="row"><span class="cap">'+r[0]+'</span><span class="lbl">'+r[1]+'</span></div>'}).join('')+'</div>'}
+var all=touch?TOUCH:KEYS;
+var t=document.querySelector('#title .keys');if(t){t.outerHTML=list(all)}
+var h=document.querySelector('#hud .hint');if(h){h.innerHTML=list(KEYS.filter(function(r){return r[2]}))}
+var pb=document.querySelector('#pause .pbox');if(pb){var d=document.createElement('details');d.className='ctlbox';d.innerHTML='<summary>Controls</summary>'+list(all);var r=document.getElementById('resume');r&&r.nextSibling?pb.insertBefore(d,r.nextSibling):pb.appendChild(d)}
 })();
 </script>
 <script>

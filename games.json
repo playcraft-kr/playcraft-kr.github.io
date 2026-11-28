@@ -362,11 +362,11 @@
    "Adventure"
   ],
   "lang": "English",
-  "version": 8,
-  "ver": "1.7",
+  "version": 9,
+  "ver": "1.8",
   "updated": "2026-11-28",
   "added": "2026-11-21",
-  "notes": "Duskwall Keep is getting ready and opens soon. Stay tuned!",
+  "notes": "Duskwall Keep opens soon, and now it shows every control with easy key pictures!",
   "cover": "img/cover-ashen-fortress.webp",
   "wide": "img/wide-ashen-fortress.webp",
   "controls": [
@@ -376,7 +376,7 @@
    ],
    [
     "Left click",
-    "3-hit combo"
+    "Slash (3 in a row = combo)"
    ],
    [
     "Right click / F",
@@ -384,15 +384,23 @@
    ],
    [
     "Space",
-    "Jump · glide"
+    "Jump"
+   ],
+   [
+    "Space",
+    "Glide (in the air)"
    ],
    [
     "Shift",
-    "Roll (hold to run)"
+    "Roll"
+   ],
+   [
+    "Shift (hold)",
+    "Run"
    ],
    [
     "Q",
-    "Drink potion"
+    "Drink a potion"
    ],
    [
     "E",
@@ -400,11 +408,15 @@
    ],
    [
     "R",
-    "Recall to village"
+    "Back to the village"
    ],
    [
-    "Mouse",
+    "Mouse / Arrows",
     "Look around"
+   ],
+   [
+    "Esc",
+    "Pause"
    ]
   ],
   "tip": "Rolling makes you invincible for a moment. Use it to escape crowds.",
