@@ -342,6 +342,27 @@ async function waitingPopup() {
       h('button', { class: 'btn primary', onclick: () => { d.close(); askParent(); } }, c ? 'Send to my parent again' : 'Ask my parent')));
   d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
 }
+/* "How to play": draw each control like the real thing — keyboard keys, a WASD or arrow block, a mouse or a finger. */
+const mouseSvg = side => `<svg class="kc-mouse" viewBox="0 0 18 24" aria-hidden="true"><rect x="1.5" y="1.5" width="15" height="21" rx="7.5" fill="#fff" stroke="#3b2f86" stroke-width="2"/>${side === 'l' ? '<path d="M9 2.5A6.5 6.5 0 0 0 2.5 9v1.5H9z" fill="#ff4f8b"/>' : side === 'r' ? '<path d="M9 2.5A6.5 6.5 0 0 1 15.5 9v1.5H9z" fill="#ff4f8b"/>' : ''}<path d="M9 2.5v8M2.5 10.5h13" stroke="#3b2f86" stroke-width="1.6"/></svg>`;
+function keyCaps(text) {
+  const kb = t => h('kbd', { class: t.length > 2 ? 'wide' : '', text: t });
+  const cluster = (top, row, label) => h('span', { class: 'kc-pad', role: 'img', 'aria-label': label }, h('span', {}, kb(top)), h('span', {}, ...row.map(kb)));
+  const one = raw => {
+    const t = raw.trim(), hold = /\(hold\)/i.test(t), base = t.replace(/\s*\(hold\)/i, '');
+    if (/^w ?a ?s ?d$/i.test(base)) return cluster('W', ['A', 'S', 'D'], 'W A S D keys');
+    if (/^arrow(s| keys)$/i.test(base)) return cluster('↑', ['←', '↓', '→'], 'arrow keys');
+    if (/click|mouse|drag/i.test(base)) { const side = /right/i.test(base) ? 'r' : /left|^click/i.test(base) ? 'l' : ''; const m = h('span', { class: 'kc-dev' }); m.innerHTML = mouseSvg(side); m.append(base); return m; }
+    if (/^(tap|swipe)/i.test(base)) return h('span', { class: 'kc-dev' }, h('span', { 'aria-hidden': 'true', text: '👆 ' }), base);
+    const keys = base.split(/\s*(\+|·)\s*/).filter(Boolean);
+    const isKey = x => x === '+' || x === '·' || /^([A-Za-z0-9]|F\d+|Space|Shift|Ctrl|Esc|Enter|Tab|[0-9]–[0-9])$/i.test(x);
+    if (keys.every(isKey)) return h('span', { class: 'kc-keys' }, ...keys.map(x => x === '+' || x === '·' ? h('span', { class: 'kc-sep', text: x === '+' ? '+' : '' }) : kb(x)), hold ? h('span', { class: 'kc-hold', text: 'hold' }) : null);
+    return h('span', { class: 'kc-dev' }, base);                 // a button or menu in the game, not a key
+  };
+  const parts = text.split(/\s*\/\s*/);
+  const out = h('span', { class: 'kc' });
+  parts.forEach((x, i) => { if (i) out.append(h('span', { class: 'kc-or', text: 'or' })); out.append(one(x)); });
+  return out;
+}
 function openGame(g) {
   if (current !== g) stopGame();
   current = g; document.title = `${g.title} · Zanycade`; playLabel(); renderComments();
@@ -354,7 +375,7 @@ function openGame(g) {
   $('#start-note').textContent = touch ? (g.mobile ? 'Tip: tap ⛶ Big screen for the best view.' : 'This game needs a keyboard and mouse. It works best on a computer.')
     : 'Tip: click inside the game first so it can hear your keys.';
   $('#start-note').classList.toggle('mobile-note', touch && !g.mobile);
-  $('#keys').replaceChildren(...(g.controls && g.controls.length ? g.controls.map(([k, a]) => h('li', {}, h('kbd', { text: k }), h('span', { text: a }))) : [h('li', { class: 'note', text: 'This game explains its controls when it starts.' })]));
+  $('#keys').replaceChildren(...(g.controls && g.controls.length ? g.controls.map(([k, a]) => h('li', {}, keyCaps(k), h('span', { class: 'act', text: a }))) : [h('li', { class: 'note', text: 'This game explains its controls when it starts.' })]));
   $('#tip').textContent = g.tip || ''; $('#tip').hidden = !g.tip;
   $('#device').textContent = g.mobile ? '📱 Works on a computer or a touch screen.' : '⌨️ Best on a computer with a keyboard and mouse.';
   const cu = coverOf(g); $('#g-cover').hidden = !cu; if (cu) $('#g-cover').src = cu;
