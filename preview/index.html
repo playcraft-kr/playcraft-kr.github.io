@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261128070342">
+<link rel="stylesheet" href="app.css?v=20261128072116">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -69,6 +69,16 @@
       <div class="hero-slides" id="hero-slides"></div>
       <div class="hero-picks" id="hero-picks" role="tablist" aria-label="Choose a featured game"></div>
     </div>
+
+    <section class="perks" id="home-perks" hidden aria-labelledby="perks-h">
+      <div class="perks-top"><span class="perks-emo" aria-hidden="true">👪</span><div><h2 id="perks-h">Get your parent’s OK to unlock more!</h2><p class="perks-status" id="perks-status"></p></div></div>
+      <ul class="perks-list">
+        <li><span aria-hidden="true">🏆</span><b>Leaderboards</b><small>Your nickname on the game rankings</small></li>
+        <li><span aria-hidden="true">👥</span><b>Play online</b><small>Battle friends and other players</small></li>
+        <li><span aria-hidden="true">🎮</span><b>Share your games</b><small>Send in games you make</small></li>
+      </ul>
+      <button class="btn primary" type="button" id="perks-btn">👪 Ask my parent</button>
+    </section>
 
     <section class="poll" id="name-poll" hidden aria-labelledby="poll-q">
       <p id="poll-q"><b>We have a new name: Zanycade!</b> Do you like it?</p>
@@ -410,7 +420,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261128070342"></script>
-<script src="app.js?v=20261128070342"></script>
+<script src="account.js?v=20261128072116"></script>
+<script src="app.js?v=20261128072116"></script>
 </body>
 </html>

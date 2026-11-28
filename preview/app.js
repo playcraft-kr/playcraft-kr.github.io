@@ -227,6 +227,7 @@ addEventListener('hashchange', route);
 addEventListener('hashchange', () => { const d = document.querySelector('#signin'); if (d && d.open) d.close(); });
 
 function renderHome() {
+  perksBand();
   const played = playedList().map(bySlug).filter(Boolean);
   const fresh = freshList();
   $('#shelf-new').hidden = !fresh.length; $('#row-new').replaceChildren(...fresh.map(g => card(g, { notes: true })));
@@ -336,6 +337,15 @@ async function renderPendingComments() {
 const isWaiting = () => signedIn() && ACC.profile && ACC.profile.approved === false;
 function lockBand() { const b = $('#lock-band'); if (b) b.hidden = !isWaiting(); }
 $('#lock-band-btn').addEventListener('click', () => askParent());
+// Home: a bright box for accounts still waiting for a parent's OK, listing what they unlock, with the Ask my parent button.
+function perksBand() {
+  const b = $('#home-perks'); if (!b) return; b.hidden = !isWaiting(); if (b.hidden) return;
+  ACC.myParentConsent().then(c => {
+    $('#perks-status').textContent = !c ? 'Ask a parent once and all of these turn on.' : c.status === 'declined' ? `Your parent (${c.email_hint}) said not yet. You can ask again.` : c.expired ? `The email to ${c.email_hint} ran out. Send a new one.` : `We emailed ${c.email_hint}. Waiting for their OK.`;
+    $('#perks-btn').textContent = c ? '👪 Send to my parent again' : '👪 Ask my parent';
+  }).catch(() => { $('#perks-status').textContent = 'Ask a parent once and all of these turn on.'; });
+}
+$('#perks-btn').addEventListener('click', () => askParent());
 async function waitingPopup() {
   if (!isWaiting()) return;
   try { if (sessionStorage.getItem('pc.lockpop') === ACC.profile.username) return; sessionStorage.setItem('pc.lockpop', ACC.profile.username); } catch {}
