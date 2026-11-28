@@ -90,7 +90,7 @@ function card(g, opt) {
       artNode(g),
       g.multiplayer ? h('span', { class: 'mp-badge' }, '👥 Online') : null,
       h('div', { class: 'badges' },
-        nw === 'new' ? h('span', { class: 'badge new' }, '🆕 NEW') : nw === 'upd' ? h('span', { class: 'badge upd' }, '✨ UPDATED', h('span', { class: 'bv' }, ` · v${g.version}`)) : null,
+        nw === 'new' ? h('span', { class: 'badge new' }, '🆕 NEW') : nw === 'upd' ? h('span', { class: 'badge upd' }, '✨ UPDATED', h('span', { class: 'bv' }, ` · v${verOf(g)}`)) : null,
         g.lang !== 'English' ? h('span', { class: 'badge lang', title: `In-game text is in ${g.lang}` }, g.lang === 'Korean' ? '한국어' : /English/.test(g.lang) && /Korean/.test(g.lang) ? 'EN · 한국어' : g.lang) : null)),
     h('span', { class: 't', text: g.title }),
     h('span', { class: 'by', text: madeBy(g) }),
@@ -115,7 +115,7 @@ function buildHero() {
   slides.replaceChildren(...feat.map((g, i) => h('div', { class: 'slide', id: 'slide-' + i, role: 'tabpanel', 'aria-roledescription': 'slide', 'aria-label': `${i + 1} of ${feat.length}: ${g.title}` },
     h('img', { src: wideOf(g), alt: '', loading: i ? 'lazy' : 'eager' }),
     h('div', { class: 'slide-copy' },
-      h('span', { class: 'eyebrow' + (newness(g) ? ' fresh' : ''), text: newness(g) === 'new' ? '🆕 New game!' : newness(g) === 'upd' ? '✨ Just updated · v' + g.version : i === 0 ? '★ Featured' : '★ Top pick' }),
+      h('span', { class: 'eyebrow' + (newness(g) ? ' fresh' : ''), text: newness(g) === 'new' ? '🆕 New game!' : newness(g) === 'upd' ? '✨ Just updated · v' + verOf(g) : i === 0 ? '★ Featured' : '★ Top pick' }),
       h('h2', { text: g.title }), h('p', { text: g.desc }),
       h('div', { class: 'chips' }, ...g.cats.map(c => h('a', { class: 'chip hero-chip', href: '#/cat/' + encodeURIComponent(c), text: c }))),
       h('div', {}, h('a', { class: 'btn primary', href: '#/game/' + g.slug }, '▶ Play now'))))));
@@ -271,6 +271,8 @@ function openMy(fromRefresh) {
 let current = null, playing = false;
 /* ---------- ideas & hearts under each game ---------- */
 const nextVersion = g => (+(g && g.version) || 1) + 1;
+// What players see: "1.7", "2.0" (games.json "ver"). The whole number "version" stays for loading fresh files.
+const verOf = g => (g && g.ver) || (v => `${1 + Math.floor((v - 1) / 10)}.${(v - 1) % 10}`)(+(g && g.version) || 1);
 async function renderComments() {
   const g = current, list = $('#cmt-list'), form = $('#cmt-form'), gate = $('#cmt-gate');
   if (!g || !list) return;
@@ -291,11 +293,11 @@ async function renderComments() {
     if (isAdm) {
       tools.append(c.picked_version
         ? h('button', { class: 'linkish', onclick: async () => { await ACC.adminPickComment(c.id, null).catch(() => {}); renderComments(); } }, 'Unpick')
-        : h('button', { class: 'linkish', onclick: async () => { if (!(await ask(`Pick this idea for version ${nextVersion(g)}? It moves to the top and is added to the game requests.`))) return; try { await ACC.adminPickComment(c.id, nextVersion(g)); toast('Picked! It’s in the game requests too.'); } catch { toast('Couldn’t pick it.'); } renderComments(); } }, `⭐ Pick for v${nextVersion(g)}`));
+        : h('button', { class: 'linkish', onclick: async () => { if (!(await ask(`Pick this idea for the next update? It moves to the top and is added to the game requests.`))) return; try { await ACC.adminPickComment(c.id, nextVersion(g)); toast('Picked! It’s in the game requests too.'); } catch { toast('Couldn’t pick it.'); } renderComments(); } }, `⭐ Pick for v${nextVersion(g)}`));
       tools.append(h('button', { class: 'linkish', onclick: async () => { await ACC.adminCommentStatus(c.id, c.status === 'pending' ? 'shown' : 'hidden').catch(() => {}); renderComments(); } }, c.status === 'pending' ? 'Show' : 'Hide'));
     }
     return h('li', { class: 'cmt' + (c.picked_version ? ((+g.version || 1) >= c.picked_version ? ' picked added' : ' picked') : '') + (c.status === 'pending' ? ' pending' : '') },
-      c.picked_version ? ((+g.version || 1) >= c.picked_version ? h('div', { class: 'cmt-badge done', text: `✅ Added in version ${c.picked_version}! Thanks, ${c.nickname}` }) : h('div', { class: 'cmt-badge', text: `⭐ Picked! Coming in version ${c.picked_version}` })) : null,
+      c.picked_version ? ((+g.version || 1) >= c.picked_version ? h('div', { class: 'cmt-badge done', text: `✅ Added in an update! Thanks, ${c.nickname}` }) : h('div', { class: 'cmt-badge', text: `⭐ Picked! Coming in the next update` })) : null,
       c.status === 'pending' ? h('div', { class: 'cmt-wait', text: c.mine ? '⏳ Waiting for a grown-up to check it. Only you can see it for now.' : '⏳ Waiting for your check' }) : null,
       h('p', { class: 'cmt-body', text: c.body }),
       h('div', { class: 'cmt-meta' }, h('span', { class: 'cmt-who', text: isAdm && c.username ? `${c.nickname} (${c.username})` : c.nickname }), heart, tools));
@@ -360,7 +362,7 @@ function openGame(g) {
   $('#req-btn').hidden = !(signedIn() && ACC.profile && ACC.profile.is_admin);
   lockBand();
   showCoins();
-  $('#g-meta').textContent = `${madeBy(g)} · v${g.version} · ${g.cats.join(', ')}${g.multiplayer ? ' · 👥 Online' : ''}`;
+  $('#g-meta').textContent = `${madeBy(g)} · v${verOf(g)} · ${g.cats.join(', ')}${g.multiplayer ? ' · 👥 Online' : ''}`;
   const alt = GAMES.find(x => x.variantOf === g.slug) || bySlug(g.variantOf);
   const meta = $('#g-meta'); meta.querySelectorAll('.alt-lang').forEach(n => n.remove());
   if (alt) meta.append(' · ', h('a', { class: 'alt-lang', href: '#/game/' + alt.slug, text: alt.lang === 'Korean' ? '🇰🇷 Play in Korean' : '🇺🇸 Play in English' }));
@@ -368,7 +370,7 @@ function openGame(g) {
   const next = MAIN().filter(x => x !== g && x.slug !== g.variantOf && x.variantOf !== g.slug)
     .sort((a, b) => b.cats.filter(c => g.cats.includes(c)).length - a.cats.filter(c => g.cats.includes(c)).length);
   fill($('#row-next'), next);
-  $('#versions').replaceChildren(h('li', {}, h('span', { class: 'v', text: 'v' + g.version }), h('span', { class: 'd', text: new Date((g.updated || g.added) + 'T12:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }), h('span', { class: 'n', text: g.notes })));
+  $('#versions').replaceChildren(h('li', {}, h('span', { class: 'v', text: 'v' + verOf(g) }), h('span', { class: 'd', text: new Date((g.updated || g.added) + 'T12:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }), h('span', { class: 'n', text: g.notes })));
   show('game', null);
 }
 function syncSave() { const on = current && isSaved(current.slug); const b = $('#save-btn'); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '♥ Saved' : '♡ Save'; }
