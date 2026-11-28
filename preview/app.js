@@ -556,7 +556,7 @@ async function changeLimits() {
   if (gr === null) return;
   const grN = gr.trim() === '' ? null : parseInt(gr, 10);
   if (grN !== null && !(grN >= 1 && grN <= 12)) return toast('Type a grade from 1 to 12.');
-  const ec = await askText(`Most game time your child can earn per day in Math Space War and Study Arcade together (now ${w ? w.math_cap : 30} min). Type 0–600.`, w ? String(w.math_cap) : '30', 'Next');
+  const ec = await askText(`Most game time your child can earn per day in Math Space War (now ${w ? w.math_cap : 30} min). Type 0–600.`, w ? String(w.math_cap) : '30', 'Next');
   if (ec === null) return;
   const ecN = parseInt(ec, 10);
   if (!(ecN >= 0 && ecN <= 600)) return toast('Type a number from 0 to 600.');
