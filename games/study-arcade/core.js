@@ -439,7 +439,12 @@ function wrapText(g,text,maxW,maxLines,size,weight){
     const push=t=>{const nx=line+t;if(g.measureText(nx).width>maxW&&line.trim()){lines.push(line.trim());line=t.trimStart()}else line=nx};
     for(const t of toks){if(g.measureText(t).width>maxW){for(const ch of t)push(ch)}else push(t)}
     if(line.trim())lines.push(line.trim());
-    if(lines.length<=maxLines||s===10)return{lines:lines.slice(0,maxLines),size:s};
+    if(lines.length<=maxLines||s===10){
+      // even lines: narrow the box while the line count stays the same, so the last line is not one lone word
+      if(lines.length>1&&lines.length<=maxLines&&toks.every(t=>g.measureText(t).width<=maxW)){const fit=mw=>{const ls=[];let ln='';for(const t of toks){const nx=ln+t;if(g.measureText(nx).width>mw&&ln.trim()){ls.push(ln.trim());ln=t.trimStart()}else ln=nx}if(ln.trim())ls.push(ln.trim());return ls};
+        let lo=0,hi=maxW;for(let k=0;k<12;k++){const mid=(lo+hi)/2,ls=fit(mid);if(ls.length===lines.length&&ls.every(l=>g.measureText(l).width<=maxW))hi=mid;else lo=mid}
+        const best=fit(hi);if(best.length===lines.length)return{lines:best,size:s}}
+      return{lines:lines.slice(0,maxLines),size:s}}
   }
 }
 function drawLines(g,w,cx,cy,color,weight){g.font=`${weight||700} ${w.size}px "Noto Sans KR",sans-serif`;g.fillStyle=color;g.textAlign='center';g.textBaseline='middle';const lh=w.size*1.2,top=cy-(w.lines.length-1)*lh/2;w.lines.forEach((l,i)=>g.fillText(l,cx,top+i*lh))}

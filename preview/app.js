@@ -19,6 +19,9 @@ const CATS = [
   ['Adventure', 'cat-adventure', '🗺️'], ['Sports', 'cat-sports', '⚽'], ['Puzzle', 'cat-puzzle', '🧩'], ['Racing', 'cat-racing', '🏎️'],
 ];
 const CAT_READY = new Set(['cat-action', 'cat-fighting', 'cat-3d', 'cat-space', 'cat-adventure', 'cat-sports', 'cat-puzzle', 'cat-racing']);
+// 'Online' is a category of its own: every game you can play online with others (games.json multiplayer)
+const TILES = [['Online', 'cat-online', '👥']].concat(CATS);
+const inCat = (g, name) => name === 'Online' ? !!g.multiplayer : g.cats.includes(name);
 const WEEK = 7 * 864e5;
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 let GAMES = [];
@@ -103,7 +106,7 @@ function card(g, opt) {
 const fill = (el, games) => el.replaceChildren(...games.map(card));
 
 function catTile(name, img, emoji) {
-  const n = MAIN().filter(g => g.cats.includes(name)).length;
+  const n = MAIN().filter(g => inCat(g, name)).length;
   return h('a', { class: 'cat' + (n ? '' : ' none'), href: '#/cat/' + encodeURIComponent(name) },
     CAT_READY.has(img) ? h('img', { src: `${ROOT}img/${img}.webp`, alt: '', loading: 'lazy', onerror: e => e.target.replaceWith(h('span', { class: 'ph', text: emoji })) }) : h('span', { class: 'ph', text: emoji }),
     h('b', { text: name }), h('span', { text: n ? plural(n, 'game') : 'Coming soon' }));
@@ -211,7 +214,7 @@ function route() {
   document.title = 'Zanycade — Free Original Browser Games';
   if (p0 === 'game' && bySlug(arg)) return openGame(bySlug(arg));
   if (p0 === 'categories') { show('categories', 'categories'); return; }
-  if (p0 === 'cat') return openList(`${arg} games`, MAIN().filter(g => g.cats.includes(arg)), 'categories');
+  if (p0 === 'cat') return openList(arg === 'Online' ? '👥 Play online together' : `${arg} games`, MAIN().filter(g => inCat(g, arg)), 'categories');
   if (p0 === 'search' && !arg.trim()) { location.hash = '#/'; return; }
   if (p0 === 'search') { q.value = arg; return openList(`Results for “${arg}”`, search(arg), null, arg); }
   if (p0 === 'my') return openMy();
@@ -1245,9 +1248,9 @@ fetch(ROOT + 'games.json', { cache: 'no-cache' }).then(r => r.json()).then(list 
   });
 }).then(() => {
   buildHero();
-  const cats = CATS.map(([n, i, e]) => catTile(n, i, e));
+  const cats = TILES.map(([n, i, e]) => catTile(n, i, e));
   $('#cats-a').replaceChildren(...cats.map(c => c.cloneNode(true)));
-  $('#cats-b').replaceChildren(...CATS.map(([n, i, e]) => catTile(n, i, e)));
+  $('#cats-b').replaceChildren(...TILES.map(([n, i, e]) => catTile(n, i, e)));
   route();
 }).catch(() => { $('#grid-all').replaceChildren(h('p', { text: 'We couldn’t load the games. Please refresh the page.' })); });
 /* launch numbers: totals only. Our own devices are not counted: automated test browsers,
