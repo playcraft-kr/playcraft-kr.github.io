@@ -90,7 +90,7 @@ function card(g, opt) {
       artNode(g),
       g.multiplayer ? h('span', { class: 'mp-badge' }, '👥 Online') : null,
       h('div', { class: 'badges' },
-        g.soon ? h('span', { class: 'badge soon' }, '🔜 OPENING SOON') : nw === 'new' ? h('span', { class: 'badge new' }, '🆕 NEW') : nw === 'upd' ? h('span', { class: 'badge upd' }, '✨ UPDATED', h('span', { class: 'bv' }, ` · v${verOf(g)}`)) : null,
+        g.soon ? h('span', { class: 'badge soon' }, '🔜 COMING SOON') : nw === 'new' ? h('span', { class: 'badge new' }, '🆕 NEW') : nw === 'upd' ? h('span', { class: 'badge upd' }, '✨ UPDATED', h('span', { class: 'bv' }, ` · v${verOf(g)}`)) : null,
         g.lang !== 'English' ? h('span', { class: 'badge lang', title: `In-game text is in ${g.lang}` }, g.lang === 'Korean' ? '한국어' : /English/.test(g.lang) && /Korean/.test(g.lang) ? 'EN · 한국어' : g.lang) : null)),
     h('span', { class: 't', text: g.title }),
     h('span', { class: 'by', text: madeBy(g) }),
@@ -378,7 +378,7 @@ function syncSave() { const on = current && isSaved(current.slug); const b = $('
 let pendingPlay = null;
 // games.json "soon": true = not open yet; only admins can play it (to test)
 const soonLocked = g => !!(g && g.soon && !(signedIn() && ACC.profile && ACC.profile.is_admin));
-function playLabel() { const b = $('#play-btn'); if (!b) return; const lk = soonLocked(current); b.disabled = lk; b.innerHTML = lk ? '<span aria-hidden="true">🔜</span> Opening soon' : signedIn() ? '<span aria-hidden="true">▶</span> Play' : '<span aria-hidden="true">🔒</span> Sign in to play'; }
+function playLabel() { const b = $('#play-btn'); if (!b) return; const lk = soonLocked(current); b.disabled = lk; b.innerHTML = lk ? '<span aria-hidden="true">🔜</span> Coming soon' : signedIn() ? '<span aria-hidden="true">▶</span> Play' : '<span aria-hidden="true">🔒</span> Sign in to play'; }
 // a locked game area asks for the sign-up window (message from games/guard.js, same site only)
 addEventListener('message', e => {
   if (e.origin !== location.origin || !e.data || e.data.pc !== 'signup') return;
@@ -591,7 +591,7 @@ async function playGame() {
   try { await playGameInner(); } finally { starting = false; }
 }
 async function playGameInner() {
-  if (soonLocked(current)) { toast(`${current.title} opens soon. Check back later!`); return; }
+  if (soonLocked(current)) { toast(`${current.title} is coming soon. Check back later!`); return; }
   if (!signedIn()) {
     pendingPlay = current.slug; openSignIn(false);
     $('#si-form .si-lead').textContent = `Sign in to play ${current.title}. New here? Make a free account — it only takes a minute.`;
