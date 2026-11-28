@@ -73,14 +73,16 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       <div class="pin" id="pinRow" style="display:block"><label><span id="pinLbl">Parent PIN (4 numbers, keep it from your child)</span><br><input id="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label></div>
       <div class="lim" id="limRow">
         <label>Most game time per day (other games)<br><select id="cap">${capOpts(L.play_cap)}</select></label><br>
-        <label>Most game time your child can earn per day in Math Space War<br><select id="earn">${[10, 20, 30, 45, 60, 90].map(v => `<option value="${v}" ${+L.earn_cap === v ? 'selected' : ''}>${v} minutes</option>`).join('')}${[10, 20, 30, 45, 60, 90].includes(+L.earn_cap) ? '' : `<option value="${L.earn_cap}" selected>${L.earn_cap} minutes</option>`}</select></label><br>
+        <label>Most game time your child can earn per day from the learning games (Math Space War and Word League together)<br><select id="earn">${[10, 20, 30, 45, 60, 90].map(v => `<option value="${v}" ${+L.earn_cap === v ? 'selected' : ''}>${v} minutes</option>`).join('')}${[10, 20, 30, 45, 60, 90].includes(+L.earn_cap) ? '' : `<option value="${L.earn_cap}" selected>${L.earn_cap} minutes</option>`}</select></label><br>
         <label>School grade for the math questions (only this grade or higher gives game time)<br><select id="grade">${gradeOpts(L.math_grade, L.grade_from_age)}</select></label>
       </div>
       <p class="msg" id="m"></p>
       <div class="btns">
         <button class="yes" id="yes">${first ? 'I’m the parent. Approve' : 'Save'}</button>
-        ${first ? '<button class="no" id="no">Not now (keep it limited)</button>' : ''}
+        ${first && !r.learn_mode ? '<button class="no" id="learnOnly">Learning mode only (keep it limited)</button>' : ''}
+        ${first ? '<button class="no" id="no">Not now</button>' : ''}
       </div>
+      ${first ? `<p class="muted" style="margin-top:8px"><b>Approve</b> also turns on leaderboards, online play and sending in games (shown with your child’s nickname). <b>Learning mode only</b> keeps all of that off.</p>` : ''}
       <details style="margin-top:18px"><summary class="muted">Use a different parent email</summary>
         <p class="muted">Links for settings, the parent PIN and passwords will go to the new email. We tell both addresses.</p>
         <label>New parent email<br><input id="newEm" type="email" autocomplete="email" style="font:inherit;padding:8px;border:2px solid var(--line);border-radius:12px;width:100%;max-width:320px"></label>
@@ -111,10 +113,22 @@ button{font:inherit;font-weight:800;border-radius:999px;padding:12px 22px;cursor
       if (e2 || res !== 'ok') { m.className = 'msg err'; m.textContent = res === 'expired' ? 'This link has run out.' : 'That didn’t work. Please try again.'; return; }
       say(`<p class="msg ok">Thank you! ${first ? esc(r.username) + '’s account is approved.' : 'Saved.'} ${on ? (r.learn_mode && !pin ? 'Learning mode stays on.' : 'Learning mode is on with your PIN.') : (r.learn_mode ? 'Learning mode is off.' : '')}</p><p class="muted">We sent you a confirmation e-mail. You can close this page.</p>`);
     };
+    const again = '<p class="muted">Changed your mind? Open this same link again while it still works, or ask your child to press <b>Ask my parent</b> in My Games for a new one.</p>';
+    const lo = document.getElementById('learnOnly');
+    if (lo) lo.onclick = async () => {
+      const pin = document.getElementById('pin').value.trim();
+      if (!/^[0-9]{4}$/.test(pin)) { document.querySelector('input[name=lm][value=on]').checked = true; sync(); m.className = 'msg err'; m.textContent = 'Please choose a 4-number PIN for learning mode.'; document.getElementById('pin').focus(); return; }
+      const cv = document.getElementById('cap').value, gv = document.getElementById('grade').value;
+      const { data: lr, error: le } = await sb.rpc('parent_save_limits', { p_token: token, p_play_cap: cv === '' ? null : +cv, p_math_grade: gv === '' ? null : +gv, p_earn_cap: +document.getElementById('earn').value });
+      if (le || lr !== 'ok') { m.className = 'msg err'; m.textContent = lr === 'expired' ? 'This link has run out.' : 'That didn’t work. Please try again.'; return; }
+      const { data: res, error: e2 } = await sb.rpc('parent_decide', { p_token: token, p_approve: false, p_learn: true, p_pin: pin });
+      if (e2 || res !== 'learn') { m.className = 'msg err'; m.textContent = res === 'expired' ? 'This link has run out.' : 'That didn’t work. Please try again.'; return; }
+      say('<p class="msg ok">Learning mode is on with your PIN. The account stays limited: your child can play alone, and nothing about them is shown to other players.</p>' + again);
+    };
     const no = document.getElementById('no');
     if (no) no.onclick = async () => {
       await sb.rpc('parent_decide', { p_token: token, p_approve: false, p_learn: null, p_pin: null });
-      say('<p class="msg">OK. The account stays limited: your child can play alone, but nothing about them is shown to other players. To delete the account completely, see the <a href="privacy.html">privacy policy</a>.</p>');
+      say('<p class="msg">OK. Nothing changed: your child can play alone, but nothing about them is shown to other players. To delete the account completely, see the <a href="privacy.html">privacy policy</a>.</p>' + again);
     };
   });
 })();

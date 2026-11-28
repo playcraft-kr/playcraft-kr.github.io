@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Zanycade">
 <meta property="og:title" content="Zanycade — Free Original Browser Games">
 <meta property="og:description" content="Play original browser games made by young creators. No download needed.">
-<meta property="og:url" content="https://zanycade.com/preview/">
+<meta property="og:url" content="https://zanycade.com/">
 <meta property="og:image" content="https://zanycade.com/img/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261127215118">
+<link rel="stylesheet" href="app.css?v=20261127223229">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -86,6 +86,11 @@
     <section class="shelf" id="shelf-recent" hidden>
       <div class="shelf-head"><h2>Keep playing</h2><a class="more" href="#/my">My Games →</a></div>
       <div class="row" id="row-recent"></div>
+    </section>
+
+    <section class="shelf shelf-online" id="shelf-online" hidden>
+      <div class="shelf-head"><h2>👥 Play online together</h2><span class="count" id="online-count"></span><span class="sub">Battle a friend or other players in real time.</span></div>
+      <div class="grid" id="grid-online"></div>
     </section>
 
     <section class="shelf">
@@ -405,7 +410,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261127215118"></script>
-<script src="app.js?v=20261127215118"></script>
+<script src="account.js?v=20261127223229"></script>
+<script src="app.js?v=20261127223229"></script>
 </body>
 </html>

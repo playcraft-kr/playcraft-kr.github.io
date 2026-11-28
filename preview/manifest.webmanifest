@@ -3,7 +3,7 @@
   "short_name": "Zanycade",
   "description": "Original games made by young creators.",
   "id": "/preview/",
-  "start_url": "./",
+  "start_url": "../",
   "scope": "../",
   "display": "standalone",
   "background_color": "#eef0ff",

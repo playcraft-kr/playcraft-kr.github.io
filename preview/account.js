@@ -239,16 +239,21 @@ const Account = {
     return true;
   },
 
-  // ---- shared game data: leaderboards and shared decks (table game_kv; anyone reads, players write their own rows) ----
+  // ---- shared game data: leaderboards and shared decks (table game_kv; read through kv_list/kv_get, players write their own rows) ----
   async kvGet(game, coll, id) {
     if (!sb) return null;
-    const { data, error } = await sb.from('game_kv').select('data').eq('game', game).eq('coll', coll).eq('doc_id', id).maybeSingle();
+    // Read through the server (supabase/027): other players' leaderboard rows never show their sign-in ID.
+    const r = await sb.rpc('kv_get', { p_game: game, p_coll: coll, p_id: id });
+    if (!r.error) return r.data == null ? null : r.data;
+    const { data, error } = await sb.from('game_kv').select('data').eq('game', game).eq('coll', coll).eq('doc_id', id).maybeSingle(); // server without 027 yet
     if (error) throw error;
     return data ? data.data : null;
   },
   async kvList(game, coll, limit = 500) {
     if (!sb) return [];
-    const { data, error } = await sb.from('game_kv').select('doc_id, data').eq('game', game).eq('coll', coll).order('updated_at', { ascending: false }).limit(limit);
+    const r = await sb.rpc('kv_list', { p_game: game, p_coll: coll, p_limit: limit });
+    if (!r.error) return r.data || [];
+    const { data, error } = await sb.from('game_kv').select('doc_id, data').eq('game', game).eq('coll', coll).order('updated_at', { ascending: false }).limit(limit); // server without 027 yet
     if (error) throw error;
     return data || [];
   },

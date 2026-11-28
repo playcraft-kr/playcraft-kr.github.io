@@ -1,6 +1,7 @@
 (() => {
 'use strict';
-const ROOT = '../';
+// The app runs at zanycade.com/ (index.html made by stamp.sh) and also at /preview/.
+const ROOT = /\/preview\//.test(location.pathname) ? '../' : '';
 const $ = s => document.querySelector(s);
 const h = (tag, props = {}, ...kids) => {
   const e = document.createElement(tag);
@@ -227,7 +228,8 @@ function renderHome() {
   const fresh = freshList();
   $('#shelf-new').hidden = !fresh.length; $('#row-new').replaceChildren(...fresh.map(g => card(g, { notes: true })));
   $('#shelf-recent').hidden = !played.length; fill($('#row-recent'), played);
-  const open = MAIN().filter(g => !g.soon), soon = MAIN().filter(g => g.soon);
+  const open = MAIN().filter(g => !g.soon), soon = MAIN().filter(g => g.soon), online = open.filter(g => g.multiplayer);
+  $('#shelf-online').hidden = !online.length; fill($('#grid-online'), online); $('#online-count').textContent = plural(online.length, 'game');
   fill($('#grid-all'), open); $('#all-count').textContent = plural(open.length, 'game');
   $('#shelf-soon').hidden = !soon.length; fill($('#grid-soon'), soon); $('#soon-count').textContent = plural(soon.length, 'game');
 }
@@ -560,7 +562,7 @@ async function changeLimits() {
   if (gr === null) return;
   const grN = gr.trim() === '' ? null : parseInt(gr, 10);
   if (grN !== null && !(grN >= 1 && grN <= 12)) return toast('Type a grade from 1 to 12.');
-  const ec = await askText(`Most game time your child can earn per day in Math Space War (now ${w ? w.math_cap : 30} min). Type 0–600.`, w ? String(w.math_cap) : '30', 'Next');
+  const ec = await askText(`Most game time your child can earn per day from the learning games, Math Space War and Word League together (now ${w ? w.math_cap : 30} min). Type 0–600.`, w ? String(w.math_cap) : '30', 'Next');
   if (ec === null) return;
   const ecN = parseInt(ec, 10);
   if (!(ecN >= 0 && ecN <= 600)) return toast('Type a number from 0 to 600.');
@@ -580,7 +582,7 @@ function needCoinsDialog(g, why) {
     card('math-space-war', '🧮', 'Math Space War', '8 right out of 10 = 1 minute'),
     bySlug('study-arcade') && !soonLocked(bySlug('study-arcade')) ? card('study-arcade', '🕹️', 'Study Arcade', '8 right out of 10 = 1 minute') : null,
     card('ssat-word-league', '📚', 'Word League', 'Earn coins = more minutes'),
-    h('div', { class: 'gt-foot' }, h('a', { href: '../learning.html', target: '_blank', rel: 'noopener' }, 'How it works'),
+    h('div', { class: 'gt-foot' }, h('a', { href: ROOT + 'learning.html', target: '_blank', rel: 'noopener' }, 'How it works'),
       h('button', { class: 'btn ghost', onclick: () => d.close() }, 'Not now')));
   d.addEventListener('close', () => setTimeout(() => d.remove(), 0)); document.body.append(d); d.showModal();
 }

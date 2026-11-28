@@ -542,7 +542,8 @@ textarea.ask-input{width:100%;box-sizing:border-box;font:inherit;border:2px soli
 #play-btn:disabled{filter:grayscale(.7);opacity:.85;cursor:default;transform:none}
 
 /* Coming soon games: their own shelf, a calmer picture, and no "Play" on hover */
-.shelf-soon .shelf-head .sub{color:var(--ink-2);font-weight:700;font-size:15px}
+.shelf-online .shelf-head{flex-wrap:wrap;row-gap:4px}
+.shelf-online .shelf-head .sub,.shelf-soon .shelf-head .sub{color:var(--ink-2);font-weight:700;font-size:15px}
 .card.is-soon .art img{filter:saturate(.55) brightness(.8)}
 .card.is-soon .art::after{content:"🔜 Coming soon";background:#fff;color:#8a1520}
 .shelf-soon .shelf-head{flex-wrap:wrap;row-gap:4px}
