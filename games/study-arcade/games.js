@@ -85,7 +85,7 @@ I.ox=c=>{
 
 /* ===== Typing Challenge ===== */
 I.type=c=>{
-  const {$}=c,n=+c.opts.n||15,list=c.shuf(c.cards).slice(0,Math.min(n,c.cards.length));let i=0,right=0,hints=0,wrongs=[],state='ask',cur=null,over=false,hinted=false;
+  const {$}=c,n=+c.opts.n||15,list=c.weakFirst(c.cards).slice(0,Math.min(n,c.cards.length));let i=0,right=0,hints=0,wrongs=[],state='ask',cur=null,over=false,hinted=false;
   c.stage.innerHTML=`<div class="qcard"><div class="qtag" id="qtag"></div><p class="q" id="q"></p><div class="fb" id="fb" aria-live="polite"></div></div>
   <form class="tform" id="tf" autocomplete="off"><input id="ti" aria-label="Your answer" placeholder="Type the answer, then Enter"><button class="btn" id="tb">Check</button></form>
   <div class="row center" style="margin-top:12px"><button class="btn ghost sm" id="hint" type="button">Hint (first letter)</button><button class="btn ghost sm hide" id="override" type="button">Count it as right</button></div>`;
@@ -132,7 +132,7 @@ I.def=c=>{
 /* ===== Space Shooter ===== */
 I.shoot=c=>{
   const {$}=c,base=+c.opts.lvl||10,next=c.dealer();
-  c.stage.innerHTML=`<div class="qcard slim"><div class="qtag" id="qtag"></div><p class="q" id="q"></p></div><div id="cvh"></div><p class="hint center">Tap the right box or press 1–4 to fire · ←/→ to move, Space to fire straight up</p>`;
+  c.stage.innerHTML=`<div class="qcard slim"><div class="qtag" id="qtag"></div><p class="q" id="q"></p></div><div id="cvh"></div>${c.ctl()}`;
   const nar=c.stage.clientWidth<600,W=nar?480:800,H=nar?640:460,SY=H-46,K=c.mkCanvas($('#cvh'),W,H),g=K.g;
   const stars=Array.from({length:80},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+.4,v:Math.random()*30+12}));
   let streak=0,lives=3,score=0,wave=0,ship={x:400,tx:400},crates=[],lasers=[],parts=[],texts=[],cur=null,over=false,raf=0,last=0,right=0,tot=0,wr=[],waveMiss=false,busy=false,shake=0;
@@ -182,9 +182,9 @@ I.shoot=c=>{
 /* ===== Lane Runner ===== */
 I.run=c=>{
   const {$}=c,base=+c.opts.lvl||10,next=c.dealer();
-  c.stage.innerHTML=`<div class="qcard slim"><div class="qtag" id="qtag"></div><p class="q" id="q"></p></div><div id="cvh"></div><p class="hint center">←/→ or tap a lane to move · number keys jump to that lane</p>`;
+  c.stage.innerHTML=`<div class="qcard slim"><div class="qtag" id="qtag"></div><p class="q" id="q"></p></div><div id="cvh"></div>${c.ctl()}`;
   const nar=c.stage.clientWidth<600,W=nar?480:800,H=nar?680:500,PY=H-70,RL=nar?22:90,RW=W-2*RL,K=c.mkCanvas($('#cvh'),W,H),g=K.g;
-  const GH=nar?96:70;let sT=0,lanes=4,lane=1,px=1,row=null,T=base*.62,dist=0,lives=3,right=0,tot=0,wr=[],combo=0,over=false,raf=0,last=0,scroll=0,msg=null,flash=0,cur=null;
+  const GH=nar?112:88;let sT=0,lanes=4,lane=1,px=1,row=null,T=base*.62,dist=0,lives=3,right=0,tot=0,wr=[],combo=0,over=false,raf=0,last=0,scroll=0,msg=null,flash=0,cur=null;
   const lx=i=>RL+(i+.5)*(RW/lanes);
   const stats=()=>c.setStats(`<span class="hearts" aria-label="Lives left: ${lives}">${'♥'.repeat(lives)}<span style="opacity:.3">${'♥'.repeat(3-lives)}</span></span><span>Distance <b>${c.fmt(dist)}m</b></span><span>Combo <b>${combo}</b></span>`);
   function newRow(){cur=c.makeQ(next());lanes=cur.opts.length;lane=Math.min(lane,lanes-1);px=Math.min(px,lanes-1);
@@ -200,7 +200,7 @@ I.run=c=>{
     g.fillStyle='#3a3f47';g.fillRect(RL-10,0,RW+20,H);g.fillStyle='#f2b632';g.fillRect(RL-10,0,5,H);g.fillRect(RL+RW+5,0,5,H);
     g.strokeStyle='rgba(244,239,227,.7)';g.lineWidth=4;g.setLineDash([26,34]);g.lineDashOffset=-scroll;for(let i=1;i<lanes;i++){const x=RL+i*RW/lanes;g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke()}g.setLineDash([]);
     if(row)row.items.forEach((it,i)=>{const w=RW/lanes-(nar?8:16),x=lx(i)-w/2,y=row.y-GH/2;g.fillStyle='rgba(0,0,0,.3)';c.rr(g,x+3,y+6,w,GH,10);g.fill();g.fillStyle=COL[i];c.rr(g,x,y,w,GH,10);g.fill();
-      g.fillStyle='rgba(255,255,255,.9)';g.font='900 13px "Noto Sans KR",sans-serif';g.textAlign='left';g.textBaseline='top';g.fillText(i+1,x+8,y+5);c.drawLines(g,it.wr,lx(i),row.y,'#fff')});
+      g.beginPath();g.arc(lx(i),y,13,0,Math.PI*2);g.fillStyle='#fff';g.fill();g.lineWidth=3;g.strokeStyle=COL[i];g.stroke();g.fillStyle='#1b2a25';g.font='900 15px "Noto Sans KR",sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(i+1,lx(i),y+1);c.drawLines(g,it.wr,lx(i),row.y+8,'#fff')});
     const x=RL+(px+.5)*(RW/lanes);g.save();g.translate(x,PY);g.fillStyle='rgba(0,0,0,.3)';c.rr(g,-24,-30,52,72,14);g.fill();g.fillStyle='#ffd76a';c.rr(g,-26,-36,52,72,14);g.fill();
     g.fillStyle='#26305e';c.rr(g,-18,-24,36,18,5);g.fill();g.fillStyle='#e9503f';g.fillRect(-26,18,10,8);g.fillRect(16,18,10,8);g.restore();
     if(flash){g.fillStyle=`rgba(255,60,40,${flash})`;g.fillRect(0,0,W,H)}
@@ -218,7 +218,7 @@ I.run=c=>{
 I.snake=c=>{
   const {$}=c,CO=20,RO=13,CS=40,t0ms=+c.opts.spd||165,next=c.dealer();
   c.stage.innerHTML=`<div class="qcard slim"><div class="qtag" id="qtag"></div><p class="q" id="q"></p></div>
-  <div class="snk"><div><div id="cvh"></div><div class="dpad" id="dpad"><span></span><button data-d="0,-1" aria-label="Up">▲</button><span></span><button data-d="-1,0" aria-label="Left">◀</button><button data-d="0,1" aria-label="Down">▼</button><button data-d="1,0" aria-label="Right">▶</button></div></div><ol class="foods" id="foods"></ol></div>`;
+  <div class="snk"><div><div id="cvh"></div><div class="dpad" id="dpad"><span></span><button data-d="0,-1" aria-label="Up">▲</button><span></span><button data-d="-1,0" aria-label="Left">◀</button><button data-d="0,1" aria-label="Down">▼</button><button data-d="1,0" aria-label="Right">▶</button></div></div><ol class="foods" id="foods"></ol></div>${c.ctl()}`;
   const K=c.mkCanvas($('#cvh'),CO*CS,RO*CS),g=K.g;
   let snake,dir,ndir,grow=0,foods=[],started=false,lives=3,score=0,tot=0,wr=[],over=false,raf=0,last=0,accT=0,tick=t0ms,cur=null,missed=false,msg='Press an arrow to start!',flash=0;
   const reset=()=>{snake=[{x:6,y:6},{x:5,y:6},{x:4,y:6},{x:3,y:6}];dir={x:1,y:0};ndir=dir;started=false};
@@ -253,7 +253,7 @@ I.obby=c=>{
   const {$}=c,goal=+(c.opts.goal==null?40:c.opts.goal),inf=!goal,LIMIT=180,next=c.dealer(),t0=Date.now(),MAXE=12;
   c.stage.innerHTML=`<div class="obw"><div class="obl"><div id="cvh"></div><div class="obpad" id="obpad"><button data-k="L" aria-label="Left">◀</button><button data-k="J" class="jb" aria-label="Jump">Jump</button><button data-k="R" aria-label="Right">▶</button></div></div>
   <div class="obr"><div class="energy"><span>Energy</span><div class="ebar" id="ebw"><i id="eb"></i></div><b id="en"></b></div><div class="qcard slim" id="qc"><div class="qtag" id="qtag"></div><p class="q" id="q"></p><div class="fb" id="fb" aria-live="polite"></div></div><div class="ans" id="ans"></div>
-  <p class="hint">Right answer = +3 energy (+1 more for every 3 in a row). Each jump uses 1 energy. ←/→ to move, Space or ↑ to jump, 1–4 to answer.</p></div></div>`;
+  <p class="hint">Right answer = +3 energy (+1 more for every 3 in a row). Each jump uses 1 energy.</p>${c.ctl()}</div></div>`;
   const W=480,H=680,K=c.mkCanvas($('#cvh'),W,H),g=K.g;
   const narrow=matchMedia('(max-width:860px)').matches;K.wrap.style.maxWidth=narrow?`calc(46vh * ${W/H})`:`calc(72vh * ${W/H})`;K.fit();
   const SP=86,N=goal||400,plats=[{x:0,y:0,w:W,h:40,t:'ground',fl:0}];let lx=W/2;
@@ -269,7 +269,7 @@ I.obby=c=>{
   const img=new Image();let imgOk=false;img.onload=()=>{imgOk=true};img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(c.avatar().replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="120" height="132" '));
   function stats(){const el=(Date.now()-t0)/1000;c.setStats(`<span>Floor <b>${pl.on?pl.on.fl:'—'}</b></span><span>Best <b>${best}</b>${goal?` / ${goal}`:''}</span><span>${inf?'Left':'Time'} <b>${c.mmss(inf?Math.max(0,LIMIT-el):el)}</b></span><span>Falls <b>${falls}</b></span>`);if(inf&&el>=LIMIT)end(false)}
   function eui(){$('#en').textContent=`${energy} / ${MAXE}`;$('#eb').style.width=energy/MAXE*100+'%';$('#ebw').classList.toggle('low',energy<=1)}
-  function ask(){cur=c.makeQ(next());lock=false;$('#qtag').textContent=cur.tag;$('#q').textContent=cur.q;$('#fb').textContent='';c.drawAns($('#ans'),cur)}
+  function ask(){cur=c.makeQ(next());lock=false;$('#qtag').textContent=cur.tag;$('#q').textContent=cur.q;$('#fb').textContent='';c.drawAns($('#ans'),cur);if(towerH<1e9)fitTower()}
   function pick(i){if(lock||over)return;const bs=[...$('#ans').children];if(!bs[i])return;lock=true;tot++;$('#ans').classList.add('lock');const ok=cur.opts[i]===cur.a;
     bs.forEach((b,j)=>{if(cur.opts[j]===cur.a)b.classList.add('right');else if(j===i)b.classList.add('bad')});
     if(ok){right++;streak++;const gn=3+(streak%3===0?1:0),before=energy;energy=Math.min(MAXE,energy+gn);c.hit(cur.card);c.fx.good(bs[i]);c.fx.combo(streak);c.floatTxt($('#qc'),`+${energy-before} energy`,'var(--ok)');$('#fb').innerHTML=energy===MAXE?'<span class="okc">Energy full!</span>':'<span class="okc">Correct!</span>'}
@@ -335,12 +335,16 @@ I.obby=c=>{
   const pad=$('#obpad');const dn=e=>{const b=e.target.closest('[data-k]');if(!b)return;e.preventDefault();const k=b.dataset.k;if(k==='J')jump();else keys[k]=1;SFX_init()};const up=e=>{const b=e.target.closest('[data-k]');if(b&&b.dataset.k!=='J')keys[b.dataset.k]=0};
   const SFX_init=()=>{};pad.addEventListener('pointerdown',dn);pad.addEventListener('pointerup',up);pad.addEventListener('pointerleave',()=>{keys.L=0;keys.R=0});pad.addEventListener('pointercancel',()=>{keys.L=0;keys.R=0});
   K.cv.addEventListener('pointerdown',e=>{e.preventDefault();jump()});
-  function cleanup(){over=true;cancelAnimationFrame(raf);K.ro.disconnect();document.removeEventListener('keydown',KD);document.removeEventListener('keyup',KU)}
+  function cleanup(){over=true;cancelAnimationFrame(raf);K.ro.disconnect();document.removeEventListener('keydown',KD);document.removeEventListener('keyup',KU);removeEventListener('resize',fitResize)}
+  const fitResize=()=>{towerH=1e9;fitTower(true)};
+  /* Phones: shrink the tower so the pad and the answers fit on one screen (no scrolling between jumping and answering). */
+  let towerH=1e9;function fitTower(grow){grow=grow===true;if(over||!matchMedia('(max-width:860px)').matches)return;const bar=document.querySelector('.pbar'),ob=$('.obr'),an=$('#ans');if(!ob||!an)return;
+    const rest=an.getBoundingClientRect().bottom-ob.getBoundingClientRect().top,h=Math.max(170,Math.min(innerHeight*.46,innerHeight-(bar?bar.offsetHeight:0)-($('#obpad').offsetHeight||0)-rest-44));if(grow||h<towerH){towerH=h;K.wrap.style.maxWidth=`${Math.round(h*W/H)}px`}}
   function end(win){if(over)return;cleanup();const el=Math.round((Date.now()-t0)/1000);
     c.finish({title:win?`Reached the top in ${c.mmss(el)}!`:inf?`You climbed to floor ${best}!`:`Stopped at floor ${best}`,stats:[['Highest floor',best],['Time',c.mmss(el)],['Falls',falls],['Accuracy',acc(right,tot)]],wrongs:wr,
       rec:win?{key:'obby'+goal,val:el}:inf?{key:'obbyinf',val:best}:null,right,total:tot,score:win?'Top in '+c.mmss(el):'Floor '+best})}
   K.cv._st={pl,plats,get energy(){return energy},set energy(v){energy=v;eui()}};
-  ask();eui();stats();raf=requestAnimationFrame(t=>{last=t;loop(t)});
+  ask();eui();stats();raf=requestAnimationFrame(t=>{last=t;loop(t)});addEventListener('resize',fitResize);setTimeout(fitTower,60);
   return{stop:cleanup,end:()=>end(false)};
 };
 
@@ -382,7 +386,7 @@ I.boss=c=>{
 /* ===== Quiz Bingo ===== */
 I.bingo=c=>{
   const {$}=c,d=c.opts.dir==='b'?'b':'f',A=x=>d==='f'?x.d:x.t,P=x=>d==='f'?x.t:x.d;
-  const sa=new Set(),sp=new Set(),pool=[];for(const x of c.shuf(c.deck.cards)){if(sa.has(A(x))||sp.has(P(x)))continue;sa.add(A(x));sp.add(P(x));pool.push(x)}
+  const sa=new Set(),sp=new Set(),pool=[];for(const x of c.weakFirst(c.deck.cards)){if(sa.has(A(x))||sp.has(P(x)))continue;sa.add(A(x));sp.add(P(x));pool.push(x)}
   if(pool.length<9){c.stage.innerHTML='<p class="err">Bingo needs at least 9 different answers.</p>';return{stop(){},end(){}}}
   const N=pool.length>=16?4:3,need=N===4?3:2,board=pool.slice(0,N*N),mk=Array(N*N).fill(false),t0=Date.now();
   let cur=-1,right=0,strikes=0,pen=0,wr=[],missed=false,over=false,tm,asked=0;
@@ -403,9 +407,9 @@ I.bingo=c=>{
 
 /* ===== Flashcards ===== */
 I.flash=c=>{
-  const {$}=c,all=c.cards;let queue=c.shuf(all),seen=new Set(),first=0,views=0,missed=[],flipped=false,over=false;
+  const {$}=c,all=c.cards;let queue=c.weakFirst(all),seen=new Set(),first=0,views=0,missed=[],flipped=false,over=false;
   c.stage.innerHTML=`<div class="flip" id="fc" role="button" tabindex="0" aria-label="Flip card"><div class="fin"><div class="face fr" id="fr"></div><div class="face bk" id="bk"></div></div></div>
-  <p class="hint center">Tap the card or press Space to flip it</p><div class="row center" style="margin-top:14px"><button class="btn bad" id="fNo">Don’t know (1)</button><button class="btn" id="fYes">Know it (2)</button></div>`;
+  ${c.ctl()}<div class="row center" style="margin-top:14px"><button class="btn bad" id="fNo">Don’t know (1)</button><button class="btn" id="fYes">Know it (2)</button></div>`;
   const fc=$('#fc');
   function draw(){if(!queue.length)return end();const x=queue[0],d=c.dir();flipped=false;fc.classList.remove('on');views++;
     $('#fr').innerHTML=`<div><small>${d==='f'?'Front':'Back'}</small>${c.esc(d==='f'?x.t:x.d)}</div>`;$('#bk').innerHTML=`<div><small>${d==='f'?'Back':'Front'}</small>${c.esc(d==='f'?x.d:x.t)}</div>`;
@@ -418,7 +422,7 @@ I.flash=c=>{
 };
 
 /* ===== Match Up and Memory Cards ===== */
-function pairs(c){const p=[],sT=new Set(),sD=new Set();for(const x of c.shuf(c.cards)){if(sT.has(x.t)||sD.has(x.d)||sT.has(x.d)||sD.has(x.t))continue;sT.add(x.t);sD.add(x.d);p.push(x);if(p.length===6)break}return p}
+function pairs(c){const p=[],sT=new Set(),sD=new Set();for(const x of c.weakFirst(c.cards)){if(sT.has(x.t)||sD.has(x.d)||sT.has(x.d)||sD.has(x.t))continue;sT.add(x.t);sD.add(x.d);p.push(x);if(p.length===6)break}return p}
 I.match=c=>{
   const {$}=c,pk=pairs(c),tiles=c.shuf(pk.flatMap((x,k)=>[{k,s:'t',x:x.t},{k,s:'d',x:x.d}]));let sel=null,left=pk.length,pen=0,over=false,miss=[];const t0=Date.now();
   c.stage.innerHTML=`<p class="hint center" style="margin:0 0 12px">Tap the front, then the back of the same card.</p><div class="mgrid">${tiles.map((t,i)=>`<button class="tile ${t.s}" data-i="${i}">${c.esc(t.x)}</button>`).join('')}</div>`;

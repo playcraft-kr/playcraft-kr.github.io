@@ -272,6 +272,39 @@ td.num{text-align:right;white-space:nowrap;font-weight:900;color:var(--goldd)}
 .gtk{display:inline-block;font-weight:900;border-radius:999px;padding:3px 12px;background:#1f4740;color:#fff}.gtk.gtt{background:#3b2a8c}
 .gtnow{font-weight:800;color:#3b2a8c}
 .gtchip{display:flex;align-items:center;gap:6px;background:#3b2a8c;color:#fff;font-weight:900;padding:6px 14px;border-radius:999px;white-space:nowrap}.gtchip[hidden]{display:none}.navr:has(.gtchip:not([hidden])) .sync{display:none}
+/* controls drawn as key caps / mouse / finger / on-screen buttons (#88) */
+.ctlh{font-size:17px;margin:16px 0 6px}
+.ctls{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,auto) 1fr;column-gap:14px;row-gap:2px}
+.ctls li{display:grid;grid-column:1/-1;grid-template-columns:subgrid;gap:14px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line);font-size:16px}
+.ctls li:last-child{border-bottom:0}.ctls li>b{font-weight:800;color:var(--ink);line-height:1.3}
+.ctls .kc{display:flex;flex-wrap:wrap;align-items:center;gap:5px;max-width:240px}
+.ctls kbd{display:inline-grid;place-items:center;min-width:34px;height:34px;box-sizing:border-box;padding:0 8px;font:900 16px/1 "Noto Sans KR",sans-serif;color:#1b2a25;background:#fff;border:2px solid #c9c2b0;border-bottom-width:5px;border-radius:9px;white-space:nowrap}
+.ctls kbd.wide{min-width:70px;font-size:14px}
+.ctls .kpad{display:inline-grid;gap:3px;justify-items:center}.ctls .kpad>span{display:flex;gap:3px}
+.ctls .kor{font-style:normal;font-size:12px;font-weight:900;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;margin:0 2px}
+.ctls .kdev{display:inline-flex;align-items:center;gap:6px;font-weight:900;background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:4px 10px;min-height:34px;box-sizing:border-box}
+.ctls .kdev i{font-style:normal;font-size:18px}.ctls .kmouse{width:16px;height:22px}
+.ctls .tbtn{display:inline-grid;place-items:center;min-width:38px;height:36px;box-sizing:border-box;padding:0 10px;font-weight:900;font-size:15px;background:var(--panel2);border:2px solid var(--line);border-radius:12px;white-space:nowrap}
+.ctls .ont{display:none}
+@media(pointer:coarse){.ctls .onk{display:none}.ctls .ont{display:grid}.ctls .kdev.ont{display:inline-flex}}
+.ctls.slim{grid-template-columns:none;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin:12px auto 0}
+.ctls.slim .kc{max-width:none}.ctls.slim li{grid-template-columns:auto auto;justify-content:center;border:0;padding:0;gap:8px;font-size:15px}
+.ctls.slim kbd{min-width:30px;height:30px;font-size:14px}.ctls.slim kbd.wide{min-width:60px;font-size:13px}
+.ctls.slim .kdev,.ctls.slim .tbtn{min-height:30px;height:auto;padding:2px 8px}
+/* QA 11/28: title uses the free space in the play bar; on phones the bar is 2 rows, the bubble no longer covers the stats,
+   Snake's arrow pad is one row with a 2×2 answer list, Sky Tower answers are compact, small buttons reach 44px */
+.ptitle{flex:1 1 auto;min-width:0}.pstats{flex:0 1 auto}
+.filebtn{min-height:44px;box-sizing:border-box}#pot{min-height:44px}
+@media(max-width:600px){
+ .pbin{gap:8px;padding-block:6px}.pbin .pstats{order:9;flex:1 1 100%;gap:12px}#endPlay{margin-left:auto}.bub{display:none}
+ .dpad{grid-template-columns:repeat(4,58px)}.dpad span{display:none}
+ .dpad [data-d="-1,0"]{order:1}.dpad [data-d="0,-1"]{order:2}.dpad [data-d="0,1"]{order:3}.dpad [data-d="1,0"]{order:4}
+ .snk .foods{grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.snk .foods li{padding:6px 8px;font-size:14px;gap:6px}
+ .obr .ans{grid-template-columns:1fr;gap:6px}.obr .ans button{min-height:44px;font-size:14px;padding:6px 10px}.obr .qcard{padding:8px 12px;margin-bottom:8px}.obr .energy{margin-bottom:6px}
+ .obl .obpad{margin-top:6px}.obpad button{min-height:50px}
+ .ntabs{gap:0;justify-content:space-between}.ntab{padding:8px 5px;font-size:13.5px}
+}
+@media(max-width:370px){.ntab{padding:8px 4px;font-size:13px}}
 </style>
 </head>
 <body>
