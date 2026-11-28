@@ -437,11 +437,26 @@ async function askParent(reason) {
   let em = '';
   if (cur && cur.status === 'approved') {
     if (!(await ask(`We’ll email a link to your parent (${cur.email_hint}). They can change settings and the parent PIN there. Send it?`))) return;
+  } else if (cur && cur.email_hint && !reason) {
+    // The parent email is already saved (typed at sign-up): send again to it with one tap, or type a different one.
+    const pick = await new Promise(res => {
+      const d = h('dialog', { class: 'confirm' }, h('p', {}, 'We’ll send the link again to your parent at ', h('b', { text: cur.email_hint }), '.'),
+        h('div', { class: 'si-actions' },
+          h('button', { class: 'btn ghost', onclick: () => { d.close(); res('other'); } }, 'Use a different email'),
+          h('button', { class: 'btn primary', onclick: () => { d.close(); res('same'); } }, 'Send again')));
+      d.addEventListener('close', () => { setTimeout(() => d.remove(), 0); res(null); }); document.body.append(d); d.showModal();
+    });
+    if (!pick) return;
+    if (pick === 'other') { em = await askText('Type your parent’s email. We’ll send them a link to approve your account (and to choose learning mode).', '', 'Send'); if (em === null) return; }
   } else {
     em = await askText(reason || 'Type your parent’s email. We’ll send them a link to approve your account (and to choose learning mode).', '', 'Send');
     if (em === null) return;
   }
   let r; try { r = await ACC.requestParentConsent(em); } catch { return toast('Couldn’t send. Try again.'); }
+  if (!r.ok && r.why === 'email' && !em && !(cur && cur.status === 'approved')) { // server not updated yet: ask for the email after all
+    em = await askText('Type your parent’s email. We’ll send them a link to approve your account (and to choose learning mode).', '', 'Send'); if (em === null) return;
+    try { r = await ACC.requestParentConsent(em); } catch { return toast('Couldn’t send. Try again.'); }
+  }
   toast(r.ok ? (r.mailed ? 'Sent! Ask your parent to check their email.' : 'Saved! A Zanycade grown-up will pass the message to your parent.')
     : r.why === 'same' ? 'That’s your own recovery email. Please type your parent’s email.' : r.why === 'email' ? 'That email doesn’t look right.' : r.why === 'wait' ? 'Please wait 2 minutes before sending again.' : r.why === 'limit' ? 'You’ve sent 5 today. Try again tomorrow.' : 'Couldn’t send.');
   if (!$('#v-my').hidden) openMy(true);
