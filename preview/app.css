@@ -148,7 +148,7 @@ a.chip:hover{border-color:var(--violet)}
 .cats.big .cat img,.cats.big .cat .ph{width:120px;height:120px}
 
 /* maker band */
-.maker{margin-top:48px;display:grid;grid-template-columns:280px 1fr;gap:28px;align-items:center;background:linear-gradient(135deg,#5b3fd0,#7b5cf0 60%,#9c7bff);color:#fff;border-radius:28px;padding:28px 36px;box-shadow:var(--shadow-lg);overflow:hidden}
+.maker{margin-top:18px;display:grid;grid-template-columns:280px 1fr;gap:28px;align-items:center;background:linear-gradient(135deg,#5b3fd0,#7b5cf0 60%,#9c7bff);color:#fff;border-radius:28px;padding:28px 36px;box-shadow:var(--shadow-lg);overflow:hidden}
 .maker-mascot{width:280px;height:280px;object-fit:cover;border-radius:24px;transform:rotate(-3deg)}
 .maker-copy{display:grid;gap:12px;justify-items:start}
 .maker h2{font-size:clamp(26px,3.2vw,38px)}

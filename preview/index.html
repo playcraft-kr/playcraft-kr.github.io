@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script>if (window.top !== window.self) { try { if (window.top.location.hostname !== location.hostname) throw 0; } catch (e) { window.top.location = location.href; } }</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
-<link rel="stylesheet" href="app.css?v=20261128095429">
+<link rel="stylesheet" href="app.css?v=20261128102837">
 </head>
 <body>
 <a class="skip" href="#main">Skip to games</a>
@@ -89,6 +89,21 @@
       </div>
     </section>
 
+    <section class="maker" id="maker">
+      <img class="maker-mascot" src="../img/app/icon-512.png" alt="Zanycade">
+      <div class="maker-copy">
+        <h2>Make a game. Share it. Make it better.</h2>
+        <p>Made your own HTML game? Send it in. After an admin checks it, it appears here with <strong>“Made by” and your nickname</strong> for everyone to play.</p>
+        <a class="btn primary" href="#/submit">📤 Submit your game</a>
+        <ol class="steps">
+          <li><b>1</b><span><strong>Build</strong>Any game that runs as one HTML file</span></li>
+          <li><b>2</b><span><strong>Review</strong>An admin plays it, then publishes it</span></li>
+          <li><b>3</b><span><strong>Ideas</strong>Players suggest ways to level it up</span></li>
+          <li><b>4</b><span><strong>Upgrade</strong>Picked ideas ship in the next version</span></li>
+        </ol>
+      </div>
+    </section>
+
     <section class="shelf shelf-new" id="shelf-new" hidden>
       <div class="shelf-head"><h2><span aria-hidden="true" class="nw-emo">🆕</span> <span class="nw-t">New &amp; updated</span></h2><span class="count">Fresh from our game makers</span></div>
       <div class="grid" id="row-new"></div>
@@ -118,20 +133,6 @@
       <div class="cats" id="cats-a"></div>
     </section>
 
-    <section class="maker" id="maker">
-      <img class="maker-mascot" src="../img/app/icon-512.png" alt="Zanycade">
-      <div class="maker-copy">
-        <h2>Make a game. Share it. Make it better.</h2>
-        <p>Made your own HTML game? Send it in. After an admin checks it, it appears here with <strong>“Made by” and your ID</strong> for everyone to play.</p>
-        <a class="btn primary" href="#/submit">📤 Submit your game</a>
-        <ol class="steps">
-          <li><b>1</b><span><strong>Build</strong>Any game that runs as one HTML file</span></li>
-          <li><b>2</b><span><strong>Review</strong>An admin plays it, then publishes it</span></li>
-          <li><b>3</b><span><strong>Ideas</strong>Players suggest ways to level it up</span></li>
-          <li><b>4</b><span><strong>Upgrade</strong>Picked ideas ship in the next version</span></li>
-        </ol>
-      </div>
-    </section>
   </section>
 
   <!-- CATEGORIES -->
@@ -202,8 +203,8 @@
   <!-- SUBMIT -->
   <section id="v-submit" class="view" hidden>
     <div class="page-head"><a class="back" href="#/">← Back</a><h1>Submit a game</h1></div>
-    <div class="empty" id="sub-signin" hidden><img src="../img/app/icon-512.png" alt=""><div><h2>Sign in first</h2><p>You need a free account so we can show “Made by” with your ID.</p><button class="btn primary" id="sub-signin-btn">Sign in or create an account</button></div></div>
-    <div class="empty" id="sub-limited" hidden><img src="../img/app/icon-512.png" alt=""><div><h2>Ask a parent first 👪</h2><p>Sending in a game shows your ID to everyone, so it opens after your parent approves your account.</p></div></div>
+    <div class="empty" id="sub-signin" hidden><img src="../img/app/icon-512.png" alt=""><div><h2>Sign in first</h2><p>You need a free account so we can show “Made by” with your nickname.</p><button class="btn primary" id="sub-signin-btn">Sign in or create an account</button></div></div>
+    <div class="empty" id="sub-limited" hidden><img src="../img/app/icon-512.png" alt=""><div><h2>Ask a parent first 👪</h2><p>Sending in a game shows your nickname to everyone, so it opens after your parent approves your account.</p></div></div>
     <form class="panel sub-form" id="game-form" hidden novalidate>
       <p class="lead">Your game shows up after an admin plays it and says OK. It will say <strong>Made by <span id="sub-me"></span></strong>.</p>
       <label for="g-title-in">Game name</label>
@@ -420,7 +421,7 @@
 </dialog>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js" integrity="sha384-AkNSQdptcXlJ0/NBZc4qGk86cDVXcCevwoWgEKIpHOEfbvlXGLlIkimQtONt8KNf" crossorigin="anonymous"></script>
-<script src="account.js?v=20261128095429"></script>
-<script src="app.js?v=20261128095429"></script>
+<script src="account.js?v=20261128102837"></script>
+<script src="app.js?v=20261128102837"></script>
 </body>
 </html>
