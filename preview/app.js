@@ -1221,9 +1221,17 @@ fetch(ROOT + 'games.json', { cache: 'no-cache' }).then(r => r.json()).then(list 
 /* launch numbers: totals only. Our own devices are not counted: automated test browsers,
    any browser where an admin or a family account (hugo, luke) has signed in, or one switched off in Admin. */
 const OUR_ACCOUNTS = ['hugo', 'luke'];
+// Robots (search engines, link previews, scanners that visit every new https site) are not people:
+// they say so in their browser name, or run on servers set to UTC / no real time zone.
+function looksLikeBot() {
+  const ua = navigator.userAgent || '';
+  if (/bot|crawl|spider|slurp|preview|headless|lighthouse|facebookexternalhit|embedly|scan|python|curl|wget/i.test(ua)) return true;
+  let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch {}
+  return !tz || tz === 'UTC' || tz.startsWith('Etc/');
+}
 function notCounted() {
   try {
-    if (navigator.webdriver) return true;
+    if (navigator.webdriver || looksLikeBot()) return true;
     const p = signedIn() && ACC.profile;
     if (p && (p.is_admin || OUR_ACCOUNTS.includes(p.username))) localStorage.setItem('zc.ours', '1');
     return localStorage.getItem('zc.ours') === '1';
