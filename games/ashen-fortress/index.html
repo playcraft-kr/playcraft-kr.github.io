@@ -4902,5 +4902,23 @@ var mo=new MutationObserver(onScreen);['title','over'].forEach(function(id){var 
 onScreen();
 })();
 </script>
+<script>
+/* Opening soon: Duskwall Keep is not open to players yet. Everyone sees the "Opening soon" screen and can't start a battle;
+   Zanycade admins can still play to test. To open the game, set OPEN to true (or delete this block). */
+(function(){var OPEN=false;if(OPEN)return;
+var A=null;try{A=window.parent!==window?window.parent.Account:null}catch(e){}
+var admin=function(){try{return !!(A&&A.profile&&A.profile.is_admin)}catch(e){return false}};
+var st=document.createElement('style');
+st.textContent='#dksoon{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;box-sizing:border-box;overflow:auto;background:radial-gradient(ellipse at 50% 55%,rgba(10,6,7,.55),rgba(5,3,4,.94) 75%);touch-action:auto}#dksoon[hidden]{display:none}#dksoon .b{max-width:560px;width:100%}#dksoon .lt{font:600 13px "Cinzel",serif;letter-spacing:.35em;color:#c7b9a0;opacity:.85}#dksoon h2{font:800 clamp(30px,10vw,84px)/1.05 "Cinzel","Noto Serif KR",serif;margin:.15em 0 .2em;color:var(--bone);text-shadow:0 4px 30px rgba(0,0,0,.8),0 0 60px rgba(179,20,31,.35);letter-spacing:.04em}#dksoon .tag{display:inline-block;font:700 16px "Cinzel",serif;letter-spacing:.25em;color:#fff;background:linear-gradient(#5a0c12,#2a0508);border:1px solid #8a2a2a;padding:10px 22px;margin:6px 0 18px}body.dksoon #title .tbox,body.dksoon #hud{visibility:hidden}#dksoon p{color:#cfc4b0;font-size:16px;margin:0 auto;max-width:28em;text-wrap:balance}';
+document.head.appendChild(st);
+var o=document.createElement('div');o.id='dksoon';o.setAttribute('role','dialog');o.setAttribute('aria-label','Duskwall Keep opens soon');
+o.innerHTML='<div class="b"><div class="lt">A DARK FANTASY ARENA</div><h2>Duskwall Keep</h2><div class="tag">OPENING SOON</div><p>The gates of the keep are still being built. Check back soon to cut down the undead, open the gate and ride the endless road!</p></div>';
+document.body.appendChild(o);
+var ids=['start','cont','advc','guest','again','againcp'];
+function apply(){var lock=!admin();o.hidden=!lock;document.body.classList.toggle('dksoon',lock);ids.forEach(function(i){var b=document.getElementById(i);if(b)b.disabled=lock})}
+['keydown','keyup','pointerdown','mousedown','click','touchstart','wheel'].forEach(function(t){window.addEventListener(t,function(e){if(!o.hidden){e.stopImmediatePropagation();if(t!=='wheel'&&t!=='touchstart')e.preventDefault()}},true)});
+apply();if(A&&A.onChange)A.onChange(apply);
+})();
+</script>
 </body>
 </html>

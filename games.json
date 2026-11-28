@@ -344,7 +344,7 @@
  {
   "slug": "ashen-fortress",
   "title": "Duskwall Keep",
-  "desc": "Cut down the undead in a ruined arena at dusk. Survive Wave 3 to open the gate to a village, quests and an endless road.",
+  "desc": "Opening soon! Cut down the undead in a ruined arena at dusk. Survive Wave 3 to open the gate to a village, quests and an endless road.",
   "emoji": "🏰",
   "cats": [
    "Action",
@@ -352,10 +352,10 @@
    "Adventure"
   ],
   "lang": "English",
-  "version": 6,
+  "version": 7,
   "updated": "2026-11-27",
   "added": "2026-11-21",
-  "notes": "No more extra login: your Zanycade account saves your progress, and the title fits on phones.",
+  "notes": "Duskwall Keep is getting ready and opens soon. Stay tuned!",
   "cover": "img/cover-ashen-fortress.webp",
   "wide": "img/wide-ashen-fortress.webp",
   "controls": [
